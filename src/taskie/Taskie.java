@@ -9,7 +9,5 @@ public class Taskie {
 		}
 	}
 	
-	public Taskie(String[] args) {
-		
-	}
+	
 }
