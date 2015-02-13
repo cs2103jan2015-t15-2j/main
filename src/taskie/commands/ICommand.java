@@ -1,6 +1,6 @@
-package taskie;
+package taskie.commands;
 
-public interface iCommand {
+public interface ICommand {
 	String _keyword=null;
 	String _details=null; 
 	
