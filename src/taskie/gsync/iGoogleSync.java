@@ -1,4 +1,6 @@
-package taskie;
+package taskie.gsync;
+
+import taskie.models.Task;
 
 //responsible for authenticating, syncing with google.
 public interface iGoogleSync {
@@ -6,9 +8,9 @@ public interface iGoogleSync {
 	boolean isValidAccount = false;
 	
 	//retrieve tasks from Google
-	Boolean syncTo(iTask[] tasksToSync);
+	Boolean syncTo(Task[] tasksToSync);
 	
 	//upload tasks to google
-	iTask[] syncFrom();
+	Task[] syncFrom();
 	
 }
