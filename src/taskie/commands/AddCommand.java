@@ -1,6 +1,6 @@
 package taskie.commands;
 
-public class addCommand implements ICommand {
+public class AddCommand implements ICommand {
 
 	@Override
 	public String getKeyword() {
