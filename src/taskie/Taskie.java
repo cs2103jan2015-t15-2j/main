@@ -5,7 +5,7 @@ import taskie.ui.CommandUI;
 import taskie.ui.UI;
 
 public class Taskie {
-	private UI ui;
+	public static UI UI;
 	
 	public static void main(String[] args) {
 		try {
@@ -16,7 +16,7 @@ public class Taskie {
 	}
 	
 	public Taskie(String[] args) {
-		ui = new CommandUI();
-		ui.run();
+		UI = new CommandUI();
+		UI.run();
 	}
 }
