@@ -1,7 +1,12 @@
 package taskie.parser;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
+import com.joestelmach.natty.DateGroup;
+
+import taskie.Taskie;
 import taskie.ui.CommandUI;
 import taskie.ui.UI;
 
@@ -18,6 +23,12 @@ public class CommandParser implements Parser {
 		ADD, UPDATE, VIEW, DELETE, SEARCH, UNDO, EXIT, INVALID
 	};
 	
+	private com.joestelmach.natty.Parser _natty;
+	
+	public CommandParser() {
+		_natty = new com.joestelmach.natty.Parser();	
+	}
+
 	public void parse(String input) {
 		String keyword = CommandParser.getCommandKeyword(input);
 		String command = CommandParser.getCommandParameters(input);
@@ -62,19 +73,38 @@ public class CommandParser implements Parser {
 		} else if ( cmd == CommandType.EXIT ) {
 			this.doExit();
 		} else {
-			UI cmdUI = new CommandUI();
-			cmdUI.display("Invalid Command");
+			Taskie.UI.display("Invalid Command");
 		}
 	}
 	
 	private void doAdd(String command) {
-		NattyParser _natty = new NattyParser();
-		_natty.parse(command);
+		if ( command.trim().isEmpty() ) {
+			Taskie.UI.display("Invalid Command");
+			return;
+		}
+		
+		List<DateGroup> groups = _natty.parse(command);
+		for(DateGroup group : groups) {
+			  List dates = group.getDates();
+			  int line = group.getLine();
+			  int column = group.getPosition();
+			  String matchingValue = group.getText();
+			  boolean isRecurreing = group.isRecurring();
+			  Date recursUntil = group.getRecursUntil();
+		}
+		
+		Taskie.UI.display(command);
 	}
 	
 	private void doUpdate(String command) {
+		if ( command.trim().isEmpty() ) {
+			Taskie.UI.display("Invalid Command");
+			return;
+		}
+
 		NattyParser _natty = new NattyParser();
 		_natty.parse(command);
+		Taskie.UI.display(command);
 	}
 	
 	private void doView(String command) {
@@ -106,6 +136,6 @@ public class CommandParser implements Parser {
 	}
 	
 	private static String getCommandParameters(String command) {
-		return command.replace(getCommandKeyword(command) + " ", "");
+		return command.replace(getCommandKeyword(command) + " ", "").trim();
 	}
 }
