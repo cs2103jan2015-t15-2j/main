@@ -1,6 +1,12 @@
+//@author A0121555M
 package taskie;
 
+import taskie.ui.CommandUI;
+import taskie.ui.UI;
+
 public class Taskie {
+	private UI ui;
+	
 	public static void main(String[] args) {
 		try {
 			new Taskie(args);
@@ -10,5 +16,7 @@ public class Taskie {
 	}
 	
 	public Taskie(String[] args) {
+		ui = new CommandUI();
+		ui.run();
 	}
 }
