@@ -9,6 +9,8 @@ import taskie.parser.NattyParser;
 import taskie.parser.Parser;
 
 public class CommandUI implements UI {
+	private static String MESSAGE_WELCOME = "Welcome to Taskie!";
+	
 	private Scanner _scanner;
 	private Parser _parser;
 
@@ -16,6 +18,7 @@ public class CommandUI implements UI {
 		_scanner = new Scanner(System.in);
 		_parser = new CommandParser();
 
+		this.printWelcomeMessage();
 		this.readInput();
 	}
 	
@@ -34,5 +37,9 @@ public class CommandUI implements UI {
 
 	public void display(String message) {
 		
+	}
+
+	private void printWelcomeMessage() {
+		System.out.println(MESSAGE_WELCOME);
 	}
 }
