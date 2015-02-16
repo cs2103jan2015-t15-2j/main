@@ -5,7 +5,6 @@ import java.util.Scanner;
 
 import taskie.models.Task;
 import taskie.parser.CommandParser;
-import taskie.parser.NattyParser;
 import taskie.parser.Parser;
 
 public class CommandUI implements UI {
