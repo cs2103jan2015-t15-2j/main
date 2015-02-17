@@ -1,17 +1,25 @@
 package taskie.commands;
 
+import taskie.models.Task;
+
+
+
 public class AddCommand implements ICommand {
-
-	@Override
-	public String getKeyword() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getDetails() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+		Task _task;
+		
+		public AddCommand(){
+			_task=null;
+		}
+		
+		public AddCommand(Task task){
+			_task=task;
+		}
+		
+		public void setTaskName(String taskName){
+			if(_task==null){
+				_task=new Task(taskName);
+				
+			}
+			
+		}
 }

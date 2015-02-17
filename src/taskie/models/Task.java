@@ -6,7 +6,7 @@ public class Task {
 	private String _title;
 	private Calendar _startTime;
 	private Calendar _endTime;
-	private String _description;
+
 	
 	public String get_title() {
 		return _title;
@@ -26,10 +26,5 @@ public class Task {
 	public void set_endTime(Calendar _endTime) {
 		this._endTime = _endTime;
 	}
-	public String get_description() {
-		return _description;
-	}
-	public void set_description(String _description) {
-		this._description = _description;
-	}
+
 }
