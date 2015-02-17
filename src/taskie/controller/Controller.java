@@ -1,3 +1,5 @@
+package taskie.controller;
+
 import taskie.commands.ICommand;
 
 public class Controller{

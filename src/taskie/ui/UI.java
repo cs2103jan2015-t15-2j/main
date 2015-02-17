@@ -4,6 +4,7 @@ package taskie.ui;
 import taskie.models.Task;
 
 public interface UI {
+	public void run();
 	public void readInput();
 	public void display(Task task);
 	public void display(Task[] task);
