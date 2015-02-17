@@ -22,4 +22,8 @@ public class AddCommand implements ICommand {
 			}
 			
 		}
+		
+		public Task getTaskToAdd(){
+			return _task;
+		}
 }
