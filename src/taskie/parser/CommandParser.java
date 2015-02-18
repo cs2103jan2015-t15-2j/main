@@ -3,8 +3,10 @@ package taskie.parser;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.ParseLocation;
 
 import taskie.Taskie;
 import taskie.ui.CommandUI;
@@ -84,16 +86,46 @@ public class CommandParser implements Parser {
 		}
 		
 		List<DateGroup> groups = _natty.parse(command);
-		for(DateGroup group : groups) {
-			  List dates = group.getDates();
-			  int line = group.getLine();
-			  int column = group.getPosition();
-			  String matchingValue = group.getText();
-			  boolean isRecurreing = group.isRecurring();
-			  Date recursUntil = group.getRecursUntil();
+		if ( groups.size() > 0 ) {
+			for ( DateGroup group : groups ) {
+			
+				
+				String name = command.substring(0, group.getPosition()).trim();
+				String description = command.substring(group.getPosition() + group.getText().length()).trim();
+				
+			      System.out.println(group.getSyntaxTree().toStringTree());
+			      System.out.println("line: " + group.getLine() + ", column: " + group.getPosition());
+			      System.out.println(group.getText());
+			      System.out.println(group.getDates());
+			      
+			      System.out.println("\n** Parse Locations **");
+			      for(Entry<String, List<ParseLocation>> entry:group.getParseLocations().entrySet()) {
+			        for(ParseLocation loc:entry.getValue()) {
+			          System.out.println(loc.getRuleName() + ": " + loc.getText());
+			        }
+			      }
+			      
+			      List<ParseLocation> conjunctionLocations = group.getParseLocations().get("conjunction");
+			      if(conjunctionLocations != null) {
+			        System.out.print("\nconjunctions: ");
+			        for(ParseLocation location:conjunctionLocations) {
+			          System.out.print(location.getText() + " ");
+			        }
+			      }
+			      System.out.print("\n\n");
+			      
+				List<Date> dates = group.getDates();
+				for ( Date date : dates ) {
+					if ( group.isTimeInferred() ) {
+						// set time to end of day
+					}
+					Taskie.UI.display("Added " + name + " on " + date.toString());
+				}
+			}
+		} else {
+			// Tasks without any deadlines
+			Taskie.UI.display("Added " + command);
 		}
-		
-		Taskie.UI.display(command);
 	}
 	
 	private void doUpdate(String command) {
@@ -101,8 +133,7 @@ public class CommandParser implements Parser {
 			Taskie.UI.display("Invalid Command");
 			return;
 		}
-
-		NattyParser _natty = new NattyParser();
+		
 		_natty.parse(command);
 		Taskie.UI.display(command);
 	}
@@ -116,7 +147,10 @@ public class CommandParser implements Parser {
 	}
 	
 	private void doSearch(String command) {
-		
+		if ( command.trim().isEmpty() ) {
+			Taskie.UI.display("Invalid Command");
+			return;
+		}		
 	}
 
 	private void doUndo(String command) {
