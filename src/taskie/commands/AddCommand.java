@@ -1,11 +1,13 @@
 package taskie.commands;
 
+import taskie.models.CommandType;
 import taskie.models.Task;
 
 
 
 public class AddCommand implements ICommand {
-		Task _task;
+		private Task _task;
+		private CommandType _commandType= CommandType.ADD;
 		
 		public AddCommand(){
 			_task=null;
@@ -18,12 +20,18 @@ public class AddCommand implements ICommand {
 		public void setTaskName(String taskName){
 			if(_task==null){
 				_task=new Task(taskName);
-				
+			}
+			else{
+				_task.setTitle(taskName);
 			}
 			
 		}
 		
 		public Task getTaskToAdd(){
 			return _task;
+		}
+		
+		public CommandType getCommandType(){
+			return _commandType;
 		}
 }
