@@ -1,6 +1,7 @@
 package taskie.commands;
 
 import java.util.Calendar;
+import taskie.models.CommandType;
 
 
 public class UpdateCommand implements ICommand {
@@ -9,6 +10,7 @@ public class UpdateCommand implements ICommand {
 	private String _taskName;
 	private Calendar _startTimeToUpdate;
 	private Calendar _endTimeToUpdate;
+	private CommandType _commandType= CommandType.UPDATE;
 	
 	public UpdateCommand(){
 		_taskName=null;
@@ -34,8 +36,20 @@ public class UpdateCommand implements ICommand {
 		_startTimeToUpdate = startTime;
 	}
 	
+	public Calendar getStartTimeToUpdate(){
+		return _startTimeToUpdate;
+	}
+	
 	public void setEndTimeToUpdate(Calendar endTime){
 		_endTimeToUpdate = endTime;
+	}
+	
+	public Calendar getEndTimeToUpdate(){
+		return _endTimeToUpdate;
+	}
+	
+	public CommandType getCommandType(){
+		return _commandType;
 	}
 	
 }

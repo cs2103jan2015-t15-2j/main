@@ -1,9 +1,11 @@
 package taskie.parser;
 
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import taskie.models.CommandType;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.ParseLocation;
@@ -21,9 +23,6 @@ public class CommandParser implements Parser {
 	private static String[] KEYWORDS_UNDO = new String[] {"undo", "revert"};
 	private static String[] KEYWORDS_EXIT = new String[] {"exit", "quit", "close"};
 	
-	private enum CommandType {
-		ADD, UPDATE, VIEW, DELETE, SEARCH, UNDO, EXIT, INVALID
-	};
 	
 	private com.joestelmach.natty.Parser _natty;
 	

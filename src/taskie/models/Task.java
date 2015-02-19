@@ -7,23 +7,38 @@ public class Task {
 	private Calendar _startTime;
 	private Calendar _endTime;
 
+	public Task(){
+		_title=null;
+		_startTime=null;
+		_endTime=null;
+	}
 	
-	public String get_title() {
+	public Task(String title){
+		_title=title;
+	}
+	
+	public Task(String title, Calendar startTime, Calendar endTime){
+		_title=title;
+		_startTime=startTime;
+		_endTime=endTime;
+	}
+	
+	public String getTitle() {
 		return _title;
 	}
-	public void set_title(String _title) {
+	public void setTitle(String _title) {
 		this._title = _title;
 	}
-	public Calendar get_startTime() {
+	public Calendar getStartTime() {
 		return _startTime;
 	}
-	public void set_startTime(Calendar _startTime) {
+	public void setStartTime(Calendar _startTime) {
 		this._startTime = _startTime;
 	}
-	public Calendar get_endTime() {
+	public Calendar getEndTime() {
 		return _endTime;
 	}
-	public void set_endTime(Calendar _endTime) {
+	public void setEndTime(Calendar _endTime) {
 		this._endTime = _endTime;
 	}
 
