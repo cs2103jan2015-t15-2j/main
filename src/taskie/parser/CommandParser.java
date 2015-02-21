@@ -1,5 +1,5 @@
+//@author A0121555M
 package taskie.parser;
-
 
 import java.util.Arrays;
 import java.util.Date;
@@ -22,7 +22,6 @@ public class CommandParser implements Parser {
 	private static String[] KEYWORDS_SEARCH = new String[] {"search", "find", "look"};
 	private static String[] KEYWORDS_UNDO = new String[] {"undo", "revert"};
 	private static String[] KEYWORDS_EXIT = new String[] {"exit", "quit", "close"};
-	
 	
 	private com.joestelmach.natty.Parser _natty;
 	
