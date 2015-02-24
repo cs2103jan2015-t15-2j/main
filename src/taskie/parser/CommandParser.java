@@ -5,14 +5,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+
+import taskie.Taskie;
 import taskie.models.CommandType;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.ParseLocation;
-
-import taskie.Taskie;
-import taskie.ui.CommandUI;
-import taskie.ui.UI;
 
 public class CommandParser implements Parser {
 	private static String[] KEYWORDS_ADD = new String[] {"add", "create"};
@@ -115,9 +113,11 @@ public class CommandParser implements Parser {
 				List<Date> dates = group.getDates();
 				for ( Date date : dates ) {
 					if ( group.isTimeInferred() ) {
-						// set time to end of day
+						// If time is not given, set the time to end of the day
+						Taskie.UI.display("Added " + name + " -- " + date.toString());
+					} else {
+						Taskie.UI.display("Added " + name + " -- " + date.toString());
 					}
-					Taskie.UI.display("Added " + name + " on " + date.toString());
 				}
 			}
 		} else {
@@ -148,7 +148,9 @@ public class CommandParser implements Parser {
 		if ( command.trim().isEmpty() ) {
 			Taskie.UI.display("Invalid Command");
 			return;
-		}		
+		}
+		
+		
 	}
 
 	private void doUndo(String command) {
