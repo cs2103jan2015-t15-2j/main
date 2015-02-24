@@ -4,9 +4,9 @@ import taskie.models.CommandType;
 
 public class UndoCommand implements ICommand {
 	private CommandType _commandType = CommandType.UNDO;
-	
-	public UndoCommand(){
-		
+
+	public UndoCommand() {
+
 	}
 
 	@Override
