@@ -1,4 +1,11 @@
 package taskie.commands;
+/**
+ * class representing an add command.
+ * Still under development
+ * Bugs: none known
+ *
+ * @author       A0097582N
+ */
 
 import taskie.models.CommandType;
 import taskie.models.Task;
