@@ -7,122 +7,143 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import taskie.Taskie;
+import taskie.commands.AddCommand;
+import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
+import taskie.models.Task;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.ParseLocation;
 
 public class CommandParser implements Parser {
-	private static String[] KEYWORDS_ADD = new String[] {"add", "create"};
-	private static String[] KEYWORDS_UPDATE = new String[] {"update", "change", "modify"};
-	private static String[] KEYWORDS_VIEW = new String[] {"view", "list", "show", "open"};
+	private static String MESSAGE_INVALID_COMMAND = "Invalid Command";
+	
+	private static String[] KEYWORDS_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
+	private static String[] KEYWORDS_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
 	private static String[] KEYWORDS_DELETE = new String[] {"delete", "clear", "remove"};
-	private static String[] KEYWORDS_SEARCH = new String[] {"search", "find", "look"};
+	private static String[] KEYWORDS_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list"};
 	private static String[] KEYWORDS_UNDO = new String[] {"undo", "revert"};
 	private static String[] KEYWORDS_EXIT = new String[] {"exit", "quit", "close"};
 	
 	private com.joestelmach.natty.Parser _natty;
 	
 	public CommandParser() {
-		_natty = new com.joestelmach.natty.Parser();	
+		_natty = new com.joestelmach.natty.Parser();
 	}
 
 	public void parse(String input) {
 		String keyword = CommandParser.getCommandKeyword(input);
 		String command = CommandParser.getCommandParameters(input);
 		
-		CommandType cmd = this.getCommandType(keyword);
-		this.executeCommandType(cmd, command);
-	}
-	
-	private CommandType getCommandType(String key) {
-		if ( hasKeyword(key, CommandParser.KEYWORDS_ADD) ) {
-			return CommandType.ADD;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_UPDATE) ) {
-			return CommandType.UPDATE;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_VIEW) ) {
-			return CommandType.VIEW;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_DELETE) ) {
-			return CommandType.DELETE;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_SEARCH) ) {
-			return CommandType.SEARCH;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_UNDO) ) {
-			return CommandType.UNDO;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_EXIT) ) {
-			return CommandType.EXIT;
-		} else {
-			return CommandType.INVALID;
+		try {
+			CommandType cmd = this.getCommandType(keyword);
+			this.executeCommandType(cmd, command);
+		} catch ( InvalidCommandException e ) {
+			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
 		}
 	}
 	
-	private void executeCommandType(CommandType cmd, String command) {
+	private CommandType getCommandType(String key) throws InvalidCommandException {
+		CommandType commandType = null;
+		
+		if ( hasKeyword(key, CommandParser.KEYWORDS_ADD) ) {
+			commandType = CommandType.ADD;
+		} else if ( hasKeyword(key, CommandParser.KEYWORDS_UPDATE) ) {
+			commandType = CommandType.UPDATE;
+		} else if ( hasKeyword(key, CommandParser.KEYWORDS_DELETE) ) {
+			commandType = CommandType.DELETE;
+		} else if ( hasKeyword(key, CommandParser.KEYWORDS_VIEW_AND_SEARCH) ) {
+			commandType = CommandType.VIEW;
+		} else if ( hasKeyword(key, CommandParser.KEYWORDS_UNDO) ) {
+			commandType = CommandType.UNDO;
+		} else if ( hasKeyword(key, CommandParser.KEYWORDS_EXIT) ) {
+			commandType = CommandType.EXIT;
+		}
+		
+		if ( commandType == null ) {
+			throw new InvalidCommandException();
+		}
+		
+		return commandType;
+	}
+	
+	private void executeCommandType(CommandType cmd, String command) throws InvalidCommandException {
 		if ( cmd == CommandType.ADD ) {
 			this.doAdd(command);
 		} else if ( cmd == CommandType.UPDATE ) {
 			this.doUpdate(command);
-		} else if ( cmd == CommandType.VIEW ) {
-			this.doView(command);
 		} else if ( cmd == CommandType.DELETE ) {
 			this.doDelete(command);
-		} else if ( cmd == CommandType.SEARCH ) {
-			this.doSearch(command);
+		} else if ( cmd == CommandType.VIEW ) {
+			this.doView(command);
 		} else if ( cmd == CommandType.UNDO ) {
 			this.doUndo(command);
 		} else if ( cmd == CommandType.EXIT ) {
 			this.doExit();
 		} else {
-			Taskie.UI.display("Invalid Command");
+			throw new InvalidCommandException();
 		}
 	}
 	
 	private void doAdd(String command) {
 		if ( command.trim().isEmpty() ) {
-			Taskie.UI.display("Invalid Command");
+			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
 			return;
 		}
 		
 		List<DateGroup> groups = _natty.parse(command);
+		
 		if ( groups.size() > 0 ) {
 			for ( DateGroup group : groups ) {
-			
-				
 				String name = command.substring(0, group.getPosition()).trim();
 				String description = command.substring(group.getPosition() + group.getText().length()).trim();
 				
-			      System.out.println(group.getSyntaxTree().toStringTree());
-			      System.out.println("line: " + group.getLine() + ", column: " + group.getPosition());
-			      System.out.println(group.getText());
-			      System.out.println(group.getDates());
-			      
-			      System.out.println("\n** Parse Locations **");
-			      for(Entry<String, List<ParseLocation>> entry:group.getParseLocations().entrySet()) {
-			        for(ParseLocation loc:entry.getValue()) {
-			          System.out.println(loc.getRuleName() + ": " + loc.getText());
-			        }
-			      }
-			      
-			      List<ParseLocation> conjunctionLocations = group.getParseLocations().get("conjunction");
-			      if(conjunctionLocations != null) {
-			        System.out.print("\nconjunctions: ");
-			        for(ParseLocation location:conjunctionLocations) {
-			          System.out.print(location.getText() + " ");
-			        }
-			      }
-			      System.out.print("\n\n");
-			      
+				System.out.println(name);
+				
 				List<Date> dates = group.getDates();
 				for ( Date date : dates ) {
+	                  System.out.println(group.getSyntaxTree().toStringTree());
+	                  System.out.println("line: " + group.getLine() + ", column: " + group.getPosition());
+	                  System.out.println(group.getText());
+	                  System.out.println(group.getDates());
+	                  
+	                  System.out.println("\n** Parse Locations **");
+	                  for(Entry<String, List<ParseLocation>> entry:group.getParseLocations().entrySet()) {
+	                    for(ParseLocation loc:entry.getValue()) {
+	                      System.out.println(loc.getRuleName() + ": " + loc.getText());
+	                    }
+	                  }
+	                  
+	                  List<ParseLocation> conjunctionLocations = group.getParseLocations().get("conjunction");
+	                  if(conjunctionLocations != null) {
+	                    System.out.print("\nconjunctions: ");
+	                    for(ParseLocation location:conjunctionLocations) {
+	                      System.out.print(location.getText() + " ");
+	                    }
+	                  }
+	                  System.out.print("\n\n");
+
+	                  
 					if ( group.isTimeInferred() ) {
-						// If time is not given, set the time to end of the day
+						Task task = new Task(name);
+						Taskie.Controller.executeCommand(new AddCommand(task));
+
 						Taskie.UI.display("Added " + name + " -- " + date.toString());
 					} else {
+						Task task = new Task(name);
+						Taskie.Controller.executeCommand(new AddCommand(task));
+
 						Taskie.UI.display("Added " + name + " -- " + date.toString());
 					}
 				}
 			}
 		} else {
 			// Tasks without any deadlines
-			Taskie.UI.display("Added " + command);
+			String name = command.trim();
+			
+			Task task = new Task(name);
+			Taskie.Controller.executeCommand(new AddCommand(task));
+			Taskie.UI.display("Added " + name);
 		}
 	}
 	
@@ -136,15 +157,11 @@ public class CommandParser implements Parser {
 		Taskie.UI.display(command);
 	}
 	
-	private void doView(String command) {
-		
-	}
-
 	private void doDelete(String command) {
 		
 	}
 	
-	private void doSearch(String command) {
+	private void doView(String command) {
 		if ( command.trim().isEmpty() ) {
 			Taskie.UI.display("Invalid Command");
 			return;
