@@ -63,9 +63,17 @@ public class Task {
 		this._title = _title;
 	}
 	
+	public LocalDateTime getStartDateTime() {
+		return LocalDateTime.of(_startDate, (_startTime == null) ? LocalTime.MAX : _startTime);
+	}
+	
 	public void setStartDateTime(LocalDateTime startDateTime) {
 		this.setStartDate(startDateTime.toLocalDate());
 		this.setStartTime(startDateTime.toLocalTime());
+	}
+
+	public LocalDateTime getEndDateTime() {
+		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX : _endTime);
 	}
 
 	public void setEndDateTime(LocalDateTime endDateTime) {
@@ -80,7 +88,9 @@ public class Task {
 	public void setStartDate(LocalDate startDate) {
 		if ( _endDate == null ) {
 			this._endDate = startDate;
-		} else if ( _endDate.isBefore(startDate) ) {
+		}
+		
+		if ( _endDate.isBefore(startDate) ) {
 			this._startDate = this._endDate;
 			this._endDate = startDate;
 		} else {
@@ -95,7 +105,9 @@ public class Task {
 	public void setEndDate(LocalDate endDate) {
 		if ( _startDate == null ) {
 			this._startDate = endDate;
-		} else if ( _startDate.isAfter(endDate) ) {
+		}
+		
+		if ( _startDate.isAfter(endDate) ) {
 			this._endDate = this._startDate;
 			this._startDate = endDate;
 		} else {
