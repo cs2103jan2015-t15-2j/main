@@ -239,72 +239,70 @@ public class CommandParser implements Parser {
 		
 	}
 	
-	private void doView(String command) {		
-		if ( dictViewTypes.containsKey(command) ) {
-			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
-			return;
+	private void doView(String command) {
+		String keywords;
+		
+		String keyword = CommandParser.getCommandKeyword(command);
+		String query = CommandParser.getCommandParameters(command);
+
+		ViewType viewType = getViewType(keyword);
+		
+		if ( viewType == ViewType.SEARCH ) {
+			keywords = keyword + " " + query;
+		} else {
+			keywords = query;		
 		}
 		
-		String type = CommandParser.getCommandKeyword(command);
-		String query = CommandParser.getCommandParameters(command);
-		
-		ViewType viewType = dictViewTypes.get(type);
-		if ( viewType == ViewType.SEARCH ) {
-			List<DateGroup> groups = _natty.parse(query);
-			if ( groups.size() > 0 ) {
-				// Search by Date and possibly keywords
-				for ( DateGroup group : groups ) {
-					String query1 = command.substring(0, group.getPosition()).trim();
-					String query2 = command.substring(group.getPosition() + group.getText().length()).trim();
-					List<Date> dates = group.getDates();
-					
-					String[] words = splitStringWithWhitespace(query1);
-					int lastWord = words.length - 1;
-					if( hasKeyword(words[lastWord], KEYWORDS_DATETIME_SEPARATOR) ) {
-						query1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
-					}
-					
-					if ( dates.size() > 1 ) {
-						Date datetime1 = dates.get(0);
-						Date datetime2 = dates.get(1);
-						LocalDateTime startDateTime = convertDateToLocalDateTime(datetime1);
-						LocalDateTime endDateTime = convertDateToLocalDateTime(datetime2);
-						
-						ViewCommand viewCommand = new ViewCommand(viewType);
-						viewCommand.setStartDateTime(startDateTime);
-						viewCommand.setEndDateTime(endDateTime);
-						
-						if ( group.isTimeInferred() ) {
-							viewCommand.setStartTime(null);
-							viewCommand.setEndTime(null);
-						}
-						
-						Taskie.Controller.executeCommand(viewCommand);
-					} else {
-						Date datetime1 = dates.get(0);
-						LocalDateTime searchDateTime = convertDateToLocalDateTime(datetime1);
+		List<DateGroup> groups = _natty.parse(keywords);
 
-						ViewCommand viewCommand = new ViewCommand(viewType);
-						viewCommand.setStartDateTime(searchDateTime);
+		if ( groups.size() > 0 ) {
+			// Search by Date and possibly keywords
+			DateGroup group = groups.get(0);
+			List<Date> dates = group.getDates();
+			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
+			RelativeType relativeType = RelativeType.NONE;
 
-						if ( group.isTimeInferred() ) {
-							viewCommand.setStartTime(null);
-							viewCommand.setEndTime(null);
-						}
-						
-						Taskie.Controller.executeCommand(viewCommand);
-						Taskie.UI.display("Viewing " + viewType);
-					}
+			if ( viewType == ViewType.SEARCH ) {
+				String keyword1 = keywords.substring(0, group.getPosition()).trim();
+				String keyword2 = keywords.substring(group.getPosition() + group.getText().length()).trim();
+
+				String[] words = splitStringWithWhitespace(keyword1);
+				int lastWord = words.length - 1;
+				relativeType = getRelativeType(words[lastWord]);
+				if( relativeType != RelativeType.NONE ) {
+					keyword1 = keyword1.substring(0, keyword1.lastIndexOf(words[lastWord])).trim();
 				}
+				
+				keywords = (keyword1 + " " + keyword2).trim();				
 			} else {
-				// Keyword only search
-				ViewCommand viewCommand = new ViewCommand(viewType);
-
-				Taskie.Controller.executeCommand(viewCommand);
-				Taskie.UI.display("Viewing " + viewType);
+				String[] words = splitStringWithWhitespace(keywords);
+				int lastWord = words.length - 1;
+				relativeType = getRelativeType(words[lastWord]);
+				if( relativeType != RelativeType.NONE ) {
+					keywords = keywords.substring(0, keywords.lastIndexOf(words[lastWord])).trim();
+				}
+				
+				keywords = keywords.trim();
 			}
+
+			_logger.log(Level.INFO, "View Type: " + viewType + "\nRelative Type: " + relativeType + "\nKeywords: " + keywords + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
+
+			ViewCommand viewCommand = new ViewCommand(viewType);
+			viewCommand.setSearchKeywords(keywords);
+			viewCommand.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+			viewCommand.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+			
+			if ( group.isTimeInferred() ) {
+				viewCommand.setStartTime(null);
+				viewCommand.setEndTime(null);
+			}
+			
+			Taskie.Controller.executeCommand(viewCommand);
 		} else {
-			Taskie.Controller.executeCommand(new ViewCommand(viewType));
+			ViewCommand viewCommand = new ViewCommand(viewType);
+			viewCommand.setSearchKeywords(keywords);
+			_logger.log(Level.INFO, "Searching for tasks with keywords: {0}", keywords);
+			Taskie.Controller.executeCommand(viewCommand);
 			Taskie.UI.display("Viewing " + viewType);
 		}
 	}
