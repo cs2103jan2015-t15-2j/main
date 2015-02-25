@@ -319,9 +319,16 @@ public class CommandParser implements Parser {
 	}
 
 	private void doUndo(String command) {
-		int steps = Integer.parseInt(command);
+		int steps = 1;
+		try {
+			steps = Integer.parseInt(command);
+			steps = (steps > 0) ? steps : 1;
+		} catch ( NumberFormatException ex ) {
+			steps = 1;
+		}
+		
 		Taskie.Controller.executeCommand(new UndoCommand(steps));
-		Taskie.UI.display("Undo");
+		_logger.log(Level.INFO, "Undo (Steps: {0})", steps);
 	}
 
 	private void doExit() {
