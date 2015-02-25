@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import taskie.Taskie;
 import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
+import taskie.commands.ExitCommand;
 import taskie.commands.UndoCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
@@ -332,7 +333,8 @@ public class CommandParser implements Parser {
 	}
 
 	private void doExit() {
-		
+		Taskie.Controller.executeCommand(new ExitCommand());
+		_logger.log(Level.INFO, "Exit");
 	}
 	
 	private static LocalDateTime[] getStartAndEndDateTime(List<Date> dates) {
