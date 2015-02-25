@@ -16,6 +16,7 @@ import taskie.commands.DeleteCommand;
 import taskie.commands.ExitCommand;
 import taskie.commands.MarkCommand;
 import taskie.commands.UndoCommand;
+import taskie.commands.UnmarkCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
@@ -35,6 +36,7 @@ public class CommandParser implements Parser {
 	private static final String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list"};
 	private static final String[] COMMAND_KEYWORD_UNDO = new String[] {"undo", "revert"};
 	private static final String[] COMMAND_KEYWORD_MARK = new String[] {"mark", "complete", "done", "check"};
+	private static final String[] COMMAND_KEYWORD_UNMARK = new String[] {"unmark", "incomplete", "undone", "uncheck"};
 	private static final String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
 	
 	private static final String[] VIEW_KEYWORDS_ALL = new String[] {"", "all", "everything"};
@@ -153,6 +155,8 @@ public class CommandParser implements Parser {
 			commandType = CommandType.UNDO;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_MARK) ) {
 			commandType = CommandType.MARK;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UNMARK) ) {
+			commandType = CommandType.UNMARK;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_EXIT) ) {
 			commandType = CommandType.EXIT;
 		}
@@ -179,6 +183,8 @@ public class CommandParser implements Parser {
 			this.doUndo(command);
 		} else if ( cmd == CommandType.MARK ) {
 			this.doMark(command);
+		} else if ( cmd == CommandType.UNMARK ) {
+			this.doUnmark(command);
 		} else if ( cmd == CommandType.EXIT ) {
 			this.doExit();
 		} else {
@@ -358,6 +364,19 @@ public class CommandParser implements Parser {
 			Task task = tasks[itemNumber];
 			Taskie.Controller.executeCommand(new MarkCommand(task));
 			Taskie.UI.display("Marking Task " + task.getTitle() + " as complete");	
+		} catch ( ArrayIndexOutOfBoundsException ex ) {
+			Taskie.UI.display("Invalid Task Number");
+		}
+	}
+	
+	private void doUnmark(String command) {
+		int itemNumber = Integer.parseInt(command);
+
+		Task[] tasks = Taskie.UI.getCurrentTaskList();
+		try {
+			Task task = tasks[itemNumber];
+			Taskie.Controller.executeCommand(new UnmarkCommand(task));
+			Taskie.UI.display("Unmarking Task " + task.getTitle() + " as complete");	
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
 			Taskie.UI.display("Invalid Task Number");
 		}
