@@ -327,7 +327,7 @@ public class CommandParser implements Parser {
 			Date datetime2 = dates.get(1);
 			
 			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
-			LocalDateTime ldt2 = convertDateToLocalDateTime(datetime1);
+			LocalDateTime ldt2 = convertDateToLocalDateTime(datetime2);
 			
 			if ( ldt1.isAfter(ldt2) ) {
 				startAndEndDateTime[START_DATETIME] = ldt2;
