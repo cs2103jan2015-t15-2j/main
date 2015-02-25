@@ -24,12 +24,10 @@ public class ViewCommand implements ICommand {
 		_readDate = readDate;
 	}
 
-	// return null if no read date is specified.
 	public Calendar getReadDate() {
 		return _readDate;
 	}
 
-	@Override
 	public CommandType getCommandType() {
 		return _commandType;
 	}
