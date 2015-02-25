@@ -187,14 +187,23 @@ public class CommandParser implements Parser {
 	}
 	
 	private static boolean hasKeyword(String needle, String[] haystack) {
+		needle = needle.toLowerCase();
 		return (Arrays.asList(haystack).contains(needle));
 	}
 	
 	private static String getCommandKeyword(String command) {
-		return command.trim().split("\\s+")[0];	
+		return splitStringWithWhitespace(command)[0];
 	}
-	
+
 	private static String getCommandParameters(String command) {
 		return command.replace(getCommandKeyword(command) + " ", "").trim();
+	}
+
+	private static String[] splitStringWithWhitespace(String command) {
+		return command.trim().split("\\s+");
+	}
+
+	private static LocalDateTime convertDateToLocalDateTime(Date date) {
+		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 	}
 }
