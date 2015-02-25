@@ -44,14 +44,12 @@ public class Controller{
 			case UNDO:		executeUndoCommand();
 							break;
 			
-			case SEARCH:	executeSearchCommand();
-							break;
-			
 			default:		executeDefault();
 		}
 		
 	}
 
+<<<<<<< HEAD:src/taskie/controller/taskie/controller/Controller.java
 
 	private void executeAddCommand(AddCommand command) {
 		determineTaskTypeAndAdd(command.getTaskToAdd());
@@ -80,4 +78,35 @@ public class Controller{
 	}
 	
 	
+=======
+	private void executeDefault() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeUndoCommand() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeDeleteCommand() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeViewCommand() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeUpdateCommand() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeAddCommand() {
+		// TODO Auto-generated method stub
+		
+	}
+>>>>>>> upstream/master:src/taskie/controller/Controller.java
 }

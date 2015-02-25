@@ -7,7 +7,12 @@ import taskie.ui.UI;
 
 public class Taskie {
 	public static UI UI;
+<<<<<<< HEAD
 	private IStorage _storage;
+=======
+	public static taskie.controller.Controller Controller;
+	
+>>>>>>> upstream/master
 	public static void main(String[] args) {
 		try {
 			new Taskie(args);
@@ -18,6 +23,7 @@ public class Taskie {
 	
 	
 	public Taskie(String[] args) {
+		Controller = new taskie.controller.Controller();
 		UI = new CommandUI();
 		UI.run();
 	}

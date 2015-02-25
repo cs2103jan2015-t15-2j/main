@@ -5,7 +5,7 @@ import taskie.models.Task;
 
 public interface UI {
 	public void run();
-	public void readInput();
+	public boolean readInput();
 	public void display(Task task);
 	public void display(Task[] task);
 	public void display(String message);
