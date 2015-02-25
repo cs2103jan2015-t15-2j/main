@@ -47,7 +47,11 @@ public class CommandParser implements Parser {
 	
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
-		
+	
+	private static final int NUM_START_END_DATETIME = 2;
+	private static final int START_DATETIME = 0;
+	private static final int END_DATETIME = 1;
+	
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, RELATIVE, NONE };
 	
 	private com.joestelmach.natty.Parser _natty;
@@ -187,53 +191,32 @@ public class CommandParser implements Parser {
 		Task task;
 		
 		if ( groups.size() > 0 ) {
-			for ( DateGroup group : groups ) {
-				String name1 = command.substring(0, group.getPosition()).trim();
-				String name2 = command.substring(group.getPosition() + group.getText().length()).trim();
-				List<Date> dates = group.getDates();
-				
-				String[] words = splitStringWithWhitespace(name1);
-				int lastWord = words.length - 1;
-				if( hasKeyword(words[lastWord], KEYWORDS_DATETIME_SEPARATOR) ) {
-					name1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
-				}
-				
-				String name = (name1 + " " + name2).trim();
-				_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
-				
-				task = new Task(name);
-				
-				if ( dates.size() > 1 ) {
-					// Timed tasks
-					Date datetime1 = dates.get(0);
-					Date datetime2 = dates.get(1);
-
-					task = new Task(name);
-					task.setStartDateTime(convertDateToLocalDateTime(datetime1));
-					task.setEndDateTime(convertDateToLocalDateTime(datetime2));
-
-					if ( group.isTimeInferred() ) {
-						task.setStartTime(null);
-						task.setEndTime(null);
-					}
-
-					Taskie.Controller.executeCommand(new AddCommand(task));
-					Taskie.UI.display("Added " + name + " -- " + task.getStartDateTime() + " to " + task.getEndDateTime());
-				} else {
-					// Deadline tasks
-					Date datetime1 = dates.get(0);
-					task = new Task(name);
-					task.setEndDateTime(convertDateToLocalDateTime(datetime1));
-
-					if ( group.isTimeInferred() ) {
-						task.setStartTime(null);
-						task.setEndTime(null);
-					}
-
-					Taskie.Controller.executeCommand(new AddCommand(task));
-					Taskie.UI.display("Added " + name + " -- " + task.getEndDateTime());
-				}
+			DateGroup group = groups.get(0);
+			String name1 = command.substring(0, group.getPosition()).trim();
+			String name2 = command.substring(group.getPosition() + group.getText().length()).trim();
+			List<Date> dates = group.getDates();
+			
+			String[] words = splitStringWithWhitespace(name1);
+			int lastWord = words.length - 1;
+			if( hasKeyword(words[lastWord], KEYWORDS_DATETIME_SEPARATOR) ) {
+				name1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
 			}
+			
+			String name = (name1 + " " + name2).trim();
+			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
+			
+			task = new Task(name);
+			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
+			task.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+			task.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+			
+			if ( group.isTimeInferred() ) {
+				task.setStartTime(null);
+				task.setEndTime(null);
+			}
+
+			Taskie.Controller.executeCommand(new AddCommand(task));
+			Taskie.UI.display("Added " + name + " -- " + task.getStartDateTime() + " to " + task.getEndDateTime());
 		} else {
 			// Tasks without any deadlines
 			String name = command.trim();
@@ -334,6 +317,34 @@ public class CommandParser implements Parser {
 
 	private void doExit() {
 		
+	}
+	
+	private static LocalDateTime[] getStartAndEndDateTime(List<Date> dates) {
+		LocalDateTime[] startAndEndDateTime = new LocalDateTime[NUM_START_END_DATETIME];
+
+		if ( dates.size() > 1 ) {
+			Date datetime1 = dates.get(0);
+			Date datetime2 = dates.get(1);
+			
+			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
+			LocalDateTime ldt2 = convertDateToLocalDateTime(datetime1);
+			
+			if ( ldt1.isAfter(ldt2) ) {
+				startAndEndDateTime[START_DATETIME] = ldt2;
+				startAndEndDateTime[END_DATETIME] = ldt1;
+			} else {
+				startAndEndDateTime[START_DATETIME] = ldt1;
+				startAndEndDateTime[END_DATETIME] = ldt2;
+			}
+		} else if ( dates.size() == 1 ) {
+			// Deadline tasks
+			Date datetime1 = dates.get(0);
+			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
+			startAndEndDateTime[START_DATETIME] = ldt1;
+			startAndEndDateTime[END_DATETIME] = ldt1;
+		}
+		
+		return startAndEndDateTime;	
 	}
 	
 	private static boolean hasKeyword(String needle, String[] haystack) {
