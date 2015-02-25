@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -12,9 +13,11 @@ import java.util.logging.Logger;
 
 import taskie.Taskie;
 import taskie.commands.AddCommand;
+import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
 import taskie.models.Task;
+import taskie.models.ViewType;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.ParseLocation;
@@ -31,12 +34,40 @@ public class CommandParser implements Parser {
 	private static String[] COMMAND_KEYWORD_UNDO = new String[] {"undo", "revert"};
 	private static String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
 	
+	private static String[] VIEW_KEYWORDS_ALL = new String[] {"", "all", "everything"};
+	private static String[] VIEW_KEYWORDS_UPCOMING = new String[] {"upcoming", "incomplete", "undone", "todo"};
+	private static String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
+	private static String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
+	
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
+	private HashMap<String, ViewType> dictViewTypes;
 	
 	public CommandParser() {
 		_natty = new com.joestelmach.natty.Parser();
 		_logger = Logger.getLogger(CommandParser.class.getName());
+		
+		initializeDictionaries();
+	}
+	
+	private void initializeDictionaries() { 
+		dictViewTypes = new HashMap<String, ViewType>();
+		
+		for ( String word : VIEW_KEYWORDS_ALL ) {
+			dictViewTypes.put(word, ViewType.ALL);
+		}
+		
+		for ( String word : VIEW_KEYWORDS_UPCOMING ) {
+			dictViewTypes.put(word, ViewType.UPCOMING);
+		}
+
+		for ( String word : VIEW_KEYWORDS_COMPLETED ) {
+			dictViewTypes.put(word, ViewType.COMPLETED);
+		}
+
+		for ( String word : VIEW_KEYWORDS_OVERDUE ) {
+			dictViewTypes.put(word, ViewType.OVERDUE);
+		}
 	}
 
 	public void parse(String input) {
