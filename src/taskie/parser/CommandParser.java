@@ -1,10 +1,14 @@
 //@author A0121555M
 package taskie.parser;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import taskie.Taskie;
 import taskie.commands.AddCommand;
@@ -28,9 +32,11 @@ public class CommandParser implements Parser {
 	private static String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
 	
 	private com.joestelmach.natty.Parser _natty;
+	private Logger _logger;
 	
 	public CommandParser() {
 		_natty = new com.joestelmach.natty.Parser();
+		_logger = Logger.getLogger(CommandParser.class.getName());
 	}
 
 	public void parse(String input) {
