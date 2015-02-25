@@ -23,31 +23,31 @@ import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.ParseLocation;
 
 public class CommandParser implements Parser {
-	private static String MESSAGE_INVALID_COMMAND = "Invalid Command";
+	private static final String MESSAGE_INVALID_COMMAND = "Invalid Command";
 	
-	private static String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on" };
+	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on" };
 	
-	private static String[] COMMAND_KEYWORD_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
-	private static String[] COMMAND_KEYWORD_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
-	private static String[] COMMAND_KEYWORD_DELETE = new String[] {"delete", "clear", "remove"};
-	private static String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list"};
-	private static String[] COMMAND_KEYWORD_UNDO = new String[] {"undo", "revert"};
-	private static String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
+	private static final String[] COMMAND_KEYWORD_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
+	private static final String[] COMMAND_KEYWORD_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
+	private static final String[] COMMAND_KEYWORD_DELETE = new String[] {"delete", "clear", "remove"};
+	private static final String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list"};
+	private static final String[] COMMAND_KEYWORD_UNDO = new String[] {"undo", "revert"};
+	private static final String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
 	
-	private static String[] VIEW_KEYWORDS_ALL = new String[] {"", "all", "everything"};
-	private static String[] VIEW_KEYWORDS_UPCOMING = new String[] {"upcoming", "incomplete", "undone", "todo"};
-	private static String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
-	private static String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
+	private static final String[] VIEW_KEYWORDS_ALL = new String[] {"", "all", "everything"};
+	private static final String[] VIEW_KEYWORDS_UPCOMING = new String[] {"upcoming", "incomplete", "undone", "todo"};
+	private static final String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
+	private static final String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
 	
-	private static String[] SEARCH_RELATIVITY_BEFORE = new String[] { "before" };
-	private static String[] SEARCH_RELATIVITY_AFTER = new String[] { "after" };
-	private static String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
-	private static String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
-	private static String[] SEARCH_RELATIVITY_RELATIVE = new String [] { "this", "rest of", "in" };
+	private static final String[] SEARCH_RELATIVITY_BEFORE = new String[] { "before" };
+	private static final String[] SEARCH_RELATIVITY_AFTER = new String[] { "after" };
+	private static final String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
+	private static final String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
+	private static final String[] SEARCH_RELATIVITY_RELATIVE = new String [] { "this", "rest of", "in" };
 	
-	private static LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
-	private static LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
-	
+	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
+	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
+		
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, RELATIVE, NONE };
 	
 	private com.joestelmach.natty.Parser _natty;
