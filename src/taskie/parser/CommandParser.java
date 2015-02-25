@@ -114,6 +114,11 @@ public class CommandParser implements Parser {
 		}
 	}
 	
+	private ViewType getViewType(String key) {
+		ViewType viewType = dictViewTypes.get(key);
+		return viewType == null ? ViewType.SEARCH : viewType;
+	}
+	
 	private RelativeType getRelativeType(String key) {
 		RelativeType relativeType = RelativeType.NONE;
 		
