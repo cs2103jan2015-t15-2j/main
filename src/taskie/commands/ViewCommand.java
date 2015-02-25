@@ -7,12 +7,15 @@ import taskie.models.CommandType;
 public class ViewCommand implements ICommand {
 	private Calendar _readDate;
 	private CommandType _commandType = CommandType.VIEW;
+	private ViewType _viewType;
 
-	public ViewCommand() {
+	public ViewCommand(ViewType viewType) {
+		_viewType = viewType;
 		_readDate = null;
 	}
 
-	public ViewCommand(Calendar readDate) {
+	public ViewCommand(ViewType viewType, Calendar readDate) {
+		_viewType = viewType;
 		_readDate = readDate;
 	}
 
