@@ -3,8 +3,9 @@
  * Still under development
  * Bugs: none known
  *
- * @author       A0097582N
  */
+// @author       A0097582N
+ 
 
 package taskie.commands;
 

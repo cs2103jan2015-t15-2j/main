@@ -3,19 +3,23 @@
  * Still under development
  * Bugs: none known
  *
- * @author       A0097582N
  */
+// @author       A0097582N
+
 
 package taskie.commands;
 
+import java.time.LocalTime;
 import java.util.Calendar;
 
 import taskie.models.CommandType;
 
 public class DeleteCommand implements ICommand {
 	private String _taskName;
-	private Calendar _startTimeToDelete;
-	private Calendar _endTimeToDelete;
+	private LocalTime _startDateToDelete;
+	private LocalTime _endDateToDelete;
+	private LocalTime _startTimeToDelete;
+	private LocalTime _endTimeToDelete;
 	private CommandType _commandType = CommandType.DELETE;
 
 	public DeleteCommand() {
@@ -36,19 +40,35 @@ public class DeleteCommand implements ICommand {
 		return _taskName;
 	}
 
-	public void setStartTimeToDelete(Calendar startTime) {
+	public void setStartDateToDelete(LocalTime startDate) {
+		_startDateToDelete = startDate;
+	}
+
+	public void setEndDateToDelete(LocalTime endDate) {
+		_endDateToDelete = endDate;
+	}
+
+	public void setStartTimeToDelete(LocalTime startTime) {
 		_startTimeToDelete = startTime;
 	}
 
-	public void setEndTimeToDelete(Calendar endTime) {
+	public void setEndTimeToDelete(LocalTime endTime) {
 		_endTimeToDelete = endTime;
 	}
+	
+	public LocalTime getStartDateToDelete() {
+		return _startDateToDelete;
+	}
 
-	public Calendar getStartTimeToDelete() {
+	public LocalTime getEndDateToDelete() {
+		return _endDateToDelete;
+	}
+	
+	public LocalTime getStartTimeToDelete() {
 		return _startTimeToDelete;
 	}
 
-	public Calendar getEndTimeToDelete() {
+	public LocalTime getEndTimeToDelete() {
 		return _endTimeToDelete;
 	}
 
