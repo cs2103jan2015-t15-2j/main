@@ -1,31 +1,35 @@
 package taskie.commands;
 
-import java.util.Calendar;
+import java.time.LocalDateTime;
 
 import taskie.models.CommandType;
 import taskie.models.ViewType;
 
 public class ViewCommand implements ICommand {
-	private Calendar _readDate;
 	private CommandType _commandType = CommandType.VIEW;
 	private ViewType _viewType;
+	
+	private LocalDateTime _startDateTime;
+	private LocalDateTime _endDateTime;
 
 	public ViewCommand(ViewType viewType) {
 		_viewType = viewType;
-		_readDate = null;
 	}
 
-	public ViewCommand(ViewType viewType, Calendar readDate) {
-		_viewType = viewType;
-		_readDate = readDate;
+	public LocalDateTime getStartDateTime() {
+		return _startDateTime;
 	}
 
-	public void setReadDate(Calendar readDate) {
-		_readDate = readDate;
+	public void setStartDateTime(LocalDateTime startDateTime) {
+		_startDateTime =  startDateTime;
 	}
 
-	public Calendar getReadDate() {
-		return _readDate;
+	public LocalDateTime getEndDateTime() {
+		return _endDateTime;
+	}
+
+	public void setEndDateTime(LocalDateTime endDateTime) {
+		_endDateTime =  endDateTime;
 	}
 
 	public CommandType getCommandType() {
