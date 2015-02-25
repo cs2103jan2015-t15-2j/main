@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,7 +22,6 @@ import taskie.models.Task;
 import taskie.models.ViewType;
 
 import com.joestelmach.natty.DateGroup;
-import com.joestelmach.natty.ParseLocation;
 
 public class CommandParser implements Parser {
 	private static final String MESSAGE_INVALID_COMMAND = "Invalid Command";
