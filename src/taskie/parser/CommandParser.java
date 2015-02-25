@@ -43,7 +43,6 @@ public class CommandParser implements Parser {
 	private static final String[] SEARCH_RELATIVITY_AFTER = new String[] { "after" };
 	private static final String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
 	private static final String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
-	private static final String[] SEARCH_RELATIVITY_RELATIVE = new String [] { "this", "rest of", "in" };
 	
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
@@ -52,7 +51,7 @@ public class CommandParser implements Parser {
 	private static final int START_DATETIME = 0;
 	private static final int END_DATETIME = 1;
 	
-	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, RELATIVE, NONE };
+	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
@@ -101,10 +100,6 @@ public class CommandParser implements Parser {
 		for ( String word : SEARCH_RELATIVITY_SPECIFIED ) {
 			dictRelativeTypes.put(word, RelativeType.SPECIFIED);
 		}
-
-		for ( String word : SEARCH_RELATIVITY_RELATIVE ) {
-			dictRelativeTypes.put(word, RelativeType.RELATIVE);
-		}
 	}
 
 	public void parse(String input) {
@@ -130,8 +125,6 @@ public class CommandParser implements Parser {
 			relativeType = RelativeType.EXACT;
 		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_SPECIFIED) ) {
 			relativeType = RelativeType.SPECIFIED;
-		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_RELATIVE) ) {
-			relativeType = RelativeType.RELATIVE;
 		}
 		
 		return relativeType;
