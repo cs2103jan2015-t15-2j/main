@@ -9,4 +9,5 @@ public interface UI {
 	public void display(Task task);
 	public void display(Task[] task);
 	public void display(String message);
+	public Task[] getCurrentTaskList();
 }
