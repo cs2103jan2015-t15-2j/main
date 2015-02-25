@@ -22,7 +22,7 @@ import com.joestelmach.natty.ParseLocation;
 public class CommandParser implements Parser {
 	private static String MESSAGE_INVALID_COMMAND = "Invalid Command";
 	
-	private static String[] DATETIME_KEYWORDS = new String[] { "from", "on", "between", "by", "in", "at", "on" };
+	private static String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on" };
 	
 	private static String[] COMMAND_KEYWORD_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
 	private static String[] COMMAND_KEYWORD_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
@@ -94,62 +94,67 @@ public class CommandParser implements Parser {
 	}
 	
 	private void doAdd(String command) {
-		if ( command.trim().isEmpty() ) {
+		if ( command.isEmpty() ) {
 			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
 			return;
 		}
 		
 		List<DateGroup> groups = _natty.parse(command);
+		Task task;
 		
 		if ( groups.size() > 0 ) {
 			for ( DateGroup group : groups ) {
-				String name = command.substring(0, group.getPosition()).trim();
-				String description = command.substring(group.getPosition() + group.getText().length()).trim();
-				
-				System.out.println(name);
-				
+				String name1 = command.substring(0, group.getPosition()).trim();
+				String name2 = command.substring(group.getPosition() + group.getText().length()).trim();
 				List<Date> dates = group.getDates();
-				for ( Date date : dates ) {
-	                  System.out.println(group.getSyntaxTree().toStringTree());
-	                  System.out.println("line: " + group.getLine() + ", column: " + group.getPosition());
-	                  System.out.println(group.getText());
-	                  System.out.println(group.getDates());
-	                  
-	                  System.out.println("\n** Parse Locations **");
-	                  for(Entry<String, List<ParseLocation>> entry:group.getParseLocations().entrySet()) {
-	                    for(ParseLocation loc:entry.getValue()) {
-	                      System.out.println(loc.getRuleName() + ": " + loc.getText());
-	                    }
-	                  }
-	                  
-	                  List<ParseLocation> conjunctionLocations = group.getParseLocations().get("conjunction");
-	                  if(conjunctionLocations != null) {
-	                    System.out.print("\nconjunctions: ");
-	                    for(ParseLocation location:conjunctionLocations) {
-	                      System.out.print(location.getText() + " ");
-	                    }
-	                  }
-	                  System.out.print("\n\n");
+				
+				String[] words = splitStringWithWhitespace(name1);
+				int lastWord = words.length - 1;
+				if( hasKeyword(words[lastWord], KEYWORDS_DATETIME_SEPARATOR) ) {
+					name1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
+				}
+				
+				String name = name1 + " " + name2;
+				_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
+				
+				task = new Task(name);
+				
+				if ( dates.size() > 1 ) {
+					// Timed tasks
+					Date datetime1 = dates.get(0);
+					Date datetime2 = dates.get(1);
 
-	                  
+					task = new Task(name);
+					task.setStartDateTime(convertDateToLocalDateTime(datetime1));
+					task.setEndDateTime(convertDateToLocalDateTime(datetime2));
+
 					if ( group.isTimeInferred() ) {
-						Task task = new Task(name);
-						Taskie.Controller.executeCommand(new AddCommand(task));
-
-						Taskie.UI.display("Added " + name + " -- " + date.toString());
-					} else {
-						Task task = new Task(name);
-						Taskie.Controller.executeCommand(new AddCommand(task));
-
-						Taskie.UI.display("Added " + name + " -- " + date.toString());
+						task.setStartTime(null);
+						task.setEndTime(null);
 					}
+
+					Taskie.Controller.executeCommand(new AddCommand(task));
+					Taskie.UI.display("Added " + name + " -- " + task.getStartDateTime() + " to " + task.getEndDateTime());
+				} else {
+					// Deadline tasks
+					Date datetime1 = dates.get(0);
+					task = new Task(name);
+					task.setEndDateTime(convertDateToLocalDateTime(datetime1));
+
+					if ( group.isTimeInferred() ) {
+						task.setStartTime(null);
+						task.setEndTime(null);
+					}
+
+					Taskie.Controller.executeCommand(new AddCommand(task));
+					Taskie.UI.display("Added " + name + " -- " + task.getEndDateTime());
 				}
 			}
 		} else {
 			// Tasks without any deadlines
 			String name = command.trim();
 			
-			Task task = new Task(name);
+			task = new Task(name);
 			Taskie.Controller.executeCommand(new AddCommand(task));
 			Taskie.UI.display("Added " + name);
 		}
