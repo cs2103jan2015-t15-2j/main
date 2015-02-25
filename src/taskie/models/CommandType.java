@@ -2,6 +2,6 @@
 package taskie.models;
 
 public enum CommandType {
-		ADD, UPDATE, VIEW, DELETE, UNDO, MARK, UNMARK, EXIT
+		ADD, UPDATE, VIEW, DELETE, UNDO, REDO, MARK, UNMARK, EXIT
 };
 

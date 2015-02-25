@@ -15,6 +15,7 @@ import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
 import taskie.commands.ExitCommand;
 import taskie.commands.MarkCommand;
+import taskie.commands.RedoCommand;
 import taskie.commands.UndoCommand;
 import taskie.commands.UnmarkCommand;
 import taskie.commands.ViewCommand;
@@ -35,6 +36,7 @@ public class CommandParser implements Parser {
 	private static final String[] COMMAND_KEYWORD_DELETE = new String[] {"delete", "clear", "remove"};
 	private static final String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list"};
 	private static final String[] COMMAND_KEYWORD_UNDO = new String[] {"undo", "revert"};
+	private static final String[] COMMAND_KEYWORD_REDO = new String[] {"redo"};
 	private static final String[] COMMAND_KEYWORD_MARK = new String[] {"mark", "complete", "done", "check"};
 	private static final String[] COMMAND_KEYWORD_UNMARK = new String[] {"unmark", "incomplete", "undone", "uncheck"};
 	private static final String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
@@ -153,6 +155,8 @@ public class CommandParser implements Parser {
 			commandType = CommandType.VIEW;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UNDO) ) {
 			commandType = CommandType.UNDO;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_REDO) ) {
+			commandType = CommandType.REDO;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_MARK) ) {
 			commandType = CommandType.MARK;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UNMARK) ) {
@@ -181,6 +185,8 @@ public class CommandParser implements Parser {
 			this.doView(command);
 		} else if ( cmd == CommandType.UNDO ) {
 			this.doUndo(command);
+		} else if ( cmd == CommandType.REDO ) {
+			this.doRedo(command);
 		} else if ( cmd == CommandType.MARK ) {
 			this.doMark(command);
 		} else if ( cmd == CommandType.UNMARK ) {
@@ -354,6 +360,19 @@ public class CommandParser implements Parser {
 		
 		Taskie.Controller.executeCommand(new UndoCommand(steps));
 		_logger.log(Level.INFO, "Undo (Steps: {0})", steps);
+	}
+	
+	private void doRedo(String command) {
+		int steps = 1;
+		try {
+			steps = Integer.parseInt(command);
+			steps = (steps > 0) ? steps : 1;
+		} catch ( NumberFormatException ex ) {
+			steps = 1;
+		}
+		
+		Taskie.Controller.executeCommand(new RedoCommand(steps));
+		_logger.log(Level.INFO, "Redo (Steps: {0})", steps);
 	}
 	
 	private void doMark(String command) {
