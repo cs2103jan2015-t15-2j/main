@@ -39,14 +39,21 @@ public class CommandParser implements Parser {
 	private static String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
 	private static String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
 	
-	private static String[] VIEW_RELATIVITY = new String[] { "on", "after", "before" };
+	private static String[] SEARCH_RELATIVITY_BEFORE = new String[] { "before" };
+	private static String[] SEARCH_RELATIVITY_AFTER = new String[] { "after" };
+	private static String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
+	private static String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
+	private static String[] SEARCH_RELATIVITY_RELATIVE = new String [] { "this", "rest of", "in" };
 	
 	private static LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 	
+	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, RELATIVE, NONE };
+	
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
 	private HashMap<String, ViewType> dictViewTypes;
+	private HashMap<String, RelativeType> dictRelativeTypes;
 	
 	public CommandParser() {
 		_natty = new com.joestelmach.natty.Parser();
@@ -57,6 +64,7 @@ public class CommandParser implements Parser {
 	
 	private void initializeDictionaries() { 
 		dictViewTypes = new HashMap<String, ViewType>();
+		dictRelativeTypes = new HashMap<String, RelativeType>();
 		
 		for ( String word : VIEW_KEYWORDS_ALL ) {
 			dictViewTypes.put(word, ViewType.ALL);
@@ -73,6 +81,26 @@ public class CommandParser implements Parser {
 		for ( String word : VIEW_KEYWORDS_OVERDUE ) {
 			dictViewTypes.put(word, ViewType.OVERDUE);
 		}
+		
+		for ( String word : SEARCH_RELATIVITY_BEFORE ) {
+			dictRelativeTypes.put(word, RelativeType.BEFORE);
+		}
+		
+		for ( String word : SEARCH_RELATIVITY_AFTER ) {
+			dictRelativeTypes.put(word, RelativeType.AFTER);
+		}
+
+		for ( String word : SEARCH_RELATIVITY_EXACT ) {
+			dictRelativeTypes.put(word, RelativeType.EXACT);
+		}
+
+		for ( String word : SEARCH_RELATIVITY_SPECIFIED ) {
+			dictRelativeTypes.put(word, RelativeType.SPECIFIED);
+		}
+
+		for ( String word : SEARCH_RELATIVITY_RELATIVE ) {
+			dictRelativeTypes.put(word, RelativeType.RELATIVE);
+		}
 	}
 
 	public void parse(String input) {
@@ -85,6 +113,24 @@ public class CommandParser implements Parser {
 		} catch ( InvalidCommandException e ) {
 			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
 		}
+	}
+	
+	private RelativeType getRelativeType(String key) {
+		RelativeType relativeType = RelativeType.NONE;
+		
+		if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_BEFORE) ) {
+			relativeType = RelativeType.BEFORE;
+		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_AFTER) ) {
+			relativeType = RelativeType.AFTER;
+		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_EXACT) ) {
+			relativeType = RelativeType.EXACT;
+		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_SPECIFIED) ) {
+			relativeType = RelativeType.SPECIFIED;
+		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_RELATIVE) ) {
+			relativeType = RelativeType.RELATIVE;
+		}
+		
+		return relativeType;
 	}
 	
 	private CommandType getCommandType(String key) throws InvalidCommandException {
