@@ -18,12 +18,14 @@ import com.joestelmach.natty.ParseLocation;
 public class CommandParser implements Parser {
 	private static String MESSAGE_INVALID_COMMAND = "Invalid Command";
 	
-	private static String[] KEYWORDS_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
-	private static String[] KEYWORDS_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
-	private static String[] KEYWORDS_DELETE = new String[] {"delete", "clear", "remove"};
-	private static String[] KEYWORDS_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list"};
-	private static String[] KEYWORDS_UNDO = new String[] {"undo", "revert"};
-	private static String[] KEYWORDS_EXIT = new String[] {"exit", "quit", "close"};
+	private static String[] DATETIME_KEYWORDS = new String[] { "from", "on", "between", "by", "in", "at", "on" };
+	
+	private static String[] COMMAND_KEYWORD_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
+	private static String[] COMMAND_KEYWORD_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
+	private static String[] COMMAND_KEYWORD_DELETE = new String[] {"delete", "clear", "remove"};
+	private static String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list"};
+	private static String[] COMMAND_KEYWORD_UNDO = new String[] {"undo", "revert"};
+	private static String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
 	
 	private com.joestelmach.natty.Parser _natty;
 	
@@ -46,17 +48,17 @@ public class CommandParser implements Parser {
 	private CommandType getCommandType(String key) throws InvalidCommandException {
 		CommandType commandType = null;
 		
-		if ( hasKeyword(key, CommandParser.KEYWORDS_ADD) ) {
+		if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_ADD) ) {
 			commandType = CommandType.ADD;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_UPDATE) ) {
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UPDATE) ) {
 			commandType = CommandType.UPDATE;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_DELETE) ) {
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_DELETE) ) {
 			commandType = CommandType.DELETE;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_VIEW_AND_SEARCH) ) {
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_VIEW_AND_SEARCH) ) {
 			commandType = CommandType.VIEW;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_UNDO) ) {
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UNDO) ) {
 			commandType = CommandType.UNDO;
-		} else if ( hasKeyword(key, CommandParser.KEYWORDS_EXIT) ) {
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_EXIT) ) {
 			commandType = CommandType.EXIT;
 		}
 		
