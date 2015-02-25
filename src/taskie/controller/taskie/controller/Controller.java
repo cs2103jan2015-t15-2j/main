@@ -18,11 +18,11 @@ import taskie.database.IStorage;
 
 
 public class Controller{
-	private Stack<ICommand> UndoCommandStack; //stack to keep track of past actions for undo command	
-	
+	private Stack<ICommand> _undoCommandStack; //stack to keep track of past actions for undo command	
+	private IStorage _storage;
 	
 	public Controller(){
-		UndoCommandStack = new Stack<ICommand>();
+		_undoCommandStack = new Stack<ICommand>();
 	}
 	
 	public void executeCommand(ICommand command){
@@ -49,7 +49,6 @@ public class Controller{
 		
 	}
 
-<<<<<<< HEAD:src/taskie/controller/taskie/controller/Controller.java
 
 	private void executeAddCommand(AddCommand command) {
 		determineTaskTypeAndAdd(command.getTaskToAdd());
@@ -59,7 +58,7 @@ public class Controller{
 
 	
 	private void addToUndoStack(AddCommand command) {
-		UndoCommandStack.push(command);
+		_undoCommandStack.push(command);
 		
 	}
 
@@ -67,18 +66,17 @@ public class Controller{
 		
 		if(taskToAdd.getStartTime()==null 
 				&& taskToAdd.getEndTime()==null){    //no time added, i.e floating task
-			taskie.getStorage().addFloatingTask(taskToAdd);
+			_storage.addFloatingTask(taskToAdd);
 		}
 		else if(taskToAdd.getStartTime()==null 
 				^ taskToAdd.getEndTime()==null){	 //1 time added, i.e deadline task
-			taskie.getStorage().addDeadlineTask(taskToAdd);
+			_storage.addDeadlineTask(taskToAdd);
 		} else{
-			taskie.getStorage().addTimedTask(taskToAdd);
+			_storage.addTimedTask(taskToAdd);
 		}
 	}
 	
 	
-=======
 	private void executeDefault() {
 		// TODO Auto-generated method stub
 		
@@ -108,5 +106,4 @@ public class Controller{
 		// TODO Auto-generated method stub
 		
 	}
->>>>>>> upstream/master:src/taskie/controller/Controller.java
 }
