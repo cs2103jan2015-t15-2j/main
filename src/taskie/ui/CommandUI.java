@@ -8,11 +8,13 @@ import taskie.parser.CommandParser;
 import taskie.parser.Parser;
 
 public class CommandUI implements UI {
+	private static int TASKS_PER_PAGE = 20;
 	private static String MESSAGE_WELCOME = "Welcome to Taskie!";
 	private static String MESSAGE_REQUEST_INPUT = "Enter Command: ";
 	
 	private Scanner _scanner;
 	private Parser _parser;
+	private Task[] _currentTaskList;
 	private static boolean _isInitialized;
 
 	public CommandUI() {
@@ -38,10 +40,12 @@ public class CommandUI implements UI {
 	}
 
 	public void display(Task task) {
+		_currentTaskList = new Task[] {task};
 		
 	}
 
-	public void display(Task[] task) {
+	public void display(Task[] tasks) {
+		_currentTaskList = tasks;
 		
 	}
 
