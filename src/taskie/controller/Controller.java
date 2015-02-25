@@ -30,20 +30,12 @@ public class Controller{
 			case UNDO:		executeUndoCommand();
 							break;
 			
-			case SEARCH:	executeSearchCommand();
-							break;
-			
 			default:		executeDefault();
 		}
 		
 	}
 
 	private void executeDefault() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void executeSearchCommand() {
 		// TODO Auto-generated method stub
 		
 	}
