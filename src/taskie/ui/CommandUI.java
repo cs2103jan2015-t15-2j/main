@@ -26,17 +26,30 @@ public class CommandUI implements UI {
 	public void run() {
 		if ( !_isInitialized ) {
 			_isInitialized = true;
+			
+			boolean isRunning = true;
 			this.printWelcomeMessage();
-			while (true) {
-				this.readInput();
+			while (isRunning) {
+				isRunning = this.readInput();
 			}
 		}
 	}
 	
-	public void readInput() {
+	public boolean readInput() {
 		System.out.print(MESSAGE_REQUEST_INPUT);
-		String input = _scanner.nextLine();
-		_parser.parse(input);
+		
+		try {
+			String input = _scanner.nextLine();
+			
+			if ( input == null ) {
+				return false;
+			}
+			
+			_parser.parse(input);
+			return true;
+		} catch ( Exception e ) {
+			return false;
+		}
 	}
 
 	public void display(Task task) {
