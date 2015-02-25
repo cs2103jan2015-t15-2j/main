@@ -4,15 +4,15 @@ import java.util.Calendar;
 
 import taskie.models.CommandType;
 
-public class ReadCommand implements ICommand {
+public class ViewCommand implements ICommand {
 	private Calendar _readDate;
 	private CommandType _commandType = CommandType.VIEW;
 
-	public ReadCommand() {
+	public ViewCommand() {
 		_readDate = null;
 	}
 
-	public ReadCommand(Calendar readDate) {
+	public ViewCommand(Calendar readDate) {
 		_readDate = readDate;
 	}
 
