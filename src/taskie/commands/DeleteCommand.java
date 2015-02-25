@@ -11,6 +11,7 @@ package taskie.commands;
 import java.util.Calendar;
 
 import taskie.models.CommandType;
+import taskie.models.Task;
 
 public class DeleteCommand implements ICommand {
 	private String _taskName;
@@ -22,6 +23,10 @@ public class DeleteCommand implements ICommand {
 		_taskName = null;
 		_startTimeToDelete = null;
 		_endTimeToDelete = null;
+	}
+	
+	public DeleteCommand(Task task) {
+		
 	}
 
 	public DeleteCommand(String taskName) {

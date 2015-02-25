@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import taskie.Taskie;
 import taskie.commands.AddCommand;
+import taskie.commands.DeleteCommand;
 import taskie.commands.UndoCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
@@ -237,7 +238,16 @@ public class CommandParser implements Parser {
 	}
 	
 	private void doDelete(String command) {
-		
+		int itemNumber = Integer.parseInt(command);
+
+		Task[] tasks = Taskie.UI.getCurrentTaskList();
+		try {
+			Task task = tasks[itemNumber];
+			Taskie.Controller.executeCommand(new DeleteCommand(task));
+			Taskie.UI.display("Deleting Task " + task.getTitle());	
+		} catch ( ArrayIndexOutOfBoundsException ex ) {
+			Taskie.UI.display("Invalid Task Number");
+		}
 	}
 	
 	private void doView(String command) {
