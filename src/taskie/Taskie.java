@@ -6,6 +6,7 @@ import taskie.ui.UI;
 
 public class Taskie {
 	public static UI UI;
+	public static taskie.controller.Controller Controller;
 	
 	public static void main(String[] args) {
 		try {
