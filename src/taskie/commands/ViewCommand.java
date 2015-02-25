@@ -3,6 +3,7 @@ package taskie.commands;
 import java.util.Calendar;
 
 import taskie.models.CommandType;
+import taskie.models.ViewType;
 
 public class ViewCommand implements ICommand {
 	private Calendar _readDate;
