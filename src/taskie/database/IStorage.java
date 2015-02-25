@@ -12,4 +12,10 @@ public interface IStorage {
 	Task[] retrieveTaskList();
 	
 	Task[] storeTaskList();
+
+	Boolean addFloatingTask(Task taskToAdd);
+
+	Boolean addDeadlineTask(Task taskToAdd);
+
+	Boolean addTimedTask(Task taskToAdd);
 }

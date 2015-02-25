@@ -1,12 +1,15 @@
 //@author A0121555M
 package taskie;
 
+import taskie.database.IStorage;
 import taskie.ui.CommandUI;
 import taskie.ui.UI;
+import taskie.controller.*;
 
 public class Taskie {
 	public static UI UI;
-	public static taskie.controller.Controller Controller;
+
+	public static Controller Controller;
 	
 	public static void main(String[] args) {
 		try {
@@ -16,9 +19,12 @@ public class Taskie {
 		}
 	}
 	
+	
 	public Taskie(String[] args) {
 		Controller = new taskie.controller.Controller();
 		UI = new CommandUI();
 		UI.run();
 	}
+	
+		
 }

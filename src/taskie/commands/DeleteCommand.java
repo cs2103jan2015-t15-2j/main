@@ -1,3 +1,11 @@
+/**
+ * class representing an delete command.
+ * Still under development
+ * Bugs: none known
+ *
+ * @author       A0097582N
+ */
+
 package taskie.commands;
 
 import java.util.Calendar;
