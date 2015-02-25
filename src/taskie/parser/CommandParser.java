@@ -301,8 +301,22 @@ public class CommandParser implements Parser {
 
 			ViewCommand viewCommand = new ViewCommand(viewType);
 			viewCommand.setSearchKeywords(keywords);
-			viewCommand.setStartDateTime(startAndEndDateTime[START_DATETIME]);
-			viewCommand.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+			
+			if ( relativeType == RelativeType.BEFORE ) {
+				viewCommand.setStartDateTime(MIN_DATETIME);
+				viewCommand.setEndDateTime(startAndEndDateTime[START_DATETIME]);
+			} else if ( relativeType == RelativeType.AFTER ) {
+				viewCommand.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+				viewCommand.setEndDateTime(MAX_DATETIME);
+			} else if ( relativeType == RelativeType.EXACT ) {
+				viewCommand.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+				viewCommand.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+				viewCommand.setStartTime(null);
+				viewCommand.setEndTime(null);
+			} else if ( relativeType == RelativeType.SPECIFIED ) {
+				viewCommand.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+				viewCommand.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+			}
 			
 			if ( group.isTimeInferred() ) {
 				viewCommand.setStartTime(null);
