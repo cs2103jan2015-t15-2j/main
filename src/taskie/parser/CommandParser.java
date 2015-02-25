@@ -76,6 +76,8 @@ public class CommandParser implements Parser {
 	}
 	
 	private void executeCommandType(CommandType cmd, String command) throws InvalidCommandException {
+		command = command.trim();
+		
 		if ( cmd == CommandType.ADD ) {
 			this.doAdd(command);
 		} else if ( cmd == CommandType.UPDATE ) {
