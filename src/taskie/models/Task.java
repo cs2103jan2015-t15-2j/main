@@ -1,6 +1,7 @@
 package taskie.models;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class Task {
@@ -61,21 +62,45 @@ public class Task {
 	public void setTitle(String _title) {
 		this._title = _title;
 	}
+	
+	public void setStartDateTime(LocalDateTime startDateTime) {
+		this.setStartDate(startDateTime.toLocalDate());
+		this.setStartTime(startDateTime.toLocalTime());
+	}
+
+	public void setEndDateTime(LocalDateTime endDateTime) {
+		this.setEndDate(endDateTime.toLocalDate());
+		this.setEndTime(endDateTime.toLocalTime());
+	}
 
 	public LocalDate getStartDate() {
 		return _startDate;
 	}
 
 	public void setStartDate(LocalDate startDate) {
-		this._startDate = startDate;
+		if ( _endDate == null ) {
+			this._endDate = startDate;
+		} else if ( _endDate.isBefore(startDate) ) {
+			this._startDate = this._endDate;
+			this._endDate = startDate;
+		} else {
+			this._startDate = startDate;
+		}
 	}
 
 	public LocalDate getEndDate() {
 		return _endDate;
 	}
 
-	public void set_endDate(LocalDate endDate) {
-		this._endDate = endDate;
+	public void setEndDate(LocalDate endDate) {
+		if ( _startDate == null ) {
+			this._startDate = endDate;
+		} else if ( _startDate.isAfter(endDate) ) {
+			this._endDate = this._startDate;
+			this._startDate = endDate;
+		} else {
+			this._endDate = endDate;
+		}
 	}
 
 	public LocalTime getStartTime() {
