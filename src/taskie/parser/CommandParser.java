@@ -152,7 +152,7 @@ public class CommandParser implements Parser {
 					name1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
 				}
 				
-				String name = name1 + " " + name2;
+				String name = (name1 + " " + name2).trim();
 				_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 				
 				task = new Task(name);
