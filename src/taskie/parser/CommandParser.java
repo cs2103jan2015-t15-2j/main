@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import taskie.Taskie;
 import taskie.commands.AddCommand;
+import taskie.commands.UndoCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
@@ -308,7 +309,9 @@ public class CommandParser implements Parser {
 	}
 
 	private void doUndo(String command) {
-		
+		int steps = Integer.parseInt(command);
+		Taskie.Controller.executeCommand(new UndoCommand(steps));
+		Taskie.UI.display("Undo");
 	}
 
 	private void doExit() {
