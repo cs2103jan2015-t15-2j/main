@@ -4,12 +4,10 @@ package taskie;
 import taskie.database.IStorage;
 import taskie.ui.CommandUI;
 import taskie.ui.UI;
-import taskie.controller.*;
 
 public class Taskie {
 	public static UI UI;
-
-	public static Controller Controller;
+	public static taskie.controller.Controller Controller;
 	
 	public static void main(String[] args) {
 		try {
