@@ -67,6 +67,6 @@ public class CommandUI implements UI {
 	}
 
 	private void printWelcomeMessage() {
-		System.out.println(MESSAGE_WELCOME);
+		this.display(MESSAGE_WELCOME);
 	}
 }
