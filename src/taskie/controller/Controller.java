@@ -2,9 +2,10 @@
  * Class to perform tasks needed to achieve functionality. Interface between front and back end.
  * Still under development
  * Bugs: none known
- *
- * @author       A0097582N
  */
+
+// @author       A0097582N
+
 
 package taskie.controller;
 
