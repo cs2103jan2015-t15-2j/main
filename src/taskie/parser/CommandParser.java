@@ -39,6 +39,11 @@ public class CommandParser implements Parser {
 	private static String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
 	private static String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
 	
+	private static String[] VIEW_RELATIVITY = new String[] { "on", "after", "before" };
+	
+	private static LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
+	private static LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
+	
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
 	private HashMap<String, ViewType> dictViewTypes;
@@ -207,13 +212,74 @@ public class CommandParser implements Parser {
 		
 	}
 	
-	private void doView(String command) {
-		if ( command.trim().isEmpty() ) {
-			Taskie.UI.display("Invalid Command");
+	private void doView(String command) {		
+		if ( dictViewTypes.containsKey(command) ) {
+			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
 			return;
 		}
 		
+		String type = CommandParser.getCommandKeyword(command);
+		String query = CommandParser.getCommandParameters(command);
 		
+		ViewType viewType = dictViewTypes.get(type);
+		if ( viewType == ViewType.SEARCH ) {
+			List<DateGroup> groups = _natty.parse(query);
+			if ( groups.size() > 0 ) {
+				// Search by Date and possibly keywords
+				for ( DateGroup group : groups ) {
+					String query1 = command.substring(0, group.getPosition()).trim();
+					String query2 = command.substring(group.getPosition() + group.getText().length()).trim();
+					List<Date> dates = group.getDates();
+					
+					String[] words = splitStringWithWhitespace(query1);
+					int lastWord = words.length - 1;
+					if( hasKeyword(words[lastWord], KEYWORDS_DATETIME_SEPARATOR) ) {
+						query1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
+					}
+					
+					if ( dates.size() > 1 ) {
+						Date datetime1 = dates.get(0);
+						Date datetime2 = dates.get(1);
+						LocalDateTime startDateTime = convertDateToLocalDateTime(datetime1);
+						LocalDateTime endDateTime = convertDateToLocalDateTime(datetime2);
+						
+						ViewCommand viewCommand = new ViewCommand(viewType);
+						viewCommand.setStartDateTime(startDateTime);
+						viewCommand.setEndDateTime(endDateTime);
+						
+						if ( group.isTimeInferred() ) {
+							viewCommand.setStartTime(null);
+							viewCommand.setEndTime(null);
+						}
+						
+						Taskie.Controller.executeCommand(viewCommand);
+					} else {
+						Date datetime1 = dates.get(0);
+						LocalDateTime searchDateTime = convertDateToLocalDateTime(datetime1);
+
+						ViewCommand viewCommand = new ViewCommand(viewType);
+						viewCommand.setStartDateTime(searchDateTime);
+
+						if ( group.isTimeInferred() ) {
+							viewCommand.setStartTime(null);
+							viewCommand.setEndTime(null);
+						}
+						
+						Taskie.Controller.executeCommand(viewCommand);
+						Taskie.UI.display("Viewing " + viewType);
+					}
+				}
+			} else {
+				// Keyword only search
+				ViewCommand viewCommand = new ViewCommand(viewType);
+
+				Taskie.Controller.executeCommand(viewCommand);
+				Taskie.UI.display("Viewing " + viewType);
+			}
+		} else {
+			Taskie.Controller.executeCommand(new ViewCommand(viewType));
+			Taskie.UI.display("Viewing " + viewType);
+		}
 	}
 
 	private void doUndo(String command) {
