@@ -1,0 +1,37 @@
+﻿---
+Add Commands
+----
+
+add Have dinner in 2 hours
+add Attend CS2103 Meeting from tomorrow 10am to 6pm
+add Prepare Cousin Wedding from saturday 10am to sunday 6pm
+add Buy groceries by saturday for chinese new year
+add Reach Changi Airport to send friend off by 8pm thursday
+create Presentation for CS2103 on 10 April 10am
+create Complete CS2103 Tutorial 5 by next Wednesday
+add Do CS2103 Tutorial 6 tomorrow at 9am for 2 hours  
+ins Dinner Date on Friday 5pm to 10pm
+ins Reunion Dinner on Saturday 5.45pm to 9.15pm
+put Travel to London
+put Complete CE2 on Saturday
+create Work on the code done by Amy by Monday
+
+---
+View / Search Commands
+---
+view all after next week
+view overdue
+view todo
+find CS2103 tutorial
+find dinner
+
+---
+Delete Commands
+---
+delete 1
+delete 1 title
+remove 1
+
+---
+Update Commands
+---
