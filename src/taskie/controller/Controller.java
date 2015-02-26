@@ -49,7 +49,7 @@ public class Controller {
 	}
 
 	private void executeAddCommand(AddCommand command) {
-		determineTaskTypeAndAdd(command.getTaskToAdd());
+		determineTaskTypeAndAdd();
 	}
 
 	private void determineTaskTypeAndAdd(Task taskToAdd) {
