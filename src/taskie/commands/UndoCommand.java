@@ -1,4 +1,23 @@
+
+/**
+ * class representing a undo command. 
+ * Still under development
+ * Bugs: none known
+ *
+ */
+
+ 
+
 //@author A0121555M
+/**
+ * class representing a undo command. 
+ * Still under development
+ * Bugs: none known
+ *
+ */
+
+ 
+
 package taskie.commands;
 
 import taskie.models.CommandType;
@@ -14,7 +33,7 @@ public class UndoCommand implements ICommand {
 	public UndoCommand(int steps) {
 		this._steps = steps;
 	}
-
+// @author       A0097582N
 	@Override
 	public CommandType getCommandType() {
 		return _commandType;
