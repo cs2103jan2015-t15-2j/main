@@ -10,7 +10,6 @@ package taskie.commands;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Calendar;
 
 import taskie.Taskie;
 import taskie.models.CommandType;
@@ -24,10 +23,10 @@ public class UpdateCommand implements ICommand {
 	private LocalDate _endDateToUpdate;
 	private LocalTime _endTimeToUpdate;
 
-	private Boolean _isModifiedStartDate = false;
-	private Boolean _isModifiedStartTime = false;
-	private Boolean _isModifiedEndDate = false;
-	private Boolean _isModifiedEndTime = false;
+	private Boolean _isToUpdateStartDate = false;
+	private Boolean _isToUpdateStartTime = false;
+	private Boolean _isToUpdateEndDate = false;
+	private Boolean _isToUpdateEndTime = false;
 	private CommandType _commandType = CommandType.UPDATE;
 
 	public UpdateCommand() {
@@ -41,12 +40,10 @@ public class UpdateCommand implements ICommand {
 
 	public UpdateCommand(int taskIndex) {
 		_taskIndex = taskIndex;
-		Task[] taskList = Taskie.UI.getCurrentTaskList();
-		Task task = taskList[taskIndex];
-		_startDateToUpdate = task.getStartDate();
-		_startTimeToUpdate = task.getStartTime();
-		_endDateToUpdate = task.getEndDate();
-		_endTimeToUpdate = task.getEndTime();
+		_startDateToUpdate = null;
+		_startTimeToUpdate = null;
+		_endDateToUpdate = null;
+		_endTimeToUpdate = null;
 	}
 
 	public CommandType getCommandType() {
@@ -66,6 +63,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void setStartDateToUpdate(LocalDate startDateToUpdate) {
+		_isToUpdateStartDate=true;
 		this._startDateToUpdate = startDateToUpdate;
 	}
 
@@ -74,6 +72,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void setStartTimeToUpdate(LocalTime startTimeToUpdate) {
+		_isToUpdateStartTime=true;
 		this._startTimeToUpdate = startTimeToUpdate;
 	}
 
@@ -82,6 +81,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void setEndDateToUpdate(LocalDate endDateToUpdate) {
+		_isToUpdateEndDate=true;
 		this._endDateToUpdate = endDateToUpdate;
 	}
 
@@ -90,13 +90,66 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void setEndTimeToUpdate(LocalTime endTimeToUpdate) {
+		_isToUpdateEndTime=true;
 		this._endTimeToUpdate = endTimeToUpdate;
 	}
 
+	
+	public Boolean isModifedStartDate(){
+		return _isToUpdateStartDate;
+	}
+	
+	public Boolean isModifedStartTime(){
+		return _isToUpdateStartTime;
+	}
+	
+	public Boolean getIsModifedEndDate(){
+		return _isToUpdateEndDate;
+	}
+	
+	public Boolean getIsModifedEndTime(){
+		return _isToUpdateEndTime;
+	}
+	
 	@Override
 	public void execute() {
-		// TODO Auto-generated method stub
+		Task task = retrieveTaskToUpdate();
+		task = updateTask(task);
+		if(Taskie.Storage!=null){
+			Taskie.Storage.storeUpdatedTask(task);
+		}
+		Taskie.UI.display(formatUpdateMsg(task));
 
+	}
+
+	private String formatUpdateMsg(Task task) {
+		
+		return String.format("STUB MSG_Update Task Title:%s Task Time:%s",
+				task.getTitle(),
+				Taskie.Controller.formatTime(task.getStartDate(), task.getStartTime()));
+	}
+
+	private Task retrieveTaskToUpdate() {
+		Task[] taskList=Taskie.UI.getCurrentTaskList();
+		Task task = taskList[_taskIndex];
+		return task;
+	}
+
+	private Task updateTask(Task task) {
+		if(_isToUpdateStartDate==true){
+			task.setStartDate(_startDateToUpdate);
+		}
+		if(_isToUpdateStartTime==true){
+			task.setStartTime(_startTimeToUpdate);
+		}
+		if(_isToUpdateEndDate==true){
+			task.setEndDate(_endDateToUpdate);
+		}
+		if(_isToUpdateEndTime==true){
+			task.setEndTime(_endTimeToUpdate);
+		}
+		
+		return task;
 	}
 
 }

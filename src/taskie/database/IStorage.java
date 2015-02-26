@@ -18,4 +18,6 @@ public interface IStorage {
 	Boolean addDeadlineTask(Task taskToAdd);
 
 	Boolean addTimedTask(Task taskToAdd);
+
+	void storeUpdatedTask(Task task);
 }
