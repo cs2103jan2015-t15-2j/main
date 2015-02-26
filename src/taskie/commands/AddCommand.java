@@ -93,7 +93,7 @@ public class AddCommand implements ICommand {
 	}
 
 	private Task determineTaskTypeAndAdd() {
-		Task task;
+		Task task=null;
 		if(_startDate==null && _endDate==null){
 			task =new Task(_taskName);
 			Taskie.Storage.addFloatingTask(task);
