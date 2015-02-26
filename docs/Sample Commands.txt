@@ -15,6 +15,7 @@ ins Reunion Dinner on Saturday 5.45pm to 9.15pm
 put Travel to London
 put Complete CE2 on Saturday
 create Work on the code done by Amy by Monday
+create Add the create task for CS2103 by 15 March
 
 ---
 View / Search Commands
