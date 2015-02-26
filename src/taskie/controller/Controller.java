@@ -5,7 +5,6 @@
  *
  */
 //@author       A0097582N
- 
 
 package taskie.controller;
 
@@ -55,15 +54,15 @@ public class Controller {
 
 	private void determineTaskTypeAndAdd(Task taskToAdd) {
 
-		if (taskToAdd.getStartTime() == null && taskToAdd.getEndTime() == null) { // no
+		if (taskToAdd.getStartDate() == null && taskToAdd.getEndDate() == null) { // no
 																					// time
 																					// added,
 																					// i.e
 																					// floating
 																					// task
 			_storage.addFloatingTask(taskToAdd);
-		} else if (taskToAdd.getStartTime() == null
-				^ taskToAdd.getEndTime() == null) { // 1 time added, i.e
+		} else if (taskToAdd.getStartDate() == null
+				^ taskToAdd.getEndDate() == null) { // 1 time added, i.e
 													// deadline task
 			_storage.addDeadlineTask(taskToAdd);
 		} else {
