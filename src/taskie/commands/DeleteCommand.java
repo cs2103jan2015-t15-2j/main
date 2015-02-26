@@ -62,6 +62,8 @@ public class DeleteCommand implements ICommand {
 		_endTimeToDelete = endTime;
 	}
 	
+
+
 	public LocalDate getStartDateToDelete() {
 		return _startDateToDelete;
 	}
