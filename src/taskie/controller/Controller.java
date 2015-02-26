@@ -74,7 +74,7 @@ public class Controller {
 	private String formatAddMsg(AddCommand command) {
 		Task task= command.getTaskToAdd();
 		
-		return String.format(MSG_ADDED,task.getTitle(),task.);
+		return "stub message";
 	}
 
 	private void addToUndoStack(AddCommand command) {
