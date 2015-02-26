@@ -205,7 +205,6 @@ public class CommandParser implements Parser {
 		}
 		
 		List<DateGroup> groups = _natty.parse(command);
-		Task task;
 		
 		if ( groups.size() > 0 ) {
 			DateGroup group = groups.get(0);
@@ -223,24 +222,39 @@ public class CommandParser implements Parser {
 			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 			
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
-			task = new Task(name);
-			task.setStartDateTime(startAndEndDateTime[START_DATETIME]);
-			task.setEndDateTime(startAndEndDateTime[END_DATETIME]);
 			
-			if ( group.isTimeInferred() ) {
-				task.setStartTime(null);
-				task.setEndTime(null);
+			AddCommand cmd = new AddCommand();
+			cmd.setTaskName(name);
+			
+			if ( startAndEndDateTime[START_DATETIME] != null ) {
+				cmd.setStartDate(startAndEndDateTime[START_DATETIME].toLocalDate());
+				
+				if ( group.isTimeInferred() ) {
+					cmd.setStartTime(null);
+				} else {
+					cmd.setStartTime(startAndEndDateTime[START_DATETIME].toLocalTime());
+				}
 			}
-
-			Taskie.Controller.executeCommand(new AddCommand(task));
-			Taskie.UI.display("Added " + name + " -- " + task.getStartDateTime() + " to " + task.getEndDateTime());
+			
+			if ( startAndEndDateTime[END_DATETIME] != null ) {
+				cmd.setEndDate(startAndEndDateTime[END_DATETIME].toLocalDate());
+				if ( group.isTimeInferred() ) {
+					cmd.setEndTime(null);
+				} else {
+					cmd.setEndTime(startAndEndDateTime[END_DATETIME].toLocalTime());
+				}
+			}
+			
+			_logger.log(Level.INFO, "Added {0} -- {1} to {2}", new Object[] { cmd.getTaskName(), cmd.getStartDateTime(), cmd.getEndDateTime() });
+			Taskie.Controller.executeCommand(cmd);
 		} else {
 			// Tasks without any deadlines
 			String name = command.trim();
 			
-			task = new Task(name);
-			Taskie.Controller.executeCommand(new AddCommand(task));
-			Taskie.UI.display("Added " + name);
+			AddCommand cmd = new AddCommand();
+			cmd.setTaskName(name);
+			_logger.log(Level.INFO, "Added {0} - No date and time set", cmd.getTaskName());
+			Taskie.Controller.executeCommand(cmd);
 		}
 	}
 	
