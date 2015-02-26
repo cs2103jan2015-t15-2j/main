@@ -274,8 +274,8 @@ public class CommandParser implements Parser {
 		Task[] tasks = Taskie.UI.getCurrentTaskList();
 		try {
 			Task task = tasks[itemNumber];
+			_logger.log(Level.INFO, "Deleteing Task: {0}", task.getTitle());
 			Taskie.Controller.executeCommand(new DeleteCommand(task));
-			Taskie.UI.display("Deleting Task " + task.getTitle());	
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
 			Taskie.UI.display("Invalid Task Number");
 		}
@@ -359,7 +359,6 @@ public class CommandParser implements Parser {
 			viewCommand.setSearchKeywords(keywords);
 			_logger.log(Level.INFO, "Searching for tasks with keywords: {0}", keywords);
 			Taskie.Controller.executeCommand(viewCommand);
-			Taskie.UI.display("Viewing " + viewType);
 		}
 	}
 
@@ -372,8 +371,8 @@ public class CommandParser implements Parser {
 			steps = 1;
 		}
 		
-		Taskie.Controller.executeCommand(new UndoCommand(steps));
 		_logger.log(Level.INFO, "Undo (Steps: {0})", steps);
+		Taskie.Controller.executeCommand(new UndoCommand(steps));
 	}
 	
 	private void doRedo(String command) {
@@ -385,8 +384,8 @@ public class CommandParser implements Parser {
 			steps = 1;
 		}
 		
-		Taskie.Controller.executeCommand(new RedoCommand(steps));
 		_logger.log(Level.INFO, "Redo (Steps: {0})", steps);
+		Taskie.Controller.executeCommand(new RedoCommand(steps));
 	}
 	
 	private void doMark(String command) {
@@ -395,8 +394,8 @@ public class CommandParser implements Parser {
 		Task[] tasks = Taskie.UI.getCurrentTaskList();
 		try {
 			Task task = tasks[itemNumber];
+			_logger.log(Level.INFO, "Marking Task: {0} as Complete", task.getTitle());
 			Taskie.Controller.executeCommand(new MarkCommand(task));
-			Taskie.UI.display("Marking Task " + task.getTitle() + " as complete");	
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
 			Taskie.UI.display("Invalid Task Number");
 		}
@@ -408,16 +407,16 @@ public class CommandParser implements Parser {
 		Task[] tasks = Taskie.UI.getCurrentTaskList();
 		try {
 			Task task = tasks[itemNumber];
+			_logger.log(Level.INFO, "Unmarking Task: {0} as Complete", task.getTitle());
 			Taskie.Controller.executeCommand(new UnmarkCommand(task));
-			Taskie.UI.display("Unmarking Task " + task.getTitle() + " as complete");	
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
 			Taskie.UI.display("Invalid Task Number");
 		}
 	}
 
 	private void doExit() {
+		_logger.log(Level.INFO, "Exiting Taskie");
 		Taskie.Controller.executeCommand(new ExitCommand());
-		_logger.log(Level.INFO, "Exit");
 	}
 	
 	private static LocalDateTime[] getStartAndEndDateTime(List<Date> dates) {
