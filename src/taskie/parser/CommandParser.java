@@ -260,7 +260,7 @@ public class CommandParser implements Parser {
 	
 	private void doUpdate(String command) {
 		if ( command.trim().isEmpty() ) {
-			Taskie.UI.display("Invalid Command");
+			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
 			return;
 		}
 		
