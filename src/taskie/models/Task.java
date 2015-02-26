@@ -12,6 +12,7 @@ public class Task {
 	private LocalDate _endDate;
 	private LocalTime _startTime;
 	private LocalTime _endTime;
+	private Boolean _isDone;
 
 	public Task() {
 		_title = null;
@@ -129,6 +130,17 @@ public class Task {
 
 	public void setEndTime(LocalTime endTime) {
 		this._endTime = endTime;
+	}
+	public void setTaskDone(){
+		_isDone=true;
+	}
+	
+	public void setTaskUndone(){
+		_isDone=false;
+	}
+	
+	public Boolean getTaskStatus(){
+		return _isDone;
 	}
 
 }
