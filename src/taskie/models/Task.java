@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class Task {
+public class Task implements Comparable<Task>{
 	private String _title;
 
 	// @author A0121555M
@@ -116,6 +116,7 @@ public class Task {
 		}
 	}
 
+	
 	public LocalTime getStartTime() {
 		return _startTime;
 	}
@@ -141,6 +142,12 @@ public class Task {
 	
 	public Boolean getTaskStatus(){
 		return _isDone;
+	}
+
+	@Override
+	public int compareTo(Task o) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
