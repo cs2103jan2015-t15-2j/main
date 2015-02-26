@@ -31,43 +31,43 @@ public class AddCommand implements ICommand {
 		_endTime = null;
 	}
 
-	public String get_taskname() {
+	public String getTaskName() {
 		return _taskName;
 	}
 
-	public void set_taskname(String _taskName) {
+	public void setTaskName(String _taskName) {
 		this._taskName = _taskName;
 	}
 
-	public LocalDate get_startDate() {
+	public LocalDate getStartDate() {
 		return _startDate;
 	}
 
-	public void set_startDate(LocalDate _startDate) {
+	public void setStartDate(LocalDate _startDate) {
 		this._startDate = _startDate;
 	}
 
-	public LocalTime get_startTime() {
+	public LocalTime getStartTime() {
 		return _startTime;
 	}
 
-	public void set_startTime(LocalTime _startTime) {
+	public void setStartTime(LocalTime _startTime) {
 		this._startTime = _startTime;
 	}
 
-	public LocalDate get_endDate() {
+	public LocalDate getEndDate() {
 		return _endDate;
 	}
 
-	public void set_endDate(LocalDate _endDate) {
+	public void setEndDate(LocalDate _endDate) {
 		this._endDate = _endDate;
 	}
 
-	public LocalTime get_endTime() {
+	public LocalTime getEndTime() {
 		return _endTime;
 	}
 
-	public void set_endTime(LocalTime _endTime) {
+	public void setEndTime(LocalTime _endTime) {
 		this._endTime = _endTime;
 	}
 
@@ -77,23 +77,38 @@ public class AddCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		determineTaskTypeAndAdd();
+		Task task=determineTaskTypeAndAdd();
+		String msgToUser=formatAddMsg(task);
+		Taskie.UI.display(msgToUser);
 	}
 
-	private void determineTaskTypeAndAdd() {
+	private String formatAddMsg(Task task) {
+		return String.format("STUB MSG_ Task Title:%s Task Time:%s",task.getTitle(),formatTime(task.getStartDate(),task.getStartTime()));
+	}
+
+	private String formatTime(LocalDate startDate, LocalTime startTime) {
+		String string="";	
+		string=string.concat(startDate.toString());
+		string=string.concat(" "+startTime.getHour()+" "+startTime.getMinute());
+		return string;
+	}
+
+	private Task determineTaskTypeAndAdd() {
+		Task task;
 		if(_startDate==null && _endDate==null){
-			Task task=new Task(_taskName);
+			task =new Task(_taskName);
 			Taskie.Storage.addFloatingTask(task);
 		}
 		else if(_startDate==null && _endDate!=null){
-			Task task=new Task(_taskName,_endDate,_endTime);
+			task=new Task(_taskName,_endDate,_endTime);
 			Taskie.Storage.addDeadlineTask(task);
 		}else{
-			Task task = new Task(_taskName,_startDate,_startTime,_endDate,_endTime);
+			task = new Task(_taskName,_startDate,_startTime,_endDate,_endTime);
 			Taskie.Storage.addTimedTask(task);
 		}
-		
+		return task;
 		
 	}
+	
 
 }
