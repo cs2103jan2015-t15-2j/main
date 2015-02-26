@@ -62,4 +62,10 @@ public class DeleteCommand implements ICommand {
 	public CommandType getCommandType() {
 		return _commandType;
 	}
+
+	@Override
+	public void execute() {
+		// TODO Auto-generated method stub
+		
+	}
 }

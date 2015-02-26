@@ -1,3 +1,4 @@
+
 package taskie.commands;
 
 import taskie.models.CommandType;
@@ -10,5 +11,11 @@ public class ExitCommand implements ICommand {
 
 	public CommandType getCommandType() {
 		return _commandType;
+	}
+
+	@Override
+	public void execute() {
+		// TODO Auto-generated method stub
+		
 	}
 }

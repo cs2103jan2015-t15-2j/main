@@ -3,8 +3,9 @@
  * Still under development
  * Bugs: none known
  *
- * @author       A0097582N
- */
+ */ 
+//@author       A0097582N
+ 
 
 package taskie.commands;
 
@@ -36,5 +37,11 @@ public class ReadCommand implements ICommand {
 	@Override
 	public CommandType getCommandType() {
 		return _commandType;
+	}
+
+	@Override
+	public void execute() {
+		// TODO Auto-generated method stub
+		
 	}
 }

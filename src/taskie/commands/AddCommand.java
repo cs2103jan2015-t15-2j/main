@@ -11,11 +11,12 @@ package taskie.commands;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import taskie.Taskie;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
 public class AddCommand implements ICommand {
-	private String _taskname;
+	private String _taskName;
 	private LocalDate _startDate;
 	private LocalTime _startTime;
 	private LocalDate _endDate;
@@ -23,7 +24,7 @@ public class AddCommand implements ICommand {
 	private CommandType _commandType = CommandType.ADD;
 
 	public AddCommand() {
-		_taskname = null;
+		_taskName = null;
 		_startDate = null;
 		_startTime = null;
 		_endDate = null;
@@ -31,11 +32,11 @@ public class AddCommand implements ICommand {
 	}
 
 	public String get_taskname() {
-		return _taskname;
+		return _taskName;
 	}
 
-	public void set_taskname(String _taskname) {
-		this._taskname = _taskname;
+	public void set_taskname(String _taskName) {
+		this._taskName = _taskName;
 	}
 
 	public LocalDate get_startDate() {
@@ -73,4 +74,26 @@ public class AddCommand implements ICommand {
 	public CommandType getCommandType() {
 		return _commandType;
 	}
+
+	@Override
+	public void execute() {
+		determineTaskTypeAndAdd();
+	}
+
+	private void determineTaskTypeAndAdd() {
+		if(_startDate==null && _endDate==null){
+			Task task=new Task(_taskName);
+			Taskie.Storage.addFloatingTask(task);
+		}
+		else if(_startDate==null && _endDate!=null){
+			Task task=new Task(_taskName,_endDate,_endTime);
+			Taskie.Storage.addDeadlineTask(task);
+		}else{
+			Task task = new Task(_taskName,_startDate,_startTime,_endDate,_endTime);
+			Taskie.Storage.addTimedTask(task);
+		}
+		
+		
+	}
+
 }
