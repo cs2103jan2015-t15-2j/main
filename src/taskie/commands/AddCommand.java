@@ -9,6 +9,7 @@ package taskie.commands;
 //@author       A0097582N
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import taskie.Taskie;
@@ -70,7 +71,17 @@ public class AddCommand implements ICommand {
 	public void setEndTime(LocalTime _endTime) {
 		this._endTime = _endTime;
 	}
+	
+	//@author A0121555M
+	public LocalDateTime getStartDateTime() {
+		return LocalDateTime.of(_startDate, (_startTime == null) ? LocalTime.MAX : _startTime);
+	}
+	
+	public LocalDateTime getEndDateTime() {
+		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX : _endTime);
+	}
 
+	//@author A
 	public CommandType getCommandType() {
 		return _commandType;
 	}
