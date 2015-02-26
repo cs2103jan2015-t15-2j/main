@@ -89,8 +89,7 @@ public class AddCommand implements ICommand {
 	@Override
 	public void execute() {
 		Task task=determineTaskTypeAndAdd();
-		String msgToUser=formatAddMsg(task);
-		Taskie.UI.display(msgToUser);
+		Taskie.UI.display(formatAddMsg(task));
 	}
 
 	private String formatAddMsg(Task task) {
