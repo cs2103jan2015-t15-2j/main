@@ -1,4 +1,8 @@
-/**
+
+package taskie.controller;
+
+
+/*
  * Class to perform tasks needed to achieve functionality. Interface between front and back end.
  * Still under development
  * Bugs: none known
@@ -7,17 +11,27 @@
 // @author       A0097582N
 
 
-package taskie.controller;
+
+import java.util.Stack;
 
 import taskie.commands.AddCommand;
 import taskie.commands.ICommand;
 import taskie.database.IStorage;
+import taskie.database.Storage;
 import taskie.models.Task;
+import taskie.ui.UI;
 
 public class Controller {
 	private IStorage _storage;
+	private Stack<ICommand> _undoStack;
+	private UI _uI;
 
-	public Controller() {
+	public Controller(UI uI) {
+		_storage=new Storage();
+		_undoStack = new Stack<ICommand>();
+		_uI = uI;
+		
+		
 	}
 
 	public void executeCommand(ICommand command) {
@@ -51,20 +65,28 @@ public class Controller {
 
 	private void executeAddCommand(AddCommand command) {
 		determineTaskTypeAndAdd(command.getTaskToAdd());
+		addToUndoStack(command);
+		String msgToUser=formatAddMsg(command);
+		_uI.display(msgToUser);
+		
+	}
+
+	private String formatAddMsg(AddCommand command) {
+		Task task= command.getTaskToAdd();
+		
+		return String.format(MSG_ADDED,task.getTitle(),task.);
+	}
+
+	private void addToUndoStack(AddCommand command) {
+		_undoStack.push(command);
 	}
 
 	private void determineTaskTypeAndAdd(Task taskToAdd) {
-
-		if (taskToAdd.getStartTime() == null && taskToAdd.getEndTime() == null) { // no
-																					// time
-																					// added,
-																					// i.e
-																					// floating
-																					// task
+			//no time added.
+		if (taskToAdd.getStartTime() == null && taskToAdd.getEndTime() == null) { 
 			_storage.addFloatingTask(taskToAdd);
 		} else if (taskToAdd.getStartTime() == null
-				^ taskToAdd.getEndTime() == null) { // 1 time added, i.e
-													// deadline task
+					^ taskToAdd.getEndTime() == null) { // 1 time added, i.e deadline task
 			_storage.addDeadlineTask(taskToAdd);
 		} else {
 			_storage.addTimedTask(taskToAdd);
@@ -96,8 +118,4 @@ public class Controller {
 
 	}
 
-	private void executeAddCommand() {
-		// TODO Auto-generated method stub
-
-	}
 }
