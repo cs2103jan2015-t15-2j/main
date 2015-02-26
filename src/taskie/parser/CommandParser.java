@@ -205,7 +205,6 @@ public class CommandParser implements Parser {
 		}
 		
 		List<DateGroup> groups = _natty.parse(command);
-		Task task;
 		
 		if ( groups.size() > 0 ) {
 			DateGroup group = groups.get(0);
@@ -223,30 +222,45 @@ public class CommandParser implements Parser {
 			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 			
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
-			task = new Task(name);
-			task.setStartDateTime(startAndEndDateTime[START_DATETIME]);
-			task.setEndDateTime(startAndEndDateTime[END_DATETIME]);
 			
-			if ( group.isTimeInferred() ) {
-				task.setStartTime(null);
-				task.setEndTime(null);
+			AddCommand cmd = new AddCommand();
+			cmd.setTaskName(name);
+			
+			if ( startAndEndDateTime[START_DATETIME] != null ) {
+				cmd.setStartDate(startAndEndDateTime[START_DATETIME].toLocalDate());
+				
+				if ( group.isTimeInferred() ) {
+					cmd.setStartTime(null);
+				} else {
+					cmd.setStartTime(startAndEndDateTime[START_DATETIME].toLocalTime());
+				}
 			}
-
-			Taskie.Controller.executeCommand(new AddCommand(task));
-			Taskie.UI.display("Added " + name + " -- " + task.getStartDateTime() + " to " + task.getEndDateTime());
+			
+			if ( startAndEndDateTime[END_DATETIME] != null ) {
+				cmd.setEndDate(startAndEndDateTime[END_DATETIME].toLocalDate());
+				if ( group.isTimeInferred() ) {
+					cmd.setEndTime(null);
+				} else {
+					cmd.setEndTime(startAndEndDateTime[END_DATETIME].toLocalTime());
+				}
+			}
+			
+			_logger.log(Level.INFO, "Added {0} -- {1} to {2}", new Object[] { cmd.getTaskName(), cmd.getStartDateTime(), cmd.getEndDateTime() });
+			Taskie.Controller.executeCommand(cmd);
 		} else {
 			// Tasks without any deadlines
 			String name = command.trim();
 			
-			task = new Task(name);
-			Taskie.Controller.executeCommand(new AddCommand(task));
-			Taskie.UI.display("Added " + name);
+			AddCommand cmd = new AddCommand();
+			cmd.setTaskName(name);
+			_logger.log(Level.INFO, "Added {0} - No date and time set", cmd.getTaskName());
+			Taskie.Controller.executeCommand(cmd);
 		}
 	}
 	
 	private void doUpdate(String command) {
 		if ( command.trim().isEmpty() ) {
-			Taskie.UI.display("Invalid Command");
+			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
 			return;
 		}
 		
@@ -260,8 +274,8 @@ public class CommandParser implements Parser {
 		Task[] tasks = Taskie.UI.getCurrentTaskList();
 		try {
 			Task task = tasks[itemNumber];
+			_logger.log(Level.INFO, "Deleteing Task: {0}", task.getTitle());
 			Taskie.Controller.executeCommand(new DeleteCommand(task));
-			Taskie.UI.display("Deleting Task " + task.getTitle());	
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
 			Taskie.UI.display("Invalid Task Number");
 		}
@@ -345,7 +359,6 @@ public class CommandParser implements Parser {
 			viewCommand.setSearchKeywords(keywords);
 			_logger.log(Level.INFO, "Searching for tasks with keywords: {0}", keywords);
 			Taskie.Controller.executeCommand(viewCommand);
-			Taskie.UI.display("Viewing " + viewType);
 		}
 	}
 
@@ -358,8 +371,8 @@ public class CommandParser implements Parser {
 			steps = 1;
 		}
 		
-		Taskie.Controller.executeCommand(new UndoCommand(steps));
 		_logger.log(Level.INFO, "Undo (Steps: {0})", steps);
+		Taskie.Controller.executeCommand(new UndoCommand(steps));
 	}
 	
 	private void doRedo(String command) {
@@ -371,8 +384,8 @@ public class CommandParser implements Parser {
 			steps = 1;
 		}
 		
-		Taskie.Controller.executeCommand(new RedoCommand(steps));
 		_logger.log(Level.INFO, "Redo (Steps: {0})", steps);
+		Taskie.Controller.executeCommand(new RedoCommand(steps));
 	}
 	
 	private void doMark(String command) {
@@ -381,8 +394,8 @@ public class CommandParser implements Parser {
 		Task[] tasks = Taskie.UI.getCurrentTaskList();
 		try {
 			Task task = tasks[itemNumber];
+			_logger.log(Level.INFO, "Marking Task: {0} as Complete", task.getTitle());
 			Taskie.Controller.executeCommand(new MarkCommand(task));
-			Taskie.UI.display("Marking Task " + task.getTitle() + " as complete");	
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
 			Taskie.UI.display("Invalid Task Number");
 		}
@@ -394,16 +407,16 @@ public class CommandParser implements Parser {
 		Task[] tasks = Taskie.UI.getCurrentTaskList();
 		try {
 			Task task = tasks[itemNumber];
+			_logger.log(Level.INFO, "Unmarking Task: {0} as Complete", task.getTitle());
 			Taskie.Controller.executeCommand(new UnmarkCommand(task));
-			Taskie.UI.display("Unmarking Task " + task.getTitle() + " as complete");	
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
 			Taskie.UI.display("Invalid Task Number");
 		}
 	}
 
 	private void doExit() {
+		_logger.log(Level.INFO, "Exiting Taskie");
 		Taskie.Controller.executeCommand(new ExitCommand());
-		_logger.log(Level.INFO, "Exit");
 	}
 	
 	private static LocalDateTime[] getStartAndEndDateTime(List<Date> dates) {
