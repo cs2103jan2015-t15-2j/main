@@ -9,10 +9,7 @@
 
 package taskie.commands;
 
-<<<<<<< HEAD
 import java.time.LocalDate;
-=======
->>>>>>> 7d0825778eb4af3a67362765d5f6a05f592c16f5
 import java.time.LocalTime;
 import java.util.Calendar;
 
@@ -21,13 +18,8 @@ import taskie.models.Task;
 
 public class DeleteCommand implements ICommand {
 	private String _taskName;
-<<<<<<< HEAD
 	private LocalDate _startDateToDelete;
 	private LocalDate _endDateToDelete;
-=======
-	private LocalTime _startDateToDelete;
-	private LocalTime _endDateToDelete;
->>>>>>> 7d0825778eb4af3a67362765d5f6a05f592c16f5
 	private LocalTime _startTimeToDelete;
 	private LocalTime _endTimeToDelete;
 	private CommandType _commandType = CommandType.DELETE;
@@ -54,19 +46,11 @@ public class DeleteCommand implements ICommand {
 		return _taskName;
 	}
 
-<<<<<<< HEAD
 	public void setStartDateToDelete(LocalDate startDate) {
 		_startDateToDelete = startDate;
 	}
 
 	public void setEndDateToDelete(LocalDate endDate) {
-=======
-	public void setStartDateToDelete(LocalTime startDate) {
-		_startDateToDelete = startDate;
-	}
-
-	public void setEndDateToDelete(LocalTime endDate) {
->>>>>>> 7d0825778eb4af3a67362765d5f6a05f592c16f5
 		_endDateToDelete = endDate;
 	}
 
@@ -78,19 +62,12 @@ public class DeleteCommand implements ICommand {
 		_endTimeToDelete = endTime;
 	}
 	
-<<<<<<< HEAD
+
 	public LocalDate getStartDateToDelete() {
 		return _startDateToDelete;
 	}
 
 	public LocalDate getEndDateToDelete() {
-=======
-	public LocalTime getStartDateToDelete() {
-		return _startDateToDelete;
-	}
-
-	public LocalTime getEndDateToDelete() {
->>>>>>> 7d0825778eb4af3a67362765d5f6a05f592c16f5
 		return _endDateToDelete;
 	}
 	

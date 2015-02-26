@@ -65,7 +65,7 @@ public class UpdateCommand implements ICommand {
 		_endTimeToUpdate = endTime;
 	}
 	
-
+	
 
 	public String getTaskName() {
 		return _taskName;
@@ -75,11 +75,6 @@ public class UpdateCommand implements ICommand {
 		return _startDateToUpdate;
 	}
 
-	public String getTaskName() {
-		return _taskName;
-	}
-	
-	
 	public LocalTime getStartTimeToUpdate() {
 		return _startTimeToUpdate;
 	}
