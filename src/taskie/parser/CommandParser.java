@@ -427,7 +427,7 @@ public class CommandParser implements Parser {
 			// Deadline tasks
 			Date datetime1 = dates.get(0);
 			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
-			startAndEndDateTime[START_DATETIME] = ldt1;
+			startAndEndDateTime[START_DATETIME] = null;
 			startAndEndDateTime[END_DATETIME] = ldt1;
 		}
 		
