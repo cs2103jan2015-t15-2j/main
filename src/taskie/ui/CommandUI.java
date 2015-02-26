@@ -65,6 +65,10 @@ public class CommandUI implements UI {
 	public void display(String message) {
 		System.out.println(message);
 	}
+	
+	public Task[] getCurrentTaskList() {
+		return _currentTaskList;
+	}
 
 	private void printWelcomeMessage() {
 		this.display(MESSAGE_WELCOME);
