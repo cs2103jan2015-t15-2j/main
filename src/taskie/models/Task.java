@@ -3,8 +3,9 @@ package taskie.models;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.io.Serializable;
 
-public class Task implements Comparable<Task>{
+public class Task implements Comparable<Task>, Serializable{
 	private String _title;
 
 	// @author A0121555M
