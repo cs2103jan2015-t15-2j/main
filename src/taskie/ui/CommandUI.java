@@ -53,8 +53,7 @@ public class CommandUI implements UI {
 	}
 
 	public void display(Task task) {
-		_currentTaskList = new Task[] { task };
-
+		this.display(new Task[] { task });
 	}
 
 	public void display(Task[] tasks) {
