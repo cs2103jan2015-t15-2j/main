@@ -8,7 +8,9 @@
 
 package taskie.commands;
 
+
 import java.time.LocalDate;
+
 import java.time.LocalTime;
 import java.util.Calendar;
 
@@ -18,8 +20,10 @@ public class UpdateCommand implements ICommand {
 	int NUM_ATTRIBUTE = 2;
 
 	private String _taskName;
+
 	private LocalDate _startDateToUpdate;
 	private LocalDate _endDateToUpdate;
+
 	private LocalTime _startTimeToUpdate;
 	private LocalTime _endTimeToUpdate;
 	private CommandType _commandType = CommandType.UPDATE;
@@ -44,6 +48,7 @@ public class UpdateCommand implements ICommand {
 		_taskName = taskName;
 	}
 
+
 	public void setStartDateToUpdate(LocalDate startDate) {
 		_startDateToUpdate = startDate;
 	}
@@ -61,6 +66,7 @@ public class UpdateCommand implements ICommand {
 	}
 	
 
+
 	public String getTaskName() {
 		return _taskName;
 	}
@@ -69,9 +75,10 @@ public class UpdateCommand implements ICommand {
 		return _startDateToUpdate;
 	}
 
-	public LocalDate getEndDateToUpdate() {
-		return _endDateToUpdate;
+	public String getTaskName() {
+		return _taskName;
 	}
+	
 	
 	public LocalTime getStartTimeToUpdate() {
 		return _startTimeToUpdate;
