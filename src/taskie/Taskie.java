@@ -17,7 +17,7 @@ public class Taskie {
 	}
 
 	public Taskie(String[] args) {
-		Controller = new taskie.controller.Controller();
+		Controller = new taskie.controller.Controller(UI);
 		UI = new CommandUI();
 		UI.run();
 	}
