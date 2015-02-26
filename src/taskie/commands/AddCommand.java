@@ -101,9 +101,14 @@ public class AddCommand implements ICommand {
 
 	private String formatTime(LocalDate startDate, LocalTime startTime) {
 		String string = "";
+		if(startDate!=null){
 		string = string.concat(startDate.toString());
+		}
+		
+		if(startTime!=null){
 		string = string.concat(" " + startTime.getHour() + " "
 				+ startTime.getMinute());
+		}
 		return string;
 	}
 
