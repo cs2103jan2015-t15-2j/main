@@ -11,8 +11,8 @@ public interface IStorage {
 	
 	void setStorageLocation(String fileDir);
 	
-	HashMap<String, ArrayList<Task>> retrieveTaskMap();
-	HashMap<String, ArrayList<Task>> retrieveTaskList(String fileDir);
+	HashMap<String, ArrayList<Task>> retrieveTaskMap(); //done
+	HashMap<String, ArrayList<Task>> retrieveTaskMap(String fileDir);
 	
 	boolean storeTaskList(ArrayList<Task>[] tasklists, String fileDir);
 	boolean storeTaskList(ArrayList<Task>[] tasklists);
