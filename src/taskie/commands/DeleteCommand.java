@@ -9,6 +9,8 @@
 
 package taskie.commands;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Calendar;
 
 import taskie.models.CommandType;
@@ -16,20 +18,23 @@ import taskie.models.Task;
 
 public class DeleteCommand implements ICommand {
 	private String _taskName;
-	private Calendar _startTimeToDelete;
-	private Calendar _endTimeToDelete;
+	private Boolean _DeleteStartDate;
+	private Boolean _DeleteStartTime;
+	private Boolean _DeleteEndDate;
+	private Boolean _DeleteEndTime;
+	
 	private CommandType _commandType = CommandType.DELETE;
 
 	public DeleteCommand() {
 		_taskName = null;
-		_startTimeToDelete = null;
-		_endTimeToDelete = null;
+		_DeleteStartDate=false;
+		_DeleteStartTime=false;
+		_DeleteEndDate=false;
+		_DeleteEndTime=false;
+
 	}
 	
-	public DeleteCommand(Task task) {
-		
-	}
-
+	
 	public DeleteCommand(String taskName) {
 		_taskName = taskName;
 	}
@@ -41,22 +46,40 @@ public class DeleteCommand implements ICommand {
 	public String getTaskName() {
 		return _taskName;
 	}
-
-	public void setStartTimeToDelete(Calendar startTime) {
-		_startTimeToDelete = startTime;
+	
+	public void setToDeleteStartDate(){
+		_DeleteStartDate=true;
 	}
-
-	public void setEndTimeToDelete(Calendar endTime) {
-		_endTimeToDelete = endTime;
+	
+	public Boolean canDeleteStartDate(){
+		return _DeleteStartDate;
 	}
-
-	public Calendar getStartTimeToDelete() {
-		return _startTimeToDelete;
+	
+	public void setToDeleteStartTime(){
+		_DeleteStartTime=true;
 	}
-
-	public Calendar getEndTimeToDelete() {
-		return _endTimeToDelete;
+	
+	public Boolean canDeleteStartTime(){
+		return _DeleteStartTime;
 	}
+	
+	public void setToDeleteEndDate(){
+		_DeleteEndDate=true;
+	}
+	
+	public Boolean canDeleteEndDate(){
+		return _DeleteEndDate;
+	}
+	
+	public void setToDeleteEndTime(){
+		_DeleteEndTime=true;
+	}
+	
+	public Boolean canDeleteEndTime(){
+		return _DeleteEndTime;
+	}
+	
+	
 
 	@Override
 	public CommandType getCommandType() {
@@ -65,7 +88,6 @@ public class DeleteCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		// TODO Auto-generated method stub
 		
 	}
 }

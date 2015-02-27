@@ -119,7 +119,7 @@ public class UpdateCommand implements ICommand {
 		Task task = retrieveTaskToUpdateFromParser();
 		retrieveTaskToUpdateFromStorageAndUpdate(task);
 		Taskie.UI.display(formatUpdateMsg(task));
-
+		//TODO add message return to user
 	}
 
 	private void updateTask(Task task) {
