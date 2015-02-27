@@ -48,7 +48,7 @@ public class MarkCommand implements ICommand {
 		int taskIndex=taskList.indexOf(task);
 		Task taskRetrieved=taskList.get(taskIndex);
 		taskRetrieved.setTaskDone();
-		Taskie.Storage.storeTaskLists(taskLists);
+		Taskie.Storage.storeTaskMap(taskLists);
 	}
 
 }

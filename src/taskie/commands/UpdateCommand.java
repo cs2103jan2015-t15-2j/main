@@ -144,7 +144,7 @@ public class UpdateCommand implements ICommand {
 		ArrayList<Task> taskList= taskLists.get(taskType);
 		int taskIndex= taskList.indexOf(task);
 		updateTask(taskList.get(taskIndex));
-		Taskie.Storage.storeTaskLists(taskLists);
+		Taskie.Storage.storeTaskMap(taskLists);
 	}
 
 	private String formatUpdateMsg(Task task) {
