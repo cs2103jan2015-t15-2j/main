@@ -14,8 +14,8 @@ public interface IStorage {
 	HashMap<String, ArrayList<Task>> retrieveTaskMap(); //done
 	HashMap<String, ArrayList<Task>> retrieveTaskMap(String fileDir);
 	
-	boolean storeTaskList(ArrayList<Task>[] tasklists, String fileDir);
-	boolean storeTaskList(ArrayList<Task>[] tasklists);
+	boolean storeTaskList(HashMap<String, ArrayList<Task>> tasklists, String fileDir);
+	boolean storeTaskList(HashMap<String, ArrayList<Task>> tasklists);
 
 	boolean addFloatingTask(Task taskToAdd);
 	boolean addFloatingTask(Task taskToAdd,String fileDir);
