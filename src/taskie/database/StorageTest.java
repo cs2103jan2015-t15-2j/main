@@ -10,10 +10,11 @@ import java.util.HashMap;
 
 public class StorageTest {
 	public static void main(String[] args) {
+	
 		
 		/*
 		 * Test for retrieveTaskMap()
-		 * 
+		 
 		Storage stor = new Storage();
 		ArrayList<Task> deadlinedTasks = new ArrayList<Task>();
 		ArrayList<Task> timedTasks = new ArrayList<Task>();
@@ -65,6 +66,19 @@ public class StorageTest {
 			System.out.println(t.getStartDate());
 		}
 		
+		*/
+		
+		
+		
+		/*
+		 * Test for addTimedTask()
+		Storage stor = new Storage();
+		LocalDate tTask7sd = LocalDate.of(2015, 1, 11);
+		LocalDate tTask7ed = LocalDate.of(2015, 1, 15);
+		LocalTime tTask7st = LocalTime.of(14, 00);
+		LocalTime tTask7et = LocalTime.of(5, 00);
+		Task tTask7 = new Task("timed7", tTask7sd, tTask7st, tTask7ed, tTask7et);
+		stor.addTimedTask(tTask7);
 		*/
 		
 		
