@@ -17,9 +17,9 @@ import java.time.format.DateTimeFormatter;
 
 public class Storage implements IStorage {
 	
-	private static final String DEADLINED_TASKNAME = "deadlined";
-	private static final String TIMED_TASKNAME = "timed";
-	private static final String FLOATING_TASKNAME = "floating";
+	public static final String DEADLINED_TASKNAME = "deadlined";
+	public static final String TIMED_TASKNAME = "timed";
+	public static final String FLOATING_TASKNAME = "floating";
 	
 	private static final String DEADLINED_TASKS_FILENAME = "deadlined tasks.txt";
 	private static final String TIMED_TASKS_FILENAME = "timed tasks.txt";
@@ -85,55 +85,90 @@ public class Storage implements IStorage {
 	
 	private ArrayList<Task> readDeadlinedTasks(ArrayList<String> strTaskList) {
 		ArrayList<Task> taskList = new ArrayList<Task>();
-		Task tempTask;
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 		for (int i = 0; i < strTaskList.size(); i++) {
+			Task tempTask;
 			String tempStr = strTaskList.get(i);
 			StringTokenizer tokenizer = new StringTokenizer(tempStr, SEPARATOR);
-			String title = tokenizer.nextToken().trim();
-			String strEndDate = tokenizer.nextToken().trim();
-			LocalDate date = LocalDate.parse(strEndDate, dateFormatter);
 			if (tokenizer.countTokens() == FIELD_QTY_FOR_DEADLINED_WITH_ENDTIME) {
-				String strEndTime = tokenizer.nextToken().trim();
-				LocalTime time = LocalTime.parse(strEndTime, timeFormatter);
-				tempTask = new Task(title, date, time);
+				tempTask = tokenizeStrOfDeadlinedTaskWithEndtime(dateFormatter, timeFormatter,tokenizer);
 			} else {
-				tempTask = new Task(title, date);
+				tempTask = tokenizeStrOfDeadlinedTaskWithoutEndtime(dateFormatter, timeFormatter,tokenizer);
+			}
+			taskList.add(tempTask);
+		}
+		return taskList;
+	}
+
+	private Task tokenizeStrOfDeadlinedTaskWithEndtime(DateTimeFormatter dateFormatter, 
+			DateTimeFormatter timeFormatter, StringTokenizer tokenizer) {
+		Task tempTask;
+		String title = tokenizer.nextToken().trim();
+		String strEndDate = tokenizer.nextToken().trim();
+		LocalDate endDate = LocalDate.parse(strEndDate, dateFormatter);
+		String strEndTime = tokenizer.nextToken().trim();
+		LocalTime time = LocalTime.parse(strEndTime, timeFormatter);
+		tempTask = new Task(title, endDate, time);
+		return tempTask;
+	}
+	
+	private Task tokenizeStrOfDeadlinedTaskWithoutEndtime(DateTimeFormatter dateFormatter, 
+			DateTimeFormatter timeFormatter, StringTokenizer tokenizer) {
+		Task tempTask;
+		String title = tokenizer.nextToken().trim();
+		String strEndDate = tokenizer.nextToken().trim();
+		LocalDate endDate = LocalDate.parse(strEndDate, dateFormatter);
+		tempTask = new Task(title, endDate);
+		return tempTask;
+	}
+	
+	private ArrayList<Task> readTimedTasks(ArrayList<String> strTaskList) {
+		ArrayList<Task> taskList = new ArrayList<Task>();
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+		for (int i = 0; i < strTaskList.size(); i++) {
+			Task tempTask;
+			String tempStr = strTaskList.get(i);
+			StringTokenizer tokenizer = new StringTokenizer(tempStr, SEPARATOR);
+			if (tokenizer.countTokens() == FIELD_QTY_FOR_TIMED_WITH_TIME) {
+				tempTask = tokenizeStrOfTimedTaskWithTime(dateFormatter, timeFormatter, tokenizer);
+			} else {
+				tempTask = tokenizeStrOfTimedTaskWithoutTime(dateFormatter, timeFormatter, tokenizer);
 			}
 			taskList.add(tempTask);
 		}
 		return taskList;
 	}
 	
-	private ArrayList<Task> readTimedTasks(ArrayList<String> strTaskList) {
-		ArrayList<Task> taskList = new ArrayList<Task>();
+	private Task tokenizeStrOfTimedTaskWithTime(DateTimeFormatter dateFormatter, 
+			DateTimeFormatter timeFormatter, StringTokenizer tokenizer) {
 		Task tempTask;
-		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-		for (int i = 0; i < strTaskList.size(); i++) {
-			String tempStr = strTaskList.get(i);
-			StringTokenizer tokenizer = new StringTokenizer(tempStr, SEPARATOR);
-			String title = tokenizer.nextToken().trim();
-			String strStartDate = tokenizer.nextToken().trim();
-			LocalDate startDate = LocalDate.parse(strStartDate, dateFormatter);
-			if (tokenizer.countTokens() == FIELD_QTY_FOR_TIMED_WITH_TIME) {
-				String strStartTime = tokenizer.nextToken().trim();
-				LocalTime startTime = LocalTime.parse(strStartTime, timeFormatter);
-				String strEndDate = tokenizer.nextToken().trim();
-				LocalDate endDate = LocalDate.parse(strEndDate, dateFormatter);
-				String strEndTime = tokenizer.nextToken().trim();
-				LocalTime endTime = LocalTime.parse(strEndTime, timeFormatter);
-				tempTask = new Task(title, startDate, startTime, endDate, endTime);
-			} else {
-				String strEndDate = tokenizer.nextToken().trim();
-				LocalDate endDate = LocalDate.parse(strEndDate, dateFormatter);
-				tempTask = new Task(title, startDate, endDate);
-			}
-			taskList.add(tempTask);
-		}
-		return taskList;
+		String title = tokenizer.nextToken().trim();
+		String strStartDate = tokenizer.nextToken().trim();
+		LocalDate startDate = LocalDate.parse(strStartDate, dateFormatter);
+		String strStartTime = tokenizer.nextToken().trim();
+		LocalTime startTime = LocalTime.parse(strStartTime, timeFormatter);
+		String strEndDate = tokenizer.nextToken().trim();
+		LocalDate endDate = LocalDate.parse(strEndDate, dateFormatter);
+		String strEndTime = tokenizer.nextToken().trim();
+		LocalTime endTime = LocalTime.parse(strEndTime, timeFormatter);
+		tempTask = new Task(title, startDate, startTime, endDate, endTime);
+		return tempTask;
 	}
+	
+	private Task tokenizeStrOfTimedTaskWithoutTime(DateTimeFormatter dateFormatter, 
+			DateTimeFormatter timeFormatter, StringTokenizer tokenizer) {
+		Task tempTask;
+		String title = tokenizer.nextToken().trim();
+		String strStartDate = tokenizer.nextToken().trim();
+		LocalDate startDate = LocalDate.parse(strStartDate, dateFormatter);
+		String strEndDate = tokenizer.nextToken().trim();
+		LocalDate endDate = LocalDate.parse(strEndDate, dateFormatter);
+		tempTask = new Task(title, startDate, endDate);
+		return tempTask;
+	}
+	
 
 	private ArrayList<Task> readFloatingTasks(ArrayList<String> strTaskList) {
 		ArrayList<Task> taskList = new ArrayList<Task>();
