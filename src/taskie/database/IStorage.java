@@ -13,7 +13,7 @@ public interface IStorage {
 	void setStorageLocation(String fileDir); //done
 	
 	HashMap<String, ArrayList<Task>> retrieveTaskMap(); //done
-	HashMap<String, ArrayList<Task>> retrieveTaskMap(String fileDir);
+	HashMap<String, ArrayList<Task>> retrieveTaskMap(String fileDir); 
 	
 
 	boolean storeTaskMap(HashMap<String, ArrayList<Task>> hm, String fileDir);

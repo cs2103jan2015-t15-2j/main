@@ -14,7 +14,7 @@ public class StorageTest {
 		
 		/*
 		 * Test for retrieveTaskMap()
-		 
+		 * 
 		Storage stor = new Storage();
 		ArrayList<Task> deadlinedTasks = new ArrayList<Task>();
 		ArrayList<Task> timedTasks = new ArrayList<Task>();
@@ -72,6 +72,7 @@ public class StorageTest {
 		
 		/*
 		 * Test for addTimedTask()
+		 * 
 		Storage stor = new Storage();
 		LocalDate tTask7sd = LocalDate.of(2015, 1, 11);
 		LocalDate tTask7ed = LocalDate.of(2015, 1, 15);
