@@ -1,3 +1,11 @@
+/**
+ * class representing a update command. 
+ * Still under development
+ * Bugs: none known
+ *
+ */
+//@author       A0097582N
+
 package taskie.commands;
 
 import java.util.ArrayList;
@@ -9,10 +17,6 @@ import taskie.models.CommandType;
 import taskie.models.Task;
 
 public class MarkCommand implements ICommand {
-
-	private static final String DEADLINED_TASKNAME = "deadlined";
-	private static final String TIMED_TASKNAME = "timed";
-	private static final String FLOATING_TASKNAME = "floating";
 
 	private CommandType _commandType = CommandType.MARK;
 	private Task _task;
@@ -33,7 +37,7 @@ public class MarkCommand implements ICommand {
 	public void execute() {
 		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
 				.retrieveTaskMap();
-		String taskType = determineTaskType(_task);
+		String taskType = Taskie.Controller.determineTaskType(_task);
 		scanListForTaskAndMark(_task, taskLists,taskType);
 
 	}
@@ -44,17 +48,7 @@ public class MarkCommand implements ICommand {
 		int taskIndex=taskList.indexOf(task);
 		Task taskRetrieved=taskList.get(taskIndex);
 		taskRetrieved.setTaskDone();
-		Taskie.Storage.storeTaskList(taskLists);
-	}
-
-	private String determineTaskType(Task task) {
-		if (task.getStartDate() == null && task.getEndDate() == null) {
-			return FLOATING_TASKNAME;
-		} else if (task.getStartDate() == null && task.getEndDate() != null) {
-			return DEADLINED_TASKNAME;
-		} else {
-			return TIMED_TASKNAME;
-		}
+		Taskie.Storage.storeTaskLists(taskLists);
 	}
 
 }

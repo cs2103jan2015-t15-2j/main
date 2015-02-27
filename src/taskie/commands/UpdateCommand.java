@@ -10,12 +10,15 @@ package taskie.commands;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import taskie.Taskie;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
 public class UpdateCommand implements ICommand {
+	
 	int NUM_ATTRIBUTE = 2;
 	private int _taskIndex;
 	private LocalDate _startDateToUpdate;
@@ -103,23 +106,45 @@ public class UpdateCommand implements ICommand {
 		return _isToUpdateStartTime;
 	}
 	
-	public Boolean getIsModifedEndDate(){
+	public Boolean isModifedEndDate(){
 		return _isToUpdateEndDate;
 	}
 	
-	public Boolean getIsModifedEndTime(){
+	public Boolean isModifedEndTime(){
 		return _isToUpdateEndTime;
 	}
 	
 	@Override
 	public void execute() {
-		Task task = retrieveTaskToUpdate();
-		task = updateTask(task);
-		if(Taskie.Storage!=null){
-			Taskie.Storage.storeUpdatedTask(task);
-		}
+		Task task = retrieveTaskToUpdateFromParser();
+		retrieveTaskToUpdateFromStorageAndUpdate(task);
 		Taskie.UI.display(formatUpdateMsg(task));
 
+	}
+
+	private void updateTask(Task task) {
+		if(this.isModifedStartDate()){
+			task.setStartDate(this.getStartDateToUpdate());
+		}
+		if(this.isModifedStartTime()){
+			task.setStartTime(this.getStartTimeToUpdate());
+		}
+		if(this.isModifedEndDate()){
+			task.setEndDate(this.getEndDateToUpdate());
+		}
+		if(this.isModifedEndTime()){
+			task.setEndTime(this.getEndTimeToUpdate());
+		}
+		
+	}
+
+	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) {
+		HashMap<String, ArrayList<Task>> taskLists=Taskie.Storage.retrieveTaskMap();
+		String taskType = Taskie.Controller.determineTaskType(task);
+		ArrayList<Task> taskList= taskLists.get(taskType);
+		int taskIndex= taskList.indexOf(task);
+		updateTask(taskList.get(taskIndex));
+		Taskie.Storage.storeTaskLists(taskLists);
 	}
 
 	private String formatUpdateMsg(Task task) {
@@ -129,27 +154,11 @@ public class UpdateCommand implements ICommand {
 				Taskie.Controller.formatTime(task.getStartDate(), task.getStartTime()));
 	}
 
-	private Task retrieveTaskToUpdate() {
+	private Task retrieveTaskToUpdateFromParser() {
 		Task[] taskList=Taskie.UI.getCurrentTaskList();
 		Task task = taskList[_taskIndex];
 		return task;
 	}
 
-	private Task updateTask(Task task) {
-		if(_isToUpdateStartDate==true){
-			task.setStartDate(_startDateToUpdate);
-		}
-		if(_isToUpdateStartTime==true){
-			task.setStartTime(_startTimeToUpdate);
-		}
-		if(_isToUpdateEndDate==true){
-			task.setEndDate(_endDateToUpdate);
-		}
-		if(_isToUpdateEndTime==true){
-			task.setEndTime(_endTimeToUpdate);
-		}
-		
-		return task;
-	}
 
 }

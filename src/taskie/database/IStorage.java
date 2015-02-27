@@ -1,4 +1,5 @@
 package taskie.database;
+//@author	A0097582N
 
 import taskie.models.Task;
 
@@ -14,8 +15,8 @@ public interface IStorage {
 	HashMap<String, ArrayList<Task>> retrieveTaskMap(); //done
 	HashMap<String, ArrayList<Task>> retrieveTaskMap(String fileDir);
 	
-	boolean storeTaskList(HashMap<String, ArrayList<Task>> tasklists, String fileDir);
-	boolean storeTaskList(HashMap<String, ArrayList<Task>> tasklists);
+	boolean storeTaskLists(HashMap<String, ArrayList<Task>> tasklists, String fileDir);
+	boolean storeTaskLists(HashMap<String, ArrayList<Task>> tasklists);
 
 	boolean addFloatingTask(Task taskToAdd);
 	boolean addFloatingTask(Task taskToAdd,String fileDir);
@@ -25,6 +26,4 @@ public interface IStorage {
 
 	boolean addTimedTask(Task taskToAdd);
 	boolean addTimedTask(Task taskToAdd,String fileDir);
-
-	void storeUpdatedTask(Task task);
 }
