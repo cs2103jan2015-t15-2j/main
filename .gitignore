@@ -54,6 +54,3 @@ local.properties
 .texlipse
 
 !libs/*
-deadlined tasks.txt
-floating tasks.txt
-timed tasks.txt
