@@ -294,6 +294,26 @@ public class Storage implements IStorage {
 		}
 	}
 	
+	public void addFloatingTask(Task taskToAdd){
+		ArrayList<Task> floatingTasks = readTaskList(FLOATING_TASKS_FILENAME);
+		floatingTasks.add(taskToAdd);
+		storeFloatingTasks(floatingTasks);
+	}
+	
+	public void addDeadlinedTask(Task taskToAdd){
+		ArrayList<Task> deadlinedTasks = readTaskList(DEADLINED_TASKS_FILENAME);
+		deadlinedTasks.add(taskToAdd);
+		storeDeadlinedTasks(deadlinedTasks);
+	}
+	
+	public void addTimedTask(Task taskToAdd){
+		ArrayList<Task> timedTasks = readTaskList(TIMED_TASKS_FILENAME);
+		timedTasks.add(taskToAdd);
+		storeTimedTasks(timedTasks);
+	}
+	
+	
+	
 	
 	
 }

@@ -20,12 +20,12 @@ public interface IStorage {
 	void storeTaskMap(HashMap<String, ArrayList<Task>> hm);  //done
 
 
-	boolean addFloatingTask(Task taskToAdd);
+	void addFloatingTask(Task taskToAdd); //done
 	boolean addFloatingTask(Task taskToAdd,String fileDir);
 
-	boolean addDeadlineTask(Task taskToAdd);
-	boolean addDeadlineTask(Task taskToAdd,String fileDir);
+	void addDeadlinedTask(Task taskToAdd); //done
+	boolean addDeadlinedTask(Task taskToAdd,String fileDir);
 
-	boolean addTimedTask(Task taskToAdd);
+	void addTimedTask(Task taskToAdd); //done
 	boolean addTimedTask(Task taskToAdd,String fileDir);
 }
