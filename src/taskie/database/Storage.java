@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.models.Task;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Scanner;
@@ -11,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.StringTokenizer;
 import java.time.format.DateTimeFormatter;
+
 
 public class Storage implements IStorage {
 	
@@ -144,6 +147,118 @@ public class Storage implements IStorage {
 		return taskList;
 	}
 	
+	public void storeTaskMap(HashMap<String, ArrayList<Task>> hm) {
+		if (hm.containsKey(DEADLINED_TASKNAME)) {
+			storeDeadlinedTasks(hm.get(DEADLINED_TASKNAME));
+		} 
+		if (hm.containsKey(TIMED_TASKNAME)) {
+			storeTimedTasks(hm.get(TIMED_TASKNAME));
+		} 
+		if (hm.containsKey(FLOATING_TASKNAME)) {
+			storeFloatingTasks(hm.get(FLOATING_TASKNAME));
+		}
+	}
+	
+	private void storeDeadlinedTasks(ArrayList<Task> taskList) {
+		ArrayList<String> strTaskList = new ArrayList<String>();
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+		for (int i = 0; i < taskList.size(); i++) {
+			Task tempTask = taskList.get(i);
+			StringBuilder sb = new StringBuilder();
+			sb = appendTaskTitle(tempTask, sb);
+			sb.append(SEPARATOR);
+			sb = appendStrEndDate(dateFormatter, tempTask, sb);
+			if (tempTask.getEndTime() != null) {
+				sb.append(SEPARATOR);
+				sb = appendStrEndTime(timeFormatter, tempTask, sb);
+			}
+			strTaskList.add(sb.toString());
+		}
+		writeFile(DEADLINED_TASKS_FILENAME, strTaskList);
+	}
+	
+	private void storeTimedTasks(ArrayList<Task> taskList) {
+		ArrayList<String> strTaskList = new ArrayList<String>();
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+		for (int i = 0; i < taskList.size(); i++) {
+			Task tempTask = taskList.get(i);
+			StringBuilder sb = new StringBuilder();
+			sb = appendTaskTitle(tempTask, sb);
+			sb.append(SEPARATOR);
+			sb = appendStrStartDate(dateFormatter, tempTask, sb);
+			sb.append(SEPARATOR);
+			if (tempTask.getStartTime() == null) {
+				sb = appendStrEndDate(dateFormatter, tempTask, sb);
+			} else {
+				sb = appendStrStartTime(timeFormatter, tempTask, sb);
+				sb.append(SEPARATOR);
+				sb = appendStrEndDate(dateFormatter, tempTask, sb);
+				sb.append(SEPARATOR);
+				sb = appendStrEndTime(timeFormatter, tempTask, sb);
+			}
+			strTaskList.add(sb.toString());
+		}
+		writeFile(TIMED_TASKS_FILENAME, strTaskList);
+	}
+	
+	private void storeFloatingTasks(ArrayList<Task> taskList) {
+		ArrayList<String> strTaskList = new ArrayList<String>();
+		for (int i = 0; i < taskList.size(); i++) {
+			Task tempTask = taskList.get(i);
+			StringBuilder sb = new StringBuilder();
+			sb = appendTaskTitle(tempTask, sb);
+			strTaskList.add(sb.toString());
+		}
+		writeFile(FLOATING_TASKS_FILENAME, strTaskList);
+	}
+	
+	private StringBuilder appendStrStartTime(DateTimeFormatter timeFormatter, Task tempTask, StringBuilder sb) {
+		LocalTime startTime = tempTask.getStartTime();
+		String strStartTime = startTime.format(timeFormatter);
+		sb.append(strStartTime);
+		return sb;
+	}
 
+	private StringBuilder appendStrEndTime(DateTimeFormatter timeFormatter, Task tempTask, StringBuilder sb) {
+		LocalTime endTime = tempTask.getEndTime();
+		String strEndTime = endTime.format(timeFormatter);
+		sb.append(strEndTime);
+		return sb;
+	}
+
+	private StringBuilder appendTaskTitle(Task tempTask, StringBuilder sb) {
+		sb.append(tempTask.getTitle().trim());
+		return sb;
+	}
+	
+	private StringBuilder appendStrStartDate(DateTimeFormatter dateFormatter, Task tempTask, StringBuilder sb) {
+		LocalDate startDate = tempTask.getStartDate();
+		String strStartDate = startDate.format(dateFormatter);
+		sb.append(strStartDate);
+		return sb;
+	}
+
+	private StringBuilder appendStrEndDate(DateTimeFormatter dateFormatter, Task tempTask, StringBuilder sb) {
+		LocalDate endDate = tempTask.getEndDate();
+		String strEndDate = endDate.format(dateFormatter);
+		sb.append(strEndDate);
+		return sb;
+	}
+	
+	private void writeFile(String fileName, ArrayList<String> strList) {
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter(fileName));
+			for (int i = 0; i < strList.size(); i++) {
+				out.println(strList.get(i));
+			}
+			out.close();
+		} catch (IOException io) {
+			io.printStackTrace();
+		}
+	}
+	
+	
 	
 }

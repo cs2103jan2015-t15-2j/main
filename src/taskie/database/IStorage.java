@@ -9,13 +9,13 @@ import java.util.HashMap;
 public interface IStorage {
 
 	
-	void setStorageLocation(String fileDir);
+	void setStorageLocation(String fileDir); //done
 	
 	HashMap<String, ArrayList<Task>> retrieveTaskMap(); //done
 	HashMap<String, ArrayList<Task>> retrieveTaskMap(String fileDir);
 	
-	boolean storeTaskList(ArrayList<Task>[] tasklists, String fileDir);
-	boolean storeTaskList(ArrayList<Task>[] tasklists);
+	boolean storeTaskMap(HashMap<String, ArrayList<Task>> hm, String fileDir);
+	void storeTaskMap(HashMap<String, ArrayList<Task>> hm);  //done
 
 	boolean addFloatingTask(Task taskToAdd);
 	boolean addFloatingTask(Task taskToAdd,String fileDir);
