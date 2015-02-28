@@ -49,6 +49,7 @@ public class MarkCommand implements ICommand {
 		Task taskRetrieved=taskList.get(taskIndex);
 		taskRetrieved.setTaskDone();
 		Taskie.Storage.storeTaskMap(taskLists);
+		//TODO add message return to user
 	}
 
 }

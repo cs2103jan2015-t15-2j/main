@@ -111,7 +111,7 @@ public class AddCommand implements ICommand {
 		} else if (_startDate == null && _endDate != null) {
 			task = new Task(_taskName, _endDate, _endTime);
 			if(Taskie.Storage!=null){
-			Taskie.Storage.addDeadlineTask(task);
+			Taskie.Storage.addDeadlinedTask(task);
 			}else{}
 		} else {
 			task = new Task(_taskName, _startDate, _startTime, _endDate,
