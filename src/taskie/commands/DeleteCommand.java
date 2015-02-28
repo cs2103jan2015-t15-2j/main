@@ -5,13 +5,8 @@
  *
  */
 //@author       A0097582N
- 
 
 package taskie.commands;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Calendar;
 
 import taskie.Taskie;
 import taskie.models.CommandType;
@@ -23,24 +18,23 @@ public class DeleteCommand implements ICommand {
 	private Boolean _DeleteStartTime;
 	private Boolean _DeleteEndDate;
 	private Boolean _DeleteEndTime;
-	
+
 	private CommandType _commandType = CommandType.DELETE;
 
 	public DeleteCommand() {
 		_taskName = null;
-		_DeleteStartDate=false;
-		_DeleteStartTime=false;
-		_DeleteEndDate=false;
-		_DeleteEndTime=false;
+		_DeleteStartDate = false;
+		_DeleteStartTime = false;
+		_DeleteEndDate = false;
+		_DeleteEndTime = false;
 
 	}
-	
+
 	public DeleteCommand(int taskId) {
 		Task[] tasks = Taskie.UI.getCurrentTaskList();
 		Task task = tasks[taskId];
 	}
-	
-	
+
 	public DeleteCommand(String taskName) {
 		_taskName = taskName;
 	}
@@ -52,40 +46,38 @@ public class DeleteCommand implements ICommand {
 	public String getTaskName() {
 		return _taskName;
 	}
-	
-	public void setToDeleteStartDate(){
-		_DeleteStartDate=true;
+
+	public void setToDeleteStartDate() {
+		_DeleteStartDate = true;
 	}
-	
-	public Boolean canDeleteStartDate(){
+
+	public Boolean canDeleteStartDate() {
 		return _DeleteStartDate;
 	}
-	
-	public void setToDeleteStartTime(){
-		_DeleteStartTime=true;
+
+	public void setToDeleteStartTime() {
+		_DeleteStartTime = true;
 	}
-	
-	public Boolean canDeleteStartTime(){
+
+	public Boolean canDeleteStartTime() {
 		return _DeleteStartTime;
 	}
-	
-	public void setToDeleteEndDate(){
-		_DeleteEndDate=true;
+
+	public void setToDeleteEndDate() {
+		_DeleteEndDate = true;
 	}
-	
-	public Boolean canDeleteEndDate(){
+
+	public Boolean canDeleteEndDate() {
 		return _DeleteEndDate;
 	}
-	
-	public void setToDeleteEndTime(){
-		_DeleteEndTime=true;
+
+	public void setToDeleteEndTime() {
+		_DeleteEndTime = true;
 	}
-	
-	public Boolean canDeleteEndTime(){
+
+	public Boolean canDeleteEndTime() {
 		return _DeleteEndTime;
 	}
-	
-	
 
 	@Override
 	public CommandType getCommandType() {
@@ -94,6 +86,6 @@ public class DeleteCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		
+
 	}
 }
