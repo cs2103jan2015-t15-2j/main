@@ -11,10 +11,21 @@ import java.util.HashMap;
 public class StorageTest {
 	public static void main(String[] args) {
 		/*
-		 * 
+		 * */
 		Storage stor = new Storage();
 		stor.setStorageLocation("D:\\test");
-		*/
+		HashMap<String,ArrayList<Task>> hm = stor.retrieveTaskMap();
+		ArrayList<Task> timedTaskList = hm.get(Storage.TIMED_TASKNAME);
+
+		Task taskToUpdate = timedTaskList.get(0);
+		Task newUpdatedTask = new Task();
+		newUpdatedTask.setTitle("updated");
+		newUpdatedTask.setEndDate(taskToUpdate.getEndDate());
+		newUpdatedTask.setStartDate(taskToUpdate.getStartDate());
+		newUpdatedTask.setEndTime(taskToUpdate.getEndTime());
+		newUpdatedTask.setStartTime(taskToUpdate.getStartTime());
+		stor.updateTimedTask(taskToUpdate, newUpdatedTask);
+		/**/
 		
 		/*
 		 * Test for storeTaskMap()
