@@ -13,8 +13,8 @@ public class StorageTest {
 	
 		
 		/*
-		 * Test for retrieveTaskMap()
-		 
+		 * Test for storeTaskMap()
+		 * 
 		Storage stor = new Storage();
 		ArrayList<Task> deadlinedTasks = new ArrayList<Task>();
 		ArrayList<Task> timedTasks = new ArrayList<Task>();
@@ -51,15 +51,14 @@ public class StorageTest {
 		hm.put(Storage.FLOATING_TASKNAME, floatingTasks);
 		
 		stor.storeTaskMap(hm);  
-		
 		*/
 		
 		
 		
 		
 		/*
-		 * Test for storeTaskMap()
-		 * 
+		 * Test for retrieveTaskMap() 
+		 *
 		Storage stor = new Storage();
 		HashMap<String,ArrayList<Task>> hm = stor.retrieveTaskMap();
 		for(Task t: hm.get(Storage.TIMED_TASKNAME)){
@@ -67,11 +66,12 @@ public class StorageTest {
 		}
 		
 		*/
-		
+
 		
 		
 		/*
 		 * Test for addTimedTask()
+		 * */
 		Storage stor = new Storage();
 		LocalDate tTask7sd = LocalDate.of(2015, 1, 11);
 		LocalDate tTask7ed = LocalDate.of(2015, 1, 15);
@@ -79,7 +79,8 @@ public class StorageTest {
 		LocalTime tTask7et = LocalTime.of(5, 00);
 		Task tTask7 = new Task("timed7", tTask7sd, tTask7st, tTask7ed, tTask7et);
 		stor.addTimedTask(tTask7);
-		*/
+		
+		/**/
 		
 		
 	

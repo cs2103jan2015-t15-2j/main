@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.models.Task;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.time.LocalDate;
@@ -11,9 +12,11 @@ import java.time.LocalTime;
 import java.util.Scanner;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.StringTokenizer;
 import java.time.format.DateTimeFormatter;
-
+import java.nio.file.Path;
+import java.net.URI;
 
 public class Storage implements IStorage {
 	
@@ -21,6 +24,7 @@ public class Storage implements IStorage {
 	public static final String TIMED_TASKNAME = "timed";
 	public static final String FLOATING_TASKNAME = "floating";
 	
+	public static final String DEFAULT_LOCATION = "C:\\Users\\Haihui\\Desktop\\Taskie";
 	private static final String DEADLINED_TASKS_FILENAME = "deadlined tasks.txt";
 	private static final String TIMED_TASKS_FILENAME = "timed tasks.txt";
 	private static final String FLOATING_TASKS_FILENAME = "floating tasks.txt";
@@ -40,26 +44,30 @@ public class Storage implements IStorage {
 	}
 	
 	public HashMap<String, ArrayList<Task>> retrieveTaskMap() {	
-		HashMap<String, ArrayList<Task>> taskLists = new HashMap<String, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
+		HashMap<String, ArrayList<Task>> taskMap = new HashMap<String, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
+		File deadlinedFile = new File(DEFAULT_LOCATION, DEADLINED_TASKS_FILENAME);
+		File timedFile = new File(DEFAULT_LOCATION, TIMED_TASKS_FILENAME);
+		File floatingFile = new File(DEFAULT_LOCATION, FLOATING_TASKS_FILENAME);
+		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
+		ArrayList<Task> timedTasks = readTaskList(timedFile);
+		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
 		
-		ArrayList<Task> deadlinedTasks = readTaskList(DEADLINED_TASKS_FILENAME);
-		ArrayList<Task> timedTasks = readTaskList(TIMED_TASKS_FILENAME);
-		ArrayList<Task> floatingTasks = readTaskList(FLOATING_TASKS_FILENAME);
+		taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
+		taskMap.put(TIMED_TASKNAME, timedTasks);
+		taskMap.put(FLOATING_TASKNAME, floatingTasks);
 		
-		taskLists.put(DEADLINED_TASKNAME, deadlinedTasks);
-		taskLists.put(TIMED_TASKNAME, timedTasks);
-		taskLists.put(FLOATING_TASKNAME, floatingTasks);
-		
-		return taskLists;
+		return taskMap;
 	}
 	
-	private ArrayList<Task> readTaskList(String fileName) {
-		ArrayList<String> strTaskList = readFile(fileName);
+	private ArrayList<Task> readTaskList(File file) {
+		if (file.exists() == false) {
+			return null;
+		}
+		ArrayList<String> strTaskList = readFile(file);
 		ArrayList<Task> taskList;
-		
-		if (fileName == DEADLINED_TASKS_FILENAME) {
+		if (file.getName().equals(DEADLINED_TASKS_FILENAME)) {
 			taskList = readDeadlinedTasks(strTaskList);
-		} else if (fileName == TIMED_TASKS_FILENAME) {
+		} else if (file.getName().equals(TIMED_TASKS_FILENAME)) {
 			taskList = readTimedTasks(strTaskList);
 		} else {
 			taskList = readFloatingTasks(strTaskList);
@@ -68,10 +76,10 @@ public class Storage implements IStorage {
 		return taskList;
 	}
 	
-	private ArrayList<String> readFile(String fileName) {
+	private ArrayList<String> readFile(File file) {
 		try {
 			ArrayList<String> taskList = new ArrayList<String>();
-			Scanner scanner = new Scanner(new FileInputStream(fileName));
+			Scanner scanner = new Scanner(new FileInputStream(file));
 			while (scanner.hasNextLine()) {
 				taskList.add(scanner.nextLine());
 			}
@@ -184,17 +192,17 @@ public class Storage implements IStorage {
 	
 	public void storeTaskMap(HashMap<String, ArrayList<Task>> hm) {
 		if (hm.containsKey(DEADLINED_TASKNAME)) {
-			storeDeadlinedTasks(hm.get(DEADLINED_TASKNAME));
+			storeDeadlinedTasks(hm.get(DEADLINED_TASKNAME), DEFAULT_LOCATION);
 		} 
 		if (hm.containsKey(TIMED_TASKNAME)) {
-			storeTimedTasks(hm.get(TIMED_TASKNAME));
+			storeTimedTasks(hm.get(TIMED_TASKNAME), DEFAULT_LOCATION);
 		} 
 		if (hm.containsKey(FLOATING_TASKNAME)) {
-			storeFloatingTasks(hm.get(FLOATING_TASKNAME));
+			storeFloatingTasks(hm.get(FLOATING_TASKNAME), DEFAULT_LOCATION);
 		}
 	}
 	
-	private void storeDeadlinedTasks(ArrayList<Task> taskList) {
+	private void storeDeadlinedTasks(ArrayList<Task> taskList, String pathName) {
 		ArrayList<String> strTaskList = new ArrayList<String>();
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -210,10 +218,10 @@ public class Storage implements IStorage {
 			}
 			strTaskList.add(sb.toString());
 		}
-		writeFile(DEADLINED_TASKS_FILENAME, strTaskList);
+		writeFile(new File(pathName, DEADLINED_TASKS_FILENAME), strTaskList);
 	}
 	
-	private void storeTimedTasks(ArrayList<Task> taskList) {
+	private void storeTimedTasks(ArrayList<Task> taskList, String pathName) {
 		ArrayList<String> strTaskList = new ArrayList<String>();
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -235,10 +243,10 @@ public class Storage implements IStorage {
 			}
 			strTaskList.add(sb.toString());
 		}
-		writeFile(TIMED_TASKS_FILENAME, strTaskList);
+		writeFile(new File(pathName, TIMED_TASKS_FILENAME), strTaskList);
 	}
 	
-	private void storeFloatingTasks(ArrayList<Task> taskList) {
+	private void storeFloatingTasks(ArrayList<Task> taskList, String pathName) {
 		ArrayList<String> strTaskList = new ArrayList<String>();
 		for (int i = 0; i < taskList.size(); i++) {
 			Task tempTask = taskList.get(i);
@@ -246,7 +254,7 @@ public class Storage implements IStorage {
 			sb = appendTaskTitle(tempTask, sb);
 			strTaskList.add(sb.toString());
 		}
-		writeFile(FLOATING_TASKS_FILENAME, strTaskList);
+		writeFile(new File(pathName,FLOATING_TASKS_FILENAME), strTaskList);
 	}
 	
 	private StringBuilder appendStrStartTime(DateTimeFormatter timeFormatter, Task tempTask, StringBuilder sb) {
@@ -282,9 +290,14 @@ public class Storage implements IStorage {
 		return sb;
 	}
 	
-	private void writeFile(String fileName, ArrayList<String> strList) {
+	private void writeFile(File file, ArrayList<String> strList) {
 		try {
-			PrintWriter out = new PrintWriter(new FileWriter(fileName));
+			if (file.exists() == false) {
+				File fileParent = file.getParentFile();
+				fileParent.mkdirs();
+				file.createNewFile();
+			}
+			PrintWriter out = new PrintWriter(new FileWriter(file));
 			for (int i = 0; i < strList.size(); i++) {
 				out.println(strList.get(i));
 			}
@@ -295,23 +308,25 @@ public class Storage implements IStorage {
 	}
 	
 	public void addFloatingTask(Task taskToAdd){
-		ArrayList<Task> floatingTasks = readTaskList(FLOATING_TASKS_FILENAME);
+		File floatingFile = new File(DEFAULT_LOCATION, FLOATING_TASKS_FILENAME);
+		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
 		floatingTasks.add(taskToAdd);
-		storeFloatingTasks(floatingTasks);
+		storeFloatingTasks(floatingTasks, DEFAULT_LOCATION);
 	}
 	
 	public void addDeadlinedTask(Task taskToAdd){
-		ArrayList<Task> deadlinedTasks = readTaskList(DEADLINED_TASKS_FILENAME);
+		File deadlinedFile = new File(DEFAULT_LOCATION, DEADLINED_TASKS_FILENAME);
+		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
 		deadlinedTasks.add(taskToAdd);
-		storeDeadlinedTasks(deadlinedTasks);
+		storeDeadlinedTasks(deadlinedTasks, DEFAULT_LOCATION);
 	}
 	
 	public void addTimedTask(Task taskToAdd){
-		ArrayList<Task> timedTasks = readTaskList(TIMED_TASKS_FILENAME);
+		File timedFile = new File(DEFAULT_LOCATION, TIMED_TASKS_FILENAME);
+		ArrayList<Task> timedTasks = readTaskList(timedFile);
 		timedTasks.add(taskToAdd);
-		storeTimedTasks(timedTasks);
+		storeTimedTasks(timedTasks, DEFAULT_LOCATION);
 	}
-	
 	
 	
 	
