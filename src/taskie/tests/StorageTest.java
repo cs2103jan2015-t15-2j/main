@@ -1,7 +1,8 @@
-package taskie.database;
+package taskie.tests;
 
 import java.util.ArrayList;
 
+import taskie.database.Storage;
 import taskie.models.Task;
 
 import java.time.LocalDate;
