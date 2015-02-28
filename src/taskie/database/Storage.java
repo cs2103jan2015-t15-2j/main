@@ -1,9 +1,11 @@
+//@author	A0135137L
 package taskie.database;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.models.Task;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -43,11 +45,37 @@ public class Storage implements IStorage {
 		_storageLocation = fileDir;
 	}
 	
-	public HashMap<String, ArrayList<Task>> retrieveTaskMap() {	
+	public HashMap<String, ArrayList<Task>> retrieveTaskMap() {
+		HashMap<String, ArrayList<Task>> taskMap;
+		if (_storageLocation == null) {
+			taskMap = retrieveTaskMapFromDefaultLocation();
+		} else {
+			taskMap = retrieveTaskMapFromSetLocation();
+		}
+		return taskMap;
+	}
+
+	private HashMap<String, ArrayList<Task>> retrieveTaskMapFromDefaultLocation() {
 		HashMap<String, ArrayList<Task>> taskMap = new HashMap<String, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
 		File deadlinedFile = new File(DEFAULT_LOCATION, DEADLINED_TASKS_FILENAME);
 		File timedFile = new File(DEFAULT_LOCATION, TIMED_TASKS_FILENAME);
 		File floatingFile = new File(DEFAULT_LOCATION, FLOATING_TASKS_FILENAME);
+		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
+		ArrayList<Task> timedTasks = readTaskList(timedFile);
+		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
+		
+		taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
+		taskMap.put(TIMED_TASKNAME, timedTasks);
+		taskMap.put(FLOATING_TASKNAME, floatingTasks);
+		
+		return taskMap;
+	}
+	
+	private HashMap<String, ArrayList<Task>> retrieveTaskMapFromSetLocation() {
+		HashMap<String, ArrayList<Task>> taskMap = new HashMap<String, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
+		File deadlinedFile = new File(_storageLocation, DEADLINED_TASKS_FILENAME);
+		File timedFile = new File(_storageLocation, TIMED_TASKS_FILENAME);
+		File floatingFile = new File(_storageLocation, FLOATING_TASKS_FILENAME);
 		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
 		ArrayList<Task> timedTasks = readTaskList(timedFile);
 		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
@@ -191,16 +219,38 @@ public class Storage implements IStorage {
 	}
 	
 	public void storeTaskMap(HashMap<String, ArrayList<Task>> hm) {
+		if (_storageLocation == null) {
+			storeTaskMapToDefaultLocation(hm);
+		} else {
+			storeTaskMapToSetLocation(hm);
+		}
+
+	}
+	
+	private void storeTaskMapToDefaultLocation(HashMap<String, ArrayList<Task>> hm) {
 		if (hm.containsKey(DEADLINED_TASKNAME)) {
 			storeDeadlinedTasks(hm.get(DEADLINED_TASKNAME), DEFAULT_LOCATION);
-		} 
+		}
 		if (hm.containsKey(TIMED_TASKNAME)) {
 			storeTimedTasks(hm.get(TIMED_TASKNAME), DEFAULT_LOCATION);
-		} 
+		}
 		if (hm.containsKey(FLOATING_TASKNAME)) {
 			storeFloatingTasks(hm.get(FLOATING_TASKNAME), DEFAULT_LOCATION);
 		}
 	}
+	
+	private void storeTaskMapToSetLocation(HashMap<String, ArrayList<Task>> hm) {
+		if (hm.containsKey(DEADLINED_TASKNAME)) {
+			storeDeadlinedTasks(hm.get(DEADLINED_TASKNAME), _storageLocation);
+		}
+		if (hm.containsKey(TIMED_TASKNAME)) {
+			storeTimedTasks(hm.get(TIMED_TASKNAME),  _storageLocation);
+		}
+		if (hm.containsKey(FLOATING_TASKNAME)) {
+			storeFloatingTasks(hm.get(FLOATING_TASKNAME),  _storageLocation);
+		}
+	}
+	
 	
 	private void storeDeadlinedTasks(ArrayList<Task> taskList, String pathName) {
 		ArrayList<String> strTaskList = new ArrayList<String>();
@@ -308,24 +358,69 @@ public class Storage implements IStorage {
 	}
 	
 	public void addFloatingTask(Task taskToAdd){
+		if (_storageLocation == null) {
+			addFloatingTaskToDefaultLocation(taskToAdd);
+		} else {
+			addFloatingTaskToSetLocation(taskToAdd);
+		}
+	}
+	
+	private void addFloatingTaskToDefaultLocation(Task taskToAdd){
 		File floatingFile = new File(DEFAULT_LOCATION, FLOATING_TASKS_FILENAME);
 		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
 		floatingTasks.add(taskToAdd);
 		storeFloatingTasks(floatingTasks, DEFAULT_LOCATION);
 	}
 	
+	private void addFloatingTaskToSetLocation(Task taskToAdd){
+		File floatingFile = new File(_storageLocation, FLOATING_TASKS_FILENAME);
+		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
+		floatingTasks.add(taskToAdd);
+		storeFloatingTasks(floatingTasks, _storageLocation);
+	}
+	
 	public void addDeadlinedTask(Task taskToAdd){
+		if (_storageLocation == null) {
+			addDeadlinedTaskToDefaultLocation(taskToAdd);
+		} else {
+			addDeadlinedTaskToSetLocation(taskToAdd);
+		}
+	}
+	
+	private void addDeadlinedTaskToDefaultLocation(Task taskToAdd){
 		File deadlinedFile = new File(DEFAULT_LOCATION, DEADLINED_TASKS_FILENAME);
 		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
 		deadlinedTasks.add(taskToAdd);
 		storeDeadlinedTasks(deadlinedTasks, DEFAULT_LOCATION);
 	}
 	
+	private void addDeadlinedTaskToSetLocation(Task taskToAdd){
+		File deadlinedFile = new File(_storageLocation, DEADLINED_TASKS_FILENAME);
+		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
+		deadlinedTasks.add(taskToAdd);
+		storeDeadlinedTasks(deadlinedTasks, _storageLocation);
+	}
+	
 	public void addTimedTask(Task taskToAdd){
+		if (_storageLocation == null) {
+			addFloatingTaskToDefaultLocation(taskToAdd);
+		} else {
+			addFloatingTaskToSetLocation(taskToAdd);
+		}
+	}
+	
+	private void addTimedTaskToDefaultLocation(Task taskToAdd) {
 		File timedFile = new File(DEFAULT_LOCATION, TIMED_TASKS_FILENAME);
 		ArrayList<Task> timedTasks = readTaskList(timedFile);
 		timedTasks.add(taskToAdd);
 		storeTimedTasks(timedTasks, DEFAULT_LOCATION);
+	}
+	
+	private void addTimedTaskToSetLocation(Task taskToAdd) {
+		File timedFile = new File(_storageLocation, TIMED_TASKS_FILENAME);
+		ArrayList<Task> timedTasks = readTaskList(timedFile);
+		timedTasks.add(taskToAdd);
+		storeTimedTasks(timedTasks, _storageLocation);
 	}
 	
 	
