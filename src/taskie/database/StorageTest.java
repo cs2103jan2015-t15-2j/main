@@ -10,7 +10,11 @@ import java.util.HashMap;
 
 public class StorageTest {
 	public static void main(String[] args) {
-	
+		/*
+		 * 
+		Storage stor = new Storage();
+		stor.setStorageLocation("D:\\test");
+		*/
 		
 		/*
 		 * Test for storeTaskMap()
@@ -71,7 +75,7 @@ public class StorageTest {
 		
 		/*
 		 * Test for addTimedTask()
-		 * */
+		 * 
 		Storage stor = new Storage();
 		LocalDate tTask7sd = LocalDate.of(2015, 1, 11);
 		LocalDate tTask7ed = LocalDate.of(2015, 1, 15);
@@ -80,7 +84,7 @@ public class StorageTest {
 		Task tTask7 = new Task("timed7", tTask7sd, tTask7st, tTask7ed, tTask7et);
 		stor.addTimedTask(tTask7);
 		
-		/**/
+		*/
 		
 		
 	

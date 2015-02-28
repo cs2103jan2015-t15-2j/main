@@ -14,11 +14,8 @@ import java.time.LocalTime;
 import java.util.Scanner;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.StringTokenizer;
 import java.time.format.DateTimeFormatter;
-import java.nio.file.Path;
-import java.net.URI;
 
 public class Storage implements IStorage {
 	
@@ -403,9 +400,9 @@ public class Storage implements IStorage {
 	
 	public void addTimedTask(Task taskToAdd){
 		if (_storageLocation == null) {
-			addFloatingTaskToDefaultLocation(taskToAdd);
+			addTimedTaskToDefaultLocation(taskToAdd);
 		} else {
-			addFloatingTaskToSetLocation(taskToAdd);
+			addTimedTaskToSetLocation(taskToAdd);
 		}
 	}
 	
@@ -422,8 +419,5 @@ public class Storage implements IStorage {
 		timedTasks.add(taskToAdd);
 		storeTimedTasks(timedTasks, _storageLocation);
 	}
-	
-	
-	
 	
 }
