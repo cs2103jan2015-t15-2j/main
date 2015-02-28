@@ -271,11 +271,9 @@ public class CommandParser implements Parser {
 	private void doDelete(String command) {
 		int itemNumber = Integer.parseInt(command);
 
-		Task[] tasks = Taskie.UI.getCurrentTaskList();
 		try {
-			Task task = tasks[itemNumber];
 			_logger.log(Level.INFO, "Deleteing Task: {0}", task.getTitle());
-			Taskie.Controller.executeCommand(new DeleteCommand(task));
+			Taskie.Controller.executeCommand(new DeleteCommand(itemNumber));
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
 			Taskie.UI.display("Invalid Task Number");
 		}

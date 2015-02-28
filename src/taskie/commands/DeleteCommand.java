@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
 
+import taskie.Taskie;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
@@ -32,6 +33,11 @@ public class DeleteCommand implements ICommand {
 		_DeleteEndDate=false;
 		_DeleteEndTime=false;
 
+	}
+	
+	public DeleteCommand(int taskId) {
+		Task[] tasks = Taskie.UI.getCurrentTaskList();
+		Task task = tasks[taskId];
 	}
 	
 	
