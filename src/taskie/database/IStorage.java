@@ -30,4 +30,6 @@ public interface IStorage {
 	void updateDeadlinedTask(Task oldTask, Task newTask); //done
 	
 	void updateTimedTask(Task oldTask, Task newTask); //done
+
+	void updateTask(Task oldTask, Task updatedTask);
 }

@@ -6,7 +6,7 @@ package taskie.commands;
  * Bugs: none known
  *
  */
-//@author       A0097582N
+//@author A0097582N
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
