@@ -10,17 +10,17 @@ import taskie.Taskie;
 import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.ViewType;
-
+import taskie.models.TaskEndDateComparator;
 
 public class ViewCommand implements ICommand {
-	
+
 	private static final String DEADLINED_TASKNAME = "deadlined";
 	private static final String TIMED_TASKNAME = "timed";
 	private static final String FLOATING_TASKNAME = "floating";
-	
+
 	private CommandType _commandType = CommandType.VIEW;
-	
-	//@author A0121555M
+
+	// @author A0121555M
 	private ViewType _viewType;
 	private LocalDate _startDate;
 	private LocalDate _endDate;
@@ -33,16 +33,18 @@ public class ViewCommand implements ICommand {
 	}
 
 	public LocalDateTime getStartDateTime() {
-		return LocalDateTime.of(_startDate, (_startTime == null) ? LocalTime.MAX : _startTime);
+		return LocalDateTime.of(_startDate,
+				(_startTime == null) ? LocalTime.MAX : _startTime);
 	}
-	
+
 	public void setStartDateTime(LocalDateTime startDateTime) {
 		this.setStartDate(startDateTime.toLocalDate());
 		this.setStartTime(startDateTime.toLocalTime());
 	}
 
 	public LocalDateTime getEndDateTime() {
-		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX : _endTime);
+		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX
+				: _endTime);
 	}
 
 	public void setEndDateTime(LocalDateTime endDateTime) {
@@ -55,11 +57,11 @@ public class ViewCommand implements ICommand {
 	}
 
 	public void setStartDate(LocalDate startDate) {
-		if ( _endDate == null ) {
+		if (_endDate == null) {
 			this._endDate = startDate;
 		}
-		
-		if ( _endDate.isBefore(startDate) ) {
+
+		if (_endDate.isBefore(startDate)) {
 			this._startDate = this._endDate;
 			this._endDate = startDate;
 		} else {
@@ -72,11 +74,11 @@ public class ViewCommand implements ICommand {
 	}
 
 	public void setEndDate(LocalDate endDate) {
-		if ( _startDate == null ) {
+		if (_startDate == null) {
 			this._startDate = endDate;
 		}
-		
-		if ( _startDate.isAfter(endDate) ) {
+
+		if (_startDate.isAfter(endDate)) {
 			this._endDate = this._startDate;
 			this._startDate = endDate;
 		} else {
@@ -114,43 +116,85 @@ public class ViewCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		switch(_viewType){
-			case ALL: executeViewAll(); break;
-			case UPCOMING: executeViewUpcoming(); break;
-			case OVERDUE: executeViewOverdue(); break;
-			case COMPLETED: executeViewCompleted(); break;
-			case SEARCH: executeViewSearch(); break;
-			
+		switch (_viewType) {
+		case ALL:
+			executeViewAll();
+			break;
+		case UPCOMING:
+			executeViewUpcoming();
+			break;
+		case OVERDUE:
+			executeViewOverdue();
+			break;
+		case COMPLETED:
+			executeViewCompleted();
+			break;
+		case SEARCH:
+			executeViewSearch();
+			break;
+
 		}
-		
+
 	}
 
 	private void executeViewSearch() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void executeViewCompleted() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void executeViewOverdue() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void executeViewUpcoming() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void executeViewAll() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage.retrieveTaskMap();
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+				.retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = taskLists.get(DEADLINED_TASKNAME);
 		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
 		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
+		Task[] tasksWithDateArr = findTasksAfterTodayAndSort(tasksWithDate);
+		Task[] tasksWithoutDateArr = findUndoneFloatingTask(tasksWithoutDate);
+		Taskie.UI.display(tasksWithDateArr);
+		Taskie.UI.display(tasksWithoutDateArr);
 		
-		
+
+	}
+
+	private Task[] findUndoneFloatingTask(ArrayList<Task> tasksWithoutDate) {
+		ArrayList<Task> unmarkedTasks = new ArrayList<Task>();
+		for(Task task:tasksWithoutDate){
+			if(!task.getTaskStatus()){
+				unmarkedTasks.add(task);
+			}
+		}
+		return (Task[]) unmarkedTasks.toArray();
+	}
+
+	private Task[] findTasksAfterTodayAndSort(ArrayList<Task> tasksWithDate) {
+		ArrayList<Task> tasksAfterToday = new ArrayList<Task>();
+		for (Task task : tasksWithDate) {
+			if (task.compareTo(LocalDateTime.now()) >= 0
+					&& !task.getTaskStatus())
+				tasksAfterToday.add(task);
+		}
+		tasksAfterToday.sort(new TaskEndDateComparator());
+		return (Task[]) tasksAfterToday.toArray();
+	}
+
+	private void executeViewAll() {
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+				.retrieveTaskMap();
+		ArrayList<Task> tasksWithDate = taskLists.get(DEADLINED_TASKNAME);
+		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
+		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
+		tasksWithDate.sort(new TaskEndDateComparator());
+		Taskie.UI.display((Task[]) tasksWithoutDate.toArray());
+		Taskie.UI.display((Task[]) tasksWithoutDate.toArray());
 	}
 }

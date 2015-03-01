@@ -159,6 +159,12 @@ public class Task implements Comparable<Task>, Serializable{
 		return thisTaskDateTime.compareTo(otherTaskDateTime);
 	}
 	
+	public int compareTo(LocalDateTime now) {
+		LocalDateTime thisTaskDateTime = LocalDateTime.of(this.getEndDate(),
+				this.getEndTime());
+		return thisTaskDateTime.compareTo(now);
+	}
+	
 	public boolean equals(Task other) {
 		if (equalsTitle(other) && equalsStartDate(other) && 
 			equalsStartTime(other) && equalsEndDate(other) && 
@@ -211,4 +217,6 @@ public class Task implements Comparable<Task>, Serializable{
 		}
 		return false;
 	}
+
+
 }
