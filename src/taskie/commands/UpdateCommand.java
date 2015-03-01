@@ -4,7 +4,7 @@
  * Bugs: none known
  *
  */
-//@author       A0097582N
+//@author A0097582N
 
 package taskie.commands;
 
@@ -33,7 +33,7 @@ public class UpdateCommand implements ICommand {
 	private CommandType _commandType = CommandType.UPDATE;
 
 	public UpdateCommand() {
-
+		
 		_startDateToUpdate = null;
 		_startTimeToUpdate = null;
 		_endDateToUpdate = null;

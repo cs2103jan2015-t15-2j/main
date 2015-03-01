@@ -1,3 +1,11 @@
+/**
+ * class representing an unmark command.
+ * Still under development
+ * Bugs: none known
+ *
+ */
+//@author A0097582N
+
 package taskie.commands;
 
 import java.util.ArrayList;

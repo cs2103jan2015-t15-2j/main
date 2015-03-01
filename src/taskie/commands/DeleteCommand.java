@@ -4,7 +4,7 @@
  * Bugs: none known
  *
  */
-//@author       A0097582N
+//@author A0097582N
 
 package taskie.commands;
 
@@ -13,26 +13,35 @@ import taskie.models.CommandType;
 import taskie.models.Task;
 
 public class DeleteCommand implements ICommand {
+	
+	private static final String DEADLINED_TASKNAME = "deadlined";
+	private static final String TIMED_TASKNAME = "timed";
+	private static final String FLOATING_TASKNAME = "floating";
+	
+	private Task _task;
 	private String _taskName;
-	private Boolean _DeleteStartDate;
-	private Boolean _DeleteStartTime;
-	private Boolean _DeleteEndDate;
-	private Boolean _DeleteEndTime;
+	private int _taskIndex;
+	private Boolean _deleteStartDate;
+	private Boolean _deleteStartTime;
+	private Boolean _deleteEndDate;
+	private Boolean _deleteEndTime;
 
 	private CommandType _commandType = CommandType.DELETE;
 
 	public DeleteCommand() {
 		_taskName = null;
-		_DeleteStartDate = false;
-		_DeleteStartTime = false;
-		_DeleteEndDate = false;
-		_DeleteEndTime = false;
+		_deleteStartDate = false;
+		_deleteStartTime = false;
+		_deleteEndDate = false;
+		_deleteEndTime = false;
 
 	}
 
 	public DeleteCommand(int taskId) {
+		_taskIndex = taskId;
 		Task[] tasks = Taskie.UI.getCurrentTaskList();
-		Task task = tasks[taskId];
+		_task = tasks[taskId];
+		_taskName = _task.getTitle();
 	}
 
 	public DeleteCommand(String taskName) {
@@ -48,35 +57,39 @@ public class DeleteCommand implements ICommand {
 	}
 
 	public void setToDeleteStartDate() {
-		_DeleteStartDate = true;
+		_deleteStartDate = true;
+		_deleteStartTime = true; // if startDate is to be deleted, startTime
+									// will be deleted too
 	}
 
 	public Boolean canDeleteStartDate() {
-		return _DeleteStartDate;
+		return _deleteStartDate;
 	}
 
 	public void setToDeleteStartTime() {
-		_DeleteStartTime = true;
+		_deleteStartTime = true;
 	}
 
 	public Boolean canDeleteStartTime() {
-		return _DeleteStartTime;
+		return _deleteStartTime;
 	}
 
 	public void setToDeleteEndDate() {
-		_DeleteEndDate = true;
+		_deleteEndDate = true;
+		_deleteEndTime = true; // if endDate is to be deleted, endTime will be
+								// deleted too
 	}
 
 	public Boolean canDeleteEndDate() {
-		return _DeleteEndDate;
+		return _deleteEndDate;
 	}
 
 	public void setToDeleteEndTime() {
-		_DeleteEndTime = true;
+		_deleteEndTime = true;
 	}
 
 	public Boolean canDeleteEndTime() {
-		return _DeleteEndTime;
+		return _deleteEndTime;
 	}
 
 	@Override
@@ -86,6 +99,41 @@ public class DeleteCommand implements ICommand {
 
 	@Override
 	public void execute() {
+		if (canDeleteStartDate() && canDeleteStartTime() && canDeleteEndDate()
+				&& canDeleteEndTime()) {
+			deleteTask();
+		}else{
+			deleteTaskField();
+		}
+		//TODO return message to user
+	}
 
+	private void deleteTaskField() {
+		UpdateCommand updateCommand = new UpdateCommand(_taskIndex);
+		if(canDeleteStartDate()){
+			updateCommand.setStartDateToUpdate(null);
+		}
+		if(canDeleteStartTime()){
+			updateCommand.setStartTimeToUpdate(null);
+		}
+		if(canDeleteEndDate()){
+			updateCommand.setEndDateToUpdate(null);
+		}
+		if(canDeleteEndTime()){
+			updateCommand.setEndTimeToUpdate(null);
+		}
+		Taskie.Controller.executeCommand(updateCommand);
+	}
+
+	private void deleteTask() {	
+		String taskType=Taskie.Controller.determineTaskType(_task);
+		if(taskType.equals(FLOATING_TASKNAME)){
+			Taskie.Storage.deleteFloatingTask(_task);
+		}else if(taskType.equals(DEADLINED_TASKNAME)){
+			Taskie.Storage.deleteDeadlinedTask(_task);
+		}else{
+			Taskie.Storage.deleteTimedTask(_task);
+		}
+		
 	}
 }
