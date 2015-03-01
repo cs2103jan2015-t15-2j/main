@@ -122,20 +122,21 @@ public class UpdateCommand implements ICommand {
 		//TODO add message return to user
 	}
 
-	private void updateTask(Task task) {
+	private Task updateTask(Task task) {
+		Task updatedTask = new Task(task.getTitle());
 		if(this.isModifedStartDate()){
-			task.setStartDate(this.getStartDateToUpdate());
+			updatedTask.setStartDate(this.getStartDateToUpdate());
 		}
 		if(this.isModifedStartTime()){
-			task.setStartTime(this.getStartTimeToUpdate());
+			updatedTask.setStartTime(this.getStartTimeToUpdate());
 		}
 		if(this.isModifedEndDate()){
-			task.setEndDate(this.getEndDateToUpdate());
+			updatedTask.setEndDate(this.getEndDateToUpdate());
 		}
 		if(this.isModifedEndTime()){
-			task.setEndTime(this.getEndTimeToUpdate());
+			updatedTask.setEndTime(this.getEndTimeToUpdate());
 		}
-		
+		return updatedTask;
 	}
 
 	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) {
@@ -143,9 +144,18 @@ public class UpdateCommand implements ICommand {
 		String taskType = Taskie.Controller.determineTaskType(task);
 		ArrayList<Task> taskList= taskLists.get(taskType);
 		int taskIndex= taskList.indexOf(task);
-		updateTask(taskList.get(taskIndex));
+		Task updatedTask= updateTask(taskList.get(taskIndex));
+		if(taskType.equals(Taskie.Controller.determineTaskType(task))){
+			taskList.remove(taskIndex);
+			taskList.add(taskIndex, updatedTask);
+		}else{
+			taskList.remove(taskIndex);
+			taskLists.get(Taskie.Controller.determineTaskType(updatedTask)).add(updatedTask);
+		}
 		Taskie.Storage.storeTaskMap(taskLists);
 	}
+
+
 
 	private String formatUpdateMsg(Task task) {
 		
