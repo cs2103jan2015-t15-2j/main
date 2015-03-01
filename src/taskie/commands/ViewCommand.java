@@ -3,11 +3,21 @@ package taskie.commands;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import taskie.Taskie;
 import taskie.models.CommandType;
+import taskie.models.Task;
 import taskie.models.ViewType;
 
+
 public class ViewCommand implements ICommand {
+	
+	private static final String DEADLINED_TASKNAME = "deadlined";
+	private static final String TIMED_TASKNAME = "timed";
+	private static final String FLOATING_TASKNAME = "floating";
+	
 	private CommandType _commandType = CommandType.VIEW;
 	
 	//@author A0121555M
@@ -104,7 +114,43 @@ public class ViewCommand implements ICommand {
 
 	@Override
 	public void execute() {
+		switch(_viewType){
+			case ALL: executeViewAll(); break;
+			case UPCOMING: executeViewUpcoming(); break;
+			case OVERDUE: executeViewOverdue(); break;
+			case COMPLETED: executeViewCompleted(); break;
+			case SEARCH: executeViewSearch(); break;
+			
+		}
+		
+	}
+
+	private void executeViewSearch() {
 		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeViewCompleted() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeViewOverdue() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeViewUpcoming() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void executeViewAll() {
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage.retrieveTaskMap();
+		ArrayList<Task> tasksWithDate = taskLists.get(DEADLINED_TASKNAME);
+		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
+		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
+		
 		
 	}
 }
