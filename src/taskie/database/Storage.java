@@ -641,6 +641,12 @@ public class Storage implements IStorage {
 		timedTasks.add(newTask);
 		storeTimedTasks(timedTasks, _storageLocation);
 	}
+
+	@Override
+	public void updateTask(Task oldTask, Task updatedTask) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 }
