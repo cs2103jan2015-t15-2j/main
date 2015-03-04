@@ -114,6 +114,7 @@ public class ViewCommand implements ICommand {
 		return _commandType;
 	}
 
+	// @author A0097582N
 	@Override
 	public void execute() {
 		switch (_viewType) {
@@ -143,13 +144,44 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewCompleted() {
-		// TODO Auto-generated method stub
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+				.retrieveTaskMap();
+		ArrayList<Task> tasks = taskLists.get(DEADLINED_TASKNAME);
+		tasks.addAll(taskLists.get(TIMED_TASKNAME));
+		tasks.addAll(taskLists.get(FLOATING_TASKNAME));
+		Taskie.UI.display(findCompletedTasks(tasks));
 
 	}
 
-	private void executeViewOverdue() {
-		// TODO Auto-generated method stub
+	private Task[] findCompletedTasks(ArrayList<Task> tasks) {
+		ArrayList<Task> completedTasks = new ArrayList<Task>();
+		for(Task task : tasks){
+			if(task.getTaskStatus()){
+				completedTasks.add(task);
+			}
+		}
+		return (Task[]) completedTasks.toArray();
+	}
 
+	private void executeViewOverdue() {
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+				.retrieveTaskMap();
+		ArrayList<Task> tasksWithDate = taskLists.get(DEADLINED_TASKNAME);
+		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
+		Taskie.UI.display(findOverDueTasksAndSort(tasksWithDate));
+
+	}
+
+	private Task[] findOverDueTasksAndSort(ArrayList<Task> tasksWithDate) {
+		ArrayList<Task> unmarkedAndOverdueTask = new ArrayList<Task>();
+		for (Task task : tasksWithDate) {
+			if (!task.getTaskStatus()
+					&& task.getEndDateTime().isBefore(LocalDateTime.now())) {
+				unmarkedAndOverdueTask.add(task);
+			}
+		}
+		unmarkedAndOverdueTask.sort(new taskie.models.TaskEndDateComparator());
+		return (Task[]) unmarkedAndOverdueTask.toArray();
 	}
 
 	private void executeViewUpcoming() {
@@ -162,14 +194,13 @@ public class ViewCommand implements ICommand {
 		Task[] tasksWithoutDateArr = findUndoneFloatingTask(tasksWithoutDate);
 		Taskie.UI.display(tasksWithDateArr);
 		Taskie.UI.display(tasksWithoutDateArr);
-		
 
 	}
 
 	private Task[] findUndoneFloatingTask(ArrayList<Task> tasksWithoutDate) {
 		ArrayList<Task> unmarkedTasks = new ArrayList<Task>();
-		for(Task task:tasksWithoutDate){
-			if(!task.getTaskStatus()){
+		for (Task task : tasksWithoutDate) {
+			if (!task.getTaskStatus()) {
 				unmarkedTasks.add(task);
 			}
 		}
@@ -179,7 +210,7 @@ public class ViewCommand implements ICommand {
 	private Task[] findTasksAfterTodayAndSort(ArrayList<Task> tasksWithDate) {
 		ArrayList<Task> tasksAfterToday = new ArrayList<Task>();
 		for (Task task : tasksWithDate) {
-			if (task.compareTo(LocalDateTime.now()) >= 0
+			if (task.getEndDateTime().isBefore(LocalDateTime.now())
 					&& !task.getTaskStatus())
 				tasksAfterToday.add(task);
 		}
