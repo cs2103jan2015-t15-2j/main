@@ -139,8 +139,22 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewSearch() {
-		// TODO Auto-generated method stub
+		HashMap<String,ArrayList<Task>> taskLists = Taskie.Storage.retrieveTaskMap();
+		ArrayList<Task> tasks= taskLists.get(DEADLINED_TASKNAME);
+		tasks.addAll(taskLists.get(TIMED_TASKNAME));
+		tasks.addAll(taskLists.get(FLOATING_TASKNAME));
+		Taskie.UI.display(findSearchedTasks(tasks));
 
+	}
+
+	private Task[] findSearchedTasks(ArrayList<Task> tasks) {
+		ArrayList<Task> searchedTasks=new ArrayList<Task>();
+		for(Task task : tasks){
+			if(task.getTitle().contains(_searchKeywords)){
+				searchedTasks.add(task);
+			}
+		}
+		return (Task[]) searchedTasks.toArray();
 	}
 
 	private void executeViewCompleted() {
