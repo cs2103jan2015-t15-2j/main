@@ -4,12 +4,15 @@ package taskie;
 import taskie.database.IStorage;
 import taskie.ui.CommandUI;
 import taskie.ui.UI;
+import taskie.parser.CommandParser;
+import taskie.parser.Parser;
 
 public class Taskie {
 	public static UI UI;
 	public static taskie.controller.Controller Controller;
 	public static IStorage Storage;
-
+	public static Parser Parser;
+	
 	public static void main(String[] args) {
 		try {
 			new Taskie(args);
@@ -21,7 +24,7 @@ public class Taskie {
 	public Taskie(String[] args) {
 		Controller = new taskie.controller.Controller();
 		UI = new CommandUI();
-		UI.run();
-		
+		Parser = new CommandParser();
+		Controller.run();
 	}
 }

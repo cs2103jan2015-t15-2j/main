@@ -13,43 +13,27 @@ public class CommandUI implements UI {
 	private static String MESSAGE_REQUEST_INPUT = "Enter Command: ";
 
 	private Scanner _scanner;
-	private Parser _parser;
+
 	private Task[] _currentTaskList;
-	private static boolean _isInitialized;
+
 
 	public CommandUI() {
 		_scanner = new Scanner(System.in);
-		_parser = new CommandParser();
-		_isInitialized = false;
+		
 	}
 
-	public void run() {
-		if (!_isInitialized) {
-			_isInitialized = true;
 
-			boolean isRunning = true;
-			this.printWelcomeMessage();
-			while (isRunning) {
-				isRunning = this.readInput();
-			}
-		}
-	}
-
-	public boolean readInput() {
+	public String readInput() {
 		System.out.print(MESSAGE_REQUEST_INPUT);
-
+		String input=null;
 		if (_scanner.hasNextLine()) {
-			String input = _scanner.nextLine();
+			input = _scanner.nextLine();
 
 			if (input == null) {
-				return false;
+				return null;
 			}
-
-			_parser.parse(input);
-			return true;
 		}
-		
-		return false;
+		return input;
 	}
 
 	public void display(Task task) {
@@ -68,8 +52,11 @@ public class CommandUI implements UI {
 	public Task[] getCurrentTaskList() {
 		return _currentTaskList;
 	}
-
-	private void printWelcomeMessage() {
+	
+	public void printWelcomeMessage() {
 		this.display(MESSAGE_WELCOME);
 	}
+
+
+
 }
