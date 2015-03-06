@@ -165,6 +165,22 @@ public class Task implements Comparable<Task>, Serializable{
 		return thisTaskDateTime.compareTo(now);
 	}
 	
+	//@author A0135137L
+	
+	public boolean isDeadlined() {
+		if (_title != null &&_startDate == null && _startTime == null && _endDate != null)
+			return true;
+		else
+			return false;
+	}
+	
+	public boolean isTimed() {
+		if (_title != null && _startDate != null  && _endDate != null)
+			return true;
+		else
+			return false;
+	}
+	
 	public boolean equals(Task other) {
 		if (equalsTitle(other) && equalsStartDate(other) && 
 			equalsStartTime(other) && equalsEndDate(other) && 

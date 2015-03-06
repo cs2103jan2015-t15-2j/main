@@ -1,4 +1,4 @@
-//@author	A0135137L
+//@author A0135137L
 package taskie.database;
 
 import java.util.ArrayList;
@@ -528,125 +528,49 @@ public class Storage implements IStorage {
 		storeTimedTasks(timedTasks, _storageLocation);
 	}
 	
-	public void updateFloatingTask(Task oldTask, Task newTask) {
-		if (_storageLocation == null) {
-			updateFloatingTaskFromDefaultLocation(oldTask, newTask);
-		} else {
-			updateFloatingTaskFromSetLocation(oldTask, newTask);
-		}
-	}
-	
-	private void updateFloatingTaskFromDefaultLocation(Task oldTask, Task newTask) {
-		File floatingFile = new File(DEFAULT_LOCATION, FLOATING_TASKS_FILENAME);
-		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
-		Task tempTask = null;
-		for (Task tsk : floatingTasks) {
-			if (tsk.equals(oldTask)) {
-				tempTask = tsk;
-				break;
-			}
-		}
-		floatingTasks.remove(tempTask);
-		floatingTasks.add(newTask);
-		storeFloatingTasks(floatingTasks, DEFAULT_LOCATION);
-	}
-	
-	private void updateFloatingTaskFromSetLocation(Task oldTask, Task newTask) {
-		File floatingFile = new File(_storageLocation, FLOATING_TASKS_FILENAME);
-		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
-		Task tempTask = null;
-		for (Task tsk : floatingTasks) {
-			if (tsk.equals(oldTask)) {
-				tempTask = tsk;
-				break;
-			}
-		}
-		floatingTasks.remove(tempTask);
-		floatingTasks.add(newTask);
-		storeFloatingTasks(floatingTasks, _storageLocation);
-	}
-	
-	public void updateDeadlinedTask(Task oldTask, Task newTask) {
-		if (_storageLocation == null) {
-			updateDeadinedTaskFromDefaultLocation(oldTask, newTask);
-		} else {
-			updateDeadinedTaskFromSetLocation(oldTask, newTask);
-		}
-	}
-	
-	private void updateDeadinedTaskFromDefaultLocation(Task oldTask, Task newTask) {
-		File deadlinedFile = new File(DEFAULT_LOCATION, DEADLINED_TASKS_FILENAME);
-		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
-		Task tempTask = null;
-		for (Task tsk : deadlinedTasks) {
-			if (tsk.equals(oldTask)) {
-				tempTask = tsk;
-				break;
-			}
-		}
-		deadlinedTasks.remove(tempTask);
-		deadlinedTasks.add(newTask);
-		storeDeadlinedTasks(deadlinedTasks, DEFAULT_LOCATION);
-	}
-	
-	private void updateDeadinedTaskFromSetLocation(Task oldTask, Task newTask) {
-		File deadlinedFile = new File(_storageLocation, DEADLINED_TASKS_FILENAME);
-		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
-		Task tempTask = null;
-		for (Task tsk : deadlinedTasks) {
-			if (tsk.equals(oldTask)) {
-				tempTask = tsk;
-				break;
-			}
-		}
-		deadlinedTasks.remove(tempTask);
-		deadlinedTasks.add(newTask);
-		storeDeadlinedTasks(deadlinedTasks, _storageLocation);
-	}
-	
-	public void updateTimedTask(Task oldTask, Task newTask) {
-		if (_storageLocation == null) {
-			updateTimedTaskFromDefaultLocation(oldTask, newTask);
-		} else {
-			updateTimedTaskFromSetLocation(oldTask, newTask);
-		}
-	}
-	
-	private void updateTimedTaskFromDefaultLocation(Task oldTask, Task newTask) {
-		File timedFile = new File(DEFAULT_LOCATION, TIMED_TASKS_FILENAME);
-		ArrayList<Task> timedTasks = readTaskList(timedFile);
-		Task tempTask = null;
-		for (Task tsk : timedTasks) {
-			if (tsk.equals(oldTask)) {
-				tempTask = tsk;
-				break;
-			}
-		}
-		timedTasks.remove(tempTask);
-		timedTasks.add(newTask);
-		storeTimedTasks(timedTasks, DEFAULT_LOCATION);
-	}
-	
-	private void updateTimedTaskFromSetLocation(Task oldTask, Task newTask) {
-		File timedFile = new File(_storageLocation, TIMED_TASKS_FILENAME);
-		ArrayList<Task> timedTasks = readTaskList(timedFile);
-		Task tempTask = null;
-		for (Task tsk : timedTasks) {
-			if (tsk.equals(oldTask)) {
-				tempTask = tsk;
-				break;
-			}
-		}
-		timedTasks.remove(tempTask);
-		timedTasks.add(newTask);
-		storeTimedTasks(timedTasks, _storageLocation);
-	}
 
-	@Override
-	public void updateTask(Task oldTask, Task updatedTask) {
-		// TODO Auto-generated method stub
-		
+	public void updateTask(Task oldTask, Task newTask) {
+		if (_storageLocation == null) {
+			updateTaskFromDefaultLocation(oldTask, newTask);
+		} else {
+			updateTaskFromSetLocation(oldTask, newTask);
+		}
 	}
 	
+	private void updateTaskFromDefaultLocation(Task oldTask, Task newTask) {
+		if (oldTask.isDeadlined()) {
+			deleteDeadlinedTaskFromDefaultLocation(oldTask);
+		} else if (oldTask.isTimed()) {
+			deleteTimedTaskFromDefaultLocation(oldTask);
+		} else {
+			deleteFloatingTaskFromDefaultLocation(oldTask);
+		}
+	
+		if (newTask.isDeadlined()) {
+			addDeadlinedTaskToDefaultLocation(newTask);
+		} else if (newTask.isTimed()) {
+			addTimedTaskToDefaultLocation(newTask);
+		} else {
+			addFloatingTaskToDefaultLocation(newTask);
+		}
+	}
+	
+	private void updateTaskFromSetLocation(Task oldTask, Task newTask) {
+		if (oldTask.isDeadlined()) {
+			deleteDeadlinedTaskFromSetLocation(oldTask);
+		} else if (oldTask.isTimed()) {
+			deleteTimedTaskFromSetLocation(oldTask);
+		} else {
+			deleteFloatingTaskFromSetLocation(oldTask);
+		}
+	
+		if (newTask.isDeadlined()) {
+			addDeadlinedTaskToSetLocation(newTask);
+		} else if (newTask.isTimed()) {
+			addTimedTaskToSetLocation(newTask);
+		} else {
+			addFloatingTaskToSetLocation(newTask);
+		}
+	}
 	
 }

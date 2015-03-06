@@ -1,4 +1,4 @@
-//@author	A0135137L
+//@author A0135137L
 
 package taskie.database;
 import taskie.models.Task;
@@ -7,29 +7,23 @@ import java.util.HashMap;
 
 
 public interface IStorage {
-	void setStorageLocation(String fileDir); //done
+	void setStorageLocation(String fileDir); 
 	
-	HashMap<String, ArrayList<Task>> retrieveTaskMap(); //done
+	HashMap<String, ArrayList<Task>> retrieveTaskMap();
 
-	void storeTaskMap(HashMap<String, ArrayList<Task>> hm);  //done
+	void storeTaskMap(HashMap<String, ArrayList<Task>> hm);  
 
-	void addFloatingTask(Task taskToAdd); //done
+	void addFloatingTask(Task taskToAdd); 
 
-	void addDeadlinedTask(Task taskToAdd); //done
+	void addDeadlinedTask(Task taskToAdd);
 
-	void addTimedTask(Task taskToAdd); //done
+	void addTimedTask(Task taskToAdd); 
 
-	void deleteFloatingTask(Task taskToDelete); //done
+	void deleteFloatingTask(Task taskToDelete); 
 	
-	void deleteDeadlinedTask(Task taskToDelete); //done
+	void deleteDeadlinedTask(Task taskToDelete); 
 	
-	void deleteTimedTask(Task timeToDelete); //done
-	
-	void updateFloatingTask(Task oldTask, Task newTask); //done
-	
-	void updateDeadlinedTask(Task oldTask, Task newTask); //done
-	
-	void updateTimedTask(Task oldTask, Task newTask); //done
+	void deleteTimedTask(Task timeToDelete);
 
-	void updateTask(Task oldTask, Task updatedTask);
+	void updateTask(Task oldTask, Task newTask);
 }
