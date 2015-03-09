@@ -21,8 +21,9 @@ public class Controller {
 	private static final String DEADLINED_TASKNAME = "deadlined";
 	private static final String TIMED_TASKNAME = "timed";
 	private static final String FLOATING_TASKNAME = "floating";
+	
+	
 	public Controller() {
-		
 	}
 	
 	public void run(){
