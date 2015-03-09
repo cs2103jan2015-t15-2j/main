@@ -117,7 +117,7 @@ public class UpdateCommand implements ICommand {
 	public void execute() {
 		Task task = retrieveTaskToUpdateFromParser();
 		retrieveTaskToUpdateFromStorageAndUpdate(task);
-		Taskie.UI.display(formatUpdateMsg(task));
+		Taskie.Controller.getUI().display(formatUpdateMsg(task));
 		//TODO add message return to user
 	}
 
@@ -139,7 +139,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) {
-		HashMap<String, ArrayList<Task>> taskLists=Taskie.Storage.retrieveTaskMap();
+		HashMap<String, ArrayList<Task>> taskLists=Taskie.Controller.getStorage().retrieveTaskMap();
 		String taskType = Taskie.Controller.determineTaskType(task);
 		ArrayList<Task> taskList= taskLists.get(taskType);
 		int taskIndex= taskList.indexOf(task);
@@ -151,7 +151,7 @@ public class UpdateCommand implements ICommand {
 			taskList.remove(taskIndex);
 			taskLists.get(Taskie.Controller.determineTaskType(updatedTask)).add(updatedTask);
 		}
-		Taskie.Storage.storeTaskMap(taskLists);
+		Taskie.Controller.getStorage().storeTaskMap(taskLists);
 	}
 
 
@@ -164,7 +164,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	private Task retrieveTaskToUpdateFromParser() {
-		Task[] taskList=Taskie.UI.getCurrentTaskList();
+		Task[] taskList=Taskie.Controller.getUI().getCurrentTaskList();
 		Task task = taskList[_taskIndex];
 		return task;
 	}

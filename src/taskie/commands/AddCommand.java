@@ -90,7 +90,7 @@ public class AddCommand implements ICommand {
 	@Override
 	public void execute() {
 		Task task = determineTaskTypeAndAdd();
-		Taskie.UI.display(formatAddMsg(task));
+		Taskie.Controller.getUI().display(formatAddMsg(task));
 	}
 
 	private String formatAddMsg(Task task) {
@@ -105,19 +105,19 @@ public class AddCommand implements ICommand {
 		Task task = null;
 		if (_startDate == null && _endDate == null) {
 			task = new Task(_taskName);
-			if(Taskie.Storage!=null){
-			Taskie.Storage.addFloatingTask(task);
+			if(Taskie.Controller.getStorage()!=null){
+			Taskie.Controller.getStorage().addFloatingTask(task);
 			}else{}
 		} else if (_startDate == null && _endDate != null) {
 			task = new Task(_taskName, _endDate, _endTime);
-			if(Taskie.Storage!=null){
-			Taskie.Storage.addDeadlinedTask(task);
+			if(Taskie.Controller.getStorage()!=null){
+			Taskie.Controller.getStorage().addDeadlinedTask(task);
 			}else{}
 		} else {
 			task = new Task(_taskName, _startDate, _startTime, _endDate,
 					_endTime);
-			if(Taskie.Storage!=null){
-			Taskie.Storage.addTimedTask(task);
+			if(Taskie.Controller.getStorage()!=null){
+			Taskie.Controller.getStorage().addTimedTask(task);
 			}else{}
 		}
 		return task;

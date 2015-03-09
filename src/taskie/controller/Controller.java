@@ -14,24 +14,47 @@ import java.time.LocalTime;
 
 import taskie.*;
 import taskie.commands.ICommand;
+import taskie.database.IStorage;
 import taskie.models.Task;
+import taskie.parser.CommandParser;
+import taskie.parser.Parser;
+import taskie.ui.CommandUI;
+import taskie.ui.UI;
 
 public class Controller {
-	
+	private UI _ui;
+	private IStorage _storage;
+	private Parser _parser;
+
 	private static final String DEADLINED_TASKNAME = "deadlined";
 	private static final String TIMED_TASKNAME = "timed";
 	private static final String FLOATING_TASKNAME = "floating";
 	
 	
+	public UI getUI() {
+		return _ui;
+	}
+
+	public IStorage getStorage() {
+		return _storage;
+	}
+
+	public Parser getParser() {
+		return _parser;
+	}
+
 	public Controller() {
 	}
 	
 	public void run(){
 			boolean isRunning = true;
-			Taskie.UI.printWelcomeMessage();
+			_ui = new CommandUI();
+			_parser  = new CommandParser();
+
+			_ui.printWelcomeMessage();
 			while (isRunning) {
-				String string = Taskie.UI.readInput();
-				Taskie.Parser.parse(string);
+				String string = _ui.readInput();
+				_parser.parse(string);
 				
 			}
 	}

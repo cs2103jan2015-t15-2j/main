@@ -139,11 +139,11 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewSearch() {
-		HashMap<String,ArrayList<Task>> taskLists = Taskie.Storage.retrieveTaskMap();
+		HashMap<String,ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasks= taskLists.get(DEADLINED_TASKNAME);
 		tasks.addAll(taskLists.get(TIMED_TASKNAME));
 		tasks.addAll(taskLists.get(FLOATING_TASKNAME));
-		Taskie.UI.display(findSearchedTasks(tasks));
+		Taskie.Controller.getUI().display(findSearchedTasks(tasks));
 
 	}
 
@@ -160,12 +160,12 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewCompleted() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
 				.retrieveTaskMap();
 		ArrayList<Task> tasks = taskLists.get(DEADLINED_TASKNAME);
 		tasks.addAll(taskLists.get(TIMED_TASKNAME));
 		tasks.addAll(taskLists.get(FLOATING_TASKNAME));
-		Taskie.UI.display(findCompletedTasks(tasks));
+		Taskie.Controller.getUI().display(findCompletedTasks(tasks));
 
 	}
 
@@ -180,11 +180,11 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewOverdue() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
 				.retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = taskLists.get(DEADLINED_TASKNAME);
 		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
-		Taskie.UI.display(findOverDueTasksAndSort(tasksWithDate));
+		Taskie.Controller.getUI().display(findOverDueTasksAndSort(tasksWithDate));
 
 	}
 
@@ -201,15 +201,15 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewUpcoming() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
 				.retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = taskLists.get(DEADLINED_TASKNAME);
 		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
 		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
 		Task[] tasksWithDateArr = findTasksAfterTodayAndSort(tasksWithDate);
 		Task[] tasksWithoutDateArr = findUndoneFloatingTask(tasksWithoutDate);
-		Taskie.UI.display(tasksWithDateArr);
-		Taskie.UI.display(tasksWithoutDateArr);
+		Taskie.Controller.getUI().display(tasksWithDateArr);
+		Taskie.Controller.getUI().display(tasksWithoutDateArr);
 
 	}
 
@@ -235,13 +235,13 @@ public class ViewCommand implements ICommand {
 	}
 //TODO update to display 1 list
 	private void executeViewAll() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
 				.retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = taskLists.get(DEADLINED_TASKNAME);
 		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
 		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
 		tasksWithDate.sort(new TaskEndDateComparator());
-		Taskie.UI.display((Task[]) tasksWithoutDate.toArray());
-		Taskie.UI.display((Task[]) tasksWithoutDate.toArray());
+		Taskie.Controller.getUI().display((Task[]) tasksWithoutDate.toArray());
+		Taskie.Controller.getUI().display((Task[]) tasksWithoutDate.toArray());
 	}
 }
