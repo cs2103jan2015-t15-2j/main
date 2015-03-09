@@ -34,7 +34,7 @@ public class UnmarkCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
 				.retrieveTaskMap();
 		String taskType = Taskie.Controller.determineTaskType(_task);
 		scanListForTaskAndUnmark(_task, taskLists,taskType);
@@ -48,7 +48,7 @@ public class UnmarkCommand implements ICommand {
 		int taskIndex=taskList.indexOf(task);
 		Task taskRetrieved=taskList.get(taskIndex);
 		taskRetrieved.setTaskUndone();
-		Taskie.Storage.storeTaskMap(taskLists);
+		Taskie.Controller.getStorage().storeTaskMap(taskLists);
 	}
 
 }

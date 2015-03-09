@@ -39,7 +39,7 @@ public class DeleteCommand implements ICommand {
 
 	public DeleteCommand(int taskId) {
 		_taskIndex = taskId;
-		Task[] tasks = Taskie.UI.getCurrentTaskList();
+		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
 		_task = tasks[taskId];
 		_taskName = _task.getTitle();
 	}
@@ -128,11 +128,11 @@ public class DeleteCommand implements ICommand {
 	private void deleteTask() {	
 		String taskType=Taskie.Controller.determineTaskType(_task);
 		if(taskType.equals(FLOATING_TASKNAME)){
-			Taskie.Storage.deleteFloatingTask(_task);
+			Taskie.Controller.getStorage().deleteFloatingTask(_task);
 		}else if(taskType.equals(DEADLINED_TASKNAME)){
-			Taskie.Storage.deleteDeadlinedTask(_task);
+			Taskie.Controller.getStorage().deleteDeadlinedTask(_task);
 		}else{
-			Taskie.Storage.deleteTimedTask(_task);
+			Taskie.Controller.getStorage().deleteTimedTask(_task);
 		}
 		
 	}
