@@ -245,7 +245,7 @@ public class CommandParser implements Parser {
 				}
 			}
 			
-			//_logger.log(Level.INFO, "Added {0} -- {1} to {2}", new Object[] { cmd.getTaskName(), cmd.getStartDateTime(), cmd.getEndDateTime() });
+			_logger.log(Level.INFO, "Added {0} -- {1} to {2}", new Object[] { cmd.getTaskName(), (cmd.getStartDateTime() == null ? "null" : cmd.getStartDateTime()), (cmd.getEndDateTime() == null ? "null" : cmd.getEndDateTime()) });
 			Taskie.Controller.executeCommand(cmd);
 		} else {
 			// Tasks without any deadlines
