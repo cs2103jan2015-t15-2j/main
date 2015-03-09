@@ -150,6 +150,8 @@ public class ViewCommand implements ICommand {
 	private Task[] findSearchedTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> searchedTasks=new ArrayList<Task>();
 		for(Task task : tasks){
+			//TODO remove case sensitivity
+		
 			if(task.getTitle().contains(_searchKeywords)){
 				searchedTasks.add(task);
 			}
@@ -231,7 +233,7 @@ public class ViewCommand implements ICommand {
 		tasksAfterToday.sort(new TaskEndDateComparator());
 		return (Task[]) tasksAfterToday.toArray();
 	}
-
+//TODO update to display 1 list
 	private void executeViewAll() {
 		HashMap<String, ArrayList<Task>> taskLists = Taskie.Storage
 				.retrieveTaskMap();
