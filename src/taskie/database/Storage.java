@@ -365,6 +365,8 @@ public class Storage implements IStorage {
 	private void addFloatingTaskToDefaultLocation(Task taskToAdd){
 		File floatingFile = new File(DEFAULT_LOCATION, FLOATING_TASKS_FILENAME);
 		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
+		if (floatingTasks == null)
+			floatingTasks = new ArrayList<Task>();
 		floatingTasks.add(taskToAdd);
 		storeFloatingTasks(floatingTasks, DEFAULT_LOCATION);
 	}
@@ -372,6 +374,8 @@ public class Storage implements IStorage {
 	private void addFloatingTaskToSetLocation(Task taskToAdd){
 		File floatingFile = new File(_storageLocation, FLOATING_TASKS_FILENAME);
 		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
+		if (floatingTasks == null)
+			floatingTasks = new ArrayList<Task>();
 		floatingTasks.add(taskToAdd);
 		storeFloatingTasks(floatingTasks, _storageLocation);
 	}
@@ -387,6 +391,8 @@ public class Storage implements IStorage {
 	private void addDeadlinedTaskToDefaultLocation(Task taskToAdd){
 		File deadlinedFile = new File(DEFAULT_LOCATION, DEADLINED_TASKS_FILENAME);
 		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
+		if (deadlinedTasks == null)
+			deadlinedTasks = new ArrayList<Task>();
 		deadlinedTasks.add(taskToAdd);
 		storeDeadlinedTasks(deadlinedTasks, DEFAULT_LOCATION);
 	}
@@ -394,6 +400,8 @@ public class Storage implements IStorage {
 	private void addDeadlinedTaskToSetLocation(Task taskToAdd){
 		File deadlinedFile = new File(_storageLocation, DEADLINED_TASKS_FILENAME);
 		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
+		if (deadlinedTasks == null)
+			deadlinedTasks = new ArrayList<Task>();
 		deadlinedTasks.add(taskToAdd);
 		storeDeadlinedTasks(deadlinedTasks, _storageLocation);
 	}
@@ -409,6 +417,8 @@ public class Storage implements IStorage {
 	private void addTimedTaskToDefaultLocation(Task taskToAdd) {
 		File timedFile = new File(DEFAULT_LOCATION, TIMED_TASKS_FILENAME);
 		ArrayList<Task> timedTasks = readTaskList(timedFile);
+		if (timedTasks == null)
+			timedTasks = new ArrayList<Task>();
 		timedTasks.add(taskToAdd);
 		storeTimedTasks(timedTasks, DEFAULT_LOCATION);
 	}
@@ -416,6 +426,8 @@ public class Storage implements IStorage {
 	private void addTimedTaskToSetLocation(Task taskToAdd) {
 		File timedFile = new File(_storageLocation, TIMED_TASKS_FILENAME);
 		ArrayList<Task> timedTasks = readTaskList(timedFile);
+		if (timedTasks == null)
+			timedTasks = new ArrayList<Task>();
 		timedTasks.add(taskToAdd);
 		storeTimedTasks(timedTasks, _storageLocation);
 	}
