@@ -220,9 +220,9 @@ public class CommandParser implements Parser {
 			
 			String name = (name1 + " " + name2).trim();
 			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
-			
+
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
-			
+
 			AddCommand cmd = new AddCommand();
 			cmd.setTaskName(name);
 			
@@ -244,7 +244,6 @@ public class CommandParser implements Parser {
 					cmd.setEndTime(startAndEndDateTime[END_DATETIME].toLocalTime());
 				}
 			}
-			
 			_logger.log(Level.INFO, "Added {0} -- {1} to {2}", new Object[] { cmd.getTaskName(), (cmd.getStartDateTime() == null ? "null" : cmd.getStartDateTime()), (cmd.getEndDateTime() == null ? "null" : cmd.getEndDateTime()) });
 			Taskie.Controller.executeCommand(cmd);
 		} else {
@@ -436,6 +435,7 @@ public class CommandParser implements Parser {
 			}
 		} else if ( dates.size() == 1 ) {
 			// Deadline tasks
+
 			Date datetime1 = dates.get(0);
 			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
 			startAndEndDateTime[START_DATETIME] = null;

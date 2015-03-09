@@ -53,6 +53,7 @@ public class Storage implements IStorage {
 	}
 
 	private HashMap<String, ArrayList<Task>> retrieveTaskMapFromDefaultLocation() {
+		
 		HashMap<String, ArrayList<Task>> taskMap = new HashMap<String, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
 		File deadlinedFile = new File(DEFAULT_LOCATION, DEADLINED_TASKS_FILENAME);
 		File timedFile = new File(DEFAULT_LOCATION, TIMED_TASKS_FILENAME);
@@ -60,10 +61,19 @@ public class Storage implements IStorage {
 		ArrayList<Task> deadlinedTasks = readTaskList(deadlinedFile);
 		ArrayList<Task> timedTasks = readTaskList(timedFile);
 		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
-		
-		taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
-		taskMap.put(TIMED_TASKNAME, timedTasks);
-		taskMap.put(FLOATING_TASKNAME, floatingTasks);
+		if (deadlinedTasks == null) {
+			deadlinedTasks = new ArrayList<Task>();
+			taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
+		}
+		if (timedTasks == null) {
+			timedTasks = new ArrayList<Task>();
+			taskMap.put(TIMED_TASKNAME, timedTasks);
+		}
+		if (floatingTasks == null) {
+			floatingTasks = new ArrayList<Task>();
+			taskMap.put(FLOATING_TASKNAME, floatingTasks);
+		}
+	
 		
 		return taskMap;
 	}
