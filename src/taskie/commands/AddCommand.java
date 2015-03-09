@@ -73,13 +73,21 @@ public class AddCommand implements ICommand {
 
 	// @author A0121555M
 	public LocalDateTime getStartDateTime() {
-		return LocalDateTime.of(_startDate,
-				(_startTime == null) ? LocalTime.MAX : _startTime);
+		try {
+			return LocalDateTime.of(_startDate,
+					(_startTime == null) ? LocalTime.MAX : _startTime);
+		} catch ( NullPointerException e ) {
+			return null;
+		}
 	}
 
 	public LocalDateTime getEndDateTime() {
-		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX
-				: _endTime);
+		try {
+			return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX
+					: _endTime);
+		} catch ( NullPointerException e ) {
+			return null;
+		}
 	}
 
 	// @author A0097582N
