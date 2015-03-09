@@ -12,7 +12,7 @@ package taskie.controller;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import taskie.*;
+
 import taskie.commands.ICommand;
 import taskie.database.IStorage;
 import taskie.models.Task;
@@ -20,6 +20,7 @@ import taskie.parser.CommandParser;
 import taskie.parser.Parser;
 import taskie.ui.CommandUI;
 import taskie.ui.UI;
+import taskie.database.Storage;
 
 public class Controller {
 	private UI _ui;
@@ -50,6 +51,7 @@ public class Controller {
 			boolean isRunning = true;
 			_ui = new CommandUI();
 			_parser  = new CommandParser();
+			_storage = new Storage();
 
 			_ui.printWelcomeMessage();
 			while (isRunning) {
