@@ -117,7 +117,7 @@ public class CommandParser implements Parser {
 			CommandType cmd = this.getCommandType(keyword);
 			this.executeCommandType(cmd, command);
 		} catch ( InvalidCommandException e ) {
-			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
+			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
 		}
 	}
 	
@@ -200,7 +200,7 @@ public class CommandParser implements Parser {
 	
 	private void doAdd(String command) {
 		if ( command.isEmpty() ) {
-			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
+			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
 			return;
 		}
 		
@@ -260,12 +260,12 @@ public class CommandParser implements Parser {
 	
 	private void doUpdate(String command) {
 		if ( command.trim().isEmpty() ) {
-			Taskie.UI.display(MESSAGE_INVALID_COMMAND);
+			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
 			return;
 		}
 		
 		_natty.parse(command);
-		Taskie.UI.display(command);
+		Taskie.Controller.getUI().display(command);
 	}
 	
 	private void doDelete(String command) {
@@ -275,7 +275,7 @@ public class CommandParser implements Parser {
 			_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
 			Taskie.Controller.executeCommand(new DeleteCommand(itemNumber));
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
-			Taskie.UI.display("Invalid Task Number");
+			Taskie.Controller.getUI().display("Invalid Task Number");
 		}
 	}
 	
@@ -389,26 +389,26 @@ public class CommandParser implements Parser {
 	private void doMark(String command) {
 		int itemNumber = Integer.parseInt(command);
 
-		Task[] tasks = Taskie.UI.getCurrentTaskList();
+		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
 		try {
 			Task task = tasks[itemNumber];
 			_logger.log(Level.INFO, "Marking Task: {0} as Complete", task.getTitle());
 			Taskie.Controller.executeCommand(new MarkCommand(task));
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
-			Taskie.UI.display("Invalid Task Number");
+			Taskie.Controller.getUI().display("Invalid Task Number");
 		}
 	}
 	
 	private void doUnmark(String command) {
 		int itemNumber = Integer.parseInt(command);
 
-		Task[] tasks = Taskie.UI.getCurrentTaskList();
+		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
 		try {
 			Task task = tasks[itemNumber];
 			_logger.log(Level.INFO, "Unmarking Task: {0} as Complete", task.getTitle());
 			Taskie.Controller.executeCommand(new UnmarkCommand(task));
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
-			Taskie.UI.display("Invalid Task Number");
+			Taskie.Controller.getUI().display("Invalid Task Number");
 		}
 	}
 
