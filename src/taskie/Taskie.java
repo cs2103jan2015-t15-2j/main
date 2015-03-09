@@ -20,6 +20,7 @@ public class Taskie {
 
 	public Taskie(String[] args) {
 		Controller = new taskie.controller.Controller();
+		Storage = new taskie.database.Storage();
 		UI = new CommandUI();
 		UI.run();
 		
