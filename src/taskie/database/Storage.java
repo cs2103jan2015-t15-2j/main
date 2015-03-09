@@ -63,18 +63,16 @@ public class Storage implements IStorage {
 		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
 		if (deadlinedTasks == null) {
 			deadlinedTasks = new ArrayList<Task>();
-			taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
 		}
+		taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
 		if (timedTasks == null) {
 			timedTasks = new ArrayList<Task>();
-			taskMap.put(TIMED_TASKNAME, timedTasks);
 		}
+		taskMap.put(TIMED_TASKNAME, timedTasks);
 		if (floatingTasks == null) {
 			floatingTasks = new ArrayList<Task>();
-			taskMap.put(FLOATING_TASKNAME, floatingTasks);
 		}
-	
-		
+		taskMap.put(FLOATING_TASKNAME, floatingTasks);
 		return taskMap;
 	}
 	
@@ -87,8 +85,17 @@ public class Storage implements IStorage {
 		ArrayList<Task> timedTasks = readTaskList(timedFile);
 		ArrayList<Task> floatingTasks = readTaskList(floatingFile);
 		
+		if (deadlinedTasks == null) {
+			deadlinedTasks = new ArrayList<Task>();
+		}
 		taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
+		if (timedTasks == null) {
+			timedTasks = new ArrayList<Task>();
+		}
 		taskMap.put(TIMED_TASKNAME, timedTasks);
+		if (floatingTasks == null) {
+			floatingTasks = new ArrayList<Task>();
+		}
 		taskMap.put(FLOATING_TASKNAME, floatingTasks);
 		
 		return taskMap;
