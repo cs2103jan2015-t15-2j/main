@@ -164,7 +164,7 @@ public class ViewCommand implements ICommand {
 				searchedTasks.add(task);
 			}
 		}
-		return (Task[]) searchedTasks.toArray();
+		return toArray(searchedTasks);
 	}
 
 	private void executeViewCompleted() {
@@ -191,7 +191,7 @@ public class ViewCommand implements ICommand {
 				completedTasks.add(task);
 			}
 		}
-		return (Task[]) completedTasks.toArray();
+		return toArray(completedTasks);
 	}
 
 	private void executeViewOverdue() {
@@ -213,7 +213,7 @@ public class ViewCommand implements ICommand {
 			}
 		}
 		unmarkedAndOverdueTask.sort(new taskie.models.TaskEndDateComparator());
-		return (Task[]) unmarkedAndOverdueTask.toArray();
+		return  toArray(unmarkedAndOverdueTask);
 	}
 
 	private void executeViewUpcoming() {
@@ -232,7 +232,7 @@ public class ViewCommand implements ICommand {
 			tasksWithoutDate = findUndoneFloatingTask(tasksWithoutDate);
 			tasksWithDate.addAll(tasksWithoutDate);
 		}
-		Taskie.Controller.getUI().display((Task[]) tasksWithDate.toArray());
+		Taskie.Controller.getUI().display(toArray(tasksWithDate));
 		
 
 	}
@@ -273,6 +273,15 @@ public class ViewCommand implements ICommand {
 		if(tasksWithoutDate!=null){
 			tasksWithDate.addAll(tasksWithoutDate);
 		}
-		Taskie.Controller.getUI().display((Task[]) tasksWithDate.toArray());
+		Taskie.Controller.getUI().display(toArray(tasksWithDate));
+	}
+
+	private Task[] toArray(ArrayList<Task> taskList){
+		int size=taskList.size();
+		Task[] taskListArr=new Task[size];
+		for(int i=0;i<size;i++){
+			taskListArr[i]=taskList.get(i);	
+		}
+		return taskListArr;
 	}
 }
