@@ -14,9 +14,12 @@ public class CommandUI implements UI {
 
 	private Scanner _scanner;
 	private Task[] _currentTaskList;
+	private static boolean _isInitialized;
+	private static boolean _isUIRunning;
 
 	public CommandUI() {
 		_scanner = new Scanner(System.in);
+		_isInitialized = false;
 	}
 
 	public String readInput() {
@@ -65,8 +68,24 @@ public class CommandUI implements UI {
 		return _currentTaskList;
 	}
 
-	public void printWelcomeMessage() {
+	private void printWelcomeMessage() {
 		this.display(MESSAGE_WELCOME);
+	}
+
+	public void run() {
+		if (!_isInitialized) {
+			_isInitialized = true;
+			this.printWelcomeMessage();
+			_isUIRunning = true;
+		}
+	}
+
+	public void exit() {
+		_isUIRunning = false;
+	}
+	
+	public boolean isUIRunning() {
+		return _isUIRunning;
 	}
 
 }
