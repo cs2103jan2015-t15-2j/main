@@ -12,7 +12,6 @@ package taskie.controller;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-
 import taskie.commands.ICommand;
 import taskie.database.IStorage;
 import taskie.models.Task;
@@ -30,8 +29,7 @@ public class Controller {
 	private static final String DEADLINED_TASKNAME = "deadlined";
 	private static final String TIMED_TASKNAME = "timed";
 	private static final String FLOATING_TASKNAME = "floating";
-	
-	
+
 	public UI getUI() {
 		return _ui;
 	}
@@ -46,39 +44,39 @@ public class Controller {
 
 	public Controller() {
 	}
-	
-	public void run(){
-			boolean isRunning = true;
-			_ui = new CommandUI();
-			_parser  = new CommandParser();
-			_storage = new Storage();
 
-			_ui.printWelcomeMessage();
-			while (isRunning) {
-				String string = _ui.readInput();
-				_parser.parse(string);
-				
-			}
+	public void run() {
+		boolean isRunning = true;
+		_ui = new CommandUI();
+		_parser = new CommandParser();
+		_storage = new Storage();
+
+		_ui.printWelcomeMessage();
+		while (isRunning) {
+			String string = _ui.readInput();
+			_parser.parse(string);
+
+		}
 	}
 
 	public void executeCommand(ICommand command) {
 		command.execute();
-		
 
 	}
+
 	public String formatTime(LocalDate startDate, LocalTime startTime) {
 		String string = "";
-		if(startDate!=null){
-		string = string.concat(startDate.toString());
+		if (startDate != null) {
+			string = string.concat(startDate.toString());
 		}
-		
-		if(startTime!=null){
-		string = string.concat(" " + startTime.getHour() + " "
-				+ startTime.getMinute());
+
+		if (startTime != null) {
+			string = string.concat(" " + startTime.getHour() + " "
+					+ startTime.getMinute());
 		}
 		return string;
 	}
-	
+
 	public String determineTaskType(Task task) {
 		if (task.getStartDate() == null && task.getEndDate() == null) {
 			return FLOATING_TASKNAME;
