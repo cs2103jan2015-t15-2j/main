@@ -16,6 +16,7 @@ put Travel to London
 put Complete CE2 on Saturday
 create Work on the code done by Amy by Monday
 create Add the create task for CS2103 by 15 March
+add Do CE3 tomorrow
 
 ---
 View / Search Commands
@@ -25,6 +26,7 @@ view overdue
 view todo
 find CS2103 tutorial
 find dinner
+display
 
 ---
 Delete Commands
