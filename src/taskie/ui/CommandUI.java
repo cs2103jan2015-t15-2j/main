@@ -13,19 +13,15 @@ public class CommandUI implements UI {
 	private static String MESSAGE_REQUEST_INPUT = "Enter Command: ";
 
 	private Scanner _scanner;
-
 	private Task[] _currentTaskList;
-
 
 	public CommandUI() {
 		_scanner = new Scanner(System.in);
-		
 	}
-
 
 	public String readInput() {
 		System.out.print(MESSAGE_REQUEST_INPUT);
-		String input=null;
+		String input = null;
 		if (_scanner.hasNextLine()) {
 			input = _scanner.nextLine();
 
@@ -42,15 +38,18 @@ public class CommandUI implements UI {
 
 	public void display(Task[] tasks) {
 		_currentTaskList = tasks;
-		
-		for ( int x = 0; x < tasks.length; x++ ) {
+
+		for (int x = 0; x < tasks.length; x++) {
 			Task task = tasks[x];
-			
-			System.out.print("#" + x + ": " );
-			if ( task.isDeadlined() ) {
-				System.out.println(task.getTitle() + " -- Complete by " + task.getEndDateTime());
-			} else if ( task.isTimed() ) {
-				System.out.println(task.getTitle() + " -- Do between " + task.getStartDateTime() + " to " + task.getEndDateTime());
+
+			System.out.print("#" + x + ": ");
+			if (task.isDeadlined()) {
+				System.out.println(task.getTitle() + " -- Complete by "
+						+ task.getEndDateTime());
+			} else if (task.isTimed()) {
+				System.out.println(task.getTitle() + " -- Do between "
+						+ task.getStartDateTime() + " to "
+						+ task.getEndDateTime());
 			} else {
 				System.out.println(task.getTitle());
 			}
@@ -65,11 +64,9 @@ public class CommandUI implements UI {
 	public Task[] getCurrentTaskList() {
 		return _currentTaskList;
 	}
-	
+
 	public void printWelcomeMessage() {
 		this.display(MESSAGE_WELCOME);
 	}
-
-
 
 }
