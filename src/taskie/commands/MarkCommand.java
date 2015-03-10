@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.Taskie;
-import taskie.database.Storage;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
@@ -21,6 +20,17 @@ public class MarkCommand implements ICommand {
 	private CommandType _commandType = CommandType.MARK;
 	private Task _task;
 
+	//@author A0121555M
+	public MarkCommand(int itemNumber) {
+		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
+		try {
+			_task = tasks[itemNumber];
+		} catch ( ArrayIndexOutOfBoundsException ex ) {
+			Taskie.Controller.getUI().display("Invalid Task Number");
+		}
+	}
+	
+	//@author A0097582N
 	public MarkCommand(Task task) {
 		_task = task;
 	}
