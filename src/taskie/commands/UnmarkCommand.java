@@ -38,7 +38,7 @@ public class UnmarkCommand implements ICommand {
 				.retrieveTaskMap();
 		String taskType = Taskie.Controller.determineTaskType(_task);
 		scanListForTaskAndUnmark(_task, taskLists,taskType);
-		//TODO add message return to user
+		Taskie.Controller.getUI().display("UNMARK TASK.(STUB) Task Title: %s");
 
 	}
 

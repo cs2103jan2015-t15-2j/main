@@ -139,16 +139,17 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewSearch() {
-		HashMap<String,ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
-	
-		ArrayList<Task> tasks= new ArrayList<Task>();
-		if(taskLists.get(DEADLINED_TASKNAME)!=null){
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
+				.getStorage().retrieveTaskMap();
+
+		ArrayList<Task> tasks = new ArrayList<Task>();
+		if (taskLists.get(DEADLINED_TASKNAME) != null) {
 			tasks.addAll(taskLists.get(DEADLINED_TASKNAME));
 		}
-		if(taskLists.get(TIMED_TASKNAME)!=null){
+		if (taskLists.get(TIMED_TASKNAME) != null) {
 			tasks.addAll(taskLists.get(TIMED_TASKNAME));
 		}
-		if(taskLists.get(FLOATING_TASKNAME)!=null){
+		if (taskLists.get(FLOATING_TASKNAME) != null) {
 			tasks.addAll(taskLists.get(FLOATING_TASKNAME));
 		}
 		Taskie.Controller.getUI().display(findSearchedTasks(tasks));
@@ -156,11 +157,11 @@ public class ViewCommand implements ICommand {
 	}
 
 	private Task[] findSearchedTasks(ArrayList<Task> tasks) {
-		ArrayList<Task> searchedTasks=new ArrayList<Task>();
-		for(Task task : tasks){
-			//TODO remove case sensitivity
-		
-			if(task.getTitle().contains(_searchKeywords)){
+		ArrayList<Task> searchedTasks = new ArrayList<Task>();
+		for (Task task : tasks) {
+
+			if (task.getTitle().toLowerCase()
+					.contains(_searchKeywords.toLowerCase())) {
 				searchedTasks.add(task);
 			}
 		}
@@ -168,16 +169,16 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewCompleted() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
-				.retrieveTaskMap();
-		ArrayList<Task> tasks= new ArrayList<Task>();
-		if(taskLists.get(DEADLINED_TASKNAME)!=null){
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
+				.getStorage().retrieveTaskMap();
+		ArrayList<Task> tasks = new ArrayList<Task>();
+		if (taskLists.get(DEADLINED_TASKNAME) != null) {
 			tasks.addAll(taskLists.get(DEADLINED_TASKNAME));
 		}
-		if(taskLists.get(TIMED_TASKNAME)!=null){
+		if (taskLists.get(TIMED_TASKNAME) != null) {
 			tasks.addAll(taskLists.get(TIMED_TASKNAME));
 		}
-		if(taskLists.get(FLOATING_TASKNAME)!=null){
+		if (taskLists.get(FLOATING_TASKNAME) != null) {
 			tasks.addAll(taskLists.get(FLOATING_TASKNAME));
 		}
 		Taskie.Controller.getUI().display(findCompletedTasks(tasks));
@@ -186,8 +187,8 @@ public class ViewCommand implements ICommand {
 
 	private Task[] findCompletedTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> completedTasks = new ArrayList<Task>();
-		for(Task task : tasks){
-			if(task.getTaskStatus()){
+		for (Task task : tasks) {
+			if (task.getTaskStatus()) {
 				completedTasks.add(task);
 			}
 		}
@@ -195,12 +196,13 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewOverdue() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
-				.retrieveTaskMap();
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
+				.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = new ArrayList<Task>();
 		tasksWithDate.addAll(taskLists.get(DEADLINED_TASKNAME));
 		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
-		Taskie.Controller.getUI().display(findOverDueTasksAndSort(tasksWithDate));
+		Taskie.Controller.getUI().display(
+				findOverDueTasksAndSort(tasksWithDate));
 
 	}
 
@@ -213,31 +215,31 @@ public class ViewCommand implements ICommand {
 			}
 		}
 		unmarkedAndOverdueTask.sort(new taskie.models.TaskEndDateComparator());
-		return  toArray(unmarkedAndOverdueTask);
+		return toArray(unmarkedAndOverdueTask);
 	}
 
 	private void executeViewUpcoming() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
-				.retrieveTaskMap();
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
+				.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = new ArrayList<Task>();
-		if(taskLists.get(DEADLINED_TASKNAME)!=null){
+		if (taskLists.get(DEADLINED_TASKNAME) != null) {
 			tasksWithDate.addAll(taskLists.get(DEADLINED_TASKNAME));
 		}
-		if(taskLists.get(TIMED_TASKNAME)!=null){
+		if (taskLists.get(TIMED_TASKNAME) != null) {
 			tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
 		}
 		tasksWithDate = findTasksAfterTodayAndSort(tasksWithDate);
 		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
-		if(tasksWithoutDate!=null){
+		if (tasksWithoutDate != null) {
 			tasksWithoutDate = findUndoneFloatingTask(tasksWithoutDate);
 			tasksWithDate.addAll(tasksWithoutDate);
 		}
 		Taskie.Controller.getUI().display(toArray(tasksWithDate));
-		
 
 	}
 
-	private ArrayList<Task> findUndoneFloatingTask(ArrayList<Task> tasksWithoutDate) {
+	private ArrayList<Task> findUndoneFloatingTask(
+			ArrayList<Task> tasksWithoutDate) {
 		ArrayList<Task> unmarkedTasks = new ArrayList<Task>();
 		for (Task task : tasksWithoutDate) {
 			if (!task.getTaskStatus()) {
@@ -247,7 +249,8 @@ public class ViewCommand implements ICommand {
 		return unmarkedTasks;
 	}
 
-	private ArrayList<Task> findTasksAfterTodayAndSort(ArrayList<Task> tasksWithDate) {
+	private ArrayList<Task> findTasksAfterTodayAndSort(
+			ArrayList<Task> tasksWithDate) {
 		ArrayList<Task> tasksAfterToday = new ArrayList<Task>();
 		for (Task task : tasksWithDate) {
 			if (task.getEndDateTime().isBefore(LocalDateTime.now())
@@ -255,32 +258,32 @@ public class ViewCommand implements ICommand {
 				tasksAfterToday.add(task);
 		}
 		tasksAfterToday.sort(new TaskEndDateComparator());
-		return  tasksAfterToday;
+		return tasksAfterToday;
 	}
-//TODO update to display 1 list
+
 	private void executeViewAll() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
-				.retrieveTaskMap();
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
+				.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = new ArrayList<Task>();
-		if(taskLists.get(DEADLINED_TASKNAME)!=null){
+		if (taskLists.get(DEADLINED_TASKNAME) != null) {
 			tasksWithDate.addAll(taskLists.get(DEADLINED_TASKNAME));
 		}
-		if(taskLists.get(TIMED_TASKNAME)!=null){
+		if (taskLists.get(TIMED_TASKNAME) != null) {
 			tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
 		}
 		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
 		tasksWithDate.sort(new TaskEndDateComparator());
-		if(tasksWithoutDate!=null){
+		if (tasksWithoutDate != null) {
 			tasksWithDate.addAll(tasksWithoutDate);
 		}
 		Taskie.Controller.getUI().display(toArray(tasksWithDate));
 	}
 
-	private Task[] toArray(ArrayList<Task> taskList){
-		int size=taskList.size();
-		Task[] taskListArr=new Task[size];
-		for(int i=0;i<size;i++){
-			taskListArr[i]=taskList.get(i);	
+	private Task[] toArray(ArrayList<Task> taskList) {
+		int size = taskList.size();
+		Task[] taskListArr = new Task[size];
+		for (int i = 0; i < size; i++) {
+			taskListArr[i] = taskList.get(i);
 		}
 		return taskListArr;
 	}

@@ -23,17 +23,20 @@ public class Task implements Comparable<Task>, Serializable{
 		_startTime = null;
 		_endDate = null;
 		_endTime = null;
+		_isDone=false;
 	}
 
 	// Floating Task (Tasks without specific times)
 	public Task(String title) {
 		_title = title;
+		_isDone=false;
 	}
 
 	// Deadlines (Done before specific deadline)
 	public Task(String title, LocalDate endDate) {
 		_title = title;
 		_endDate = endDate;
+		_isDone=false;
 	}
 
 	// Deadlines (Done before specific deadline)
@@ -41,6 +44,7 @@ public class Task implements Comparable<Task>, Serializable{
 		_title = title;
 		_endDate = endDate;
 		_endTime = endTime;
+		_isDone=false;
 	}
 
 	// Timed Task (Specific Start Time and End Time)
@@ -48,6 +52,7 @@ public class Task implements Comparable<Task>, Serializable{
 		_title = title;
 		_startDate = startDate;
 		_endDate = endDate;
+		_isDone=false;
 	}
 
 	// Timed Task (Specific Start Time and End Time)
@@ -58,6 +63,7 @@ public class Task implements Comparable<Task>, Serializable{
 		_startTime = startTime;
 		_endDate = endDate;
 		_endTime = endTime;
+		_isDone=false;
 	}
 
 	public String getTitle() {

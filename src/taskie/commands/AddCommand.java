@@ -102,7 +102,7 @@ public class AddCommand implements ICommand {
 	}
 
 	private String formatAddMsg(Task task) {
-		return String.format("STUB MSG_ Task Title:%s Task Time:%s",
+		return String.format("Task added!(STUB) Task Title:%s Task Time:%s",
 				task.getTitle(),
 				Taskie.Controller.formatTime(task.getStartDate(), task.getStartTime()));
 	}
