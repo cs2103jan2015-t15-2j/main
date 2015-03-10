@@ -46,16 +46,15 @@ public class Controller {
 	}
 
 	public void run() {
-		boolean isRunning = true;
 		_ui = new CommandUI();
 		_parser = new CommandParser();
 		_storage = new Storage();
 
-		_ui.printWelcomeMessage();
-		while (isRunning) {
+		_ui.run();
+		
+		while ( _ui.isUIRunning() ) {
 			String string = _ui.readInput();
 			_parser.parse(string);
-
 		}
 	}
 
