@@ -269,13 +269,8 @@ public class CommandParser implements Parser {
 	
 	private void doDelete(String command) {
 		int itemNumber = Integer.parseInt(command);
-
-		try {
-			_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
-			Taskie.Controller.executeCommand(new DeleteCommand(itemNumber));
-		} catch ( ArrayIndexOutOfBoundsException ex ) {
-			Taskie.Controller.getUI().display("Invalid Task Number");
-		}
+		_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
+		Taskie.Controller.executeCommand(new DeleteCommand(itemNumber));
 	}
 	
 	private void doView(String command) {
@@ -387,28 +382,14 @@ public class CommandParser implements Parser {
 	
 	private void doMark(String command) {
 		int itemNumber = Integer.parseInt(command);
-
-		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
-		try {
-			Task task = tasks[itemNumber];
-			_logger.log(Level.INFO, "Marking Task: {0} as Complete", task.getTitle());
-			Taskie.Controller.executeCommand(new MarkCommand(task));
-		} catch ( ArrayIndexOutOfBoundsException ex ) {
-			Taskie.Controller.getUI().display("Invalid Task Number");
-		}
+		_logger.log(Level.INFO, "Marking Task {0} as Complete", itemNumber);
+		Taskie.Controller.executeCommand(new MarkCommand(itemNumber));
 	}
 	
 	private void doUnmark(String command) {
 		int itemNumber = Integer.parseInt(command);
-
-		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
-		try {
-			Task task = tasks[itemNumber];
-			_logger.log(Level.INFO, "Unmarking Task: {0} as Complete", task.getTitle());
-			Taskie.Controller.executeCommand(new UnmarkCommand(task));
-		} catch ( ArrayIndexOutOfBoundsException ex ) {
-			Taskie.Controller.getUI().display("Invalid Task Number");
-		}
+		_logger.log(Level.INFO, "Marking Task {0} as Incomplete", itemNumber);
+		Taskie.Controller.executeCommand(new UnmarkCommand(itemNumber));
 	}
 
 	private void doExit() {
