@@ -107,8 +107,6 @@ public class AddCommand implements ICommand {
 				Taskie.Controller.formatTime(task.getStartDate(), task.getStartTime()));
 	}
 
-
-
 	private Task determineTaskTypeAndAdd() {
 		Task task = null;
 		if (_startDate == null && _endDate == null) {
@@ -129,7 +127,6 @@ public class AddCommand implements ICommand {
 			}else{}
 		}
 		return task;
-
 	}
 
 }
