@@ -110,10 +110,11 @@ public class DeleteCommand implements ICommand {
 		if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
 				|| canDeleteEndTime()) {
 			deleteTaskField();
+			Taskie.Controller.getUI().display("Task Deleted.(STUB)");
 		}else{
 			deleteTask();
+			Taskie.Controller.getUI().display("Task Field Deleted.(STUB)");
 		}
-		//TODO return message to user
 	}
 
 	private void deleteTaskField() {
