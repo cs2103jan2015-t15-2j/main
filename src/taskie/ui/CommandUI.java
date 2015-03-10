@@ -42,6 +42,19 @@ public class CommandUI implements UI {
 
 	public void display(Task[] tasks) {
 		_currentTaskList = tasks;
+		
+		for ( int x = 0; x < tasks.length; x++ ) {
+			Task task = tasks[x];
+			
+			System.out.print("#" + x + ": " );
+			if ( task.isDeadlined() ) {
+				System.out.println(task.getTitle() + " -- Complete by " + task.getEndDateTime());
+			} else if ( task.isTimed() ) {
+				System.out.println(task.getTitle() + " -- Do between " + task.getStartDateTime() + " to " + task.getEndDateTime());
+			} else {
+				System.out.println(task.getTitle());
+			}
+		}
 
 	}
 
