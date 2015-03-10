@@ -107,11 +107,11 @@ public class DeleteCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		if (canDeleteStartDate() && canDeleteStartTime() && canDeleteEndDate()
-				&& canDeleteEndTime()) {
-			deleteTask();
-		}else{
+		if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
+				|| canDeleteEndTime()) {
 			deleteTaskField();
+		}else{
+			deleteTask();
 		}
 		//TODO return message to user
 	}
