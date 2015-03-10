@@ -42,10 +42,18 @@ public class DeleteCommand implements ICommand {
 		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
 		_task = tasks[taskId];
 		_taskName = _task.getTitle();
+		_deleteStartDate = false;
+		_deleteStartTime = false;
+		_deleteEndDate = false;
+		_deleteEndTime = false;
 	}
 
 	public DeleteCommand(String taskName) {
 		_taskName = taskName;
+		_deleteStartDate = false;
+		_deleteStartTime = false;
+		_deleteEndDate = false;
+		_deleteEndTime = false;
 	}
 
 	public void setTaskName(String taskName) {
