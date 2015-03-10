@@ -388,15 +388,8 @@ public class CommandParser implements Parser {
 	
 	private void doUnmark(String command) {
 		int itemNumber = Integer.parseInt(command);
-
-		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
-		try {
-			Task task = tasks[itemNumber];
-			_logger.log(Level.INFO, "Unmarking Task: {0} as Complete", task.getTitle());
-			Taskie.Controller.executeCommand(new UnmarkCommand(task));
-		} catch ( ArrayIndexOutOfBoundsException ex ) {
-			Taskie.Controller.getUI().display("Invalid Task Number");
-		}
+		_logger.log(Level.INFO, "Marking Task {0} as Incomplete", itemNumber);
+		Taskie.Controller.executeCommand(new UnmarkCommand(itemNumber));
 	}
 
 	private void doExit() {
