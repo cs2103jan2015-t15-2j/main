@@ -253,7 +253,7 @@ public class ViewCommand implements ICommand {
 			ArrayList<Task> tasksWithDate) {
 		ArrayList<Task> tasksAfterToday = new ArrayList<Task>();
 		for (Task task : tasksWithDate) {
-			if (task.getEndDateTime().isBefore(LocalDateTime.now())
+			if (task.getEndDateTime().isAfter(LocalDateTime.now())
 					&& !task.getTaskStatus())
 				tasksAfterToday.add(task);
 		}

@@ -108,7 +108,7 @@ public class DeleteCommand implements ICommand {
 	@Override
 	public void execute() {
 		if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
-				|| canDeleteEndTime()) {
+				|| canDeleteEndTime()) {	//if either of these methods returned true, only task fields are to be deleted.
 			deleteTaskField();
 			Taskie.Controller.getUI().display("Task Deleted.(STUB)");
 		}else{
@@ -118,6 +118,7 @@ public class DeleteCommand implements ICommand {
 	}
 
 	private void deleteTaskField() {
+		//taskfields are deleted by setting to null;
 		UpdateCommand updateCommand = new UpdateCommand(_taskIndex);
 		if(canDeleteStartDate()){
 			updateCommand.setStartDateToUpdate(null);
