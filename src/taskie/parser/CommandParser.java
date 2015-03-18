@@ -390,6 +390,11 @@ public class CommandParser implements Parser {
 	}
 	
 	private void doMark(String command) {
+		if ( command.trim().isEmpty() ) {
+			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
+			return;
+		}
+		
 		assert !command.isEmpty() : "Parameters are empty";
 
 		int itemNumber = Integer.parseInt(command);
@@ -398,6 +403,11 @@ public class CommandParser implements Parser {
 	}
 	
 	private void doUnmark(String command) {
+		if ( command.trim().isEmpty() ) {
+			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
+			return;
+		}
+		
 		assert !command.isEmpty() : "Parameters are empty";
 
 		int itemNumber = Integer.parseInt(command);
