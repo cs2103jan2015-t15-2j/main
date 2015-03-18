@@ -66,6 +66,9 @@ public class CommandUI implements UI {
 	}
 	
 	public Task getTask(int index) throws InvalidTaskException {
+		index = index - 1;
+		assert index >= 0;
+		
 		if ( _currentTaskList.length > index && _currentTaskList[index] != null ) {
 			return _currentTaskList[index];
 		}
