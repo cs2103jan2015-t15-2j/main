@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.Taskie;
+import taskie.exceptions.InvalidTaskException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
@@ -174,9 +175,16 @@ public class UpdateCommand implements ICommand {
 	}
 
 	private Task retrieveTaskToUpdateFromParser() {
-		Task[] taskList=Taskie.Controller.getUI().getCurrentTaskList();
-		Task task = taskList[_taskIndex];
-		return task;
+		try {
+			Task[] taskList = Taskie.Controller.getUI().getCurrentTaskList();
+			Task task = taskList[_taskIndex];
+			return task;
+		} catch (InvalidTaskException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 
 
