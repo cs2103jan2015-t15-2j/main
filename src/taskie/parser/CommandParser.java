@@ -115,6 +115,7 @@ public class CommandParser implements Parser {
 		
 		try {
 			CommandType cmd = this.getCommandType(keyword);
+			assert cmd != null;
 			this.executeCommandType(cmd, command);
 		} catch ( InvalidCommandException e ) {
 			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
@@ -204,6 +205,7 @@ public class CommandParser implements Parser {
 			return;
 		}
 		
+		assert !command.isEmpty() : "Parameters are empty";
 		List<DateGroup> groups = _natty.parse(command);
 		
 		if ( groups.size() > 0 ) {
@@ -263,6 +265,7 @@ public class CommandParser implements Parser {
 			return;
 		}
 		
+		assert !command.isEmpty() : "Parameters are empty";
 		_natty.parse(command);
 		Taskie.Controller.getUI().display(command);
 	}
@@ -273,6 +276,7 @@ public class CommandParser implements Parser {
 			return;
 		}
 		
+		assert !command.isEmpty() : "Parameters are empty";
 		int itemNumber = Integer.parseInt(command);
 		_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
 		Taskie.Controller.executeCommand(new DeleteCommand(itemNumber));
@@ -386,12 +390,16 @@ public class CommandParser implements Parser {
 	}
 	
 	private void doMark(String command) {
+		assert !command.isEmpty() : "Parameters are empty";
+
 		int itemNumber = Integer.parseInt(command);
 		_logger.log(Level.INFO, "Marking Task {0} as Complete", itemNumber);
 		Taskie.Controller.executeCommand(new MarkCommand(itemNumber));
 	}
 	
 	private void doUnmark(String command) {
+		assert !command.isEmpty() : "Parameters are empty";
+
 		int itemNumber = Integer.parseInt(command);
 		_logger.log(Level.INFO, "Marking Task {0} as Incomplete", itemNumber);
 		Taskie.Controller.executeCommand(new UnmarkCommand(itemNumber));
