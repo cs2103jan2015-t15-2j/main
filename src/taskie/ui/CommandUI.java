@@ -3,6 +3,7 @@ package taskie.ui;
 
 import java.util.Scanner;
 
+import taskie.exceptions.InvalidTaskException;
 import taskie.models.Task;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
@@ -62,6 +63,14 @@ public class CommandUI implements UI {
 
 	public void display(String message) {
 		System.out.println(message);
+	}
+	
+	public Task getTask(int index) throws InvalidTaskException {
+		if ( _currentTaskList.length > index && _currentTaskList[index] != null ) {
+			return _currentTaskList[index];
+		}
+		
+		throw new InvalidTaskException();
 	}
 
 	public Task[] getCurrentTaskList() {

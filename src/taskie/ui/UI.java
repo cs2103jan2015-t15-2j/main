@@ -1,6 +1,7 @@
 //@author A0121555M
 package taskie.ui;
 
+import taskie.exceptions.InvalidTaskException;
 import taskie.models.Task;
 
 public interface UI {
@@ -11,5 +12,6 @@ public interface UI {
 	public void display(String message);
 	public void exit();
 	public Task[] getCurrentTaskList();
+	public Task getTask(int index) throws InvalidTaskException;
 	public boolean isUIRunning();
 }
