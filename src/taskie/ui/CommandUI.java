@@ -46,7 +46,7 @@ public class CommandUI implements UI {
 		for (int x = 0; x < tasks.length; x++) {
 			Task task = tasks[x];
 
-			System.out.print("#" + (x+1) + ": ");
+			System.out.print("#" + (x + 1) + ": ");
 			if (task.isDeadlined()) {
 				System.out.println(task.getTitle() + " -- Complete by "
 						+ task.getEndDateTime());
@@ -64,31 +64,30 @@ public class CommandUI implements UI {
 	public void display(String message) {
 		System.out.println(message);
 	}
-		
+
 	public Task getTask(int index) throws InvalidTaskException {
 		index = index - 1;
-		
-		if ( _currentTaskList == null ) {
+
+		if (_currentTaskList == null) {
 			throw new InvalidTaskException();
 		}
 
 		assert _currentTaskList != null;
-	
-		if ( _currentTaskList.length > index && _currentTaskList[index] != null ) {
+
+		if (_currentTaskList.length > index && _currentTaskList[index] != null) {
 			assert _currentTaskList[index] != null;
 			return _currentTaskList[index];
 		}
-		
+
 		throw new InvalidTaskException();
 	}
 
 	public Task[] getCurrentTaskList() throws InvalidTaskException {
-		if ( _currentTaskList == null ) {
+		if (_currentTaskList == null) {
 			throw new InvalidTaskException();
 		}
-		
-		assert _currentTaskList != null;
 
+		assert _currentTaskList != null;
 		return _currentTaskList;
 	}
 
@@ -107,7 +106,7 @@ public class CommandUI implements UI {
 	public void exit() {
 		_isUIRunning = false;
 	}
-	
+
 	public boolean isUIRunning() {
 		return _isUIRunning;
 	}
