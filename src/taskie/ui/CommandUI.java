@@ -67,6 +67,12 @@ public class CommandUI implements UI {
 		
 	public Task getTask(int index) throws InvalidTaskException {
 		index = index - 1;
+		
+		if ( _currentTaskList == null ) {
+			throw new InvalidTaskException();
+		}
+
+		assert _currentTaskList != null;
 	
 		if ( _currentTaskList.length > index && _currentTaskList[index] != null ) {
 			assert _currentTaskList[index] != null;
@@ -76,7 +82,13 @@ public class CommandUI implements UI {
 		throw new InvalidTaskException();
 	}
 
-	public Task[] getCurrentTaskList() {
+	public Task[] getCurrentTaskList() throws InvalidTaskException {
+		if ( _currentTaskList == null ) {
+			throw new InvalidTaskException();
+		}
+		
+		assert _currentTaskList != null;
+
 		return _currentTaskList;
 	}
 
