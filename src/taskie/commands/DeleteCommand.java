@@ -9,6 +9,7 @@
 package taskie.commands;
 
 import taskie.Taskie;
+import taskie.exceptions.InvalidTaskException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
@@ -38,14 +39,18 @@ public class DeleteCommand implements ICommand {
 	}
 
 	public DeleteCommand(int taskId) {
-		_taskIndex = taskId;
-		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
-		_task = tasks[taskId];
-		_taskName = _task.getTitle();
-		_deleteStartDate = false;
-		_deleteStartTime = false;
-		_deleteEndDate = false;
-		_deleteEndTime = false;
+		try {
+			_taskIndex = taskId;
+			_task = Taskie.Controller.getUI().getTask(taskId);
+			_taskName = _task.getTitle();
+			_deleteStartDate = false;
+			_deleteStartTime = false;
+			_deleteEndDate = false;
+			_deleteEndTime = false;
+		} catch (InvalidTaskException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public DeleteCommand(String taskName) {
