@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.Taskie;
+import taskie.exceptions.InvalidTaskException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
@@ -22,10 +23,9 @@ public class UnmarkCommand implements ICommand {
 
 	//@author A0121555M
 	public UnmarkCommand(int itemNumber) {
-		Task[] tasks = Taskie.Controller.getUI().getCurrentTaskList();
 		try {
-			_task = tasks[itemNumber];
-		} catch ( ArrayIndexOutOfBoundsException ex ) {
+			_task = Taskie.Controller.getUI().getTask(itemNumber);
+		} catch (InvalidTaskException e) {
 			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
