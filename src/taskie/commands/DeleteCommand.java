@@ -110,10 +110,10 @@ public class DeleteCommand implements ICommand {
 		if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
 				|| canDeleteEndTime()) {	//if either of these methods returned true, only task fields are to be deleted.
 			deleteTaskField();
-			Taskie.Controller.getUI().display("Task Deleted.(STUB)");
+			Taskie.Controller.getUI().display(formatDeleteTaskFieldString());
 		}else{
 			deleteTask();
-			Taskie.Controller.getUI().display("Task Field Deleted.(STUB)");
+			Taskie.Controller.getUI().display(formatDeleteTaskString());
 		}
 	}
 
@@ -145,5 +145,28 @@ public class DeleteCommand implements ICommand {
 			Taskie.Controller.getStorage().deleteTimedTask(_task);
 		}
 		
+	}
+	
+	private String formatDeleteTaskString(){
+		
+		return String.format(taskie.models.Messages.DELETE_TASK,_taskName);
+		
+	}
+	
+	private String formatDeleteTaskFieldString(){
+		String message=String.format(taskie.models.Messages.DELETE_TASK_FIELD,_taskName);
+		if(canDeleteStartDate()){
+			message.concat("\nStart date");
+		}
+		if(canDeleteStartTime()){
+			message.concat("\nStart time");
+		}
+		if(canDeleteEndDate()){
+			message.concat("\nEnd date");
+		}
+		if(canDeleteEndTime()){
+			message.concat("\nEnd time");
+		}
+		return message;
 	}
 }
