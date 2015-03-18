@@ -46,7 +46,7 @@ public class CommandUI implements UI {
 		for (int x = 0; x < tasks.length; x++) {
 			Task task = tasks[x];
 
-			System.out.print("#" + x + ": ");
+			System.out.print("#" + (x+1) + ": ");
 			if (task.isDeadlined()) {
 				System.out.println(task.getTitle() + " -- Complete by "
 						+ task.getEndDateTime());
