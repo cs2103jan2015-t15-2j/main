@@ -5,9 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.io.Serializable;
 
-
-public class Task implements Comparable<Task>, Serializable{
-
+public class Task implements Comparable<Task>, Serializable {
 	private String _title;
 
 	// @author A0121555M
@@ -23,20 +21,20 @@ public class Task implements Comparable<Task>, Serializable{
 		_startTime = null;
 		_endDate = null;
 		_endTime = null;
-		_isDone=false;
+		_isDone = false;
 	}
 
 	// Floating Task (Tasks without specific times)
 	public Task(String title) {
 		_title = title;
-		_isDone=false;
+		_isDone = false;
 	}
 
 	// Deadlines (Done before specific deadline)
 	public Task(String title, LocalDate endDate) {
 		_title = title;
 		_endDate = endDate;
-		_isDone=false;
+		_isDone = false;
 	}
 
 	// Deadlines (Done before specific deadline)
@@ -44,7 +42,7 @@ public class Task implements Comparable<Task>, Serializable{
 		_title = title;
 		_endDate = endDate;
 		_endTime = endTime;
-		_isDone=false;
+		_isDone = false;
 	}
 
 	// Timed Task (Specific Start Time and End Time)
@@ -52,7 +50,7 @@ public class Task implements Comparable<Task>, Serializable{
 		_title = title;
 		_startDate = startDate;
 		_endDate = endDate;
-		_isDone=false;
+		_isDone = false;
 	}
 
 	// Timed Task (Specific Start Time and End Time)
@@ -63,7 +61,7 @@ public class Task implements Comparable<Task>, Serializable{
 		_startTime = startTime;
 		_endDate = endDate;
 		_endTime = endTime;
-		_isDone=false;
+		_isDone = false;
 	}
 
 	public String getTitle() {
@@ -155,7 +153,8 @@ public class Task implements Comparable<Task>, Serializable{
 	public Boolean getTaskStatus() {
 		return _isDone;
 	}
-//@author A0097582N
+
+	// @author A0097582N
 	@Override
 	public int compareTo(Task other) {
 		LocalDateTime thisTaskDateTime = LocalDateTime.of(this.getEndDate(),
@@ -164,67 +163,68 @@ public class Task implements Comparable<Task>, Serializable{
 				other.getEndTime());
 		return thisTaskDateTime.compareTo(otherTaskDateTime);
 	}
-	
+
 	public int compareTo(LocalDateTime now) {
 		LocalDateTime thisTaskDateTime = LocalDateTime.of(this.getEndDate(),
 				this.getEndTime());
 		return thisTaskDateTime.compareTo(now);
 	}
-	
-	//@author A0135137L
-	
+
+	// @author A0135137L
+
 	public boolean isDeadlined() {
-		if (_title != null &&_startDate == null && _startTime == null && _endDate != null)
+		if (_title != null && _startDate == null && _startTime == null
+				&& _endDate != null)
 			return true;
 		else
 			return false;
 	}
-	
+
 	public boolean isTimed() {
-		if (_title != null && _startDate != null  && _endDate != null)
+		if (_title != null && _startDate != null && _endDate != null)
 			return true;
 		else
 			return false;
 	}
-	
+
 	public boolean equals(Task other) {
-		if (equalsTitle(other) && equalsStartDate(other) && 
-			equalsStartTime(other) && equalsEndDate(other) && 
-			equalsEndTime(other)) {
+		if (equalsTitle(other) && equalsStartDate(other)
+				&& equalsStartTime(other) && equalsEndDate(other)
+				&& equalsEndTime(other)) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	private boolean equalsTitle(Task other) {
 		return _title.equals(other.getTitle());
 	}
-	
+
 	private boolean equalsStartDate(Task other) {
 		LocalDate otherStartDate = other.getStartDate();
-		if(_startDate == null && otherStartDate == null)
+		if (_startDate == null && otherStartDate == null)
 			return true;
-		if(_startDate != null && otherStartDate != null) {
+		if (_startDate != null && otherStartDate != null) {
 			return _startDate.equals(otherStartDate);
 		}
 		return false;
 	}
-	
+
 	private boolean equalsEndDate(Task other) {
 		LocalDate otherEndDate = other.getEndDate();
-		if(_endDate == null && otherEndDate == null)
+		if (_endDate == null && otherEndDate == null)
 			return true;
-		if(_endDate != null && otherEndDate != null) {
+		if (_endDate != null && otherEndDate != null) {
 			return _endDate.equals(otherEndDate);
 		}
 		return false;
 	}
-	
+
 	private boolean equalsStartTime(Task other) {
 		LocalTime otherStartTime = other.getStartTime();
-		if(_startTime == null && otherStartTime == null)
+		if (_startTime == null && otherStartTime == null)
 			return true;
-		if(_startTime != null && otherStartTime != null) {
+		if (_startTime != null && otherStartTime != null) {
 			return _startTime.equals(otherStartTime);
 		}
 		return false;
@@ -232,14 +232,11 @@ public class Task implements Comparable<Task>, Serializable{
 
 	private boolean equalsEndTime(Task other) {
 		LocalTime otherEndTime = other.getEndTime();
-		if(_endTime == null && otherEndTime == null)
+		if (_endTime == null && otherEndTime == null)
 			return true;
-		if(_endTime != null && otherEndTime != null) {
+		if (_endTime != null && otherEndTime != null) {
 			return _endTime.equals(otherEndTime);
 		}
 		return false;
 	}
-	
-
-
 }

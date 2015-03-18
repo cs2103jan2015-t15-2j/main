@@ -1,11 +1,9 @@
 //@author A0121555M
 package taskie;
 
-
-
 public class Taskie {
 	public static taskie.controller.Controller Controller;
-	
+
 	public static void main(String[] args) {
 		try {
 			new Taskie(args);
