@@ -11,7 +11,7 @@ public interface UI {
 	public void display(Task[] task);
 	public void display(String message);
 	public void exit();
-	public Task[] getCurrentTaskList();
+	public Task[] getCurrentTaskList() throws InvalidTaskException;
 	public Task getTask(int index) throws InvalidTaskException;
 	public boolean isUIRunning();
 }
