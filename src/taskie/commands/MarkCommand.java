@@ -25,6 +25,7 @@ public class MarkCommand implements ICommand {
 	public MarkCommand(int itemNumber) {
 		try {
 			_task = Taskie.Controller.getUI().getTask(itemNumber);
+			assert _task != null;
 		} catch (InvalidTaskException e) {
 			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
 		}
