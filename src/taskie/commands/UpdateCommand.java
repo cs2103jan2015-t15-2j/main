@@ -118,7 +118,6 @@ public class UpdateCommand implements ICommand {
 		Task task = retrieveTaskToUpdateFromParser();
 		retrieveTaskToUpdateFromStorageAndUpdate(task);
 		Taskie.Controller.getUI().display(formatUpdateMsg(task));
-		//TODO add message return to user
 	}
 
 	private Task updateTask(Task task) {
@@ -157,10 +156,21 @@ public class UpdateCommand implements ICommand {
 
 
 	private String formatUpdateMsg(Task task) {
-		
-		return String.format("STUB MSG_Update Task Title:%s Task Time:%s",
-				task.getTitle(),
-				Taskie.Controller.formatTime(task.getStartDate(), task.getStartTime()));
+		String message=String.format(taskie.models.Messages.UPDATE_STRING,task.getTitle());
+		if(this.isModifedStartDate()){
+			message=message.concat("start date");
+		}
+		if(this.isModifedStartTime()){
+			message=message.concat("start time");
+		}
+		if(this.isModifedEndDate()){
+			message=message.concat("end date");
+		}
+		if(this.isModifedEndTime()){
+			message=message.concat("end time");
+		}
+		return message;
+	
 	}
 
 	private Task retrieveTaskToUpdateFromParser() {

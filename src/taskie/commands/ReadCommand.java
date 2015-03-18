@@ -4,7 +4,8 @@
  * Bugs: none known
  *
  */ 
-//@author A0097582N
+//@author A0097582N -unused
+//functionality realised by viewCommand
  
 
 package taskie.commands;

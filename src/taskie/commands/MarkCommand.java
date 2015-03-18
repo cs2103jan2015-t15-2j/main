@@ -26,7 +26,7 @@ public class MarkCommand implements ICommand {
 		try {
 			_task = tasks[itemNumber];
 		} catch ( ArrayIndexOutOfBoundsException ex ) {
-			Taskie.Controller.getUI().display("Invalid Task Number");
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
 	
@@ -59,7 +59,12 @@ public class MarkCommand implements ICommand {
 		Task taskRetrieved=taskList.get(taskIndex);
 		taskRetrieved.setTaskDone();
 		Taskie.Controller.getStorage().storeTaskMap(taskLists);
-		Taskie.Controller.getUI().display("Mark Task. (STUB). Task title: %s");
+		Taskie.Controller.getUI().display(formatMarkString());
 	}
+	
+	private String formatMarkString(){
+		return String.format(taskie.models.Messages.MARK_STRING,_task.getTitle());
+	}
+	
 
 }

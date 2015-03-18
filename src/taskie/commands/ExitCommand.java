@@ -15,6 +15,7 @@ public class ExitCommand implements ICommand {
 	}
 
 	public void execute() {
+		Taskie.Controller.getUI().display(taskie.models.Messages.EXIT_MESSAGE);
 		Taskie.Controller.getUI().exit();
 	}
 }

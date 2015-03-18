@@ -156,16 +156,16 @@ public class DeleteCommand implements ICommand {
 	private String formatDeleteTaskFieldString(){
 		String message=String.format(taskie.models.Messages.DELETE_TASK_FIELD,_taskName);
 		if(canDeleteStartDate()){
-			message.concat("\nStart date");
+			message=message.concat("\nStart date");
 		}
 		if(canDeleteStartTime()){
-			message.concat("\nStart time");
+			message=message.concat("\nStart time");
 		}
 		if(canDeleteEndDate()){
-			message.concat("\nEnd date");
+			message=message.concat("\nEnd date");
 		}
 		if(canDeleteEndTime()){
-			message.concat("\nEnd time");
+			message=message.concat("\nEnd time");
 		}
 		return message;
 	}
