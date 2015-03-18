@@ -268,6 +268,11 @@ public class CommandParser implements Parser {
 	}
 	
 	private void doDelete(String command) {
+		if ( command.trim().isEmpty() ) {
+			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
+			return;
+		}
+		
 		int itemNumber = Integer.parseInt(command);
 		_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
 		Taskie.Controller.executeCommand(new DeleteCommand(itemNumber));
