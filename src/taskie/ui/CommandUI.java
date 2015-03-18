@@ -64,7 +64,7 @@ public class CommandUI implements UI {
 	public void display(String message) {
 		System.out.println(message);
 	}
-	
+		
 	public Task getTask(int index) throws InvalidTaskException {
 		index = index - 1;
 		assert index >= 0;
