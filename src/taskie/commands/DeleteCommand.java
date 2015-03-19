@@ -39,18 +39,11 @@ public class DeleteCommand implements ICommand {
 	}
 
 	public DeleteCommand(int taskId) {
-		try {
 			_taskIndex = taskId;
-			_task = Taskie.Controller.getUI().getTask(taskId);
-			_taskName = _task.getTitle();
 			_deleteStartDate = false;
 			_deleteStartTime = false;
 			_deleteEndDate = false;
 			_deleteEndTime = false;
-		} catch (InvalidTaskException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	public DeleteCommand(String taskName) {
@@ -112,14 +105,24 @@ public class DeleteCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
-				|| canDeleteEndTime()) {	//if either of these methods returned true, only task fields are to be deleted.
-			deleteTaskField();
-			Taskie.Controller.getUI().display(formatDeleteTaskFieldString());
-		}else{
-			deleteTask();
-			Taskie.Controller.getUI().display(formatDeleteTaskString());
+		try {
+			getTaskFromParser();
+			if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
+					|| canDeleteEndTime()) {	//if either of these methods returned true, only task fields are to be deleted.
+				deleteTaskField();
+				Taskie.Controller.getUI().display(formatDeleteTaskFieldString());
+			}else{
+				deleteTask();
+				Taskie.Controller.getUI().display(formatDeleteTaskString());
+			}
+		} catch (InvalidTaskException e) {
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
 		}
+	}
+
+	private void getTaskFromParser() throws InvalidTaskException {
+		_task = Taskie.Controller.getUI().getTask(_taskIndex);
+		_taskName=_task.getTitle();
 	}
 
 	private void deleteTaskField() {

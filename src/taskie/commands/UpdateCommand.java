@@ -116,9 +116,13 @@ public class UpdateCommand implements ICommand {
 	
 	@Override
 	public void execute() {
-		Task task = retrieveTaskToUpdateFromParser();
-		retrieveTaskToUpdateFromStorageAndUpdate(task);
-		Taskie.Controller.getUI().display(formatUpdateMsg(task));
+		try{
+			Task task = retrieveTaskToUpdateFromParser();
+			retrieveTaskToUpdateFromStorageAndUpdate(task);
+			Taskie.Controller.getUI().display(formatUpdateMsg(task));
+		}catch(InvalidTaskException e){
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+		}
 	}
 
 	private Task updateTask(Task task) {
@@ -174,17 +178,10 @@ public class UpdateCommand implements ICommand {
 	
 	}
 
-	private Task retrieveTaskToUpdateFromParser() {
-		try {
-			Task[] taskList = Taskie.Controller.getUI().getCurrentTaskList();
-			Task task = taskList[_taskIndex];
+	private Task retrieveTaskToUpdateFromParser() throws InvalidTaskException {
+			
+			Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 			return task;
-		} catch (InvalidTaskException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return null;
 	}
 
 
