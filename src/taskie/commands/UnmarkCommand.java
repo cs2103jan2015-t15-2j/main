@@ -19,16 +19,12 @@ import taskie.models.Task;
 public class UnmarkCommand implements ICommand {
 
 	private CommandType _commandType = CommandType.MARK;
+	private int _taskIndex;
 	private Task _task;
 
 	//@author A0121555M
 	public UnmarkCommand(int itemNumber) {
-		try {
-			_task = Taskie.Controller.getUI().getTask(itemNumber);
-			assert _task != null;
-		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
-		}
+		_taskIndex = itemNumber;
 	}
 	
 	//@author A0097582N
@@ -46,12 +42,16 @@ public class UnmarkCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
-				.retrieveTaskMap();
-		String taskType = Taskie.Controller.determineTaskType(_task);
-		scanListForTaskAndUnmark(_task, taskLists,taskType);
-		Taskie.Controller.getUI().display("UNMARK TASK.(STUB) Task Title: %s");
-
+		try {
+			_task=retrieveTaskFromParser();
+			HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
+					.retrieveTaskMap();
+			String taskType = Taskie.Controller.determineTaskType(_task);
+			scanListForTaskAndUnmark(_task, taskLists,taskType);
+			Taskie.Controller.getUI().display(formatUnmarkString());
+		} catch (InvalidTaskException e) {
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+		}
 	}
 
 	private void scanListForTaskAndUnmark(Task task,
@@ -63,8 +63,15 @@ public class UnmarkCommand implements ICommand {
 		Taskie.Controller.getStorage().storeTaskMap(taskLists);
 	}
 	
-	private String formatMarkString(){
+	private String formatUnmarkString(){
 		return String.format(taskie.models.Messages.UNMARK_STRING,_task.getTitle());
 	}
+	
+	
+	private Task retrieveTaskFromParser() throws InvalidTaskException {
+		
+		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
+		return task;
+}
 
 }

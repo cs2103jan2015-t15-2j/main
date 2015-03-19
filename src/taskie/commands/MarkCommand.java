@@ -20,15 +20,11 @@ public class MarkCommand implements ICommand {
 
 	private CommandType _commandType = CommandType.MARK;
 	private Task _task;
+	private int _taskIndex;
 
 	//@author A0121555M
 	public MarkCommand(int itemNumber) {
-		try {
-			_task = Taskie.Controller.getUI().getTask(itemNumber);
-			assert _task != null;
-		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
-		}
+		_taskIndex = itemNumber;
 	}
 	
 	//@author A0097582N
@@ -46,10 +42,16 @@ public class MarkCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
-				.retrieveTaskMap();
-		String taskType = Taskie.Controller.determineTaskType(_task);
-		scanListForTaskAndMark(_task, taskLists,taskType);
+		try {
+			_task = retrieveTaskFromParser();
+
+			HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
+					.retrieveTaskMap();
+			String taskType = Taskie.Controller.determineTaskType(_task);
+			scanListForTaskAndMark(_task, taskLists,taskType);
+		} catch (InvalidTaskException e) {
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+		}
 
 	}
 
@@ -67,5 +69,10 @@ public class MarkCommand implements ICommand {
 		return String.format(taskie.models.Messages.MARK_STRING,_task.getTitle());
 	}
 	
+	private Task retrieveTaskFromParser() throws InvalidTaskException {
+		
+		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
+		return task;
+}
 
 }
