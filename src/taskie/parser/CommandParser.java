@@ -27,8 +27,6 @@ import taskie.models.ViewType;
 import com.joestelmach.natty.DateGroup;
 
 public class CommandParser implements Parser {
-	private static final String MESSAGE_INVALID_COMMAND = "Invalid Command";
-	
 	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on" };
 	
 	private static final String[] COMMAND_KEYWORD_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
@@ -109,17 +107,13 @@ public class CommandParser implements Parser {
 		}
 	}
 
-	public void parse(String input) {
+	public void parse(String input) throws InvalidCommandException {
 		String keyword = CommandParser.getCommandKeyword(input);
 		String command = CommandParser.getCommandParameters(input);
 		
-		try {
-			CommandType cmd = this.getCommandType(keyword);
-			assert cmd != null;
-			this.executeCommandType(cmd, command);
-		} catch ( InvalidCommandException e ) {
-			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
-		}
+		CommandType cmd = this.getCommandType(keyword);
+		assert cmd != null;
+		this.executeCommandType(cmd, command);
 	}
 	
 	private ViewType getViewType(String key) {
@@ -199,10 +193,9 @@ public class CommandParser implements Parser {
 		}
 	}
 	
-	private void doAdd(String command) {
+	private void doAdd(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
-			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
-			return;
+			throw new InvalidCommandException();
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -259,10 +252,9 @@ public class CommandParser implements Parser {
 		}
 	}
 	
-	private void doUpdate(String command) {
-		if ( command.trim().isEmpty() ) {
-			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
-			return;
+	private void doUpdate(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			throw new InvalidCommandException();
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -270,10 +262,9 @@ public class CommandParser implements Parser {
 		Taskie.Controller.getUI().display(command);
 	}
 	
-	private void doDelete(String command) {
-		if ( command.trim().isEmpty() ) {
-			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
-			return;
+	private void doDelete(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			throw new InvalidCommandException();
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -389,10 +380,9 @@ public class CommandParser implements Parser {
 		Taskie.Controller.executeCommand(new RedoCommand(steps));
 	}
 	
-	private void doMark(String command) {
-		if ( command.trim().isEmpty() ) {
-			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
-			return;
+	private void doMark(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			throw new InvalidCommandException();
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -402,10 +392,9 @@ public class CommandParser implements Parser {
 		Taskie.Controller.executeCommand(new MarkCommand(itemNumber));
 	}
 	
-	private void doUnmark(String command) {
-		if ( command.trim().isEmpty() ) {
-			Taskie.Controller.getUI().display(MESSAGE_INVALID_COMMAND);
-			return;
+	private void doUnmark(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			throw new InvalidCommandException();
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
