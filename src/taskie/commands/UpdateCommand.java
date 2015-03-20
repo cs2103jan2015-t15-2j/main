@@ -22,11 +22,13 @@ public class UpdateCommand implements ICommand {
 	
 	int NUM_ATTRIBUTE = 2;
 	private int _taskIndex;
+	private String _taskTitleToUpdate;
 	private LocalDate _startDateToUpdate;
 	private LocalTime _startTimeToUpdate;
 	private LocalDate _endDateToUpdate;
 	private LocalTime _endTimeToUpdate;
 
+	private Boolean _isToUpdateTaskTitle = false;
 	private Boolean _isToUpdateStartDate = false;
 	private Boolean _isToUpdateStartTime = false;
 	private Boolean _isToUpdateEndDate = false;
@@ -34,6 +36,7 @@ public class UpdateCommand implements ICommand {
 	private CommandType _commandType = CommandType.UPDATE;
 
 	public UpdateCommand() {
+		_taskTitleToUpdate = null;
 		_startDateToUpdate = null;
 		_startTimeToUpdate = null;
 		_endDateToUpdate = null;
@@ -43,6 +46,7 @@ public class UpdateCommand implements ICommand {
 
 	public UpdateCommand(int taskIndex) {
 		_taskIndex = taskIndex;
+		_taskTitleToUpdate = null;
 		_startDateToUpdate = null;
 		_startTimeToUpdate = null;
 		_endDateToUpdate = null;
@@ -59,6 +63,15 @@ public class UpdateCommand implements ICommand {
 
 	public void setTaskIndex(int taskIndex) {
 		this._taskIndex = taskIndex;
+	}
+	
+	public void setTaskTitleToUpdate(String title){
+		_isToUpdateTaskTitle=true;
+		_taskTitleToUpdate = title;
+	}
+	
+	public String getTaskTitleToUpdate(){
+		return _taskTitleToUpdate;
 	}
 
 	public LocalDate getStartDateToUpdate() {
@@ -97,20 +110,22 @@ public class UpdateCommand implements ICommand {
 		this._endTimeToUpdate = endTimeToUpdate;
 	}
 
-	
-	public Boolean isModifedStartDate(){
+	public Boolean isModifiedTaskTitle(){
+		return _isToUpdateTaskTitle;
+	}
+	public Boolean isModifiedStartDate(){
 		return _isToUpdateStartDate;
 	}
 	
-	public Boolean isModifedStartTime(){
+	public Boolean isModifiedStartTime(){
 		return _isToUpdateStartTime;
 	}
 	
-	public Boolean isModifedEndDate(){
+	public Boolean isModifiedEndDate(){
 		return _isToUpdateEndDate;
 	}
 	
-	public Boolean isModifedEndTime(){
+	public Boolean isModifiedEndTime(){
 		return _isToUpdateEndTime;
 	}
 	
@@ -127,16 +142,19 @@ public class UpdateCommand implements ICommand {
 
 	private Task updateTask(Task task) {
 		Task updatedTask = new Task(task.getTitle());
-		if(this.isModifedStartDate()){
+		if(this.isModifiedTaskTitle()){
+			updatedTask.setTitle(this.getTaskTitleToUpdate());
+		}
+		if(this.isModifiedStartDate()){
 			updatedTask.setStartDate(this.getStartDateToUpdate());
 		}
-		if(this.isModifedStartTime()){
+		if(this.isModifiedStartTime()){
 			updatedTask.setStartTime(this.getStartTimeToUpdate());
 		}
-		if(this.isModifedEndDate()){
+		if(this.isModifiedEndDate()){
 			updatedTask.setEndDate(this.getEndDateToUpdate());
 		}
-		if(this.isModifedEndTime()){
+		if(this.isModifiedEndTime()){
 			updatedTask.setEndTime(this.getEndTimeToUpdate());
 		}
 		return updatedTask;
@@ -146,13 +164,13 @@ public class UpdateCommand implements ICommand {
 		HashMap<String, ArrayList<Task>> taskLists=Taskie.Controller.getStorage().retrieveTaskMap();
 		String taskType = Taskie.Controller.determineTaskType(task);
 		ArrayList<Task> taskList= taskLists.get(taskType);
-		int taskIndex= taskList.indexOf(task);
-		Task updatedTask= updateTask(taskList.get(taskIndex));
+		int taskIndexInStorage= taskList.indexOf(task);
+		Task updatedTask= updateTask(taskList.get(taskIndexInStorage));
 		if(taskType.equals(Taskie.Controller.determineTaskType(task))){
-			taskList.remove(taskIndex);
-			taskList.add(taskIndex, updatedTask);
+			taskList.remove(taskIndexInStorage);
+			taskList.add(taskIndexInStorage, updatedTask);
 		}else{
-			taskList.remove(taskIndex);
+			taskList.remove(taskIndexInStorage);
 			taskLists.get(Taskie.Controller.determineTaskType(updatedTask)).add(updatedTask);
 		}
 		Taskie.Controller.getStorage().storeTaskMap(taskLists);
@@ -162,16 +180,16 @@ public class UpdateCommand implements ICommand {
 
 	private String formatUpdateMsg(Task task) {
 		String message=String.format(taskie.models.Messages.UPDATE_STRING,task.getTitle());
-		if(this.isModifedStartDate()){
+		if(this.isModifiedStartDate()){
 			message=message.concat("start date");
 		}
-		if(this.isModifedStartTime()){
+		if(this.isModifiedStartTime()){
 			message=message.concat("start time");
 		}
-		if(this.isModifedEndDate()){
+		if(this.isModifiedEndDate()){
 			message=message.concat("end date");
 		}
-		if(this.isModifedEndTime()){
+		if(this.isModifiedEndTime()){
 			message=message.concat("end time");
 		}
 		return message;
