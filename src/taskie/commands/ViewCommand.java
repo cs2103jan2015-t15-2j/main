@@ -342,7 +342,7 @@ public class ViewCommand implements ICommand {
 			sb.append("EndDateTime,");
 		}
 
-		sb.append("SearchKeywords:" + _searchKeywords);
+		sb.append("SearchKeywords:" + ((_searchKeywords == null) ? "" : _searchKeywords));
 		
 		return sb.toString();
 	}
