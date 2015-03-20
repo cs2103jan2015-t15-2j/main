@@ -20,7 +20,7 @@ public class ViewCommand implements ICommand {
 
 	private CommandType _commandType = CommandType.VIEW;
 
-	// @author A0121555M
+	//@author A0121555M
 	private ViewType _viewType;
 	private LocalDate _startDate;
 	private LocalTime _startTime;
@@ -150,7 +150,7 @@ public class ViewCommand implements ICommand {
 		return _commandType;
 	}
 
-	// @author A0097582N
+	//@author A0097582N
 	@Override
 	public void execute() {
 		switch (_viewType) {
@@ -169,9 +169,7 @@ public class ViewCommand implements ICommand {
 		case SEARCH:
 			executeViewSearch();
 			break;
-
 		}
-
 	}
 
 	private void executeViewSearch() {
@@ -189,7 +187,6 @@ public class ViewCommand implements ICommand {
 			tasks.addAll(taskLists.get(FLOATING_TASKNAME));
 		}
 		Taskie.Controller.getUI().display(findSearchedTasks(tasks));
-
 	}
 
 	private Task[] findSearchedTasks(ArrayList<Task> tasks) {
@@ -201,7 +198,7 @@ public class ViewCommand implements ICommand {
 				searchedTasks.add(task);
 			}
 		}
-		return toArray(searchedTasks);
+		return searchedTasks.toArray(new Task[searchedTasks.size()]);
 	}
 
 	private void executeViewCompleted() {
@@ -228,18 +225,15 @@ public class ViewCommand implements ICommand {
 				completedTasks.add(task);
 			}
 		}
-		return toArray(completedTasks);
+		return completedTasks.toArray(new Task[completedTasks.size()]);
 	}
 
 	private void executeViewOverdue() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
-				.getStorage().retrieveTaskMap();
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = new ArrayList<Task>();
 		tasksWithDate.addAll(taskLists.get(DEADLINED_TASKNAME));
 		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
-		Taskie.Controller.getUI().display(
-				findOverDueTasksAndSort(tasksWithDate));
-
+		Taskie.Controller.getUI().display(findOverDueTasksAndSort(tasksWithDate));
 	}
 
 	private Task[] findOverDueTasksAndSort(ArrayList<Task> tasksWithDate) {
@@ -251,7 +245,7 @@ public class ViewCommand implements ICommand {
 			}
 		}
 		unmarkedAndOverdueTask.sort(new taskie.models.TaskEndDateComparator());
-		return toArray(unmarkedAndOverdueTask);
+		return unmarkedAndOverdueTask.toArray(new Task[unmarkedAndOverdueTask.size()]);
 	}
 
 	private void executeViewUpcoming() {
@@ -270,7 +264,7 @@ public class ViewCommand implements ICommand {
 			tasksWithoutDate = findUndoneFloatingTask(tasksWithoutDate);
 			tasksWithDate.addAll(tasksWithoutDate);
 		}
-		Taskie.Controller.getUI().display(toArray(tasksWithDate));
+		Taskie.Controller.getUI().display(tasksWithDate.toArray(new Task[tasksWithDate.size()]));
 
 	}
 
@@ -312,9 +306,11 @@ public class ViewCommand implements ICommand {
 		if (tasksWithoutDate != null) {
 			tasksWithDate.addAll(tasksWithoutDate);
 		}
-		Taskie.Controller.getUI().display(toArray(tasksWithDate));
+		Taskie.Controller.getUI().display(tasksWithDate.toArray(new Task[tasksWithDate.size()]));
 	}
 
+	//@author A0097582N-unused
+	//Reason for unused: Redundant code
 	private Task[] toArray(ArrayList<Task> taskList) {
 		int size = taskList.size();
 		Task[] taskListArr = new Task[size];
