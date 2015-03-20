@@ -207,21 +207,23 @@ public class CommandParser implements Parser {
 		Map<String, List<ParseLocation>> parseMap = group.getParseLocations();
 		List<ParseLocation> explicit_time = parseMap.get("explicit_time");
 		
-		for ( int x = 0; x < explicit_time.size(); x++ ) {
-			ParseLocation t = explicit_time.get(x);
-			int start = t.getStart();
-			int end = t.getEnd();
-			int count = 0;
-			String origString = command.substring(start, end);
-			
-			int dotIndex = origString.indexOf(".");
-			while ( dotIndex != -1 ) {
-				origString = origString.substring(0, dotIndex) + origString.substring(dotIndex+1) + command.charAt(end++);
-				dotIndex = origString.indexOf(".");
-				count++;
+		if ( explicit_time != null ) {
+			for ( int x = 0; x < explicit_time.size(); x++ ) {
+				ParseLocation t = explicit_time.get(x);
+				int start = t.getStart();
+				int end = t.getEnd();
+				int count = 0;
+				String origString = command.substring(start, end);
+				
+				int dotIndex = origString.indexOf(".");
+				while ( dotIndex != -1 ) {
+					origString = origString.substring(0, dotIndex) + origString.substring(dotIndex+1) + command.charAt(end++);
+					dotIndex = origString.indexOf(".");
+					count++;
+				}
+				
+				name2 = name2.substring(count);
 			}
-			
-			name2 = name2.substring(count);
 		}
 		
 		name1 = name1.trim();
