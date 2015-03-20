@@ -107,7 +107,7 @@ public class ViewCommand implements ICommand {
 	}
 
 	public void setSearchKeywords(String searchKeywords) {
-		this._searchKeywords = searchKeywords;
+		this._searchKeywords = searchKeywords.toLowerCase();
 	}
 
 	public CommandType getCommandType() {
@@ -159,9 +159,9 @@ public class ViewCommand implements ICommand {
 	private Task[] findSearchedTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> searchedTasks = new ArrayList<Task>();
 		for (Task task : tasks) {
-
-			if (task.getTitle().toLowerCase()
-					.contains(_searchKeywords.toLowerCase())) {
+			String taskTitle=task.getTitle();
+			taskTitle=taskTitle.toLowerCase();
+			if (taskTitle.contains(_searchKeywords.trim())) {
 				searchedTasks.add(task);
 			}
 		}
