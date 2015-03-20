@@ -184,6 +184,9 @@ public class UpdateCommand implements ICommand {
 	private String formatUpdateMsg(Task task) {
 		String message = String.format(taskie.models.Messages.UPDATE_STRING,
 				task.getTitle());
+		if (this.isModifiedTaskTitle()){
+			message = message.concat("task title");
+		}
 		if (this.isModifiedStartDate()) {
 			message = message.concat("start date");
 		}
