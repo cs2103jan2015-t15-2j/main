@@ -19,6 +19,7 @@ import taskie.commands.MarkCommand;
 import taskie.commands.RedoCommand;
 import taskie.commands.UndoCommand;
 import taskie.commands.UnmarkCommand;
+import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
@@ -299,8 +300,66 @@ public class CommandParser implements Parser {
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
-		_natty.parse(command);
-		Taskie.Controller.getUI().display(command);
+		
+		int taskNumber = 0;
+		try {
+			taskNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+		} catch (NumberFormatException e) {
+			throw new InvalidCommandException();
+		}
+		
+		String query = CommandParser.getCommandParameters(command);
+		
+		UpdateCommand cmd = new UpdateCommand(taskNumber);
+		List<DateGroup> groups = _natty.parse(query);
+	
+		if ( groups.size() > 0 ) {
+			// Date and Time Specified
+			DateGroup group = groups.get(0);
+			List<Date> dates = group.getDates();
+
+			String name = determineTaskName(query, group);
+			if ( !name.isEmpty() ) {
+				// updating title also
+				cmd.setTaskTitleToUpdate(name);
+			}
+
+			_logger.log(Level.INFO, "Updating Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
+			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
+			
+			if ( startAndEndDateTime[START_DATETIME] != null ) {
+				if ( group.getParseLocations().containsKey("date") ) {
+					cmd.setStartDateToUpdate(startAndEndDateTime[START_DATETIME].toLocalDate());
+				}
+				
+				if ( !group.isTimeInferred() ) {
+					cmd.setStartTimeToUpdate(startAndEndDateTime[START_DATETIME].toLocalTime());
+				}
+			}
+			
+			if ( startAndEndDateTime[END_DATETIME] != null ) {
+				if ( group.getParseLocations().containsKey("date") ) {
+					cmd.setEndDateToUpdate(startAndEndDateTime[END_DATETIME].toLocalDate());
+				}
+				
+				if ( !group.isTimeInferred() ) {
+					cmd.setEndTimeToUpdate(startAndEndDateTime[END_DATETIME].toLocalTime());
+				}
+			}
+		} else {
+			// Changing Title Only
+			cmd.setTaskTitleToUpdate(query);
+		}
+
+		_logger.log(Level.INFO, "Updated Task #{0}\n-- Title: {1}\n-- Start Date: {2}\n-- Start Time: {3}\n-- End Date: {4}\n-- End Time: {5}",  new Object[] {
+				taskNumber,
+				(cmd.getTaskTitleToUpdate() == null ? "null" : cmd.getTaskTitleToUpdate()),
+				(cmd.getStartDateToUpdate() == null ? "null" : cmd.getStartDateToUpdate()),
+				(cmd.getStartTimeToUpdate() == null ? "null" : cmd.getStartTimeToUpdate()),
+				(cmd.getEndDateToUpdate() == null ? "null" : cmd.getEndDateToUpdate()),
+				(cmd.getEndTimeToUpdate() == null ? "null" : cmd.getEndTimeToUpdate())
+			});
+		// Taskie.Controller.executeCommand(cmd);
 	}
 	
 	private void doDelete(String command) throws InvalidCommandException {
