@@ -27,7 +27,7 @@ import taskie.models.ViewType;
 import com.joestelmach.natty.DateGroup;
 
 public class CommandParser implements Parser {
-	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on" };
+	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on", "due" };
 	
 	private static final String[] COMMAND_KEYWORD_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
 	private static final String[] COMMAND_KEYWORD_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
@@ -214,6 +214,10 @@ public class CommandParser implements Parser {
 			}
 			
 			String name = (name1 + " " + name2).trim();
+			if ( name.isEmpty() ) {
+				throw new InvalidCommandException();
+			}
+			
 			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);

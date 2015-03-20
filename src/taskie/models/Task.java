@@ -73,6 +73,10 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public LocalDateTime getStartDateTime() {
+		if ( _startDate == null ) {
+			return null;
+		}
+		
 		return LocalDateTime.of(_startDate,
 				(_startTime == null) ? LocalTime.MAX : _startTime);
 	}
@@ -83,6 +87,10 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public LocalDateTime getEndDateTime() {
+		if ( _endDate == null ) {
+			return null;
+		}
+		
 		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX
 				: _endTime);
 	}
