@@ -5,8 +5,6 @@ import java.util.Scanner;
 
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.Task;
-import taskie.parser.CommandParser;
-import taskie.parser.Parser;
 
 public class CommandUI implements UI {
 	private static int TASKS_PER_PAGE = 20;
