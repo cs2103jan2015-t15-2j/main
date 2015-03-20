@@ -23,8 +23,8 @@ public class ViewCommand implements ICommand {
 	// @author A0121555M
 	private ViewType _viewType;
 	private LocalDate _startDate;
-	private LocalDate _endDate;
 	private LocalTime _startTime;
+	private LocalDate _endDate;
 	private LocalTime _endTime;
 	private String _searchKeywords;
 
