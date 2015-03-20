@@ -568,7 +568,7 @@ public class CommandParser implements Parser {
 	}
 
 	private static String getCommandParameters(String command) {
-		return command.replace(getCommandKeyword(command), "").trim();
+		return command.replaceFirst(getCommandKeyword(command), "").trim();
 	}
 
 	private static String[] splitStringWithWhitespace(String command) {
