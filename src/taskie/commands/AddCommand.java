@@ -115,7 +115,7 @@ public class AddCommand implements ICommand {
 		 }
 		 if(taskType.equalsIgnoreCase(DEADLINED_TASKNAME)){
 			 return String.format(taskie.models.Messages.ADD_DEADLINED,task.getTitle(),
-					 task.getStartDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+					 task.getEndDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 		 }
 		 else{
 			 return String.format(taskie.models.Messages.ADD_TIMED,task.getTitle(),
