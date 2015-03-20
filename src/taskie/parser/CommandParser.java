@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +26,7 @@ import taskie.models.Task;
 import taskie.models.ViewType;
 
 import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.ParseLocation;
 
 public class CommandParser implements Parser {
 	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on", "due" };
@@ -193,6 +195,47 @@ public class CommandParser implements Parser {
 		}
 	}
 	
+	private String determineTaskName(String command, DateGroup group) {
+		_logger.log(Level.INFO, "Determining Task Name from: " + command + "\nDateGroup Start at position: " + group.getPosition());
+
+		String name1 = command.substring(0, group.getPosition());
+		String name2 = command.substring(group.getPosition() + group.getText().length());
+		
+		// Workaround a parsing Natty bug
+		Map<String, List<ParseLocation>> parseMap = group.getParseLocations();
+		List<ParseLocation> explicit_time = parseMap.get("explicit_time");
+		
+		for ( int x = 0; x < explicit_time.size(); x++ ) {
+			ParseLocation t = explicit_time.get(x);
+			int start = t.getStart();
+			int end = t.getEnd();
+			int count = 0;
+			String origString = command.substring(start, end);
+			
+			int dotIndex = origString.indexOf(".");
+			while ( dotIndex != -1 ) {
+				origString = origString.substring(0, dotIndex) + origString.substring(dotIndex+1) + command.charAt(end++);
+				dotIndex = origString.indexOf(".");
+				count++;
+			}
+			
+			name2 = name2.substring(count);
+		}
+		
+		name1 = name1.trim();
+		name2 = name2.trim();
+
+		String[] words = splitStringWithWhitespace(name1);
+		int lastWord = words.length - 1;
+		if( hasKeyword(words[lastWord], KEYWORDS_DATETIME_SEPARATOR) ) {
+			name1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
+		}
+
+		String name = (name1 + " " + name2).trim();
+		_logger.log(Level.INFO, "Final Task Name: " + name);
+		return name;
+	}
+	
 	private void doAdd(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
 			throw new InvalidCommandException();
@@ -202,18 +245,11 @@ public class CommandParser implements Parser {
 		List<DateGroup> groups = _natty.parse(command);
 		
 		if ( groups.size() > 0 ) {
+			// Tasks with date and/or time in it - either deadline or timed
 			DateGroup group = groups.get(0);
-			String name1 = command.substring(0, group.getPosition()).trim();
-			String name2 = command.substring(group.getPosition() + group.getText().length()).trim();
 			List<Date> dates = group.getDates();
 			
-			String[] words = splitStringWithWhitespace(name1);
-			int lastWord = words.length - 1;
-			if( hasKeyword(words[lastWord], KEYWORDS_DATETIME_SEPARATOR) ) {
-				name1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
-			}
-			
-			String name = (name1 + " " + name2).trim();
+			String name = determineTaskName(command, group);
 			if ( name.isEmpty() ) {
 				throw new InvalidCommandException();
 			}
@@ -243,10 +279,11 @@ public class CommandParser implements Parser {
 					cmd.setEndTime(startAndEndDateTime[END_DATETIME].toLocalTime());
 				}
 			}
+			
 			_logger.log(Level.INFO, "Added {0} -- {1} to {2}", new Object[] { cmd.getTaskName(), (cmd.getStartDateTime() == null ? "null" : cmd.getStartDateTime()), (cmd.getEndDateTime() == null ? "null" : cmd.getEndDateTime()) });
 			Taskie.Controller.executeCommand(cmd);
 		} else {
-			// Tasks without any deadlines
+			// Tasks without any deadlines - floating
 			String name = command.trim();
 			
 			AddCommand cmd = new AddCommand();
