@@ -6,12 +6,11 @@ import java.util.Scanner;
 
 import javax.swing.JFileChooser;
 import taskie.exceptions.InvalidTaskException;
+import taskie.models.Messages;
 import taskie.models.Task;
 
 public class CommandUI implements UI {
 	private static int TASKS_PER_PAGE = 20;
-	private static String MESSAGE_WELCOME = "Welcome to Taskie!";
-	private static String MESSAGE_REQUEST_INPUT = "Enter Command: ";
 
 	private Scanner _scanner;
 	private Task[] _currentTaskList;
@@ -24,7 +23,7 @@ public class CommandUI implements UI {
 	}
 
 	public String readInput() {
-		System.out.print(MESSAGE_REQUEST_INPUT);
+		this.display(Messages.UI_REQUEST_INPUT);
 		String input = null;
 		if (_scanner.hasNextLine()) {
 			input = _scanner.nextLine();
@@ -33,6 +32,7 @@ public class CommandUI implements UI {
 				return null;
 			}
 		}
+
 		return input;
 	}
 
