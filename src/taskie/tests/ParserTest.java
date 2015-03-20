@@ -20,16 +20,22 @@ import com.joestelmach.natty.CalendarSource;
 
 import taskie.commands.AddCommand;
 import taskie.commands.ICommand;
+import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
+import taskie.models.ViewType;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
 
 public class ParserTest {
+	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
+	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
+
 	private static Parser _parser;
+
 	private static LocalDate _today;
 	private static LocalTime _time;
 	private static LocalDateTime _now;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		_parser = new CommandParser();
@@ -131,6 +137,42 @@ public class ParserTest {
 		
 		expectedCommand = new AddCommand("Reunion Dinner", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(17, 45), _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(21, 15));
 		actualCommand = _parser.parse("ins Reunion Dinner on Saturday 5.45pm to 9.15pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
+	
+	@Test
+	public void testViewCommand() throws InvalidCommandException {
+		ViewCommand expectedCommand;
+		ICommand actualCommand;
+		
+		// Test all view
+		expectedCommand = new ViewCommand(ViewType.ALL, null, null, null, null, null);
+		actualCommand = _parser.parse("display");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.ALL, _today.plusWeeks(1), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all after next week");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test overdue view
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, null, null, null, null, null);
+		actualCommand = _parser.parse("view overdue");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test upcoming view
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, null, null, null, null, null);
+		actualCommand = _parser.parse("view todo");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test search view
+		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "dinner");
+		actualCommand = _parser.parse("find dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("search dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
+		actualCommand = _parser.parse("find CS2103 tutorial");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 	}
 
