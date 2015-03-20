@@ -104,6 +104,7 @@ public class AddCommand implements ICommand {
 
 	@Override
 	public void execute() {
+		assert _taskName!=null;
 		Task task = determineTaskTypeAndAdd();
 		Taskie.Controller.getUI().display(formatAddMsg(task));
 	}
