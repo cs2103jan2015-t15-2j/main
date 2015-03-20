@@ -272,7 +272,14 @@ public class CommandParser implements Parser {
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
-		int itemNumber = Integer.parseInt(command);
+		
+		int itemNumber = 0;
+		try {
+			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+		} catch (NumberFormatException e) {
+			throw new InvalidCommandException();
+		}
+		
 		_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
 		Taskie.Controller.executeCommand(new DeleteCommand(itemNumber));
 	}
@@ -391,7 +398,13 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		int itemNumber = Integer.parseInt(command);
+		int itemNumber = 0;
+		try {
+			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+		} catch (NumberFormatException e) {
+			throw new InvalidCommandException();
+		}
+
 		_logger.log(Level.INFO, "Marking Task {0} as Complete", itemNumber);
 		Taskie.Controller.executeCommand(new MarkCommand(itemNumber));
 	}
@@ -403,8 +416,14 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		int itemNumber = Integer.parseInt(command);
-		_logger.log(Level.INFO, "Marking Task {0} as Incomplete", itemNumber);
+		int itemNumber = 0;
+		try {
+			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+		} catch (NumberFormatException e) {
+			throw new InvalidCommandException();
+		}
+
+		_logger.log(Level.INFO, "Unmarking Task {0} as Incomplete", itemNumber);
 		Taskie.Controller.executeCommand(new UnmarkCommand(itemNumber));
 	}
 
