@@ -56,7 +56,8 @@ public class Controller {
 		while ( _ui.isUIRunning() ) {
 			String string = _ui.readInput();
 			try {
-				_parser.parse(string);
+				ICommand cmd = _parser.parse(string);
+				this.executeCommand(cmd);
 			} catch (InvalidCommandException e) {
 				_ui.display(taskie.models.Messages.INVALID_COMMAND);
 			}

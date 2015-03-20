@@ -15,6 +15,7 @@ import taskie.Taskie;
 import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
 import taskie.commands.ExitCommand;
+import taskie.commands.ICommand;
 import taskie.commands.MarkCommand;
 import taskie.commands.RedoCommand;
 import taskie.commands.UndoCommand;
@@ -110,13 +111,13 @@ public class CommandParser implements Parser {
 		}
 	}
 
-	public void parse(String input) throws InvalidCommandException {
+	public ICommand parse(String input) throws InvalidCommandException {
 		String keyword = CommandParser.getCommandKeyword(input);
 		String command = CommandParser.getCommandParameters(input);
 		
 		CommandType cmd = this.getCommandType(keyword);
 		assert cmd != null;
-		this.executeCommandType(cmd, command);
+		return this.executeCommandType(cmd, command);
 	}
 	
 	private ViewType getViewType(String key) {
@@ -170,27 +171,27 @@ public class CommandParser implements Parser {
 		return commandType;
 	}
 	
-	private void executeCommandType(CommandType cmd, String command) throws InvalidCommandException {
+	private ICommand executeCommandType(CommandType cmd, String command) throws InvalidCommandException {
 		command = command.trim();
 		
 		if ( cmd == CommandType.ADD ) {
-			this.doAdd(command);
+			return this.doAdd(command);
 		} else if ( cmd == CommandType.UPDATE ) {
-			this.doUpdate(command);
+			return this.doUpdate(command);
 		} else if ( cmd == CommandType.DELETE ) {
-			this.doDelete(command);
+			return this.doDelete(command);
 		} else if ( cmd == CommandType.VIEW ) {
-			this.doView(command);
+			return this.doView(command);
 		} else if ( cmd == CommandType.UNDO ) {
-			this.doUndo(command);
+			return this.doUndo(command);
 		} else if ( cmd == CommandType.REDO ) {
-			this.doRedo(command);
+			return this.doRedo(command);
 		} else if ( cmd == CommandType.MARK ) {
-			this.doMark(command);
+			return this.doMark(command);
 		} else if ( cmd == CommandType.UNMARK ) {
-			this.doUnmark(command);
+			return this.doUnmark(command);
 		} else if ( cmd == CommandType.EXIT ) {
-			this.doExit();
+			return this.doExit();
 		} else {
 			throw new InvalidCommandException();
 		}
@@ -237,13 +238,14 @@ public class CommandParser implements Parser {
 		return name;
 	}
 	
-	private void doAdd(String command) throws InvalidCommandException {
+	private ICommand doAdd(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
 			throw new InvalidCommandException();
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
 		List<DateGroup> groups = _natty.parse(command);
+		AddCommand cmd = new AddCommand();
 		
 		if ( groups.size() > 0 ) {
 			// Tasks with date and/or time in it - either deadline or timed
@@ -259,7 +261,6 @@ public class CommandParser implements Parser {
 
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
 
-			AddCommand cmd = new AddCommand();
 			cmd.setTaskName(name);
 			
 			if ( startAndEndDateTime[START_DATETIME] != null ) {
@@ -282,19 +283,18 @@ public class CommandParser implements Parser {
 			}
 			
 			_logger.log(Level.INFO, "Added {0} -- {1} to {2}", new Object[] { cmd.getTaskName(), (cmd.getStartDateTime() == null ? "null" : cmd.getStartDateTime()), (cmd.getEndDateTime() == null ? "null" : cmd.getEndDateTime()) });
-			Taskie.Controller.executeCommand(cmd);
 		} else {
 			// Tasks without any deadlines - floating
 			String name = command.trim();
 			
-			AddCommand cmd = new AddCommand();
 			cmd.setTaskName(name);
 			_logger.log(Level.INFO, "Added {0} - No date and time set", cmd.getTaskName());
-			Taskie.Controller.executeCommand(cmd);
 		}
+		
+		return cmd;
 	}
 	
-	private void doUpdate(String command) throws InvalidCommandException {
+	private ICommand doUpdate(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
 			throw new InvalidCommandException();
 		}
@@ -359,10 +359,11 @@ public class CommandParser implements Parser {
 				(cmd.getEndDateToUpdate() == null ? "null" : cmd.getEndDateToUpdate()),
 				(cmd.getEndTimeToUpdate() == null ? "null" : cmd.getEndTimeToUpdate())
 			});
-		// Taskie.Controller.executeCommand(cmd);
+		
+		return cmd;
 	}
 	
-	private void doDelete(String command) throws InvalidCommandException {
+	private ICommand doDelete(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
 			throw new InvalidCommandException();
 		}
@@ -377,17 +378,18 @@ public class CommandParser implements Parser {
 		}
 		
 		_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
-		Taskie.Controller.executeCommand(new DeleteCommand(itemNumber));
+		return new DeleteCommand(itemNumber);
 	}
 	
-	private void doView(String command) {
+	private ICommand doView(String command) {
 		String keywords;
 		
 		String keyword = CommandParser.getCommandKeyword(command);
 		String query = CommandParser.getCommandParameters(command);
 
 		ViewType viewType = getViewType(keyword);
-		
+		ViewCommand cmd = new ViewCommand(viewType);
+
 		if ( viewType == ViewType.SEARCH ) {
 			keywords = keyword + " " + query;
 		} else {
@@ -428,40 +430,37 @@ public class CommandParser implements Parser {
 
 			_logger.log(Level.INFO, "View Type: " + viewType + "\nRelative Type: " + relativeType + "\nKeywords: " + keywords + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 
-			ViewCommand viewCommand = new ViewCommand(viewType);
-			viewCommand.setSearchKeywords(keywords);
+			cmd.setSearchKeywords(keywords);
 			
 			if ( relativeType == RelativeType.BEFORE ) {
-				viewCommand.setStartDateTime(MIN_DATETIME);
-				viewCommand.setEndDateTime(startAndEndDateTime[START_DATETIME]);
+				cmd.setStartDateTime(MIN_DATETIME);
+				cmd.setEndDateTime(startAndEndDateTime[START_DATETIME]);
 			} else if ( relativeType == RelativeType.AFTER ) {
-				viewCommand.setStartDateTime(startAndEndDateTime[START_DATETIME]);
-				viewCommand.setEndDateTime(MAX_DATETIME);
+				cmd.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+				cmd.setEndDateTime(MAX_DATETIME);
 			} else if ( relativeType == RelativeType.EXACT ) {
-				viewCommand.setStartDateTime(startAndEndDateTime[START_DATETIME]);
-				viewCommand.setEndDateTime(startAndEndDateTime[END_DATETIME]);
-				viewCommand.setStartTime(null);
-				viewCommand.setEndTime(null);
+				cmd.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+				cmd.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+				cmd.setStartTime(null);
+				cmd.setEndTime(null);
 			} else if ( relativeType == RelativeType.SPECIFIED ) {
-				viewCommand.setStartDateTime(startAndEndDateTime[START_DATETIME]);
-				viewCommand.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+				cmd.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+				cmd.setEndDateTime(startAndEndDateTime[END_DATETIME]);
 			}
 			
 			if ( group.isTimeInferred() ) {
-				viewCommand.setStartTime(null);
-				viewCommand.setEndTime(null);
+				cmd.setStartTime(null);
+				cmd.setEndTime(null);
 			}
-			
-			Taskie.Controller.executeCommand(viewCommand);
 		} else {
-			ViewCommand viewCommand = new ViewCommand(viewType);
-			viewCommand.setSearchKeywords(keywords);
+			cmd.setSearchKeywords(keywords);
 			_logger.log(Level.INFO, "Searching for tasks with keywords: {0}", keywords);
-			Taskie.Controller.executeCommand(viewCommand);
 		}
+		
+		return cmd;
 	}
 
-	private void doUndo(String command) {
+	private ICommand doUndo(String command) {
 		int steps = 1;
 		try {
 			steps = Integer.parseInt(command);
@@ -471,10 +470,10 @@ public class CommandParser implements Parser {
 		}
 		
 		_logger.log(Level.INFO, "Undo (Steps: {0})", steps);
-		Taskie.Controller.executeCommand(new UndoCommand(steps));
+		return new UndoCommand(steps);
 	}
 	
-	private void doRedo(String command) {
+	private ICommand doRedo(String command) {
 		int steps = 1;
 		try {
 			steps = Integer.parseInt(command);
@@ -484,10 +483,10 @@ public class CommandParser implements Parser {
 		}
 		
 		_logger.log(Level.INFO, "Redo (Steps: {0})", steps);
-		Taskie.Controller.executeCommand(new RedoCommand(steps));
+		return new RedoCommand(steps);
 	}
 	
-	private void doMark(String command) throws InvalidCommandException {
+	private ICommand doMark(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
 			throw new InvalidCommandException();
 		}
@@ -502,10 +501,10 @@ public class CommandParser implements Parser {
 		}
 
 		_logger.log(Level.INFO, "Marking Task {0} as Complete", itemNumber);
-		Taskie.Controller.executeCommand(new MarkCommand(itemNumber));
+		return new MarkCommand(itemNumber);
 	}
 	
-	private void doUnmark(String command) throws InvalidCommandException {
+	private ICommand doUnmark(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
 			throw new InvalidCommandException();
 		}
@@ -520,12 +519,12 @@ public class CommandParser implements Parser {
 		}
 
 		_logger.log(Level.INFO, "Unmarking Task {0} as Incomplete", itemNumber);
-		Taskie.Controller.executeCommand(new UnmarkCommand(itemNumber));
+		return new UnmarkCommand(itemNumber);
 	}
 
-	private void doExit() {
+	private ICommand doExit() {
 		_logger.log(Level.INFO, "Exiting Taskie");
-		Taskie.Controller.executeCommand(new ExitCommand());
+		return new ExitCommand();
 	}
 	
 	private static LocalDateTime[] getStartAndEndDateTime(List<Date> dates) {
