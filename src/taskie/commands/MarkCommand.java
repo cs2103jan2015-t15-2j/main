@@ -22,12 +22,12 @@ public class MarkCommand implements ICommand {
 	private Task _task;
 	private int _taskIndex;
 
-	//@author A0121555M
+	// @author A0121555M
 	public MarkCommand(int itemNumber) {
 		_taskIndex = itemNumber;
 	}
-	
-	//@author A0097582N
+
+	// @author A0097582N
 	public MarkCommand(Task task) {
 		_task = task;
 	}
@@ -45,34 +45,36 @@ public class MarkCommand implements ICommand {
 		try {
 			_task = retrieveTaskFromParser();
 
-			HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage()
-					.retrieveTaskMap();
+			HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
+					.getStorage().retrieveTaskMap();
 			String taskType = Taskie.Controller.determineTaskType(_task);
-			scanListForTaskAndMark(_task, taskLists,taskType);
+			scanListForTaskAndMark(_task, taskLists, taskType);
 		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+			Taskie.Controller.getUI().display(
+					taskie.models.Messages.INVALID_TASK_NUM);
 		}
 
 	}
 
 	private void scanListForTaskAndMark(Task task,
-			HashMap<String, ArrayList<Task>> taskLists,String taskType) {
-		ArrayList<Task> taskList=taskLists.get(taskType);
-		int taskIndex=taskList.indexOf(task);
-		Task taskRetrieved=taskList.get(taskIndex);
+			HashMap<String, ArrayList<Task>> taskLists, String taskType) {
+		ArrayList<Task> taskList = taskLists.get(taskType);
+		int taskIndex = taskList.indexOf(task);
+		Task taskRetrieved = taskList.get(taskIndex);
 		taskRetrieved.setTaskDone();
 		Taskie.Controller.getStorage().storeTaskMap(taskLists);
 		Taskie.Controller.getUI().display(formatMarkString());
 	}
-	
-	private String formatMarkString(){
-		return String.format(taskie.models.Messages.MARK_STRING,_task.getTitle());
+
+	private String formatMarkString() {
+		return String.format(taskie.models.Messages.MARK_STRING,
+				_task.getTitle());
 	}
-	
+
 	private Task retrieveTaskFromParser() throws InvalidTaskException {
-		
+
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
-}
+	}
 
 }
