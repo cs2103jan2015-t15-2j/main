@@ -455,6 +455,7 @@ public class CommandParser implements Parser {
 				cmd.setEndTime(null);
 			}
 		} else {
+			keywords = keywords.trim();
 			cmd.setSearchKeywords(keywords);
 			_logger.log(Level.INFO, "Searching for tasks with keywords: {0}", keywords);
 		}
