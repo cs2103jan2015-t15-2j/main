@@ -38,14 +38,20 @@ public class AddCommand implements ICommand {
 		_endTime = null;
 	}
 	
-	public AddCommand(String taskName, LocalDate startDate,
-			LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+	public AddCommand(String taskName, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
 		super();
 		_taskName = taskName;
 		_startDate = startDate;
 		_startTime = startTime;
 		_endDate = endDate;
 		_endTime = endTime;
+	}
+
+	public AddCommand(String taskName, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		super();
+		_taskName = taskName;
+		this.setStartDateTime(startDateTime);
+		this.setEndDateTime(endDateTime);
 	}
 
 	public String getTaskName() {
