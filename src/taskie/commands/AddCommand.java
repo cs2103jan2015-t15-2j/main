@@ -94,7 +94,7 @@ public class AddCommand implements ICommand {
 		this._endTime = _endTime;
 	}
 
-	// @author A0121555M
+	//@author A0121555M
 	public LocalDateTime getStartDateTime() {
 		try {
 			return LocalDateTime.of(_startDate,
@@ -133,7 +133,7 @@ public class AddCommand implements ICommand {
 		}
 	}
 
-	// @author A0097582N
+	//@author A0097582N
 	public CommandType getCommandType() {
 		return _commandType;
 	}

@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class Task implements Comparable<Task>, Serializable {
 	private String _title;
 
-	// @author A0121555M
+	//@author A0121555M
 	private LocalDate _startDate;
 	private LocalDate _endDate;
 	private LocalTime _startTime;
@@ -73,10 +73,10 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public LocalDateTime getStartDateTime() {
-		if ( _startDate == null ) {
+		if (_startDate == null) {
 			return null;
 		}
-		
+
 		return LocalDateTime.of(_startDate,
 				(_startTime == null) ? LocalTime.MAX : _startTime);
 	}
@@ -87,10 +87,10 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public LocalDateTime getEndDateTime() {
-		if ( _endDate == null ) {
+		if (_endDate == null) {
 			return null;
 		}
-		
+
 		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX
 				: _endTime);
 	}
@@ -162,7 +162,7 @@ public class Task implements Comparable<Task>, Serializable {
 		return _isDone;
 	}
 
-	// @author A0097582N
+	//@author A0097582N
 	@Override
 	public int compareTo(Task other) {
 		LocalDateTime thisTaskDateTime = LocalDateTime.of(this.getEndDate(),
@@ -178,8 +178,7 @@ public class Task implements Comparable<Task>, Serializable {
 		return thisTaskDateTime.compareTo(now);
 	}
 
-	// @author A0135137L
-
+	//@author A0135137L
 	public boolean isDeadlined() {
 		if (_title != null && _startDate == null && _startTime == null
 				&& _endDate != null)

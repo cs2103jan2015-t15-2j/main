@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import taskie.Taskie;
 import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
+import taskie.commands.DirectoryCommand;
 import taskie.commands.ExitCommand;
 import taskie.commands.ICommand;
 import taskie.commands.MarkCommand;
@@ -41,6 +42,7 @@ public class CommandParser implements Parser {
 	private static final String[] COMMAND_KEYWORD_REDO = new String[] {"redo"};
 	private static final String[] COMMAND_KEYWORD_MARK = new String[] {"mark", "complete", "done", "check"};
 	private static final String[] COMMAND_KEYWORD_UNMARK = new String[] {"unmark", "incomplete", "undone", "uncheck"};
+	private static final String[] COMMAND_KEYWORD_DIRECTORY = new String[] {"directory"};
 	private static final String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
 	
 	private static final String[] VIEW_KEYWORDS_ALL = new String[] {"", "all", "everything"};
@@ -160,6 +162,8 @@ public class CommandParser implements Parser {
 			commandType = CommandType.MARK;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UNMARK) ) {
 			commandType = CommandType.UNMARK;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_DIRECTORY) ) {
+			commandType = CommandType.DIRECTORY;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_EXIT) ) {
 			commandType = CommandType.EXIT;
 		}
@@ -190,6 +194,8 @@ public class CommandParser implements Parser {
 			return this.doMark(command);
 		} else if ( cmd == CommandType.UNMARK ) {
 			return this.doUnmark(command);
+		} else if ( cmd == CommandType.DIRECTORY ) {
+			return this.doDirectory();
 		} else if ( cmd == CommandType.EXIT ) {
 			return this.doExit();
 		} else {
@@ -524,6 +530,11 @@ public class CommandParser implements Parser {
 		return new UnmarkCommand(itemNumber);
 	}
 
+	private ICommand doDirectory() {
+		_logger.log(Level.INFO, "Changing Directory");
+		return new DirectoryCommand();
+	}
+	
 	private ICommand doExit() {
 		_logger.log(Level.INFO, "Exiting Taskie");
 		return new ExitCommand();

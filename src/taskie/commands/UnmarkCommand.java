@@ -22,12 +22,12 @@ public class UnmarkCommand implements ICommand {
 	private int _taskIndex;
 	private Task _task;
 
-	// @author A0121555M
+	//@author A0121555M
 	public UnmarkCommand(int itemNumber) {
 		_taskIndex = itemNumber;
 	}
 
-	// @author A0097582N
+	//@author A0097582N
 	public UnmarkCommand(Task task) {
 		_task = task;
 	}

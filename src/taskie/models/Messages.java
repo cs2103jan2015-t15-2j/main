@@ -28,6 +28,9 @@ public class Messages {
 	// UpdateCommand messages
 	public static final String UPDATE_STRING = "Following task fields from %s is updated:" + NEWLINE;
 
+	// DirectoryCommand messages
+	public static final String DIRECTORY_CHANGED_STRING = "Directory changed to %s" + NEWLINE;
+	
 	// error messages
 	public static final String INVALID_TASK_NUM = "Invalid task number. Please try again." + NEWLINE;
 	public static final String INVALID_COMMAND = "Invalid Command. Please try again." + NEWLINE;

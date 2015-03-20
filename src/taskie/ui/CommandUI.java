@@ -1,8 +1,10 @@
 //@author A0121555M
 package taskie.ui;
 
+import java.io.File;
 import java.util.Scanner;
 
+import javax.swing.JFileChooser;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.Task;
 
@@ -109,4 +111,16 @@ public class CommandUI implements UI {
 		return _isUIRunning;
 	}
 
+	public String loadSelectDirectoryDialog() {
+		JFileChooser fileChooser = new JFileChooser(".");
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setVisible(true);
+		int returnVal = fileChooser.showOpenDialog(null);
+		if ( returnVal == JFileChooser.APPROVE_OPTION )  {
+			File file = fileChooser.getSelectedFile();
+			return file.getAbsolutePath();
+		}
+		
+		return null;
+	}
 }

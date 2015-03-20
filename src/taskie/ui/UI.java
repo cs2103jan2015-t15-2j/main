@@ -22,4 +22,6 @@ public interface UI {
 	public Task getTask(int index) throws InvalidTaskException;
 
 	public boolean isUIRunning();
+
+	public String loadSelectDirectoryDialog();
 }
