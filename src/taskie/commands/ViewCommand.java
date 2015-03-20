@@ -40,10 +40,15 @@ public class ViewCommand implements ICommand {
 			return null;
 		}
 	}
-
+	
 	public void setStartDateTime(LocalDateTime startDateTime) {
-		this.setStartDate(startDateTime.toLocalDate());
-		this.setStartTime(startDateTime.toLocalTime());
+		if ( startDateTime == null ) {
+			this.setStartDate(null);
+			this.setStartTime(null);
+		} else {
+			this.setStartDate(startDateTime.toLocalDate());
+			this.setStartTime(startDateTime.toLocalTime());
+		}
 	}
 
 	public LocalDateTime getEndDateTime() {
@@ -54,10 +59,15 @@ public class ViewCommand implements ICommand {
 			return null;
 		}
 	}
-
+	
 	public void setEndDateTime(LocalDateTime endDateTime) {
-		this.setEndDate(endDateTime.toLocalDate());
-		this.setEndTime(endDateTime.toLocalTime());
+		if ( endDateTime == null ) {
+			this.setEndDate(null);
+			this.setEndTime(null);
+		} else {
+			this.setEndDate(endDateTime.toLocalDate());
+			this.setEndTime(endDateTime.toLocalTime());
+		}
 	}
 
 	public LocalDate getStartDate() {

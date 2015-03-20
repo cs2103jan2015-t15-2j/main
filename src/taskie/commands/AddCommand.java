@@ -105,8 +105,13 @@ public class AddCommand implements ICommand {
 	}
 	
 	public void setStartDateTime(LocalDateTime startDateTime) {
-		this.setStartDate(startDateTime.toLocalDate());
-		this.setStartTime(startDateTime.toLocalTime());
+		if ( startDateTime == null ) {
+			this.setStartDate(null);
+			this.setStartTime(null);
+		} else {
+			this.setStartDate(startDateTime.toLocalDate());
+			this.setStartTime(startDateTime.toLocalTime());
+		}
 	}
 
 	public LocalDateTime getEndDateTime() {
@@ -119,8 +124,13 @@ public class AddCommand implements ICommand {
 	}
 	
 	public void setEndDateTime(LocalDateTime endDateTime) {
-		this.setEndDate(endDateTime.toLocalDate());
-		this.setEndTime(endDateTime.toLocalTime());
+		if ( endDateTime == null ) {
+			this.setEndDate(null);
+			this.setEndTime(null);
+		} else {
+			this.setEndDate(endDateTime.toLocalDate());
+			this.setEndTime(endDateTime.toLocalTime());
+		}
 	}
 
 	// @author A0097582N
