@@ -53,13 +53,13 @@ public class Controller {
 		_storage = new Storage();
 
 		_ui.run();
-		
-		while ( _ui.isUIRunning() ) {
+
+		while (_ui.isUIRunning()) {
 			String string = _ui.readInput();
-			if ( string == null ) {
+			if (string == null) {
 				this.executeCommand(new ExitCommand());
 			} else {
-				if ( !string.isEmpty() ) {
+				if (!string.isEmpty()) {
 					try {
 						ICommand cmd = _parser.parse(string);
 						this.executeCommand(cmd);
@@ -73,7 +73,6 @@ public class Controller {
 
 	public void executeCommand(ICommand command) {
 		command.execute();
-
 	}
 
 	public String formatTime(LocalDate startDate, LocalTime startTime) {
