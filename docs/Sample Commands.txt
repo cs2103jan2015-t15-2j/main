@@ -27,6 +27,7 @@ view todo
 find CS2103 tutorial
 find dinner
 display
+search dinner
 
 ---
 Delete Commands
