@@ -55,11 +55,13 @@ public class Controller {
 		
 		while ( _ui.isUIRunning() ) {
 			String string = _ui.readInput();
-			try {
-				ICommand cmd = _parser.parse(string);
-				this.executeCommand(cmd);
-			} catch (InvalidCommandException e) {
-				_ui.display(taskie.models.Messages.INVALID_COMMAND);
+			if ( !string.isEmpty() ) {
+				try {
+					ICommand cmd = _parser.parse(string);
+					this.executeCommand(cmd);
+				} catch (InvalidCommandException e) {
+					_ui.display(taskie.models.Messages.INVALID_COMMAND);
+				}
 			}
 		}
 	}
