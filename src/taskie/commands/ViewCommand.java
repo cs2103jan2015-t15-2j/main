@@ -32,6 +32,24 @@ public class ViewCommand implements ICommand {
 		_viewType = viewType;
 	}
 
+	public ViewCommand(ViewType viewType, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, String searchKeywords) {
+		super();
+		_viewType = viewType;
+		_startDate = startDate;
+		_endDate = endDate;
+		_startTime = startTime;
+		_endTime = endTime;
+		_searchKeywords = searchKeywords;
+	}
+
+	public ViewCommand(ViewType viewType, LocalDateTime startDateTime, LocalDateTime endDateTime, String searchKeywords) {
+		super();
+		_viewType = viewType;
+		this.setStartDateTime(startDateTime);
+		this.setEndDateTime(endDateTime);
+		_searchKeywords = searchKeywords;
+	}
+
 	public LocalDateTime getStartDateTime() {
 		try {
 			return LocalDateTime.of(_startDate,
