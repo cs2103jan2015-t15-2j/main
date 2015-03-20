@@ -419,21 +419,20 @@ public class CommandParser implements Parser {
 				}
 				
 				keywords = (keyword1 + " " + keyword2).trim();				
+				cmd.setSearchKeywords(keywords);
 			} else {
 				String[] words = splitStringWithWhitespace(keywords);
-				int lastWord = words.length - 1;
-				relativeType = getRelativeType(words[lastWord]);
+				int firstWord = 0;
+				relativeType = getRelativeType(words[firstWord]);
 				if( relativeType != RelativeType.NONE ) {
-					keywords = keywords.substring(0, keywords.lastIndexOf(words[lastWord])).trim();
+					keywords = keywords.substring(words[firstWord].length()).trim();
 				}
 				
 				keywords = keywords.trim();
 			}
 
 			_logger.log(Level.INFO, "View Type: " + viewType + "\nRelative Type: " + relativeType + "\nKeywords: " + keywords + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
-
-			cmd.setSearchKeywords(keywords);
-			
+		
 			if ( relativeType == RelativeType.BEFORE ) {
 				cmd.setStartDateTime(MIN_DATETIME);
 				cmd.setEndDateTime(startAndEndDateTime[END_DATETIME]);
