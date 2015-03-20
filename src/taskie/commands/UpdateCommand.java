@@ -19,7 +19,7 @@ import taskie.models.CommandType;
 import taskie.models.Task;
 
 public class UpdateCommand implements ICommand {
-	
+
 	int NUM_ATTRIBUTE = 2;
 	private int _taskIndex;
 	private String _taskTitleToUpdate;
@@ -64,13 +64,13 @@ public class UpdateCommand implements ICommand {
 	public void setTaskIndex(int taskIndex) {
 		this._taskIndex = taskIndex;
 	}
-	
-	public void setTaskTitleToUpdate(String title){
-		_isToUpdateTaskTitle=true;
+
+	public void setTaskTitleToUpdate(String title) {
+		_isToUpdateTaskTitle = true;
 		_taskTitleToUpdate = title;
 	}
-	
-	public String getTaskTitleToUpdate(){
+
+	public String getTaskTitleToUpdate() {
 		return _taskTitleToUpdate;
 	}
 
@@ -79,7 +79,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void setStartDateToUpdate(LocalDate startDateToUpdate) {
-		_isToUpdateStartDate=true;
+		_isToUpdateStartDate = true;
 		this._startDateToUpdate = startDateToUpdate;
 	}
 
@@ -88,7 +88,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void setStartTimeToUpdate(LocalTime startTimeToUpdate) {
-		_isToUpdateStartTime=true;
+		_isToUpdateStartTime = true;
 		this._startTimeToUpdate = startTimeToUpdate;
 	}
 
@@ -97,7 +97,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void setEndDateToUpdate(LocalDate endDateToUpdate) {
-		_isToUpdateEndDate=true;
+		_isToUpdateEndDate = true;
 		this._endDateToUpdate = endDateToUpdate;
 	}
 
@@ -106,101 +106,104 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void setEndTimeToUpdate(LocalTime endTimeToUpdate) {
-		_isToUpdateEndTime=true;
+		_isToUpdateEndTime = true;
 		this._endTimeToUpdate = endTimeToUpdate;
 	}
 
-	public Boolean isModifiedTaskTitle(){
+	public Boolean isModifiedTaskTitle() {
 		return _isToUpdateTaskTitle;
 	}
-	public Boolean isModifiedStartDate(){
+
+	public Boolean isModifiedStartDate() {
 		return _isToUpdateStartDate;
 	}
-	
-	public Boolean isModifiedStartTime(){
+
+	public Boolean isModifiedStartTime() {
 		return _isToUpdateStartTime;
 	}
-	
-	public Boolean isModifiedEndDate(){
+
+	public Boolean isModifiedEndDate() {
 		return _isToUpdateEndDate;
 	}
-	
-	public Boolean isModifiedEndTime(){
+
+	public Boolean isModifiedEndTime() {
 		return _isToUpdateEndTime;
 	}
-	
+
 	@Override
 	public void execute() {
-		try{
+		try {
 			Task task = retrieveTaskToUpdateFromParser();
 			retrieveTaskToUpdateFromStorageAndUpdate(task);
 			Taskie.Controller.getUI().display(formatUpdateMsg(task));
-		}catch(InvalidTaskException e){
-			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+		} catch (InvalidTaskException e) {
+			Taskie.Controller.getUI().display(
+					taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
 
 	private Task updateTask(Task task) {
-		Task updatedTask = new Task(task.getTitle());
-		if(this.isModifiedTaskTitle()){
+		Task updatedTask = new Task(task.getTitle(), task.getStartDate(),
+				task.getStartTime(), task.getEndDate(), task.getEndTime());
+		if (this.isModifiedTaskTitle()) {
 			updatedTask.setTitle(this.getTaskTitleToUpdate());
 		}
-		if(this.isModifiedStartDate()){
+		if (this.isModifiedStartDate()) {
 			updatedTask.setStartDate(this.getStartDateToUpdate());
 		}
-		if(this.isModifiedStartTime()){
+		if (this.isModifiedStartTime()) {
 			updatedTask.setStartTime(this.getStartTimeToUpdate());
 		}
-		if(this.isModifiedEndDate()){
+		if (this.isModifiedEndDate()) {
 			updatedTask.setEndDate(this.getEndDateToUpdate());
 		}
-		if(this.isModifiedEndTime()){
+		if (this.isModifiedEndTime()) {
 			updatedTask.setEndTime(this.getEndTimeToUpdate());
 		}
 		return updatedTask;
 	}
 
 	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) {
-		HashMap<String, ArrayList<Task>> taskLists=Taskie.Controller.getStorage().retrieveTaskMap();
+		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
+				.getStorage().retrieveTaskMap();
 		String taskType = Taskie.Controller.determineTaskType(task);
-		ArrayList<Task> taskList= taskLists.get(taskType);
-		int taskIndexInStorage= taskList.indexOf(task);
-		Task updatedTask= updateTask(taskList.get(taskIndexInStorage));
-		if(taskType.equals(Taskie.Controller.determineTaskType(task))){
+		ArrayList<Task> taskList = taskLists.get(taskType);
+		int taskIndexInStorage = taskList.indexOf(task);
+		Task updatedTask = updateTask(taskList.get(taskIndexInStorage));
+		if (taskType.equals(Taskie.Controller.determineTaskType(task))) {
 			taskList.remove(taskIndexInStorage);
 			taskList.add(taskIndexInStorage, updatedTask);
-		}else{
+		} else {
 			taskList.remove(taskIndexInStorage);
-			taskLists.get(Taskie.Controller.determineTaskType(updatedTask)).add(updatedTask);
+			taskLists.get(Taskie.Controller.determineTaskType(updatedTask))
+					.add(updatedTask);
 		}
 		Taskie.Controller.getStorage().storeTaskMap(taskLists);
 	}
 
-
-
 	private String formatUpdateMsg(Task task) {
-		String message=String.format(taskie.models.Messages.UPDATE_STRING,task.getTitle());
-		if(this.isModifiedStartDate()){
-			message=message.concat("start date");
+		String message = String.format(taskie.models.Messages.UPDATE_STRING,
+				task.getTitle());
+		if (this.isModifiedStartDate()) {
+			message = message.concat("start date");
 		}
-		if(this.isModifiedStartTime()){
-			message=message.concat("start time");
+		if (this.isModifiedStartTime()) {
+			message = message.concat("start time");
 		}
-		if(this.isModifiedEndDate()){
-			message=message.concat("end date");
+		if (this.isModifiedEndDate()) {
+			message = message.concat("end date");
 		}
-		if(this.isModifiedEndTime()){
-			message=message.concat("end time");
+		if (this.isModifiedEndTime()) {
+			message = message.concat("end time");
 		}
 		return message;
-	
+
 	}
 
 	private Task retrieveTaskToUpdateFromParser() throws InvalidTaskException {
-			
-			Task task = Taskie.Controller.getUI().getTask(_taskIndex);
-			return task;
-	}
 
+		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
+		return task;
+	}
 
 }
