@@ -149,5 +149,26 @@ public class AddCommand implements ICommand {
 		}
 		return task;
 	}
-
+	
+	//@author A0121555M
+	@Override	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("TaskName:" + _taskName + ",");
+		
+		try {
+			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
+		} catch (NullPointerException e) {
+			sb.append("StartDateTime:null,");
+		}
+		try {
+			sb.append("EndDateTime:" + this.getEndDateTime());
+		} catch (NullPointerException e) {
+			sb.append("EndDateTime");
+		}
+		
+		return sb.toString();
+	}
 }

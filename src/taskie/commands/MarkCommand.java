@@ -76,5 +76,13 @@ public class MarkCommand implements ICommand {
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
 	}
-
+	
+	//@author A0121555M
+	@Override	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("TaskIndex:" + _taskIndex);
+		return sb.toString();
+	}
 }

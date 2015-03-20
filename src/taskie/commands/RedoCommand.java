@@ -25,4 +25,13 @@ public class RedoCommand implements ICommand {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	//@author A0121555M
+	@Override	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("Steps:" + _steps);
+		return sb.toString();
+	}
 }

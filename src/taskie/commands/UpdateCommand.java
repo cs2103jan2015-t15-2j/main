@@ -214,5 +214,18 @@ public class UpdateCommand implements ICommand {
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
 	}
-
+	
+	//@author A0121555M
+	@Override	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("TaskIndex:" + _taskIndex + ",");
+		sb.append("Title:" + _taskTitleToUpdate + ",");
+		sb.append("StartDate:" + _startDateToUpdate + ",");
+		sb.append("StartTime:" + _startTimeToUpdate + ",");
+		sb.append("EndDate:" + _endDateToUpdate + ",");
+		sb.append("EndTime:" + _endTimeToUpdate);
+		return sb.toString();
+	}
 }

@@ -287,4 +287,27 @@ public class ViewCommand implements ICommand {
 		}
 		return taskListArr;
 	}
+	
+	//@author A0121555M
+	@Override	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:View");
+		sb.append("ViewType:" + _viewType + ",");
+		
+		try {
+			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
+		} catch (NullPointerException e) {
+			sb.append("StartDateTime:null,");
+		}
+		try {
+			sb.append("EndDateTime:" + this.getEndDateTime() + ",");
+		} catch (NullPointerException e) {
+			sb.append("EndDateTime,");
+		}
+
+		sb.append("SearchKeywords:" + _searchKeywords);
+		
+		return sb.toString();
+	}
 }
