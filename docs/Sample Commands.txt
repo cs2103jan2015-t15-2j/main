@@ -17,6 +17,7 @@ put Complete CE2 on Saturday
 create Work on the code done by Amy by Monday
 create Add the create task for CS2103 by 15 March
 add Do CE3 tomorrow
+ins Complete next Wednesday's task by next Tuesday
 
 ---
 View / Search Commands
@@ -39,3 +40,12 @@ remove 1
 ---
 Update Commands
 ---
+
+update 1 Complete CE3
+change 2 4.15pm to 5.15pm
+modify 2 ends 4.15pm
+edit 2 start 4.15pm
+alter 2 start next wednesday 4.15pm
+update 2 end next wednesday 4.15pm
+change 2 next wednesday 4.15pm to 5.15pm
+modify 2 Complete CE3 by next Wednesday
