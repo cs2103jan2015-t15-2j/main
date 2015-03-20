@@ -395,7 +395,7 @@ public class CommandParser implements Parser {
 		if ( viewType == ViewType.SEARCH ) {
 			keywords = keyword + " " + query;
 		} else {
-			keywords = query;		
+			keywords = query;
 		}
 		
 		List<DateGroup> groups = _natty.parse(keywords);
