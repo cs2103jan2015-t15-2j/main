@@ -23,5 +23,5 @@ public interface UI {
 
 	public boolean isUIRunning();
 
-	public String loadSelectDirectoryDialog();
+	public String loadSelectDirectoryDialog(String currentDirectory);
 }

@@ -20,7 +20,7 @@ public class DirectoryCommand implements ICommand {
 	@Override
 	public void execute() {
 		try {
-			String folder = Taskie.Controller.getUI().loadSelectDirectoryDialog();
+			String folder = Taskie.Controller.getUI().loadSelectDirectoryDialog(Taskie.Controller.getStorage().getStorageLocation());
 			Taskie.Controller.getStorage().setStorageLocation(folder);
 			Taskie.Controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED_STRING, folder));
 		} catch ( NullPointerException e ) {

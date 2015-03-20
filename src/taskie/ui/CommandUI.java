@@ -111,8 +111,8 @@ public class CommandUI implements UI {
 		return _isUIRunning;
 	}
 
-	public String loadSelectDirectoryDialog() {
-		JFileChooser fileChooser = new JFileChooser(".");
+	public String loadSelectDirectoryDialog(String currentDirectory) {
+		JFileChooser fileChooser = new JFileChooser((currentDirectory == null) ? "." : currentDirectory);
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fileChooser.setVisible(true);
 		int returnVal = fileChooser.showOpenDialog(null);
