@@ -33,8 +33,12 @@ public class ViewCommand implements ICommand {
 	}
 
 	public LocalDateTime getStartDateTime() {
-		return LocalDateTime.of(_startDate,
-				(_startTime == null) ? LocalTime.MAX : _startTime);
+		try {
+			return LocalDateTime.of(_startDate,
+					(_startTime == null) ? LocalTime.MAX : _startTime);
+		} catch (NullPointerException e) {
+			return null;
+		}
 	}
 
 	public void setStartDateTime(LocalDateTime startDateTime) {
@@ -43,8 +47,12 @@ public class ViewCommand implements ICommand {
 	}
 
 	public LocalDateTime getEndDateTime() {
-		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX
-				: _endTime);
+		try {
+			return LocalDateTime.of(_endDate,
+					(_endTime == null) ? LocalTime.MAX : _endTime);
+		} catch (NullPointerException e) {
+			return null;
+		}
 	}
 
 	public void setEndDateTime(LocalDateTime endDateTime) {
