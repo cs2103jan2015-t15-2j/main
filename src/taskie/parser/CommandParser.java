@@ -214,6 +214,10 @@ public class CommandParser implements Parser {
 			}
 			
 			String name = (name1 + " " + name2).trim();
+			if ( name.isEmpty() ) {
+				throw new InvalidCommandException();
+			}
+			
 			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
