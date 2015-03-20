@@ -22,12 +22,12 @@ public class MarkCommand implements ICommand {
 	private Task _task;
 	private int _taskIndex;
 
-	// @author A0121555M
+	//@author A0121555M
 	public MarkCommand(int itemNumber) {
 		_taskIndex = itemNumber;
 	}
 
-	// @author A0097582N
+	//@author A0097582N
 	public MarkCommand(Task task) {
 		_task = task;
 	}
