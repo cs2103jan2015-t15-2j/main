@@ -601,5 +601,9 @@ public class Storage implements IStorage {
 			addFloatingTaskToSetLocation(newTask);
 		}
 	}
+
+	public String getStorageLocation() {
+		return _storageLocation;
+	}
 	
 }

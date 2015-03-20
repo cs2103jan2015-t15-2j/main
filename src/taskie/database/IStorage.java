@@ -7,6 +7,8 @@ import java.util.HashMap;
 
 
 public interface IStorage {
+	String getStorageLocation();
+	
 	void setStorageLocation(String fileDir); 
 	
 	HashMap<String, ArrayList<Task>> retrieveTaskMap();
