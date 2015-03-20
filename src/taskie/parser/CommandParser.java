@@ -44,8 +44,8 @@ public class CommandParser implements Parser {
 	private static final String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
 	private static final String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
 	
-	private static final String[] SEARCH_RELATIVITY_BEFORE = new String[] { "before" };
-	private static final String[] SEARCH_RELATIVITY_AFTER = new String[] { "after" };
+	private static final String[] SEARCH_RELATIVITY_BEFORE = new String[] { "before", "b4" };
+	private static final String[] SEARCH_RELATIVITY_AFTER = new String[] { "after", "aft" };
 	private static final String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
 	private static final String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
 	
