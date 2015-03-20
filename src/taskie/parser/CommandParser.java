@@ -436,9 +436,9 @@ public class CommandParser implements Parser {
 			
 			if ( relativeType == RelativeType.BEFORE ) {
 				cmd.setStartDateTime(MIN_DATETIME);
-				cmd.setEndDateTime(startAndEndDateTime[START_DATETIME]);
+				cmd.setEndDateTime(startAndEndDateTime[END_DATETIME]);
 			} else if ( relativeType == RelativeType.AFTER ) {
-				cmd.setStartDateTime(startAndEndDateTime[START_DATETIME]);
+				cmd.setStartDateTime(startAndEndDateTime[END_DATETIME]);
 				cmd.setEndDateTime(MAX_DATETIME);
 			} else if ( relativeType == RelativeType.EXACT ) {
 				cmd.setStartDateTime(startAndEndDateTime[START_DATETIME]);
