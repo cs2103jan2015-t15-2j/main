@@ -20,6 +20,7 @@ import taskie.parser.Parser;
 import taskie.ui.CommandUI;
 import taskie.ui.UI;
 import taskie.database.Storage;
+import taskie.exceptions.InvalidCommandException;
 
 public class Controller {
 	private UI _ui;
@@ -54,7 +55,11 @@ public class Controller {
 		
 		while ( _ui.isUIRunning() ) {
 			String string = _ui.readInput();
-			_parser.parse(string);
+			try {
+				_parser.parse(string);
+			} catch (InvalidCommandException e) {
+				_ui.display(taskie.models.Messages.INVALID_COMMAND);
+			}
 		}
 	}
 

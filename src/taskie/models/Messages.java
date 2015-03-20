@@ -18,5 +18,6 @@ public class Messages {
 	public static final String UPDATE_STRING = "Following task fields from %s is updated:";
 
 	// error messages
-	public static final String INVALID_TASK_NUM = "Invalid task number.";
+	public static final String INVALID_TASK_NUM = "Invalid task number. Please try again.";
+	public static final String INVALID_COMMAND = "Invalid Command. Please try again.";
 }
