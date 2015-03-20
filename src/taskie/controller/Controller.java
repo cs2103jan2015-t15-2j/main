@@ -12,6 +12,7 @@ package taskie.controller;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import taskie.commands.ExitCommand;
 import taskie.commands.ICommand;
 import taskie.database.IStorage;
 import taskie.models.Task;
@@ -55,12 +56,16 @@ public class Controller {
 		
 		while ( _ui.isUIRunning() ) {
 			String string = _ui.readInput();
-			if ( !string.isEmpty() ) {
-				try {
-					ICommand cmd = _parser.parse(string);
-					this.executeCommand(cmd);
-				} catch (InvalidCommandException e) {
-					_ui.display(taskie.models.Messages.INVALID_COMMAND);
+			if ( string == null ) {
+				this.executeCommand(new ExitCommand());
+			} else {
+				if ( !string.isEmpty() ) {
+					try {
+						ICommand cmd = _parser.parse(string);
+						this.executeCommand(cmd);
+					} catch (InvalidCommandException e) {
+						_ui.display(taskie.models.Messages.INVALID_COMMAND);
+					}
 				}
 			}
 		}
