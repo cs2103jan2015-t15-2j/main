@@ -164,13 +164,19 @@ public class UpdateCommand implements ICommand {
 	}
 
 	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) {
+		String taskType = Taskie.Controller.determineTaskType(task);
+
 		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
 				.getStorage().retrieveTaskMap();
-		String taskType = Taskie.Controller.determineTaskType(task);
+
 		ArrayList<Task> taskList = taskLists.get(taskType);
-		int taskIndexInStorage = taskList.indexOf(task);
-		Task updatedTask = updateTask(taskList.get(taskIndexInStorage));
-		if (taskType.equals(Taskie.Controller.determineTaskType(task))) {
+		int taskIndexInStorage = taskList.indexOf(task);//index of task in storage.
+		Task updatedTask = updateTask(task);
+
+		// determine if, after updating, task still belongs to the same
+		// taskType. If it is then we just need to remove and delete from the
+		// same list
+		if (taskType.equals(Taskie.Controller.determineTaskType(updatedTask))) {
 			taskList.remove(taskIndexInStorage);
 			taskList.add(taskIndexInStorage, updatedTask);
 		} else {
@@ -184,7 +190,7 @@ public class UpdateCommand implements ICommand {
 	private String formatUpdateMsg(Task task) {
 		String message = String.format(taskie.models.Messages.UPDATE_STRING,
 				task.getTitle());
-		if (this.isModifiedTaskTitle()){
+		if (this.isModifiedTaskTitle()) {
 			message = message.concat("task title");
 		}
 		if (this.isModifiedStartDate()) {
