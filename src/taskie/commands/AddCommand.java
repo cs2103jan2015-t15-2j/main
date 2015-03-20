@@ -87,6 +87,11 @@ public class AddCommand implements ICommand {
 			return null;
 		}
 	}
+	
+	public void setStartDateTime(LocalDateTime startDateTime) {
+		this.setStartDate(startDateTime.toLocalDate());
+		this.setStartTime(startDateTime.toLocalTime());
+	}
 
 	public LocalDateTime getEndDateTime() {
 		try {
@@ -95,6 +100,11 @@ public class AddCommand implements ICommand {
 		} catch (NullPointerException e) {
 			return null;
 		}
+	}
+	
+	public void setEndDateTime(LocalDateTime endDateTime) {
+		this.setEndDate(endDateTime.toLocalDate());
+		this.setEndTime(endDateTime.toLocalTime());
 	}
 
 	// @author A0097582N
