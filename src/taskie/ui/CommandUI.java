@@ -1,13 +1,25 @@
 //@author A0121555M
 package taskie.ui;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import javax.swing.JFileChooser;
+
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
+import org.fusesource.jansi.AnsiConsole;
+
+import taskie.Taskie;
+import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.Messages;
 import taskie.models.Task;
+import taskie.models.ViewType;
 
 public class CommandUI implements UI {
 	private static int TASKS_PER_PAGE = 20;
@@ -42,11 +54,14 @@ public class CommandUI implements UI {
 
 	public void display(Task[] tasks) {
 		_currentTaskList = tasks;
+		
+		int numTasks = tasks.length;
+		int characters = String.valueOf(numTasks).length();
 
-		for (int x = 0; x < tasks.length; x++) {
+		for (int x = 0; x < numTasks; x++) {
 			Task task = tasks[x];
-
-			System.out.print("#" + (x + 1) + ": ");
+			
+			System.out.print(String.format("#%1$" + characters + "s: ", (x + 1)));
 			if (task.isDeadlined()) {
 				System.out.println(task.getTitle() + " -- Complete by "
 						+ task.getEndDateTime());
@@ -58,11 +73,15 @@ public class CommandUI implements UI {
 				System.out.println(task.getTitle());
 			}
 		}
-
 	}
 
 	public void display(String message) {
-		System.out.println(message);
+		this.display(ansi().a(message));
+	}
+
+	public void display(Ansi message) {
+		System.out.print(message);
+		System.out.flush();
 	}
 
 	public Task getTask(int index) throws InvalidTaskException {
@@ -92,11 +111,13 @@ public class CommandUI implements UI {
 	}
 
 	private void printWelcomeMessage() {
-		this.display(MESSAGE_WELCOME);
+		this.display(ansi().fg(Color.RED).bg(Color.WHITE).a(Messages.UI_WELCOME_MESSAGE).reset());
+		Taskie.Controller.executeCommand(new ViewCommand(ViewType.ALL));
 	}
 
 	public void run() {
 		if (!_isInitialized) {
+			AnsiConsole.systemInstall();
 			_isInitialized = true;
 			this.printWelcomeMessage();
 			_isUIRunning = true;
@@ -104,6 +125,7 @@ public class CommandUI implements UI {
 	}
 
 	public void exit() {
+		AnsiConsole.systemUninstall();
 		_isUIRunning = false;
 	}
 
@@ -122,5 +144,9 @@ public class CommandUI implements UI {
 		}
 		
 		return null;
+	}
+	
+	private void printDateHeader(LocalDate date) {
+		this.display(ansi().a(date.format(DateTimeFormatter.ofPattern("dd MM yyyy"))));
 	}
 }
