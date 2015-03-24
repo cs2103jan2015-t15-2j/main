@@ -57,9 +57,8 @@ public class CommandParser implements Parser {
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 	
 	private static final int NUM_START_END_DATETIME = 2;
-	private static final int START_DATETIME = 0;
-	private static final int END_DATETIME = 1;
-	
+	private static final int DATETIME_START = 0;
+	private static final int DATETIME_END = 1;
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
 	private com.joestelmach.natty.Parser _natty;
@@ -269,22 +268,22 @@ public class CommandParser implements Parser {
 
 			cmd.setTaskName(name);
 			
-			if ( startAndEndDateTime[START_DATETIME] != null ) {
-				cmd.setStartDate(startAndEndDateTime[START_DATETIME].toLocalDate());
+			if ( startAndEndDateTime[DATETIME_START] != null ) {
+				cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
 				
 				if ( group.isTimeInferred() ) {
 					cmd.setStartTime(null);
 				} else {
-					cmd.setStartTime(startAndEndDateTime[START_DATETIME].toLocalTime());
+					cmd.setStartTime(startAndEndDateTime[DATETIME_START].toLocalTime());
 				}
 			}
 			
-			if ( startAndEndDateTime[END_DATETIME] != null ) {
-				cmd.setEndDate(startAndEndDateTime[END_DATETIME].toLocalDate());
+			if ( startAndEndDateTime[DATETIME_END] != null ) {
+				cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
 				if ( group.isTimeInferred() ) {
 					cmd.setEndTime(null);
 				} else {
-					cmd.setEndTime(startAndEndDateTime[END_DATETIME].toLocalTime());
+					cmd.setEndTime(startAndEndDateTime[DATETIME_END].toLocalTime());
 				}
 			}
 			
@@ -333,23 +332,23 @@ public class CommandParser implements Parser {
 			_logger.log(Level.INFO, "Updating Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
 			
-			if ( startAndEndDateTime[START_DATETIME] != null ) {
+			if ( startAndEndDateTime[DATETIME_START] != null ) {
 				if ( group.getParseLocations().containsKey("date") ) {
-					cmd.setStartDateToUpdate(startAndEndDateTime[START_DATETIME].toLocalDate());
+					cmd.setStartDateToUpdate(startAndEndDateTime[DATETIME_START].toLocalDate());
 				}
 				
 				if ( !group.isTimeInferred() ) {
-					cmd.setStartTimeToUpdate(startAndEndDateTime[START_DATETIME].toLocalTime());
+					cmd.setStartTimeToUpdate(startAndEndDateTime[DATETIME_START].toLocalTime());
 				}
 			}
 			
-			if ( startAndEndDateTime[END_DATETIME] != null ) {
+			if ( startAndEndDateTime[DATETIME_END] != null ) {
 				if ( group.getParseLocations().containsKey("date") ) {
-					cmd.setEndDateToUpdate(startAndEndDateTime[END_DATETIME].toLocalDate());
+					cmd.setEndDateToUpdate(startAndEndDateTime[DATETIME_END].toLocalDate());
 				}
 				
 				if ( !group.isTimeInferred() ) {
-					cmd.setEndTimeToUpdate(startAndEndDateTime[END_DATETIME].toLocalTime());
+					cmd.setEndTimeToUpdate(startAndEndDateTime[DATETIME_END].toLocalTime());
 				}
 			}
 		} else {
@@ -439,18 +438,18 @@ public class CommandParser implements Parser {
 		
 			if ( relativeType == RelativeType.BEFORE ) {
 				cmd.setStartDateTime(MIN_DATETIME);
-				cmd.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
 			} else if ( relativeType == RelativeType.AFTER ) {
-				cmd.setStartDateTime(startAndEndDateTime[END_DATETIME]);
+				cmd.setStartDateTime(startAndEndDateTime[DATETIME_END]);
 				cmd.setEndDateTime(MAX_DATETIME);
 			} else if ( relativeType == RelativeType.EXACT ) {
-				cmd.setStartDateTime(startAndEndDateTime[START_DATETIME]);
-				cmd.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+				cmd.setStartDateTime(startAndEndDateTime[DATETIME_START]);
+				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
 				cmd.setStartTime(null);
 				cmd.setEndTime(null);
 			} else if ( relativeType == RelativeType.SPECIFIED ) {
-				cmd.setStartDateTime(startAndEndDateTime[START_DATETIME]);
-				cmd.setEndDateTime(startAndEndDateTime[END_DATETIME]);
+				cmd.setStartDateTime(startAndEndDateTime[DATETIME_START]);
+				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
 			}
 			
 			if ( group.isTimeInferred() ) {
@@ -549,19 +548,19 @@ public class CommandParser implements Parser {
 			LocalDateTime ldt2 = convertDateToLocalDateTime(datetime2);
 			
 			if ( ldt1.isAfter(ldt2) ) {
-				startAndEndDateTime[START_DATETIME] = ldt2;
-				startAndEndDateTime[END_DATETIME] = ldt1;
+				startAndEndDateTime[DATETIME_START] = ldt2;
+				startAndEndDateTime[DATETIME_END] = ldt1;
 			} else {
-				startAndEndDateTime[START_DATETIME] = ldt1;
-				startAndEndDateTime[END_DATETIME] = ldt2;
+				startAndEndDateTime[DATETIME_START] = ldt1;
+				startAndEndDateTime[DATETIME_END] = ldt2;
 			}
 		} else if ( dates.size() == 1 ) {
 			// Deadline tasks
 
 			Date datetime1 = dates.get(0);
 			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
-			startAndEndDateTime[START_DATETIME] = null;
-			startAndEndDateTime[END_DATETIME] = ldt1;
+			startAndEndDateTime[DATETIME_START] = null;
+			startAndEndDateTime[DATETIME_END] = ldt1;
 		}
 		
 		return startAndEndDateTime;	
