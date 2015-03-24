@@ -2,6 +2,7 @@
 package taskie.commands;
 
 import taskie.Taskie;
+import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Messages;
 
@@ -11,13 +12,10 @@ public class DirectoryCommand implements ICommand {
 	public DirectoryCommand() {
 	}
 
-	@Override
 	public CommandType getCommandType() {
-		// TODO Auto-generated method stub
-		return null;
+		return _commandType;
 	}
 
-	@Override
 	public void execute() {
 		try {
 			String folder = Taskie.Controller.getUI().loadSelectDirectoryDialog(Taskie.Controller.getStorage().getStorageLocation());
@@ -26,6 +24,10 @@ public class DirectoryCommand implements ICommand {
 		} catch ( NullPointerException e ) {
 			// Directory Change Cancelled
 		}
+	}
+	
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
 	}
 	
 	public String toString() {

@@ -7,10 +7,13 @@
 
 package taskie.commands;
 
+import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 
 public interface ICommand {
 	public CommandType getCommandType();
 
 	public void execute();
+	
+	public void undo() throws UndoNotSupportedException;
 }

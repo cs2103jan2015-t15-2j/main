@@ -214,6 +214,11 @@ public class UpdateCommand implements ICommand {
 	}
 	
 	//@author A0121555M
+	@Override
+	public void undo() {
+		// Taskie.Controller.executeCommand(new DeleteCommand(_task));
+	}
+	
 	@Override	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

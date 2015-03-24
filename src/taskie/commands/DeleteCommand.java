@@ -31,15 +31,25 @@ public class DeleteCommand implements ICommand {
 		_deleteStartTime = false;
 		_deleteEndDate = false;
 		_deleteEndTime = false;
-
+	}
+	
+	//@author A0121555M	
+	public DeleteCommand(Task task) {
+		_task = task;
+		_taskName = task.getTitle();
+		_deleteStartDate = false;
+		_deleteStartTime = false;
+		_deleteEndDate = false;
+		_deleteEndTime = false;
 	}
 
+	//@author A0097582N
 	public DeleteCommand(int taskId) {
-			_taskIndex = taskId;
-			_deleteStartDate = false;
-			_deleteStartTime = false;
-			_deleteEndDate = false;
-			_deleteEndTime = false;
+		_taskIndex = taskId;
+		_deleteStartDate = false;
+		_deleteStartTime = false;
+		_deleteEndDate = false;
+		_deleteEndTime = false;
 	}
 
 	public DeleteCommand(String taskName) {
@@ -175,6 +185,11 @@ public class DeleteCommand implements ICommand {
 	}
 	
 	//@author A0121555M
+	@Override
+	public void undo() {
+		new AddCommand(_task).execute();
+	}
+	
 	@Override	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

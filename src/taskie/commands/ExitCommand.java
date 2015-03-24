@@ -2,6 +2,7 @@
 package taskie.commands;
 
 import taskie.Taskie;
+import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 
 public class ExitCommand implements ICommand {
@@ -19,8 +20,10 @@ public class ExitCommand implements ICommand {
 		Taskie.Controller.getUI().exit();
 	}
 	
-	//@author A0121555M
-	@Override	
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
+	}
+	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CommandType:" + _commandType);

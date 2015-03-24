@@ -34,4 +34,10 @@ public class Messages {
 	// error messages
 	public static final String INVALID_TASK_NUM = "Invalid task number. Please try again." + NEWLINE;
 	public static final String INVALID_COMMAND = "Invalid Command. Please try again." + NEWLINE;
+	
+	// UndoCommand messages
+	public static final String NOTHING_TO_UNDO = "Nothing to undo." + NEWLINE;
+	
+	// RedoCommand messages
+	public static final String NOTHING_TO_REDO = "Nothing to redo." + NEWLINE;
 }

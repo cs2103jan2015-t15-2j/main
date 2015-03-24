@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.Taskie;
+import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.TaskType;
@@ -313,7 +314,10 @@ public class ViewCommand implements ICommand {
 	}
 	
 	//@author A0121555M
-	@Override	
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CommandType:View");

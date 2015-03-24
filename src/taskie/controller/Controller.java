@@ -11,12 +11,14 @@ package taskie.controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.commands.ExitCommand;
 import taskie.commands.ICommand;
 import taskie.database.IStorage;
+import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
@@ -30,6 +32,8 @@ public class Controller {
 	private UI _ui;
 	private IStorage _storage;
 	private Parser _parser;
+	private Stack<ICommand> _undoStack;
+	private Stack<ICommand> _redoStack;
 
 	public UI getUI() {
 		return _ui;
@@ -45,6 +49,8 @@ public class Controller {
 
 	public Controller() {
 		_logger = Logger.getLogger(Controller.class.getName());
+		_undoStack = new Stack<ICommand>();
+		_redoStack = new Stack<ICommand>();
 	}
 
 	public void run() {
@@ -72,6 +78,7 @@ public class Controller {
 	}
 
 	public void executeCommand(ICommand command) {
+		addTaskHistory(command);
 		command.execute();
 	}
 
@@ -102,5 +109,21 @@ public class Controller {
 		}
 	}
 	*/
+	
+	//@author A0121555M
+	public Stack<ICommand> getUndoStack() {
+		return _undoStack;
+	}
 
+	public Stack<ICommand> getRedoStack() {
+		return _redoStack;
+	}
+
+	private void addTaskHistory(ICommand command) {
+		CommandType type = command.getCommandType();
+		if ( type == CommandType.ADD ||  type == CommandType.UPDATE || type == CommandType.DELETE || type == CommandType.MARK || type == CommandType.UNMARK  ) {
+			_logger.log(Level.INFO, "Adding to Undo: " + command);
+			_undoStack.add(command);
+		}
+	}
 }

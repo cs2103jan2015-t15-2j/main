@@ -30,6 +30,7 @@ public class AddCommand implements ICommand {
 	private LocalDate _endDate;
 	private LocalTime _endTime;
 	private CommandType _commandType = CommandType.ADD;
+	private Task _task;
 
 	public AddCommand() {
 		_taskName = null;
@@ -38,7 +39,15 @@ public class AddCommand implements ICommand {
 		_endDate = null;
 		_endTime = null;
 	}
-	
+
+	public AddCommand(Task task) {
+		_taskName = task.getTitle();
+		_startDate = task.getStartDate();
+		_startTime = task.getStartTime();
+		_endDate = task.getEndDate();
+		_endTime = task.getEndTime();
+	}
+
 	public AddCommand(String taskName, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
 		super();
 		_taskName = taskName;
@@ -181,9 +190,14 @@ public class AddCommand implements ICommand {
 		}
 		return task;
 	}
-	
-	//@author A0121555M
-	@Override	
+
+	// @author A0121555M
+	@Override
+	public void undo() {
+		new DeleteCommand(_task).execute();
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
