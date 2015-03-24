@@ -6,8 +6,10 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -66,8 +68,9 @@ public class CommandParser implements Parser {
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
-	private HashMap<String, ViewType> dictViewTypes;
-	private HashMap<String, RelativeType> dictRelativeTypes;
+	private Set<String> dictSeparatorKeywords;
+	private Map<String, ViewType> dictViewTypes;
+	private Map<String, RelativeType> dictRelativeTypes;
 	
 	public CommandParser() {
 		_natty = new com.joestelmach.natty.Parser();
@@ -79,6 +82,7 @@ public class CommandParser implements Parser {
 	private void initializeDictionaries() { 
 		dictViewTypes = new HashMap<String, ViewType>();
 		dictRelativeTypes = new HashMap<String, RelativeType>();
+		dictSeparatorKeywords = new HashSet<String>();
 		
 		for ( String word : VIEW_KEYWORDS_ALL ) {
 			dictViewTypes.put(word, ViewType.ALL);
@@ -96,20 +100,28 @@ public class CommandParser implements Parser {
 			dictViewTypes.put(word, ViewType.OVERDUE);
 		}
 		
+		for ( String word : KEYWORDS_DATETIME_SEPARATOR ) {
+			dictSeparatorKeywords.add(word);
+		}
+				
 		for ( String word : SEARCH_RELATIVITY_BEFORE ) {
 			dictRelativeTypes.put(word, RelativeType.BEFORE);
+			dictSeparatorKeywords.add(word);
 		}
 		
 		for ( String word : SEARCH_RELATIVITY_AFTER ) {
 			dictRelativeTypes.put(word, RelativeType.AFTER);
+			dictSeparatorKeywords.add(word);
 		}
 
 		for ( String word : SEARCH_RELATIVITY_EXACT ) {
 			dictRelativeTypes.put(word, RelativeType.EXACT);
+			dictSeparatorKeywords.add(word);
 		}
 
 		for ( String word : SEARCH_RELATIVITY_SPECIFIED ) {
 			dictRelativeTypes.put(word, RelativeType.SPECIFIED);
+			dictSeparatorKeywords.add(word);
 		}
 	}
 
