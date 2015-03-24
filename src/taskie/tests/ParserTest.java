@@ -1,6 +1,6 @@
 package taskie.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -8,15 +8,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.joestelmach.natty.CalendarSource;
 
 import taskie.commands.AddCommand;
 import taskie.commands.ICommand;
@@ -25,6 +22,8 @@ import taskie.exceptions.InvalidCommandException;
 import taskie.models.ViewType;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
+
+import com.joestelmach.natty.CalendarSource;
 
 public class ParserTest {
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
