@@ -563,17 +563,17 @@ public class Storage implements IStorage {
 	}
 	
 	private void updateTaskFromDefaultLocation(Task oldTask, Task newTask) {
-		if (oldTask.isDeadlined()) {
+		if (oldTask.getTaskType() == TaskType.DEADLINE) {
 			deleteDeadlinedTaskFromDefaultLocation(oldTask);
-		} else if (oldTask.isTimed()) {
+		} else if (oldTask.getTaskType() == TaskType.TIMED) {
 			deleteTimedTaskFromDefaultLocation(oldTask);
 		} else {
 			deleteFloatingTaskFromDefaultLocation(oldTask);
 		}
 	
-		if (newTask.isDeadlined()) {
+		if (newTask.getTaskType() == TaskType.DEADLINE) {
 			addDeadlinedTaskToDefaultLocation(newTask);
-		} else if (newTask.isTimed()) {
+		} else if (newTask.getTaskType() == TaskType.TIMED) {
 			addTimedTaskToDefaultLocation(newTask);
 		} else {
 			addFloatingTaskToDefaultLocation(newTask);
@@ -581,17 +581,17 @@ public class Storage implements IStorage {
 	}
 	
 	private void updateTaskFromSetLocation(Task oldTask, Task newTask) {
-		if (oldTask.isDeadlined()) {
+		if (oldTask.getTaskType() == TaskType.DEADLINE) {
 			deleteDeadlinedTaskFromSetLocation(oldTask);
-		} else if (oldTask.isTimed()) {
+		} else if (oldTask.getTaskType() == TaskType.TIMED) {
 			deleteTimedTaskFromSetLocation(oldTask);
 		} else {
 			deleteFloatingTaskFromSetLocation(oldTask);
 		}
 	
-		if (newTask.isDeadlined()) {
+		if (newTask.getTaskType() == TaskType.DEADLINE) {
 			addDeadlinedTaskToSetLocation(newTask);
-		} else if (newTask.isTimed()) {
+		} else if (newTask.getTaskType() == TaskType.TIMED) {
 			addTimedTaskToSetLocation(newTask);
 		} else {
 			addFloatingTaskToSetLocation(newTask);

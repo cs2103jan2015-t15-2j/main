@@ -187,7 +187,9 @@ public class Task implements Comparable<Task>, Serializable {
 		return thisTaskDateTime.compareTo(now);
 	}
 
-	//@author A0135137L
+	//@author A0135137L-unused
+	//Reason for unused: Redundant, see getTaskType() - Yunheng
+	/*
 	public boolean isDeadlined() {
 		if (_title != null && _startDate == null && _startTime == null
 				&& _endDate != null)
@@ -202,7 +204,9 @@ public class Task implements Comparable<Task>, Serializable {
 		else
 			return false;
 	}
-
+	*/
+	
+	//@author A0135137L
 	public boolean equals(Task other) {
 		if (equalsTitle(other) && equalsStartDate(other)
 				&& equalsStartTime(other) && equalsEndDate(other)

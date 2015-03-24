@@ -62,10 +62,10 @@ public class CommandUI implements UI {
 			Task task = tasks[x];
 			
 			System.out.print(String.format("#%1$" + characters + "s: ", (x + 1)));
-			if (task.isDeadlined()) {
+			if (task.getTaskType() == TaskType.DEADLINE) {
 				System.out.println(task.getTitle() + " -- Complete by "
 						+ task.getEndDateTime());
-			} else if (task.isTimed()) {
+			} else if (task.getTaskType() == TaskType.TIMED) {
 				System.out.println(task.getTitle() + " -- Do between "
 						+ task.getStartDateTime() + " to "
 						+ task.getEndDateTime());
