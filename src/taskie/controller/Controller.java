@@ -81,20 +81,6 @@ public class Controller {
 		command.execute();
 	}
 
-	public String formatTime(LocalDate startDate, LocalTime startTime) {
-		String string = "";
-		if (startDate != null) {
-			string = string.concat(startDate.toString());
-		}
-
-		if (startTime != null) {
-			string = string.concat(" " + startTime.getHour() + " "
-					+ startTime.getMinute());
-		}
-		return string;
-	}
-	
-	
 	//@author A0097582N-unused
 	//Reason for unused: Moved to Task Model by Yunheng (code commented because it will break existing code)
 	/*
