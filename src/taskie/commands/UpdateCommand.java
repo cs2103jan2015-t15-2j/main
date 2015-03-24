@@ -168,7 +168,13 @@ public class UpdateCommand implements ICommand {
 		int taskIndexInStorage = taskList.indexOf(task);// index of task in
 														// storage.
 		Task updatedTask = updateTask(task);
+		updateTaskInStorage(taskType, taskLists, taskList, taskIndexInStorage,
+				updatedTask);
+	}
 
+	private void updateTaskInStorage(TaskType taskType,
+			HashMap<TaskType, ArrayList<Task>> taskLists,
+			ArrayList<Task> taskList, int taskIndexInStorage, Task updatedTask) {
 		// determine if, after updating, task still belongs to the same
 		// taskType. If it is then we just need to remove and delete from the
 		// same list
