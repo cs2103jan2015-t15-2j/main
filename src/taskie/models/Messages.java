@@ -4,7 +4,7 @@ public class Messages {
 	public static final String NEWLINE = System.lineSeparator();
 	
 	// UI Messages
-	public static final String UI_WELCOME_MESSAGE = "Welcome to Taskie!" + NEWLINE;
+	public static final String UI_WELCOME_MESSAGE = "Welcome to Taskie!";
 	public static final String UI_REQUEST_INPUT = "Enter Command: ";
 	
 	// AddCommand messages
