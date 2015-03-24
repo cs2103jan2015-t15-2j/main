@@ -83,7 +83,7 @@ public class CommandUI implements UI {
 					display(ansi().fg(Color.DEFAULT).a(String.format("%s [Starts in %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
 				}
 			} else {
-				System.out.println(task.getTitle());
+				display(task.getTitle());
 			}
 			
 			shown++;
