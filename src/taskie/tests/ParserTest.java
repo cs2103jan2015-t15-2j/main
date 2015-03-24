@@ -74,9 +74,13 @@ public class ParserTest {
 		actualCommand = _parser.parse("ins Travel to London");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		expectedCommand = new AddCommand("Eat fries", null, null);
+		actualCommand = _parser.parse("create Eat fries");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		// Test Deadlined Tasks with Relative Dates
 		expectedCommand = new AddCommand("Do CE3", null, null, _today.plusDays(1), LocalTime.MAX);
-		actualCommand = _parser.parse("add Do CE3 tomorrow");
+		actualCommand = _parser.parse("add Do CE3 by tomorrow");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		expectedCommand = new AddCommand("Do CE3", null,  _now.plusDays(1));
@@ -99,6 +103,10 @@ public class ParserTest {
 
 		expectedCommand = new AddCommand("Reach Changi Airport to send friend off", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.THURSDAY)), LocalTime.of(20, 45));
 		actualCommand = _parser.parse("add Reach Changi Airport to send friend off by 8.45pm thursday");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Eat fries", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.THURSDAY)), LocalTime.of(20, 30));
+		actualCommand = _parser.parse("create Eat fries at 8.30pm thurs");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		// Test Next Week
@@ -124,9 +132,9 @@ public class ParserTest {
 		actualCommand = _parser.parse("create Add the create task functionality for CS2103 by 15 March");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
-		//expectedCommand = new AddCommand("Presentation for CS2103", null, null, LocalDate.of(_today.getYear(), 4, 10), LocalTime.of(10,12));
-		//actualCommand = _parser.parse("create Presentation for CS2103 on 10 April 10.12am");
-		//assertEquals(expectedCommand.toString(), actualCommand.toString());
+		expectedCommand = new AddCommand("Presentation for CS2103", null, null, LocalDate.of(_today.getYear(), 4, 10), LocalTime.of(10,12));
+		actualCommand = _parser.parse("create Presentation for CS2103 on 10 April 10.12am");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		// Test Timed Tasks with Relative Dates
 		expectedCommand = new AddCommand("Attend CS2103 Meeting", _today.plusDays(1), LocalTime.of(10, 0), _today.plusDays(1), LocalTime.of(18, 0));
@@ -137,9 +145,9 @@ public class ParserTest {
 		actualCommand = _parser.parse("add Prepare Cousin Wedding from saturday 10am to sunday 6pm");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
-		//expectedCommand = new AddCommand("Do CS2103 Tutorial 6", _today.plusDays(1), LocalTime.of(9, 0), _today.plusDays(1), LocalTime.of(11, 0));
-		//actualCommand = _parser.parse("add Do CS2103 Tutorial 6 tomorrow at 9am for 2 hours");
-		//assertEquals(expectedCommand.toString(), actualCommand.toString());
+		expectedCommand = new AddCommand("Do CS2103 Tutorial 6", _today.plusDays(1), LocalTime.of(9, 0), _today.plusDays(1), LocalTime.of(11, 0));
+		actualCommand = _parser.parse("add Do CS2103 Tutorial 6 from 9 to 11am tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Dinner Date", _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(17, 0), _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(22, 0));
 		actualCommand = _parser.parse("ins Dinner Date on Friday 5pm to 10pm");
