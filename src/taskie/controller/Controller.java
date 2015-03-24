@@ -26,26 +26,19 @@ import taskie.ui.UI;
 
 public class Controller {
 	private Logger _logger;
-	private UI _ui;
-	private IStorage _storage;
 	private Parser _parser;
 	private Stack<ICommand> _undoStack;
 	private Stack<ICommand> _redoStack;
 
+	protected UI _ui;
+	protected IStorage _storage;
+
 	public UI getUI() {
 		return _ui;
 	}
-	//set method for replacing component with stub component
-	public void setUI(UI ui){
-		_ui = ui;
-	}
-
+	
 	public IStorage getStorage() {
 		return _storage;
-	}
-	//set method for replacing component with stub component
-	public void setStorage(IStorage storage){
-		_storage = storage;
 	}
 
 	public Parser getParser() {

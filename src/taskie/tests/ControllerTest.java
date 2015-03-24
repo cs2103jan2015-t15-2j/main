@@ -19,8 +19,19 @@ import taskie.models.TaskType;
 import taskie.ui.UI;
 
 public class ControllerTest {
+	class StubController extends Controller {
+		//set method for replacing component with stub component
+		public void setUI(UI ui){
+			_ui = ui;
+		}
+		//set method for replacing component with stub component
+		public void setStorage(IStorage storage){
+			_storage = storage;
+		}
+	}
+	
 	Taskie _taskie;
-	Controller _controller;
+	StubController _controller;
 	String _uiDisplayStr;
 	Task[] _uiDisplayTasks;
 	Task _uiDisplayTask;
@@ -31,7 +42,7 @@ public class ControllerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		_controller = Taskie.Controller;
+		_controller = new StubController();
 		_controller.setUI(new StubUI());
 		_controller.setStorage(new StubStorage());
 		_uiDisplayStr=null;
