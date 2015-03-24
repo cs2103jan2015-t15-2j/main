@@ -102,7 +102,10 @@ public class DeleteCommand implements ICommand {
 	@Override
 	public void execute() {
 		try {
-			getTaskFromParser();
+			if ( _taskName == null ) {
+				getTaskFromUI();
+			}
+			
 			if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
 					|| canDeleteEndTime()) {	//if either of these methods returned true, only task fields are to be deleted.
 				deleteTaskField();
@@ -116,7 +119,7 @@ public class DeleteCommand implements ICommand {
 		}
 	}
 
-	private void getTaskFromParser() throws InvalidTaskException {
+	private void getTaskFromUI() throws InvalidTaskException {
 		_task = Taskie.Controller.getUI().getTask(_taskIndex);
 		_taskName=_task.getTitle();
 	}
