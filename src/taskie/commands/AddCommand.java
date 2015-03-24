@@ -15,15 +15,9 @@ import java.time.format.DateTimeFormatter;
 import taskie.Taskie;
 import taskie.models.CommandType;
 import taskie.models.Task;
-import taskie.models.Messages;
 import taskie.models.TaskType;
 
 public class AddCommand implements ICommand {
-
-	private static final String DEADLINED_TASKNAME = "deadlined";
-	private static final String TIMED_TASKNAME = "timed";
-	private static final String FLOATING_TASKNAME = "floating";
-
 	private String _taskName;
 	private LocalDate _startDate;
 	private LocalTime _startTime;
@@ -107,8 +101,7 @@ public class AddCommand implements ICommand {
 	//@author A0121555M
 	public LocalDateTime getStartDateTime() {
 		try {
-			return LocalDateTime.of(_startDate,
-					(_startTime == null) ? LocalTime.MAX : _startTime);
+			return LocalDateTime.of(_startDate, (_startTime == null) ? LocalTime.MAX : _startTime);
 		} catch (NullPointerException e) {
 			return null;
 		}
@@ -126,8 +119,7 @@ public class AddCommand implements ICommand {
 
 	public LocalDateTime getEndDateTime() {
 		try {
-			return LocalDateTime.of(_endDate,
-					(_endTime == null) ? LocalTime.MAX : _endTime);
+			return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX : _endTime);
 		} catch (NullPointerException e) {
 			return null;
 		}
@@ -157,22 +149,11 @@ public class AddCommand implements ICommand {
 	private String formatAddMsg(Task task) {
 		TaskType type = task.getTaskType();
 		if (type == TaskType.FLOATING) {
-			return String.format(taskie.models.Messages.ADD_FLOATING,
-					task.getTitle());
+			return String.format(taskie.models.Messages.ADD_FLOATING, task.getTitle());
 		} else if (type == TaskType.DEADLINE) {
-			return String.format(
-					taskie.models.Messages.ADD_DEADLINED,
-					task.getTitle(),
-					task.getEndDateTime().format(
-							DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+			return String.format(taskie.models.Messages.ADD_DEADLINED, task.getTitle(), task.getEndDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 		} else {
-			return String.format(
-					taskie.models.Messages.ADD_TIMED,
-					task.getTitle(),
-					task.getStartDateTime().format(
-							DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-					task.getEndDateTime().format(
-							DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+			return String.format(taskie.models.Messages.ADD_TIMED, task.getTitle(), task.getStartDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), task.getEndDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 		}
 	}
 
@@ -191,7 +172,7 @@ public class AddCommand implements ICommand {
 		return task;
 	}
 
-	// @author A0121555M
+	//@author A0121555M
 	@Override
 	public void undo() {
 		new DeleteCommand(_task).execute();

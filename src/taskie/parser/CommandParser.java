@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import taskie.Taskie;
 import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
 import taskie.commands.DirectoryCommand;
@@ -25,7 +24,6 @@ import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
-import taskie.models.Task;
 import taskie.models.ViewType;
 
 import com.joestelmach.natty.DateGroup;

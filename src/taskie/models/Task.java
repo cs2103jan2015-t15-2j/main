@@ -54,8 +54,7 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	// Timed Task (Specific Start Time and End Time)
-	public Task(String title, LocalDate startDate, LocalTime startTime,
-			LocalDate endDate, LocalTime endTime) {
+	public Task(String title, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
 		_title = title;
 		_startDate = startDate;
 		_startTime = startTime;
