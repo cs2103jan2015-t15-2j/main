@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.Taskie;
+import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.CommandType;
 import taskie.models.Task;
@@ -136,12 +137,17 @@ public class UpdateCommand implements ICommand {
 			retrieveTaskToUpdateFromStorageAndUpdate(task);
 			Taskie.Controller.getUI().display(formatUpdateMsg(task));
 		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+			Taskie.Controller.getUI().display(
+					taskie.models.Messages.INVALID_TASK_NUM);
+		} catch (InvalidCommandException e) {
+			Taskie.Controller.getUI().display(
+					taskie.models.Messages.INVALID_COMMAND);
 		}
 	}
 
-	private Task updateTask(Task task) {
-		Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime(), task.getEndDate(), task.getEndTime());
+	private Task updateTask(Task task) throws InvalidCommandException {
+		Task updatedTask = new Task(task.getTitle(), task.getStartDate(),
+				task.getStartTime(), task.getEndDate(), task.getEndTime());
 		if (this.isModifiedTaskTitle()) {
 			updatedTask.setTitle(this.getTaskTitleToUpdate());
 		}
@@ -157,12 +163,36 @@ public class UpdateCommand implements ICommand {
 		if (this.isModifiedEndTime()) {
 			updatedTask.setEndTime(this.getEndTimeToUpdate());
 		}
+		checkForTaskModelConsistency(updatedTask);
 		return updatedTask;
 	}
 
-	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) {
+	// task model consistency refers to datetime consistency. Time cannot be
+	// without date and startdate cannot be without end date
+	private void checkForTaskModelConsistency(Task task)
+			throws InvalidCommandException {
+		if (task.getStartDate() == null) {
+			if (task.getStartTime() != null) {
+				throw new InvalidCommandException();
+			}
+		}
+		if (task.getEndDate() == null){
+			if(task.getEndDate() !=null){
+				throw new InvalidCommandException();
+			}
+		}
+		if(task.getEndDateTime()==null){
+			if(task.getStartDateTime()==null){
+				throw new InvalidCommandException();
+			}
+		}
+	}
+
+	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task)
+			throws InvalidCommandException {
 		TaskType taskType = task.getTaskType();
-		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
+		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller
+				.getStorage().retrieveTaskMap();
 
 		ArrayList<Task> taskList = taskLists.get(taskType);
 		int taskIndexInStorage = taskList.indexOf(task);// index of task in
@@ -182,28 +212,28 @@ public class UpdateCommand implements ICommand {
 			taskList.remove(taskIndexInStorage);
 			taskList.add(taskIndexInStorage, updatedTask);
 		} else {
-			taskList.remove(taskIndexInStorage);
 			taskLists.get(updatedTask.getTaskType()).add(updatedTask);
 		}
 		Taskie.Controller.getStorage().storeTaskMap(taskLists);
 	}
 
 	private String formatUpdateMsg(Task task) {
-		String message = String.format(taskie.models.Messages.UPDATE_STRING, task.getTitle());
+		String message = String.format(taskie.models.Messages.UPDATE_STRING,
+				task.getTitle());
 		if (this.isModifiedTaskTitle()) {
-			message = message.concat("task title");
+			message = message.concat("task title\n");
 		}
 		if (this.isModifiedStartDate()) {
-			message = message.concat("start date");
+			message = message.concat("start date\n");
 		}
 		if (this.isModifiedStartTime()) {
-			message = message.concat("start time");
+			message = message.concat("start time\n");
 		}
 		if (this.isModifiedEndDate()) {
-			message = message.concat("end date");
+			message = message.concat("end date\n");
 		}
 		if (this.isModifiedEndTime()) {
-			message = message.concat("end time");
+			message = message.concat("end time\n");
 		}
 		return message;
 
@@ -214,7 +244,7 @@ public class UpdateCommand implements ICommand {
 		return task;
 	}
 
-	//@author A0121555M
+	// @author A0121555M
 	public void undo() {
 		// Taskie.Controller.executeCommand(new DeleteCommand(_task));
 	}
