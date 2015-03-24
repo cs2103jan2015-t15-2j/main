@@ -1,6 +1,7 @@
 package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -11,12 +12,20 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import taskie.commands.AddCommand;
+import taskie.commands.DeleteCommand;
+import taskie.commands.DirectoryCommand;
+import taskie.commands.ExitCommand;
 import taskie.commands.ICommand;
+import taskie.commands.MarkCommand;
+import taskie.commands.RedoCommand;
+import taskie.commands.UndoCommand;
+import taskie.commands.UnmarkCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.ViewType;
@@ -92,18 +101,20 @@ public class ParserTest {
 		actualCommand = _parser.parse("add Reach Changi Airport to send friend off by 8.45pm thursday");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
-		expectedCommand = new AddCommand("Complete CS2103 Tutorial 5", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)), LocalTime.MAX);
+		// Test Next Week
+		expectedCommand = new AddCommand("Complete CS2103 Tutorial 5", null, null, _today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)), LocalTime.MAX);
 		actualCommand = _parser.parse("create Complete CS2103 Tutorial 5 by next Wednesday");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
-		expectedCommand = new AddCommand("Complete next Wednesday's task", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.TUESDAY)), null);
+		expectedCommand = new AddCommand("Complete next Wednesday's task", null, null, _today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)), null);
 		actualCommand = _parser.parse("ins Complete next Wednesday's task by next Tuesday");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
-		expectedCommand = new AddCommand("Buy groceries for chinese new year", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), null);
-		actualCommand = _parser.parse("add Buy groceries by saturday for chinese new year");
+		// Test Mix with "Public Holidays"
+		expectedCommand = new AddCommand("Buy groceries for new year", null, null, _today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)), null);
+		actualCommand = _parser.parse("add Buy groceries by saturday for new year");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		
+
 		// Test Deadlined Tasks with Fixed Dates
 		expectedCommand = new AddCommand("CS2103 Presentation", null, null, LocalDate.of(_today.getYear(), 4, 10), LocalTime.of(10,12));
 		actualCommand = _parser.parse("create CS2103 Presentation on 10 April 10:12am");
@@ -174,5 +185,157 @@ public class ParserTest {
 		actualCommand = _parser.parse("find CS2103 tutorial");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 	}
+	
+	@Test
+	public void testDeleteCommand() throws InvalidCommandException {
+		DeleteCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new DeleteCommand(10);
+		actualCommand = _parser.parse("delete 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("clear 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("remove 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("rm 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("discard 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		try {
+			actualCommand = _parser.parse("delete invalidstring");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testUpdateCommand() throws InvalidCommandException {
+		
+	}
+	
+	@Test
+	public void testUndoCommand() throws InvalidCommandException {
+		UndoCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new UndoCommand(1);
+		actualCommand = _parser.parse("undo");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("revert");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		expectedCommand = new UndoCommand(5);
+		actualCommand = _parser.parse("undo 5");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		try {
+			expectedCommand = new UndoCommand(1);
+			actualCommand = _parser.parse("undo invalidstring");
+			assertEquals(expectedCommand.toString(), actualCommand.toString());
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testRedoCommand() throws InvalidCommandException {
+		RedoCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new RedoCommand(1);
+		actualCommand = _parser.parse("redo");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new RedoCommand(5);
+		actualCommand = _parser.parse("redo 5");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		try {
+			expectedCommand = new RedoCommand(1);
+			actualCommand = _parser.parse("redo invalidstring");
+			assertEquals(expectedCommand.toString(), actualCommand.toString());
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testMarkCommand() throws InvalidCommandException {
+		MarkCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new MarkCommand(1);
+		actualCommand = _parser.parse("mark 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("complete 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("done 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("check 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		try {
+			actualCommand = _parser.parse("mark");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+		
+		try {
+			actualCommand = _parser.parse("mark invalidstring");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testUnmarkCommand() throws InvalidCommandException {
+		UnmarkCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new UnmarkCommand(1);
+		actualCommand = _parser.parse("unmark 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("incomplete 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("undone 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("uncheck 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		try {
+			actualCommand = _parser.parse("unmark");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+		
+		try {
+			actualCommand = _parser.parse("unmark invalidstring");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testDirectoryCommand() throws InvalidCommandException {
+		DirectoryCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new DirectoryCommand();
+		actualCommand = _parser.parse("directory");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
+
+	@Test
+	public void testExitCommand() throws InvalidCommandException {
+		ExitCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new ExitCommand();
+		actualCommand = _parser.parse("exit");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("quit");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("close");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
 }
