@@ -9,8 +9,6 @@
 
 package taskie.controller;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,13 +16,13 @@ import java.util.logging.Logger;
 import taskie.commands.ExitCommand;
 import taskie.commands.ICommand;
 import taskie.database.IStorage;
+import taskie.database.Storage;
+import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
 import taskie.ui.CommandUI;
 import taskie.ui.UI;
-import taskie.database.Storage;
-import taskie.exceptions.InvalidCommandException;
 
 public class Controller {
 	private Logger _logger;
