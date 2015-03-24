@@ -11,6 +11,8 @@ package taskie.controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import taskie.commands.ExitCommand;
 import taskie.commands.ICommand;
@@ -24,6 +26,7 @@ import taskie.database.Storage;
 import taskie.exceptions.InvalidCommandException;
 
 public class Controller {
+	private Logger _logger;
 	private UI _ui;
 	private IStorage _storage;
 	private Parser _parser;
@@ -41,6 +44,7 @@ public class Controller {
 	}
 
 	public Controller() {
+		_logger = Logger.getLogger(Controller.class.getName());
 	}
 
 	public void run() {
