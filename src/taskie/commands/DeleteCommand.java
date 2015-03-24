@@ -14,9 +14,7 @@ import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.TaskType;
 
-public class DeleteCommand implements ICommand {
-	
-	
+public class DeleteCommand implements ICommand {	
 	private Task _task;
 	private String _taskName;
 	private int _taskIndex;
@@ -153,9 +151,7 @@ public class DeleteCommand implements ICommand {
 	}
 	
 	private String formatDeleteTaskString(){
-		
 		return String.format(taskie.models.Messages.DELETE_TASK,_taskName);
-		
 	}
 	
 	private String formatDeleteTaskFieldString(){

@@ -104,9 +104,9 @@ public class AddCommand implements ICommand {
 			return null;
 		}
 	}
-	
+
 	public void setStartDateTime(LocalDateTime startDateTime) {
-		if ( startDateTime == null ) {
+		if (startDateTime == null) {
 			this.setStartDate(null);
 			this.setStartTime(null);
 		} else {
@@ -123,9 +123,9 @@ public class AddCommand implements ICommand {
 			return null;
 		}
 	}
-	
+
 	public void setEndDateTime(LocalDateTime endDateTime) {
-		if ( endDateTime == null ) {
+		if (endDateTime == null) {
 			this.setEndDate(null);
 			this.setEndTime(null);
 		} else {
@@ -197,10 +197,10 @@ public class AddCommand implements ICommand {
 	@Override	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append("CommandType:" + _commandType + ",");
 		sb.append("TaskName:" + _taskName + ",");
-		
+
 		try {
 			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
 		} catch (NullPointerException e) {
@@ -211,7 +211,7 @@ public class AddCommand implements ICommand {
 		} catch (NullPointerException e) {
 			sb.append("EndDateTime");
 		}
-		
+
 		return sb.toString();
 	}
 }
