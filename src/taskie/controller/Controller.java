@@ -37,9 +37,17 @@ public class Controller {
 	public UI getUI() {
 		return _ui;
 	}
+	//set method for replacing component with stub component
+	public void setUI(UI ui){
+		_ui = ui;
+	}
 
 	public IStorage getStorage() {
 		return _storage;
+	}
+	//set method for replacing component with stub component
+	public void setStorage(IStorage storage){
+		_storage = storage;
 	}
 
 	public Parser getParser() {
