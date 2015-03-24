@@ -139,11 +139,10 @@ public class AddCommand implements ICommand {
 		return _commandType;
 	}
 
-	@Override
 	public void execute() {
-		assert _taskName!=null;
-		Task task = determineTaskTypeAndAdd();
-		Taskie.Controller.getUI().display(formatAddMsg(task));
+		assert _taskName != null;
+		_task = determineTaskTypeAndAdd();
+		Taskie.Controller.getUI().display(formatAddMsg(_task));
 	}
 
 	private String formatAddMsg(Task task) {
@@ -170,25 +169,15 @@ public class AddCommand implements ICommand {
 
 	private Task determineTaskTypeAndAdd() {
 		Task task = null;
-		if (_startDate == null && _endDate == null) {	//has no start and end date
+		if (_startDate == null && _endDate == null) { // has no start and end date
 			task = new Task(_taskName);
-			if (Taskie.Controller.getStorage() != null) {
-				Taskie.Controller.getStorage().addFloatingTask(task);
-			} else {
-			}
-		} else if (_startDate == null && _endDate != null) { //has only end date
+			Taskie.Controller.getStorage().addFloatingTask(task);
+		} else if (_startDate == null && _endDate != null) { // has only end date
 			task = new Task(_taskName, _endDate, _endTime);
-			if (Taskie.Controller.getStorage() != null) {
-				Taskie.Controller.getStorage().addDeadlinedTask(task);
-			} else {
-			}
-		} else {	//has both start and end date
-			task = new Task(_taskName, _startDate, _startTime, _endDate,
-					_endTime);
-			if (Taskie.Controller.getStorage() != null) {
-				Taskie.Controller.getStorage().addTimedTask(task);
-			} else {
-			}
+			Taskie.Controller.getStorage().addDeadlinedTask(task);
+		} else { // has both start and end date
+			task = new Task(_taskName, _startDate, _startTime, _endDate, _endTime);
+			Taskie.Controller.getStorage().addTimedTask(task);
 		}
 		return task;
 	}
