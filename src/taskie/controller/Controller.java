@@ -49,13 +49,12 @@ public class Controller {
 		_logger = Logger.getLogger(Controller.class.getName());
 		_undoStack = new Stack<ICommand>();
 		_redoStack = new Stack<ICommand>();
-	}
-
-	public void run() {
 		_ui = new CommandUI();
 		_parser = new CommandParser();
 		_storage = new Storage();
+	}
 
+	public void run() {
 		_ui.run();
 
 		while (_ui.isUIRunning()) {
