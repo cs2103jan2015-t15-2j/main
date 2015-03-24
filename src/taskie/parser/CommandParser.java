@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
@@ -61,6 +63,7 @@ public class CommandParser implements Parser {
 	private static final int DATETIME_END = 1;
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
+    private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
 	private HashMap<String, ViewType> dictViewTypes;
@@ -209,6 +212,16 @@ public class CommandParser implements Parser {
 		// Workaround a parsing Natty bug
 		Map<String, List<ParseLocation>> parseMap = group.getParseLocations();
 		List<ParseLocation> explicit_time = parseMap.get("explicit_time");
+	private String reformatDateAndTime(String date) {
+		Pattern timePattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
+		Matcher timePatternMatcher = timePattern.matcher(date);
+		while ( timePatternMatcher.find() ) {
+			String matchingGroup = timePatternMatcher.group(0);
+            String newTime = matchingGroup.replace(".", ":");
+            date = date.replace(timePatternMatcher.group(0), newTime);
+		}		
+		return date;
+	}
 		
 		if ( explicit_time != null ) {
 			for ( int x = 0; x < explicit_time.size(); x++ ) {
