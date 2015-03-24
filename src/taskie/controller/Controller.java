@@ -28,10 +28,6 @@ public class Controller {
 	private IStorage _storage;
 	private Parser _parser;
 
-	private static final String DEADLINED_TASKNAME = "deadlined";
-	private static final String TIMED_TASKNAME = "timed";
-	private static final String FLOATING_TASKNAME = "floating";
-
 	public UI getUI() {
 		return _ui;
 	}
@@ -87,7 +83,11 @@ public class Controller {
 		}
 		return string;
 	}
-
+	
+	
+	//@author A0097582N-unused
+	//Reason for unused: Moved to Task Model by Yunheng (code commented because it will break existing code)
+	/*
 	public String determineTaskType(Task task) {
 		if (task.getStartDate() == null && task.getEndDate() == null) {
 			return FLOATING_TASKNAME;
@@ -97,5 +97,6 @@ public class Controller {
 			return TIMED_TASKNAME;
 		}
 	}
+	*/
 
 }

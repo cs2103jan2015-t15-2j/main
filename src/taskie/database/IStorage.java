@@ -2,6 +2,8 @@
 
 package taskie.database;
 import taskie.models.Task;
+import taskie.models.TaskType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -11,9 +13,9 @@ public interface IStorage {
 	
 	void setStorageLocation(String fileDir); 
 	
-	HashMap<String, ArrayList<Task>> retrieveTaskMap();
+	HashMap<TaskType, ArrayList<Task>> retrieveTaskMap();
 
-	void storeTaskMap(HashMap<String, ArrayList<Task>> hm);  
+	void storeTaskMap(HashMap<TaskType, ArrayList<Task>> hm);  
 
 	void addFloatingTask(Task taskToAdd); 
 

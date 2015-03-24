@@ -12,12 +12,10 @@ import taskie.Taskie;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.CommandType;
 import taskie.models.Task;
+import taskie.models.TaskType;
 
 public class DeleteCommand implements ICommand {
 	
-	private static final String DEADLINED_TASKNAME = "deadlined";
-	private static final String TIMED_TASKNAME = "timed";
-	private static final String FLOATING_TASKNAME = "floating";
 	
 	private Task _task;
 	private String _taskName;
@@ -144,15 +142,14 @@ public class DeleteCommand implements ICommand {
 	}
 
 	private void deleteTask() {	
-		String taskType=Taskie.Controller.determineTaskType(_task);
-		if(taskType.equals(FLOATING_TASKNAME)){
+		TaskType type = _task.getTaskType();
+		if ( type == TaskType.FLOATING ) {
 			Taskie.Controller.getStorage().deleteFloatingTask(_task);
-		}else if(taskType.equals(DEADLINED_TASKNAME)){
+		} else if ( type == TaskType.DEADLINE ) {
 			Taskie.Controller.getStorage().deleteDeadlinedTask(_task);
-		}else{
+		} else {
 			Taskie.Controller.getStorage().deleteTimedTask(_task);
 		}
-		
 	}
 	
 	private String formatDeleteTaskString(){

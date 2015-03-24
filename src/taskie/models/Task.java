@@ -162,8 +162,18 @@ public class Task implements Comparable<Task>, Serializable {
 		return _isDone;
 	}
 
+	//@author A0121555M-reused
+	public TaskType getTaskType() {
+		if (this.getStartDate() == null && this.getEndDate() == null) {
+			return TaskType.FLOATING;
+		} else if (this.getStartDate() == null && this.getEndDate() != null) {
+			return TaskType.DEADLINE;
+		} else {
+			return TaskType.TIMED;
+		}
+	}
+
 	//@author A0097582N
-	@Override
 	public int compareTo(Task other) {
 		LocalDateTime thisTaskDateTime = LocalDateTime.of(this.getEndDate(),
 				this.getEndTime());

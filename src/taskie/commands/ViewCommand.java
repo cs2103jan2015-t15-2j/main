@@ -9,15 +9,11 @@ import java.util.HashMap;
 import taskie.Taskie;
 import taskie.models.CommandType;
 import taskie.models.Task;
+import taskie.models.TaskType;
 import taskie.models.ViewType;
 import taskie.models.TaskEndDateComparator;
 
 public class ViewCommand implements ICommand {
-
-	private static final String DEADLINED_TASKNAME = "deadlined";
-	private static final String TIMED_TASKNAME = "timed";
-	private static final String FLOATING_TASKNAME = "floating";
-
 	private CommandType _commandType = CommandType.VIEW;
 
 	//@author A0121555M
@@ -173,18 +169,17 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewSearch() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
-				.getStorage().retrieveTaskMap();
+		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 
 		ArrayList<Task> tasks = new ArrayList<Task>();
-		if (taskLists.get(DEADLINED_TASKNAME) != null) {
-			tasks.addAll(taskLists.get(DEADLINED_TASKNAME));
+		if (taskLists.get(TaskType.DEADLINE) != null) {
+			tasks.addAll(taskLists.get(TaskType.DEADLINE));
 		}
-		if (taskLists.get(TIMED_TASKNAME) != null) {
-			tasks.addAll(taskLists.get(TIMED_TASKNAME));
+		if (taskLists.get(TaskType.TIMED) != null) {
+			tasks.addAll(taskLists.get(TaskType.TIMED));
 		}
-		if (taskLists.get(FLOATING_TASKNAME) != null) {
-			tasks.addAll(taskLists.get(FLOATING_TASKNAME));
+		if (taskLists.get(TaskType.FLOATING) != null) {
+			tasks.addAll(taskLists.get(TaskType.FLOATING));
 		}
 		Taskie.Controller.getUI().display(findSearchedTasks(tasks));
 	}
@@ -202,17 +197,16 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewCompleted() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
-				.getStorage().retrieveTaskMap();
+		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasks = new ArrayList<Task>();
-		if (taskLists.get(DEADLINED_TASKNAME) != null) {
-			tasks.addAll(taskLists.get(DEADLINED_TASKNAME));
+		if (taskLists.get(TaskType.DEADLINE) != null) {
+			tasks.addAll(taskLists.get(TaskType.DEADLINE));
 		}
-		if (taskLists.get(TIMED_TASKNAME) != null) {
-			tasks.addAll(taskLists.get(TIMED_TASKNAME));
+		if (taskLists.get(TaskType.TIMED) != null) {
+			tasks.addAll(taskLists.get(TaskType.TIMED));
 		}
-		if (taskLists.get(FLOATING_TASKNAME) != null) {
-			tasks.addAll(taskLists.get(FLOATING_TASKNAME));
+		if (taskLists.get(TaskType.FLOATING) != null) {
+			tasks.addAll(taskLists.get(TaskType.FLOATING));
 		}
 		Taskie.Controller.getUI().display(findCompletedTasks(tasks));
 
@@ -229,10 +223,10 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewOverdue() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
+		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = new ArrayList<Task>();
-		tasksWithDate.addAll(taskLists.get(DEADLINED_TASKNAME));
-		tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
+		tasksWithDate.addAll(taskLists.get(TaskType.DEADLINE));
+		tasksWithDate.addAll(taskLists.get(TaskType.TIMED));
 		Taskie.Controller.getUI().display(findOverDueTasksAndSort(tasksWithDate));
 	}
 
@@ -249,17 +243,16 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewUpcoming() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
-				.getStorage().retrieveTaskMap();
+		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = new ArrayList<Task>();
-		if (taskLists.get(DEADLINED_TASKNAME) != null) {
-			tasksWithDate.addAll(taskLists.get(DEADLINED_TASKNAME));
+		if (taskLists.get(TaskType.DEADLINE) != null) {
+			tasksWithDate.addAll(taskLists.get(TaskType.DEADLINE));
 		}
-		if (taskLists.get(TIMED_TASKNAME) != null) {
-			tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
+		if (taskLists.get(TaskType.TIMED) != null) {
+			tasksWithDate.addAll(taskLists.get(TaskType.TIMED));
 		}
 		tasksWithDate = findTasksAfterTodayAndSort(tasksWithDate);
-		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
+		ArrayList<Task> tasksWithoutDate = taskLists.get(TaskType.FLOATING);
 		if (tasksWithoutDate != null) {
 			tasksWithoutDate = findUndoneFloatingTask(tasksWithoutDate);
 			tasksWithDate.addAll(tasksWithoutDate);
@@ -292,16 +285,15 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewAll() {
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
-				.getStorage().retrieveTaskMap();
+		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 		ArrayList<Task> tasksWithDate = new ArrayList<Task>();
-		if (taskLists.get(DEADLINED_TASKNAME) != null) {
-			tasksWithDate.addAll(taskLists.get(DEADLINED_TASKNAME));
+		if (taskLists.get(TaskType.DEADLINE) != null) {
+			tasksWithDate.addAll(taskLists.get(TaskType.DEADLINE));
 		}
-		if (taskLists.get(TIMED_TASKNAME) != null) {
-			tasksWithDate.addAll(taskLists.get(TIMED_TASKNAME));
+		if (taskLists.get(TaskType.TIMED) != null) {
+			tasksWithDate.addAll(taskLists.get(TaskType.TIMED));
 		}
-		ArrayList<Task> tasksWithoutDate = taskLists.get(FLOATING_TASKNAME);
+		ArrayList<Task> tasksWithoutDate = taskLists.get(TaskType.FLOATING);
 		tasksWithDate.sort(new TaskEndDateComparator());
 		if (tasksWithoutDate != null) {
 			tasksWithDate.addAll(tasksWithoutDate);

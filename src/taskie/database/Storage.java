@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.models.Task;
+import taskie.models.TaskType;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,11 +19,6 @@ import java.util.StringTokenizer;
 import java.time.format.DateTimeFormatter;
 
 public class Storage implements IStorage {
-	
-	public static final String DEADLINED_TASKNAME = "deadlined";
-	public static final String TIMED_TASKNAME = "timed";
-	public static final String FLOATING_TASKNAME = "floating";
-	
 	public static final String DEFAULT_LOCATION = "C:\\Users\\Haihui\\Desktop\\Taskie";
 	private static final String DEADLINED_TASKS_FILENAME = "deadlined tasks.txt";
 	private static final String TIMED_TASKS_FILENAME = "timed tasks.txt";
@@ -42,8 +38,8 @@ public class Storage implements IStorage {
 		_storageLocation = fileDir;
 	}
 	
-	public HashMap<String, ArrayList<Task>> retrieveTaskMap() {
-		HashMap<String, ArrayList<Task>> taskMap;
+	public HashMap<TaskType, ArrayList<Task>> retrieveTaskMap() {
+		HashMap<TaskType, ArrayList<Task>> taskMap;
 		if (_storageLocation == null) {
 			taskMap = retrieveTaskMapFromDefaultLocation();
 		} else {
@@ -52,9 +48,9 @@ public class Storage implements IStorage {
 		return taskMap;
 	}
 
-	private HashMap<String, ArrayList<Task>> retrieveTaskMapFromDefaultLocation() {
+	private HashMap<TaskType, ArrayList<Task>> retrieveTaskMapFromDefaultLocation() {
 		
-		HashMap<String, ArrayList<Task>> taskMap = new HashMap<String, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
+		HashMap<TaskType, ArrayList<Task>> taskMap = new HashMap<TaskType, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
 		File deadlinedFile = new File(DEFAULT_LOCATION, DEADLINED_TASKS_FILENAME);
 		File timedFile = new File(DEFAULT_LOCATION, TIMED_TASKS_FILENAME);
 		File floatingFile = new File(DEFAULT_LOCATION, FLOATING_TASKS_FILENAME);
@@ -64,20 +60,20 @@ public class Storage implements IStorage {
 		if (deadlinedTasks == null) {
 			deadlinedTasks = new ArrayList<Task>();
 		}
-		taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
+		taskMap.put(TaskType.DEADLINE, deadlinedTasks);
 		if (timedTasks == null) {
 			timedTasks = new ArrayList<Task>();
 		}
-		taskMap.put(TIMED_TASKNAME, timedTasks);
+		taskMap.put(TaskType.TIMED, timedTasks);
 		if (floatingTasks == null) {
 			floatingTasks = new ArrayList<Task>();
 		}
-		taskMap.put(FLOATING_TASKNAME, floatingTasks);
+		taskMap.put(TaskType.FLOATING, floatingTasks);
 		return taskMap;
 	}
 	
-	private HashMap<String, ArrayList<Task>> retrieveTaskMapFromSetLocation() {
-		HashMap<String, ArrayList<Task>> taskMap = new HashMap<String, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
+	private HashMap<TaskType, ArrayList<Task>> retrieveTaskMapFromSetLocation() {
+		HashMap<TaskType, ArrayList<Task>> taskMap = new HashMap<TaskType, ArrayList<Task>>(NUMBER_OF_TASKTYPES);
 		File deadlinedFile = new File(_storageLocation, DEADLINED_TASKS_FILENAME);
 		File timedFile = new File(_storageLocation, TIMED_TASKS_FILENAME);
 		File floatingFile = new File(_storageLocation, FLOATING_TASKS_FILENAME);
@@ -88,15 +84,15 @@ public class Storage implements IStorage {
 		if (deadlinedTasks == null) {
 			deadlinedTasks = new ArrayList<Task>();
 		}
-		taskMap.put(DEADLINED_TASKNAME, deadlinedTasks);
+		taskMap.put(TaskType.DEADLINE, deadlinedTasks);
 		if (timedTasks == null) {
 			timedTasks = new ArrayList<Task>();
 		}
-		taskMap.put(TIMED_TASKNAME, timedTasks);
+		taskMap.put(TaskType.TIMED, timedTasks);
 		if (floatingTasks == null) {
 			floatingTasks = new ArrayList<Task>();
 		}
-		taskMap.put(FLOATING_TASKNAME, floatingTasks);
+		taskMap.put(TaskType.FLOATING, floatingTasks);
 		
 		return taskMap;
 	}
@@ -232,7 +228,7 @@ public class Storage implements IStorage {
 		return taskList;
 	}
 	
-	public void storeTaskMap(HashMap<String, ArrayList<Task>> hm) {
+	public void storeTaskMap(HashMap<TaskType, ArrayList<Task>> hm) {
 		if (_storageLocation == null) {
 			storeTaskMapToDefaultLocation(hm);
 		} else {
@@ -241,27 +237,27 @@ public class Storage implements IStorage {
 
 	}
 	
-	private void storeTaskMapToDefaultLocation(HashMap<String, ArrayList<Task>> hm) {
-		if (hm.containsKey(DEADLINED_TASKNAME)) {
-			storeDeadlinedTasks(hm.get(DEADLINED_TASKNAME), DEFAULT_LOCATION);
+	private void storeTaskMapToDefaultLocation(HashMap<TaskType, ArrayList<Task>> hm) {
+		if (hm.containsKey(TaskType.DEADLINE)) {
+			storeDeadlinedTasks(hm.get(TaskType.DEADLINE), DEFAULT_LOCATION);
 		}
-		if (hm.containsKey(TIMED_TASKNAME)) {
-			storeTimedTasks(hm.get(TIMED_TASKNAME), DEFAULT_LOCATION);
+		if (hm.containsKey(TaskType.TIMED)) {
+			storeTimedTasks(hm.get(TaskType.TIMED), DEFAULT_LOCATION);
 		}
-		if (hm.containsKey(FLOATING_TASKNAME)) {
-			storeFloatingTasks(hm.get(FLOATING_TASKNAME), DEFAULT_LOCATION);
+		if (hm.containsKey(TaskType.FLOATING)) {
+			storeFloatingTasks(hm.get(TaskType.FLOATING), DEFAULT_LOCATION);
 		}
 	}
 	
-	private void storeTaskMapToSetLocation(HashMap<String, ArrayList<Task>> hm) {
-		if (hm.containsKey(DEADLINED_TASKNAME)) {
-			storeDeadlinedTasks(hm.get(DEADLINED_TASKNAME), _storageLocation);
+	private void storeTaskMapToSetLocation(HashMap<TaskType, ArrayList<Task>> hm) {
+		if (hm.containsKey(TaskType.DEADLINE)) {
+			storeDeadlinedTasks(hm.get(TaskType.DEADLINE), _storageLocation);
 		}
-		if (hm.containsKey(TIMED_TASKNAME)) {
-			storeTimedTasks(hm.get(TIMED_TASKNAME),  _storageLocation);
+		if (hm.containsKey(TaskType.TIMED)) {
+			storeTimedTasks(hm.get(TaskType.TIMED),  _storageLocation);
 		}
-		if (hm.containsKey(FLOATING_TASKNAME)) {
-			storeFloatingTasks(hm.get(FLOATING_TASKNAME),  _storageLocation);
+		if (hm.containsKey(TaskType.FLOATING)) {
+			storeFloatingTasks(hm.get(TaskType.FLOATING),  _storageLocation);
 		}
 	}
 	

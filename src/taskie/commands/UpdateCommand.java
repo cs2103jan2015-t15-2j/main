@@ -17,6 +17,7 @@ import taskie.Taskie;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.CommandType;
 import taskie.models.Task;
+import taskie.models.TaskType;
 
 public class UpdateCommand implements ICommand {
 
@@ -164,10 +165,8 @@ public class UpdateCommand implements ICommand {
 	}
 
 	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) {
-		String taskType = Taskie.Controller.determineTaskType(task);
-
-		HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
-				.getStorage().retrieveTaskMap();
+		TaskType taskType = task.getTaskType();
+		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 
 		ArrayList<Task> taskList = taskLists.get(taskType);
 		int taskIndexInStorage = taskList.indexOf(task);//index of task in storage.
@@ -176,13 +175,12 @@ public class UpdateCommand implements ICommand {
 		// determine if, after updating, task still belongs to the same
 		// taskType. If it is then we just need to remove and delete from the
 		// same list
-		if (taskType.equals(Taskie.Controller.determineTaskType(updatedTask))) {
+		if ( taskType == updatedTask.getTaskType() ) {
 			taskList.remove(taskIndexInStorage);
 			taskList.add(taskIndexInStorage, updatedTask);
 		} else {
 			taskList.remove(taskIndexInStorage);
-			taskLists.get(Taskie.Controller.determineTaskType(updatedTask))
-					.add(updatedTask);
+			taskLists.get(updatedTask.getTaskType()).add(updatedTask);
 		}
 		Taskie.Controller.getStorage().storeTaskMap(taskLists);
 	}

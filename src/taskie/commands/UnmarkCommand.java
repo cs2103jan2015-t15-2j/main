@@ -15,6 +15,7 @@ import taskie.Taskie;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.CommandType;
 import taskie.models.Task;
+import taskie.models.TaskType;
 
 public class UnmarkCommand implements ICommand {
 
@@ -44,9 +45,8 @@ public class UnmarkCommand implements ICommand {
 	public void execute() {
 		try {
 			_task = retrieveTaskFromParser();
-			HashMap<String, ArrayList<Task>> taskLists = Taskie.Controller
-					.getStorage().retrieveTaskMap();
-			String taskType = Taskie.Controller.determineTaskType(_task);
+			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
+			TaskType taskType = _task.getTaskType();
 			scanListForTaskAndUnmark(_task, taskLists, taskType);
 			Taskie.Controller.getUI().display(formatUnmarkString());
 		} catch (InvalidTaskException e) {
@@ -55,8 +55,7 @@ public class UnmarkCommand implements ICommand {
 		}
 	}
 
-	private void scanListForTaskAndUnmark(Task task,
-			HashMap<String, ArrayList<Task>> taskLists, String taskType) {
+	private void scanListForTaskAndUnmark(Task task, HashMap<TaskType, ArrayList<Task>> taskLists, TaskType taskType) {
 		ArrayList<Task> taskList = taskLists.get(taskType);
 		int taskIndex = taskList.indexOf(task);
 		Task taskRetrieved = taskList.get(taskIndex);
