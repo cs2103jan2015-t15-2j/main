@@ -130,21 +130,18 @@ public class UpdateCommand implements ICommand {
 		return _isToUpdateEndTime;
 	}
 
-	@Override
 	public void execute() {
 		try {
 			Task task = retrieveTaskToUpdateFromParser();
 			retrieveTaskToUpdateFromStorageAndUpdate(task);
 			Taskie.Controller.getUI().display(formatUpdateMsg(task));
 		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(
-					taskie.models.Messages.INVALID_TASK_NUM);
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
 
 	private Task updateTask(Task task) {
-		Task updatedTask = new Task(task.getTitle(), task.getStartDate(),
-				task.getStartTime(), task.getEndDate(), task.getEndTime());
+		Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime(), task.getEndDate(), task.getEndTime());
 		if (this.isModifiedTaskTitle()) {
 			updatedTask.setTitle(this.getTaskTitleToUpdate());
 		}
@@ -168,13 +165,14 @@ public class UpdateCommand implements ICommand {
 		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
 
 		ArrayList<Task> taskList = taskLists.get(taskType);
-		int taskIndexInStorage = taskList.indexOf(task);//index of task in storage.
+		int taskIndexInStorage = taskList.indexOf(task);// index of task in
+														// storage.
 		Task updatedTask = updateTask(task);
 
 		// determine if, after updating, task still belongs to the same
 		// taskType. If it is then we just need to remove and delete from the
 		// same list
-		if ( taskType == updatedTask.getTaskType() ) {
+		if (taskType == updatedTask.getTaskType()) {
 			taskList.remove(taskIndexInStorage);
 			taskList.add(taskIndexInStorage, updatedTask);
 		} else {
@@ -185,8 +183,7 @@ public class UpdateCommand implements ICommand {
 	}
 
 	private String formatUpdateMsg(Task task) {
-		String message = String.format(taskie.models.Messages.UPDATE_STRING,
-				task.getTitle());
+		String message = String.format(taskie.models.Messages.UPDATE_STRING, task.getTitle());
 		if (this.isModifiedTaskTitle()) {
 			message = message.concat("task title");
 		}
@@ -210,14 +207,12 @@ public class UpdateCommand implements ICommand {
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
 	}
-	
+
 	//@author A0121555M
-	@Override
 	public void undo() {
 		// Taskie.Controller.executeCommand(new DeleteCommand(_task));
 	}
-	
-	@Override	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CommandType:" + _commandType + ",");
