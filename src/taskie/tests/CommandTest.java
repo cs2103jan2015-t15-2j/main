@@ -17,6 +17,8 @@ import taskie.Taskie;
 import taskie.commands.ICommand;
 import taskie.controller.Controller;
 import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.InvalidTaskException;
+import taskie.models.Task;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
 
@@ -52,8 +54,13 @@ public class CommandTest {
 	}
 
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void testAddCommand() throws InvalidCommandException, InvalidTaskException {
+		ICommand cmd = _parser.parse("create work on Task 10 by 25 March 2015");
+		Taskie.Controller.executeCommand(cmd);
+		Task[] list = Taskie.Controller.getUI().getCurrentTaskList();
+		
+		Task expectedTask = new Task("work on Task 10", LocalDate.of(2015, 3, 25), MAX_DATETIME.toLocalTime());
+		assertEquals(expectedTask.toString(), list[list.length - 1].toString());
 	}
 	
 	private void generateTasks() {
