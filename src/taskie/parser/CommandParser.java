@@ -31,7 +31,6 @@ import taskie.models.CommandType;
 import taskie.models.ViewType;
 
 import com.joestelmach.natty.DateGroup;
-import com.joestelmach.natty.ParseLocation;
 
 public class CommandParser implements Parser {
 	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on", "due" };
@@ -63,6 +62,11 @@ public class CommandParser implements Parser {
 	private static final int NUM_START_END_DATETIME = 2;
 	private static final int DATETIME_START = 0;
 	private static final int DATETIME_END = 1;
+
+	private static final int NUM_COMMAND_PATTERNS = 2;
+	private static final int COMMAND_NAME = 0;
+	private static final int COMMAND_DATE = 1;
+
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
@@ -189,7 +193,7 @@ public class CommandParser implements Parser {
 	
 	private ICommand executeCommandType(CommandType cmd, String command) throws InvalidCommandException {
 		command = command.trim();
-		
+
 		if ( cmd == CommandType.ADD ) {
 			return this.doAdd(command);
 		} else if ( cmd == CommandType.UPDATE ) {
@@ -215,15 +219,18 @@ public class CommandParser implements Parser {
 		}
 	}
 	
-	private String determineTaskName(String command, DateGroup group) {
+	private String determineTaskName(String[] parsedCommand, DateGroup group) {
+		String command = parsedCommand[COMMAND_DATE];
 		_logger.log(Level.INFO, "Determining Task Name from: " + command + "\nDateGroup Start at position: " + group.getPosition());
 
-		String name1 = command.substring(0, group.getPosition());
-		String name2 = command.substring(group.getPosition() + group.getText().length());
-		
-		// Workaround a parsing Natty bug
-		Map<String, List<ParseLocation>> parseMap = group.getParseLocations();
-		List<ParseLocation> explicit_time = parseMap.get("explicit_time");
+		String name1 = command.substring(0, group.getPosition()).trim();
+		String name2 = command.substring(group.getPosition() + group.getText().length()).trim();
+
+		String name = (parsedCommand[COMMAND_NAME] + " " + (name1 + " " + name2).trim()).trim();
+		_logger.log(Level.INFO, "Final Task Name: " + name);
+		return name;
+	}
+	
 	private String reformatDateAndTime(String date) {
 		Pattern timePattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
 		Matcher timePatternMatcher = timePattern.matcher(date);
@@ -234,38 +241,52 @@ public class CommandParser implements Parser {
 		}		
 		return date;
 	}
+	
+	private String[] parseCommandForNameAndDates(String command) {
+		String[] result = new String[NUM_COMMAND_PATTERNS];
+		String[] words = splitStringWithWhitespace(command);
+		String dates = "";
+		int keywordPosition = words.length - 1;
 		
-		if ( explicit_time != null ) {
-			for ( int x = 0; x < explicit_time.size(); x++ ) {
-				ParseLocation t = explicit_time.get(x);
-				int start = t.getStart();
-				int end = t.getEnd();
-				int count = 0;
-				String origString = command.substring(start, end);
-				
-				int dotIndex = origString.indexOf(".");
-				while ( dotIndex != -1 ) {
-					origString = origString.substring(0, dotIndex) + origString.substring(dotIndex+1) + command.charAt(end++);
-					dotIndex = origString.indexOf(".");
-					count++;
-				}
-				
-				name2 = name2.substring(count);
+		for ( int x = words.length - 1; x >= 0; x-- ) {
+			if( dictSeparatorKeywords.contains(words[x]) ) {
+				keywordPosition = x;
+				break;
+			} else {
+				dates = words[x] + " " + dates;
 			}
 		}
 		
-		name1 = name1.trim();
-		name2 = name2.trim();
-
-		String[] words = splitStringWithWhitespace(name1);
-		int lastWord = words.length - 1;
-		if( hasKeyword(words[lastWord], KEYWORDS_DATETIME_SEPARATOR) ) {
-			name1 = command.substring(0, command.lastIndexOf(words[lastWord])).trim();
+		dates = dates.trim();		
+		if ( dates.equals(command) ) {
+			result[COMMAND_NAME] = command;
+			result[COMMAND_DATE] = null;
+		} else {
+			String name = "";
+			for ( int x = 0; x < keywordPosition; x++ ) {
+				name = name + words[x] + " ";
+			}
+			name = name.trim();
+			result[COMMAND_NAME] = name;
+			result[COMMAND_DATE] = dates;
 		}
-
-		String name = (name1 + " " + name2).trim();
-		_logger.log(Level.INFO, "Final Task Name: " + name);
-		return name;
+		
+		return result;
+	}
+	
+	private DateGroup parseCommandForDates(String command) {
+		if ( command == null ) { 
+			return null;
+		}
+		
+		command = reformatDateAndTime(command);
+		List<DateGroup> groups = _natty.parse(command);
+		if ( groups.size() > 0 ) {
+			DateGroup group = groups.get(0);
+			return group;
+		}
+		
+		return null;
 	}
 	
 	private ICommand doAdd(String command) throws InvalidCommandException {
@@ -274,15 +295,16 @@ public class CommandParser implements Parser {
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
-		List<DateGroup> groups = _natty.parse(command);
+		
+		String[] parsedCommand = parseCommandForNameAndDates(command);
+		DateGroup group = parseCommandForDates(parsedCommand[COMMAND_DATE]);
 		AddCommand cmd = new AddCommand();
 		
-		if ( groups.size() > 0 ) {
+		if ( group != null) {
 			// Tasks with date and/or time in it - either deadline or timed
-			DateGroup group = groups.get(0);
 			List<Date> dates = group.getDates();
 			
-			String name = determineTaskName(command, group);
+			String name = determineTaskName(parsedCommand, group);
 			if ( name.isEmpty() ) {
 				throw new InvalidCommandException();
 			}
@@ -338,17 +360,17 @@ public class CommandParser implements Parser {
 			throw new InvalidCommandException();
 		}
 		
-		String query = CommandParser.getCommandParameters(command);
-		
+		String query = CommandParser.getCommandParameters(command);		
 		UpdateCommand cmd = new UpdateCommand(taskNumber);
-		List<DateGroup> groups = _natty.parse(query);
+		
+		String[] parsedQuery = parseCommandForNameAndDates(query);
+		DateGroup group = parseCommandForDates(parsedQuery[COMMAND_DATE]);
 	
-		if ( groups.size() > 0 ) {
+		if ( group != null ) {
 			// Date and Time Specified
-			DateGroup group = groups.get(0);
 			List<Date> dates = group.getDates();
 
-			String name = determineTaskName(query, group);
+			String name = determineTaskName(parsedQuery, group);
 			if ( !name.isEmpty() ) {
 				// updating title also
 				cmd.setTaskTitleToUpdate(name);
@@ -426,11 +448,10 @@ public class CommandParser implements Parser {
 			keywords = query;
 		}
 		
-		List<DateGroup> groups = _natty.parse(keywords);
-
-		if ( groups.size() > 0 ) {
+		String[] parsedCommand = parseCommandForNameAndDates(keywords);
+		DateGroup group = parseCommandForDates(parsedCommand[COMMAND_DATE]);
+		if ( group != null ) {
 			// Search by Date and possibly keywords
-			DateGroup group = groups.get(0);
 			List<Date> dates = group.getDates();
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
 			RelativeType relativeType = RelativeType.NONE;
