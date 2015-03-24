@@ -20,7 +20,6 @@ import taskie.models.Task;
 import taskie.models.TaskType;
 
 public class UpdateCommand implements ICommand {
-
 	int NUM_ATTRIBUTE = 2;
 	private int _taskIndex;
 	private String _taskTitleToUpdate;
@@ -208,7 +207,6 @@ public class UpdateCommand implements ICommand {
 	}
 
 	private Task retrieveTaskToUpdateFromParser() throws InvalidTaskException {
-
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
 	}
