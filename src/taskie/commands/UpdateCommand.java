@@ -10,6 +10,8 @@ package taskie.commands;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -164,7 +166,24 @@ public class UpdateCommand implements ICommand {
 			updatedTask.setEndTime(this.getEndTimeToUpdate());
 		}
 		checkForTaskModelConsistency(updatedTask);
+		updatedTask = checkForStartEndDateConsistency(updatedTask);
 		return updatedTask;
+	}
+
+	// if startDateTime is modified, to beyond enddatetime, enddatetime would be
+	// updated for consistency, and vice versa
+	private Task checkForStartEndDateConsistency(Task task) {
+		Long taskDuration=task.getStartDateTime().until(task.getEndDateTime(), ChronoUnit.MINUTES);
+		if(isModifiedStartDate() || isModifiedStartTime()){
+			if (task.getStartTime() != null && task.getEndTime()!=null) {
+				if (task.getStartDateTime().isAfter(task.getEndDateTime())){
+					task.setEndDateTime(task.getStartDateTime().plusMinutes(taskDuration));
+				}
+			}
+		}
+		
+		
+		return task;
 	}
 
 	// task model consistency refers to datetime consistency. Time cannot be
@@ -176,13 +195,13 @@ public class UpdateCommand implements ICommand {
 				throw new InvalidCommandException();
 			}
 		}
-		if (task.getEndDate() == null){
-			if(task.getEndDate() !=null){
+		if (task.getEndDate() == null) {
+			if (task.getEndDate() != null) {
 				throw new InvalidCommandException();
 			}
 		}
-		if(task.getEndDateTime()==null){
-			if(task.getStartDateTime()==null){
+		if (task.getEndDateTime() == null) {
+			if (task.getStartDateTime() == null) {
 				throw new InvalidCommandException();
 			}
 		}
