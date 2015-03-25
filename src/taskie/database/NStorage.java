@@ -193,6 +193,7 @@ public class NStorage implements IStorage {
 				_tasks.remove(x);
 				break;
 			}
+			x++;
 		}
 
 		return removed;
