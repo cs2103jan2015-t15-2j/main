@@ -1,6 +1,8 @@
 //@author A0135137L
 
 package taskie.database;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
 import taskie.models.TaskType;
 
@@ -17,17 +19,11 @@ public interface IStorage {
 
 	void storeTaskMap(HashMap<TaskType, ArrayList<Task>> hm);  
 
-	void addFloatingTask(Task taskToAdd); 
 
-	void addDeadlinedTask(Task taskToAdd);
 
-	void addTimedTask(Task taskToAdd); 
+	void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 
-	void deleteFloatingTask(Task taskToDelete); 
-	
-	void deleteDeadlinedTask(Task taskToDelete); 
-	
-	void deleteTimedTask(Task timeToDelete);
+	void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 
-	void updateTask(Task oldTask, Task newTask);
+	void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 }

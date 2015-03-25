@@ -10,6 +10,8 @@ package taskie.commands;
 
 import taskie.Taskie;
 import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.TaskType;
@@ -126,6 +128,10 @@ public class DeleteCommand implements ICommand {
 			}
 		} catch (InvalidTaskException e) {
 			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+		} catch (TaskTypeNotSupportedException e) {
+			Taskie.Controller.getUI().display(e.getMessage());
+		} catch (TaskModificationFailedException e) {
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 
@@ -151,7 +157,10 @@ public class DeleteCommand implements ICommand {
 		}
 		Taskie.Controller.executeCommand(updateCommand);
 	}
-
+	
+	//@author A0097582N-unused
+	//Reason for unused: Not necessary
+	/*
 	private void deleteTask() {	
 		TaskType type = _task.getTaskType();
 		if ( type == TaskType.FLOATING ) {
@@ -161,6 +170,12 @@ public class DeleteCommand implements ICommand {
 		} else {
 			Taskie.Controller.getStorage().deleteTimedTask(_task);
 		}
+	}
+	*/
+	
+	//@author A0121555M
+	private void deleteTask() throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		Taskie.Controller.getStorage().deleteTask(_task);
 	}
 	
 	private String formatDeleteTaskString(){

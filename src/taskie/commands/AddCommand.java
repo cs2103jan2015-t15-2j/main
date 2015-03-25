@@ -13,6 +13,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import taskie.Taskie;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.TaskType;
@@ -140,12 +142,21 @@ public class AddCommand implements ICommand {
 		return _commandType;
 	}
 
+	//@author A0121555M
 	public void execute() {
 		assert _taskName != null;
-		_task = determineTaskTypeAndAdd();
-		Taskie.Controller.getUI().display(formatAddMsg(_task));
+		try {
+			_task = new Task(_taskName, _startDate, _startTime, _endDate, _endTime);
+			Taskie.Controller.getStorage().addTask(_task);
+			Taskie.Controller.getUI().display(formatAddMsg(_task));
+		} catch (TaskTypeNotSupportedException e) {
+			Taskie.Controller.getUI().display(e.getMessage());
+		} catch (TaskModificationFailedException e) {
+			Taskie.Controller.getUI().display(e.getMessage());
+		}
 	}
 
+	//@author A0097582N
 	private String formatAddMsg(Task task) {
 		TaskType type = task.getTaskType();
 		if (type == TaskType.FLOATING) {
@@ -156,7 +167,10 @@ public class AddCommand implements ICommand {
 			return String.format(taskie.models.Messages.ADD_TIMED, task.getTitle(), task.getStartDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), task.getEndDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 		}
 	}
-
+	
+	//@author A0097582N-unused
+	//Reason for unused: Not necessary
+	/*
 	private Task determineTaskTypeAndAdd() {
 		Task task = null;
 		if (_startDate == null && _endDate == null) { // has no start and end date
@@ -171,6 +185,7 @@ public class AddCommand implements ICommand {
 		}
 		return task;
 	}
+	*/
 
 	//@author A0121555M
 	@Override

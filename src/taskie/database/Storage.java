@@ -4,6 +4,8 @@ package taskie.database;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
 import taskie.models.TaskType;
 
@@ -602,4 +604,32 @@ public class Storage implements IStorage {
 		return _storageLocation;
 	}
 	
+	//@author A0121555M
+	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		if ( task.getTaskType() == TaskType.FLOATING ) {
+			this.addFloatingTask(task);
+		} else if ( task.getTaskType() == TaskType.DEADLINE ) {
+			this.addDeadlinedTask(task);
+		} else if ( task.getTaskType() == TaskType.TIMED ){
+			this.addTimedTask(task);
+		} else {
+			throw new TaskTypeNotSupportedException();
+		}
+	}
+
+	@Override
+	public void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		if ( task.getTaskType() == TaskType.FLOATING ) {
+			this.deleteFloatingTask(task);
+		} else if ( task.getTaskType() == TaskType.DEADLINE ) {
+			this.deleteDeadlinedTask(task);
+		} else if ( task.getTaskType() == TaskType.TIMED ){
+			this.deleteTimedTask(task);
+		} else {
+			throw new TaskTypeNotSupportedException();
+		}
+	}
+
+	public void close() throws IOException {		
+	}
 }
