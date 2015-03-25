@@ -9,6 +9,7 @@
 
 package taskie.controller;
 
+import java.io.IOException;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
 import taskie.commands.ExitCommand;
 import taskie.commands.ICommand;
 import taskie.database.IStorage;
-import taskie.database.Storage;
+import taskie.database.NStorage;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
 import taskie.parser.CommandParser;
@@ -45,13 +46,13 @@ public class Controller {
 		return _parser;
 	}
 
-	public Controller() {
+	public Controller() throws IOException {
 		_logger = Logger.getLogger(Controller.class.getName());
 		_undoStack = new Stack<ICommand>();
 		_redoStack = new Stack<ICommand>();
 		_ui = new CommandUI();
 		_parser = new CommandParser();
-		_storage = new Storage();
+		_storage = new NStorage();
 	}
 
 	public void run() {

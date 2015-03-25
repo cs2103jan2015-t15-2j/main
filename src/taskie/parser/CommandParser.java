@@ -69,7 +69,10 @@ public class CommandParser implements Parser {
 
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
+    private static final String PATTERN_ALPHANUMERIC_WORD = "\\w*";
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
+    private static final String PATTERN_DATE = "(\\d+[-|/|.]\\d+[-|/|.]\\d+)|\\d+[-|/]\\d+";
+    
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
 	private Set<String> dictSeparatorKeywords;

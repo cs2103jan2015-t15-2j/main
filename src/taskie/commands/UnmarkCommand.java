@@ -13,6 +13,9 @@ import java.util.HashMap;
 
 import taskie.Taskie;
 import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.TaskType;
@@ -50,17 +53,26 @@ public class UnmarkCommand implements ICommand {
 			scanListForTaskAndUnmark(_task, taskLists, taskType);
 			Taskie.Controller.getUI().display(formatUnmarkString());
 		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(
-					taskie.models.Messages.INVALID_TASK_NUM);
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+		} catch (TaskRetrievalFailedException e) {
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 
 	private void scanListForTaskAndUnmark(Task task, HashMap<TaskType, ArrayList<Task>> taskLists, TaskType taskType) {
-		ArrayList<Task> taskList = taskLists.get(taskType);
-		int taskIndex = taskList.indexOf(task);
-		Task taskRetrieved = taskList.get(taskIndex);
-		taskRetrieved.setTaskUndone();
-		Taskie.Controller.getStorage().storeTaskMap(taskLists);
+		try {
+			ArrayList<Task> taskList = taskLists.get(taskType);
+			int taskIndex = taskList.indexOf(task);
+			Task taskRetrieved = taskList.get(taskIndex);
+			taskRetrieved.setTaskUndone();
+			Taskie.Controller.getStorage().storeTaskMap(taskLists);
+		} catch (TaskTypeNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TaskModificationFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private String formatUnmarkString() {

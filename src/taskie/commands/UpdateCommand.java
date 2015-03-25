@@ -17,6 +17,9 @@ import java.util.HashMap;
 import taskie.Taskie;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.TaskType;
@@ -206,33 +209,37 @@ public class UpdateCommand implements ICommand {
 		}
 	}
 
-	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task)
-			throws InvalidCommandException {
-		TaskType taskType = task.getTaskType();
-		HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller
-				.getStorage().retrieveTaskMap();
-
-		ArrayList<Task> taskList = taskLists.get(taskType);
-		int taskIndexInStorage = taskList.indexOf(task);// index of task in
-														// storage.
-		Task updatedTask = updateTask(task);
-		updateTaskInStorage(taskType, taskLists, taskList, taskIndexInStorage,
-				updatedTask);
+	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) throws InvalidCommandException {
+		try {
+			TaskType taskType = task.getTaskType();
+			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
+			ArrayList<Task> taskList = taskLists.get(taskType);
+			int taskIndexInStorage = taskList.indexOf(task);// index of task in storage.
+			Task updatedTask = updateTask(task);
+			updateTaskInStorage(taskType, taskLists, taskList, taskIndexInStorage, updatedTask);
+		} catch (TaskRetrievalFailedException e) {
+		}
 	}
 
-	private void updateTaskInStorage(TaskType taskType,
-			HashMap<TaskType, ArrayList<Task>> taskLists,
-			ArrayList<Task> taskList, int taskIndexInStorage, Task updatedTask) {
-		// determine if, after updating, task still belongs to the same
-		// taskType. If it is then we just need to remove and delete from the
-		// same list
-		if (taskType == updatedTask.getTaskType()) {
-			taskList.remove(taskIndexInStorage);
-			taskList.add(taskIndexInStorage, updatedTask);
-		} else {
-			taskLists.get(updatedTask.getTaskType()).add(updatedTask);
+	private void updateTaskInStorage(TaskType taskType, HashMap<TaskType, ArrayList<Task>> taskLists, ArrayList<Task> taskList, int taskIndexInStorage, Task updatedTask) {
+		try {
+			// determine if, after updating, task still belongs to the same
+			// taskType. If it is then we just need to remove and delete from the
+			// same list
+			if (taskType == updatedTask.getTaskType()) {
+				taskList.remove(taskIndexInStorage);
+				taskList.add(taskIndexInStorage, updatedTask);
+			} else {
+				taskLists.get(updatedTask.getTaskType()).add(updatedTask);
+			}
+			Taskie.Controller.getStorage().storeTaskMap(taskLists);
+		} catch (TaskTypeNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TaskModificationFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		Taskie.Controller.getStorage().storeTaskMap(taskLists);
 	}
 
 	private String formatUpdateMsg(Task task) {
