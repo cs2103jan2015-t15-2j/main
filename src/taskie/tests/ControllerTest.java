@@ -14,6 +14,7 @@ import taskie.commands.*;
 import taskie.controller.Controller;
 import taskie.database.IStorage;
 import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
 import taskie.models.TaskType;
 import taskie.ui.UI;
@@ -155,37 +156,31 @@ public class ControllerTest {
 			
 		}
 
-		@Override
 		public void addFloatingTask(Task taskToAdd) {
 			_storageTask=taskToAdd;
 			
 		}
 
-		@Override
 		public void addDeadlinedTask(Task taskToAdd) {
 			_storageTask=taskToAdd;
 			
 		}
 
-		@Override
 		public void addTimedTask(Task taskToAdd) {
 			_storageTask=taskToAdd;
 			
 		}
 
-		@Override
 		public void deleteFloatingTask(Task taskToDelete) {
 			_storageTask=taskToDelete;
 			
 		}
 
-		@Override
 		public void deleteDeadlinedTask(Task taskToDelete) {
 			_storageTask=taskToDelete;
 			
 		}
 
-		@Override
 		public void deleteTimedTask(Task taskToDelete) {
 			_storageTask=taskToDelete;
 			
@@ -194,6 +189,18 @@ public class ControllerTest {
 		@Override
 		public void updateTask(Task oldTask, Task newTask) {
 			_storageTask=newTask;
+			
+		}
+
+		@Override
+		public void addTask(Task task) throws TaskTypeNotSupportedException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void deleteTask(Task task) throws TaskTypeNotSupportedException {
+			// TODO Auto-generated method stub
 			
 		}
 	}
