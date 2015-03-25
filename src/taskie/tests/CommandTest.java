@@ -1,6 +1,6 @@
 package taskie.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -16,7 +16,6 @@ import org.junit.Test;
 import taskie.Taskie;
 import taskie.commands.ICommand;
 import taskie.commands.ViewCommand;
-import taskie.controller.Controller;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.Task;

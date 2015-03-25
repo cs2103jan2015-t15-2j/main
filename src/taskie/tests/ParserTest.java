@@ -12,7 +12,6 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

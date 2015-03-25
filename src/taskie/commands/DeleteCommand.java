@@ -14,7 +14,6 @@ import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
-import taskie.models.TaskType;
 
 public class DeleteCommand implements ICommand {	
 	private Task _task;
