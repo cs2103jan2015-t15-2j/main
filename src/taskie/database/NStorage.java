@@ -119,6 +119,12 @@ public class NStorage implements IStorage {
 				addTask(task);
 			}
 		}
+
+		try {
+			this.rewriteDatabase();
+		} catch (IOException e) {
+			throw new TaskModificationFailedException(e);
+		}
 	}
 
 	// @author A0121555M
@@ -199,7 +205,6 @@ public class NStorage implements IStorage {
 
 	public void close() throws IOException {
 		_logger.log(Level.INFO, "Closing Storage");
-		;
 		_db.close();
 	}
 }
