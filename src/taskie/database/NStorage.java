@@ -208,4 +208,23 @@ public class NStorage implements IStorage {
 		_logger.log(Level.INFO, "Closing Storage");
 		_db.close();
 	}
+	//@author A0097582N
+	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException{
+		ArrayList<Task> tasks=new ArrayList<Task>();
+		try {
+			String json = _db.read();
+			_tasks = _gson.fromJson(json, new TypeToken<ArrayList<String>>() {
+			}.getType());
+			for(String jsonTask : _tasks){
+				Task task = _gson.fromJson(jsonTask, Task.class);
+				tasks.add(task);
+			}
+			
+		} catch (IOException e) {
+			throw new TaskRetrievalFailedException(e);
+		}
+		return tasks;
+		
+		
+	}
 }

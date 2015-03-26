@@ -28,4 +28,6 @@ public interface IStorage {
 	void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 	
 	void close() throws IOException;
+	
+	ArrayList<Task> getTaskList() throws TaskModificationFailedException;
 }

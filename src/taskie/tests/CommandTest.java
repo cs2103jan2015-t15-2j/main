@@ -56,21 +56,15 @@ public class CommandTest {
 	}
 
 	@Test
-	public void testAddCommand() throws InvalidCommandException, InvalidTaskException {
-		ICommand cmd = _parser.parse("create work on Task C by 25 March 2015");
+	public void testAddCommandFloating() throws InvalidCommandException, InvalidTaskException {
+		ICommand cmd = _parser.parse("create work on Task C");
 		Taskie.Controller.executeCommand(cmd);
 		Task[] list = Taskie.Controller.getUI().getCurrentTaskList();
 		
 		Task expectedTask = new Task("work on Task 10", LocalDate.of(2015, 3, 25), MAX_DATETIME.toLocalTime());
 		assertEquals(expectedTask.toString(), list[list.length - 1].toString());
 	}
-	
-	@Test
-	public void testDeleteCommand() throws InvalidCommandException, InvalidTaskException {
-		ICommand cmd = _parser.parse("delete 2");
-		Taskie.Controller.executeCommand(cmd);
-		Task[] list = Taskie.Controller.getUI().getCurrentTaskList();
-	}
+
 	
 	private void generateTasks() {
 		String[] tasks = new String[] {
