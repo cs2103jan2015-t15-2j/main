@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import taskie.Taskie;
 import taskie.exceptions.TaskRetrievalFailedException;
@@ -14,11 +16,12 @@ import taskie.models.Task;
 import taskie.models.TaskType;
 import taskie.models.ViewType;
 import taskie.models.TaskEndDateComparator;
+import taskie.parser.CommandParser;
 
 public class ViewCommand implements ICommand {
 	private CommandType _commandType = CommandType.VIEW;
-
-	//@author A0121555M
+	private Logger _logger = Logger.getLogger(CommandParser.class.getName());
+	// @author A0121555M
 	private ViewType _viewType;
 	private LocalDate _startDate;
 	private LocalTime _startTime;
@@ -30,7 +33,9 @@ public class ViewCommand implements ICommand {
 		_viewType = viewType;
 	}
 
-	public ViewCommand(ViewType viewType, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, String searchKeywords) {
+	public ViewCommand(ViewType viewType, LocalDate startDate,
+			LocalTime startTime, LocalDate endDate, LocalTime endTime,
+			String searchKeywords) {
 		super();
 		_viewType = viewType;
 		_startDate = startDate;
@@ -40,7 +45,8 @@ public class ViewCommand implements ICommand {
 		_searchKeywords = searchKeywords;
 	}
 
-	public ViewCommand(ViewType viewType, LocalDateTime startDateTime, LocalDateTime endDateTime, String searchKeywords) {
+	public ViewCommand(ViewType viewType, LocalDateTime startDateTime,
+			LocalDateTime endDateTime, String searchKeywords) {
 		super();
 		_viewType = viewType;
 		this.setStartDateTime(startDateTime);
@@ -56,9 +62,9 @@ public class ViewCommand implements ICommand {
 			return null;
 		}
 	}
-	
+
 	public void setStartDateTime(LocalDateTime startDateTime) {
-		if ( startDateTime == null ) {
+		if (startDateTime == null) {
 			this.setStartDate(null);
 			this.setStartTime(null);
 		} else {
@@ -75,9 +81,9 @@ public class ViewCommand implements ICommand {
 			return null;
 		}
 	}
-	
+
 	public void setEndDateTime(LocalDateTime endDateTime) {
-		if ( endDateTime == null ) {
+		if (endDateTime == null) {
 			this.setEndDate(null);
 			this.setEndTime(null);
 		} else {
@@ -148,9 +154,15 @@ public class ViewCommand implements ICommand {
 		return _commandType;
 	}
 
-	//@author A0097582N
+	// @author A0097582N
 	@Override
 	public void execute() {
+		_logger.log(
+				Level.INFO,
+				"ViewType: "+this._viewType+"\nStartDate: " + this.getStartDate() + " StartTime: "
+						+ this.getStartTime() + "\nEndDate: "
+						+ this.getEndDate() + " EndTime: " + this.getEndTime()
+						+ "\nSearch Keywords: " + this.getSearchKeywords());
 		switch (_viewType) {
 		case ALL:
 			executeViewAll();
@@ -171,146 +183,218 @@ public class ViewCommand implements ICommand {
 	}
 
 	private void executeViewSearch() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = null;
 		try {
-			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
-			ArrayList<Task> tasks = new ArrayList<Task>();
-			if (taskLists.get(TaskType.DEADLINE) != null) {
-				tasks.addAll(taskLists.get(TaskType.DEADLINE));
-			}
-			if (taskLists.get(TaskType.TIMED) != null) {
-				tasks.addAll(taskLists.get(TaskType.TIMED));
-			}
-			if (taskLists.get(TaskType.FLOATING) != null) {
-				tasks.addAll(taskLists.get(TaskType.FLOATING));
-			}
-			Taskie.Controller.getUI().display(findSearchedTasks(tasks));
+			tasks = Taskie.Controller.getStorage().getTaskList();
 		} catch (TaskRetrievalFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
 		}
+		if (_startDate == null && _endDate == null && _searchKeywords != null) {
+			tasksToDisplay = findSearchedTasks(tasks);
+
+		} else if (_searchKeywords != null) {
+			tasksToDisplay = findTasksByDate(tasks);
+			tasksToDisplay = findSearchedTasks(tasksToDisplay);
+		} else {
+			tasksToDisplay = findTasksByDate(tasks);
+		}
+		tasksToDisplay.sort(new TaskEndDateComparator());
+		Taskie.Controller.getUI().display(
+				tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+
 	}
 
-	private Task[] findSearchedTasks(ArrayList<Task> tasks) {
+	private ArrayList<Task> findTasksByDate(ArrayList<Task> tasks) {
+		if (_startDate == null) {
+			return findTasksBeforeEndDate(tasks);
+		} else if (_endDate == null) {
+			return findTasksFromStartDate(tasks);
+		}
+		return findTasksBetweenDates(tasks);
+	}
+
+	private ArrayList<Task> findTasksBeforeEndDate(ArrayList<Task> tasks) {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime endDateTime = this.getEndDateTime();
+
+		for (Task task : tasks) {
+			if (task.isDone()) {
+				break;
+			}
+			TaskType taskType = task.getTaskType();
+			if (taskType == TaskType.FLOATING) {
+				tasksToDisplay.add(task);
+			} else if (taskType == TaskType.DEADLINE 
+					&&task.getEndDateTime().isBefore(endDateTime)){
+				tasksToDisplay.add(task);
+			}else if(task.getStartDateTime().isBefore(endDateTime)){
+				tasksToDisplay.add(task);
+			}
+		}
+		return tasksToDisplay;
+	}
+
+	private ArrayList<Task> findTasksFromStartDate(ArrayList<Task> tasks) {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime startDateTime = this.getStartDateTime();
+
+		for (Task task : tasks) {
+			if (task.isDone()) {
+				break; // if task is done, we do not need to add it
+			}
+			TaskType taskType = task.getTaskType();
+			assert taskType!=null;
+			if (taskType == TaskType.FLOATING) {
+				tasksToDisplay.add(task);
+			} else {
+				if (task.getEndDateTime().isAfter(startDateTime)) {
+					tasksToDisplay.add(task);
+				}
+			}
+		}
+		return tasksToDisplay;
+	}
+
+	private ArrayList<Task> findTasksBetweenDates(ArrayList<Task> tasks) {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime startDateTime = this.getStartDateTime();
+		LocalDateTime endDateTime = this.getStartDateTime();
+
+		for (Task task : tasks) {
+
+			if (task.isDone()) {
+				continue;
+			} else {
+				TaskType taskType = task.getTaskType();
+				if (taskType == TaskType.FLOATING) {
+					tasksToDisplay.add(task);
+
+				} else if (taskType == TaskType.DEADLINE) {
+					if (task.getEndDateTime().isAfter(startDateTime)
+							&& task.getEndDateTime().isBefore(endDateTime)) {
+						tasksToDisplay.add(task);
+					}
+				} else {
+					assert taskType != null;
+					if (task.getStartDateTime().isBefore(endDateTime)
+							|| task.getEndDateTime().isAfter(startDateTime)) {
+						tasksToDisplay.add(task);
+					}
+				}
+
+			}
+		}
+		return tasksToDisplay;
+	}
+
+	private ArrayList<Task> findSearchedTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> searchedTasks = new ArrayList<Task>();
 		for (Task task : tasks) {
-			String taskTitle=task.getTitle();
-			taskTitle=taskTitle.toLowerCase();
+			String taskTitle = task.getTitle();
+			taskTitle = taskTitle.toLowerCase();
 			if (taskTitle.contains(_searchKeywords.trim())) {
 				searchedTasks.add(task);
 			}
 		}
-		return searchedTasks.toArray(new Task[searchedTasks.size()]);
-	}
-
-	private void executeViewCompleted() {
-		try {
-			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
-			ArrayList<Task> tasks = new ArrayList<Task>();
-			if (taskLists.get(TaskType.DEADLINE) != null) {
-				tasks.addAll(taskLists.get(TaskType.DEADLINE));
-			}
-			if (taskLists.get(TaskType.TIMED) != null) {
-				tasks.addAll(taskLists.get(TaskType.TIMED));
-			}
-			if (taskLists.get(TaskType.FLOATING) != null) {
-				tasks.addAll(taskLists.get(TaskType.FLOATING));
-			}
-			Taskie.Controller.getUI().display(findCompletedTasks(tasks));
-		} catch (TaskRetrievalFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
-		}
-	}
-
-	private Task[] findCompletedTasks(ArrayList<Task> tasks) {
-		ArrayList<Task> completedTasks = new ArrayList<Task>();
-		for (Task task : tasks) {
-			if (task.isDone()) {
-				completedTasks.add(task);
-			}
-		}
-		return completedTasks.toArray(new Task[completedTasks.size()]);
+		return searchedTasks;
 	}
 
 	private void executeViewOverdue() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime now = LocalDateTime.now();
+		
 		try {
-			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
-			ArrayList<Task> tasksWithDate = new ArrayList<Task>();
-			tasksWithDate.addAll(taskLists.get(TaskType.DEADLINE));
-			tasksWithDate.addAll(taskLists.get(TaskType.TIMED));
-			Taskie.Controller.getUI().display(findOverDueTasksAndSort(tasksWithDate));
+			tasks = Taskie.Controller.getStorage().getTaskList();
 		} catch (TaskRetrievalFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
 		}
-	}
-
-	private Task[] findOverDueTasksAndSort(ArrayList<Task> tasksWithDate) {
-		ArrayList<Task> unmarkedAndOverdueTask = new ArrayList<Task>();
-		for (Task task : tasksWithDate) {
-			if (!task.isDone()
-					&& task.getEndDateTime().isBefore(LocalDateTime.now())) {
-				unmarkedAndOverdueTask.add(task);
+		
+		for (Task task:tasks){
+			if(task.isDone()){
+				break;
+			}
+			TaskType taskType=task.getTaskType();
+			if(taskType==TaskType.FLOATING){
+				tasksToDisplay.add(task);
+			}else if(task.getEndDateTime().isBefore(now)){
+				tasksToDisplay.add(task);
 			}
 		}
-		unmarkedAndOverdueTask.sort(new taskie.models.TaskEndDateComparator());
-		return unmarkedAndOverdueTask.toArray(new Task[unmarkedAndOverdueTask.size()]);
+		tasksToDisplay.sort(new TaskEndDateComparator());
+		Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			
 	}
+	
+
+
+	private void executeViewCompleted() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		
+		try {
+			tasks = Taskie.Controller.getStorage().getTaskList();
+		} catch (TaskRetrievalFailedException e) {
+			Taskie.Controller.getUI().display(e.getMessage());
+		}
+		for (Task task:tasks){
+			if(task.isDone()){
+				tasksToDisplay.add(task);
+
+			}
+		}
+		tasksToDisplay.sort(new TaskEndDateComparator());
+		Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			
+	}
+
 
 	private void executeViewUpcoming() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime now = LocalDateTime.now();
+		
 		try {
-			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
-			ArrayList<Task> tasksWithDate = new ArrayList<Task>();
-			if (taskLists.get(TaskType.DEADLINE) != null) {
-				tasksWithDate.addAll(taskLists.get(TaskType.DEADLINE));
-			}
-			if (taskLists.get(TaskType.TIMED) != null) {
-				tasksWithDate.addAll(taskLists.get(TaskType.TIMED));
-			}
-			tasksWithDate = findTasksAfterTodayAndSort(tasksWithDate);
-			ArrayList<Task> tasksWithoutDate = taskLists.get(TaskType.FLOATING);
-			if (tasksWithoutDate != null) {
-				tasksWithoutDate = findUndoneFloatingTask(tasksWithoutDate);
-				tasksWithDate.addAll(tasksWithoutDate);
-			}
-			Taskie.Controller.getUI().display(tasksWithDate.toArray(new Task[tasksWithDate.size()]));
+			tasks = Taskie.Controller.getStorage().getTaskList();
 		} catch (TaskRetrievalFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
 		}
-	}
-
-	private ArrayList<Task> findUndoneFloatingTask(
-			ArrayList<Task> tasksWithoutDate) {
-		ArrayList<Task> unmarkedTasks = new ArrayList<Task>();
-		for (Task task : tasksWithoutDate) {
-			if (!task.isDone()) {
-				unmarkedTasks.add(task);
+		
+		for (Task task:tasks){
+			if(task.isDone()){
+				break;
+			}
+			TaskType taskType=task.getTaskType();
+			System.out.println(taskType);
+			if(taskType==TaskType.FLOATING){
+				tasksToDisplay.add(task);
+			}else if(taskType==TaskType.DEADLINE 
+					&& task.getEndDateTime().isAfter(now)){
+				tasksToDisplay.add(task);
+			}else if(task.getStartDateTime().isAfter(now)){
+				tasksToDisplay.add(task);
 			}
 		}
-		return unmarkedTasks;
-	}
-
-	private ArrayList<Task> findTasksAfterTodayAndSort(
-			ArrayList<Task> tasksWithDate) {
-		ArrayList<Task> tasksAfterToday = new ArrayList<Task>();
-		for (Task task : tasksWithDate) {
-			LocalDateTime now = LocalDateTime.now();
-			if (task.getEndDateTime().isAfter(now)
-					&& !task.isDone())
-				tasksAfterToday.add(task);
-		}
-		tasksAfterToday.sort(new TaskEndDateComparator());
-		return tasksAfterToday;
+		tasksToDisplay.sort(new TaskEndDateComparator());
+		Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 	}
 
 	private ArrayList<Task> executeViewAll() {
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		try {
-			ArrayList<Task> tasks=Taskie.Controller.getStorage().getTaskList();
-			for(Task task :tasks){
-				if(!task.isDone()){
+
+			ArrayList<Task> tasks = Taskie.Controller.getStorage()
+					.getTaskList();
+			for (Task task : tasks) {
+				if (!task.isDone()) {
+
 					tasksToDisplay.add(task);
 				}
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
-			Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			Taskie.Controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 			return tasksToDisplay;
 		} catch (TaskRetrievalFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
@@ -318,8 +402,7 @@ public class ViewCommand implements ICommand {
 		return tasksToDisplay;
 	}
 
-	
-	//@author A0121555M
+	// @author A0121555M
 	public void undo() throws UndoNotSupportedException {
 		throw new UndoNotSupportedException();
 	}
@@ -328,7 +411,7 @@ public class ViewCommand implements ICommand {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CommandType:View");
 		sb.append("ViewType:" + _viewType + ",");
-		
+
 		try {
 			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
 		} catch (NullPointerException e) {
@@ -340,8 +423,9 @@ public class ViewCommand implements ICommand {
 			sb.append("EndDateTime,");
 		}
 
-		sb.append("SearchKeywords:" + ((_searchKeywords == null) ? "" : _searchKeywords));
-		
+		sb.append("SearchKeywords:"
+				+ ((_searchKeywords == null) ? "" : _searchKeywords));
+
 		return sb.toString();
 	}
 }

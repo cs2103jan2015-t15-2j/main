@@ -12,13 +12,12 @@ public class TaskEndDateComparator implements Comparator<Task> {
 
 	@Override
 	public int compare(Task o1, Task o2) {
-		//TODO handles null time
 		if(o1.getEndDate()==null){
 			if(o2.getEndDate()==null){
 				return 0;
 			}
 			else{
-				return -1;
+				return 1;
 			}
 		}else{
 			if(o2.getEndDate()==null){
@@ -28,6 +27,13 @@ public class TaskEndDateComparator implements Comparator<Task> {
 		LocalDateTime o1DateTime = o1.getEndDateTime();
 		LocalDateTime o2DateTime = o2.getEndDateTime();
 		return o1DateTime.compareTo(o2DateTime);
+		
+	}
+	public int equals(Task o1, Task o2){
+		if(o1.getEndDate()==o2.getEndDate()){
+			return 1;
+		}
+		return 0;
 	}
 
 }
