@@ -305,7 +305,7 @@ public class ViewCommand implements ICommand {
 		try {
 			ArrayList<Task> tasks=Taskie.Controller.getStorage().getTaskList();
 			for(Task task :tasks){
-				if(!task.getTaskStatus()){
+				if(!task.isDone()){
 					tasksToDisplay.add(task);
 				}
 			}
