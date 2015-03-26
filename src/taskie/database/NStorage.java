@@ -22,6 +22,7 @@ import taskie.models.TaskType;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sun.jmx.snmp.tasks.TaskServer;
 
 public class NStorage implements IStorage {
 	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
@@ -227,4 +228,9 @@ public class NStorage implements IStorage {
 		
 		
 	}
+	public void deleteTaskList() throws TaskRetrievalFailedException{
+		_db.deleteFile(_databasePath);
+	}
+	
+	
 }

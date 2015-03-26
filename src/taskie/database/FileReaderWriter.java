@@ -2,6 +2,7 @@
 package taskie.database;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,7 +27,9 @@ public class FileReaderWriter {
 	}
 
 	public void write(String str) throws IOException {
-		OutputStream out = Files.newOutputStream(_file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		OutputStream out = Files
+				.newOutputStream(_file, StandardOpenOption.CREATE,
+						StandardOpenOption.TRUNCATE_EXISTING);
 		_writer = new OutputStreamWriter(out, DEFAULT_ENCODING);
 		_writer.write(str);
 		_writer.flush();
@@ -34,7 +37,8 @@ public class FileReaderWriter {
 
 	public String read() throws IOException {
 		InputStream in = Files.newInputStream(_file);
-		BufferedReader _reader = new BufferedReader(new InputStreamReader(in, DEFAULT_ENCODING));
+		BufferedReader _reader = new BufferedReader(new InputStreamReader(in,
+				DEFAULT_ENCODING));
 		String text = "";
 		String line;
 
@@ -52,6 +56,13 @@ public class FileReaderWriter {
 
 		if (_reader != null) {
 			_reader.close();
+		}
+	}
+
+	public void deleteFile(Path path) {
+		File fileTemp = new File(path.toString());
+		if (fileTemp.exists()) {
+			fileTemp.delete();
 		}
 	}
 }

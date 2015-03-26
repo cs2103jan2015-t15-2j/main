@@ -74,8 +74,11 @@ public class CommandTest {
 		Taskie.Controller.executeCommand(cmd);
 		ArrayList<Task> list =Taskie.Controller.getStorage().getTaskList();
 		Task expectedTask = new Task("bar",_today,_time);
-		System.out.println(expectedTask);
-		System.out.println(list.get(0));
+		System.out.println(list.size());
+		Taskie.Controller.getStorage().deleteTaskList();
+		System.out.println(list.size());
+		//System.out.println(expectedTask);
+		//System.out.println(list.get(0));
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
