@@ -45,6 +45,30 @@ public class MarkCommand implements ICommand {
 	}
 
 	@Override
+	
+	
+	public void execute(){
+		try{
+			_task = retrieveTaskFromParser();
+			Task updatedTask=new Task(_task);
+			if(_task.getTaskStatus()){
+				Taskie.Controller.getUI().display("stub. Task already done");
+			}else{
+				updatedTask.setTaskDone();
+			}
+			try {
+				Taskie.Controller.getStorage().updateTask(_task, updatedTask);
+			} catch (TaskTypeNotSupportedException e) {
+				Taskie.Controller.getUI().display(e.getMessage());
+			} catch (TaskModificationFailedException e) {
+				Taskie.Controller.getUI().display(e.getMessage());
+			}
+		}catch(InvalidTaskException e){
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+		}
+	}
+/*	//@author A0097582N-unused
+ * reason for unused: new APIs used deprecated this method.
 	public void execute() {
 		try {
 			_task = retrieveTaskFromParser();
@@ -74,7 +98,7 @@ public class MarkCommand implements ICommand {
 			e.printStackTrace();
 		}
 	}
-
+*/
 	private String formatMarkString() {
 		return String.format(taskie.models.Messages.MARK_STRING,
 				_task.getTitle());

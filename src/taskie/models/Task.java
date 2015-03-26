@@ -62,6 +62,15 @@ public class Task implements Comparable<Task>, Serializable {
 		_endTime = endTime;
 		_isDone = false;
 	}
+	//author:A0097582N
+	public Task(Task task){
+		_title=task.getTitle();
+		_startDate= task.getStartDate();
+		_startTime = task.getStartTime();
+		_endDate = task.getEndDate();
+		_endTime= task.getEndTime();
+		_isDone = task.getTaskStatus();
+	}
 
 	public String getTitle() {
 		return _title;
@@ -172,7 +181,8 @@ public class Task implements Comparable<Task>, Serializable {
 		}
 	}
 
-	//@author A0097582N
+	// @author A0097582N
+	//this constructor is used to duplicate a task.
 	public int compareTo(Task other) {
 		LocalDateTime thisTaskDateTime = LocalDateTime.of(this.getEndDate(),
 				this.getEndTime());
