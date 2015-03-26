@@ -29,5 +29,5 @@ public interface IStorage {
 	
 	void close() throws IOException;
 	
-	ArrayList<Task> getTaskList() throws TaskModificationFailedException;
+	ArrayList<Task> getTaskList() throws TaskRetrievalFailedException;
 }
