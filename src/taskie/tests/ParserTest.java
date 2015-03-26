@@ -1,3 +1,4 @@
+//@author A0121555M
 package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
@@ -198,6 +199,8 @@ public class ParserTest {
 		DeleteCommand expectedCommand;
 		ICommand actualCommand;
 		
+		// Equivalence Partitioning 
+		// Delete command expects an integer
 		expectedCommand = new DeleteCommand(10);
 		actualCommand = _parser.parse("delete 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -209,13 +212,21 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("discard 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		try {
 			actualCommand = _parser.parse("delete invalidstring");
 			fail();
 		} catch ( InvalidCommandException e ) {
 		}
-	}
+
+		try {
+			actualCommand = _parser.parse("delete");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+}
 	
 	@Test
 	public void testUpdateCommand() throws InvalidCommandException {
@@ -227,6 +238,9 @@ public class ParserTest {
 		UndoCommand expectedCommand;
 		ICommand actualCommand;
 		
+		// Equivalence Partitioning 
+		// Command has an optional integer parameter.
+		// If no integer specified, it means undo just 1 step.
 		expectedCommand = new UndoCommand(1);
 		actualCommand = _parser.parse("undo");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -250,6 +264,9 @@ public class ParserTest {
 		RedoCommand expectedCommand;
 		ICommand actualCommand;
 		
+		// Equivalence Partitioning 
+		// Command has an optional integer parameter.
+		// If no integer specified, it means redo just 1 step.
 		expectedCommand = new RedoCommand(1);
 		actualCommand = _parser.parse("redo");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
