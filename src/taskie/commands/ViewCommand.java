@@ -302,20 +302,15 @@ public class ViewCommand implements ICommand {
 
 	private void executeViewAll() {
 		try {
-			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
-			ArrayList<Task> tasksWithDate = new ArrayList<Task>();
-			if (taskLists.get(TaskType.DEADLINE) != null) {
-				tasksWithDate.addAll(taskLists.get(TaskType.DEADLINE));
+			ArrayList<Task> tasks=Taskie.Controller.getStorage().getTaskList();
+			ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+			for(Task task :tasks){
+				if(!task.getTaskStatus()){
+					tasksToDisplay.add(task);
+				}
 			}
-			if (taskLists.get(TaskType.TIMED) != null) {
-				tasksWithDate.addAll(taskLists.get(TaskType.TIMED));
-			}
-			ArrayList<Task> tasksWithoutDate = taskLists.get(TaskType.FLOATING);
-			tasksWithDate.sort(new TaskEndDateComparator());
-			if (tasksWithoutDate != null) {
-				tasksWithDate.addAll(tasksWithoutDate);
-			}
-			Taskie.Controller.getUI().display(tasksWithDate.toArray(new Task[tasksWithDate.size()]));
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
 		}
