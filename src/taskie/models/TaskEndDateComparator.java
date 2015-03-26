@@ -18,11 +18,11 @@ public class TaskEndDateComparator implements Comparator<Task> {
 				return 0;
 			}
 			else{
-				return 1;
+				return -1;
 			}
 		}else{
 			if(o2.getEndDate()==null){
-				return 1;
+				return -1;
 			}
 		}
 		LocalDateTime o1DateTime = o1.getEndDateTime();

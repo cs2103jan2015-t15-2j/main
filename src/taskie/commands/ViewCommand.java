@@ -300,10 +300,10 @@ public class ViewCommand implements ICommand {
 		return tasksAfterToday;
 	}
 
-	private void executeViewAll() {
+	private ArrayList<Task> executeViewAll() {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		try {
 			ArrayList<Task> tasks=Taskie.Controller.getStorage().getTaskList();
-			ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 			for(Task task :tasks){
 				if(!task.getTaskStatus()){
 					tasksToDisplay.add(task);
@@ -311,21 +311,13 @@ public class ViewCommand implements ICommand {
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			return tasksToDisplay;
 		} catch (TaskRetrievalFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
 		}
+		return tasksToDisplay;
 	}
 
-	//@author A0097582N-unused
-	//Reason for unused: Redundant code
-	private Task[] toArray(ArrayList<Task> taskList) {
-		int size = taskList.size();
-		Task[] taskListArr = new Task[size];
-		for (int i = 0; i < size; i++) {
-			taskListArr[i] = taskList.get(i);
-		}
-		return taskListArr;
-	}
 	
 	//@author A0121555M
 	public void undo() throws UndoNotSupportedException {
