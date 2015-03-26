@@ -59,36 +59,40 @@ public class CommandUI implements UI {
 	public void display(Task[] tasks) {
 		_currentTaskList = tasks;
 		_now = LocalDateTime.now();
-		
+
 		int numTasks = tasks.length;
 		int characters = String.valueOf(numTasks).length();
 		int shown = 0;
 
 		for (int x = 0; x < numTasks; x++) {
 			Task task = tasks[x];
-			
-			display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x+1), characters, "0") + ": ").reset());
-			if (task.getTaskType() == TaskType.DEADLINE) {
-				if ( task.getEndDateTime().isBefore(_now) ) {
-					// Task is OVERDUE
-					display(ansi().fg(Color.RED).a(String.format("[!!!] %s [Overdue by %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset());
-				} else {
-					display(ansi().fg(Color.DEFAULT).a(String.format("%s [Due in %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset());
-				}
-			} else if (task.getTaskType() == TaskType.TIMED) {
-				if ( task.getEndDateTime().isBefore(_now) ) {
-					// Task is OVERDUE
-					display(ansi().fg(Color.RED).a(String.format("[!!!] %s [Started %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
-				} else {
-					display(ansi().fg(Color.DEFAULT).a(String.format("%s [Starts in %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
-				}
+
+			display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
+			if (task.isDone()) {
+				display(ansi().fg(Color.GREEN).a(String.format("[DONE] %s%n", task.getTitle())).reset());
 			} else {
-				display(task.getTitle() + Messages.NEWLINE);
+				if (task.getTaskType() == TaskType.DEADLINE) {
+					if (task.getEndDateTime().isBefore(_now)) {
+						// Task is OVERDUE
+						display(ansi().fg(Color.RED).bold().a(String.format("[!!!] %s [Overdue by %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset());
+					} else {
+						display(ansi().fg(Color.DEFAULT).a(String.format("%s [Due in %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset());
+					}
+				} else if (task.getTaskType() == TaskType.TIMED) {
+					if (task.getEndDateTime().isBefore(_now)) {
+						// Task is OVERDUE
+						display(ansi().fg(Color.RED).bold().a(String.format("[!!!] %s [Started %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
+					} else {
+						display(ansi().fg(Color.DEFAULT).a(String.format("%s [Starts in %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
+					}
+				} else {
+					display(String.format("%s%n", task.getTitle()));
+				}
 			}
-			
+
 			shown++;
 		}
-		
+
 		display(ansi().a(String.format("---%nShowing %d out of %d tasks%n", shown, numTasks, 0)).newline().reset());
 	}
 
@@ -158,41 +162,41 @@ public class CommandUI implements UI {
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fileChooser.setVisible(true);
 		int returnVal = fileChooser.showOpenDialog(null);
-		if ( returnVal == JFileChooser.APPROVE_OPTION )  {
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fileChooser.getSelectedFile();
 			return file.getAbsolutePath();
 		}
-		
+
 		return null;
 	}
-	
+
 	private void printDateHeader(LocalDate date) {
 		this.display(ansi().a(date.format(DateTimeFormatter.ofPattern("dd MM yyyy"))));
 	}
-	
+
 	private String padLeft(String str, int length, String padding) {
 		return String.format("%1$" + length + "s", str).replace(" ", padding);
 	}
-	
+
 	private String padRight(String str, int length, String padding) {
 		return String.format("%1$-" + length + "s", str).replace(" ", padding);
 	}
-	
+
 	private String prettyDates(LocalDateTime dateTime) {
 		StringBuffer sb = new StringBuffer();
 		RelativeDate relative = new RelativeDate(_now);
 		relative.calculate(dateTime);
-		
-		if ( relative.getDays() > 0 ) {
+
+		if (relative.getDays() > 0) {
 			sb.append(String.format("%d %s", relative.getDays(), relative.getDays() > 1 ? "days" : "day") + " ");
-		} else if ( relative.getHours() > 0 ) {
+		} else if (relative.getHours() > 0) {
 			sb.append(String.format("%d %s", relative.getHours(), relative.getHours() > 1 ? "hours" : "hour") + " ");
-		} else if ( relative.getMinutes() > 0 ) { 
+		} else if (relative.getMinutes() > 0) {
 			sb.append(String.format("%d %s", relative.getMinutes(), relative.getMinutes() > 1 ? "minutes" : "minute") + " ");
 		} else {
 			sb.append(String.format("%d %s", relative.getSeconds(), relative.getSeconds() > 1 ? "seconds" : "second") + " ");
 		}
-		
+
 		return "about " + sb.toString().trim();
 	}
 }
