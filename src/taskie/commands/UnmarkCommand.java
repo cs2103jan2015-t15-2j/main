@@ -8,17 +8,12 @@
 
 package taskie.commands;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import taskie.Taskie;
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
-import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
-import taskie.models.TaskType;
 
 public class UnmarkCommand implements ICommand {
 
@@ -44,15 +39,15 @@ public class UnmarkCommand implements ICommand {
 		return _task;
 	}
 
-	public void execute(){
-		try{
+	public void execute() {
+		try {
 			_task = retrieveTaskFromUI();
-			Task updatedTask=new Task(_task);
-			
-			if(_task.getTaskStatus()){
+			Task updatedTask = new Task(_task);
+
+			if (_task.getTaskStatus()) {
 				updatedTask.setTaskUndone();
 				Taskie.Controller.getUI().display(formatUnmarkString());
-			}else{
+			} else {
 				Taskie.Controller.getUI().display("stub. Task has not been done.");
 			}
 			try {
@@ -62,56 +57,21 @@ public class UnmarkCommand implements ICommand {
 			} catch (TaskModificationFailedException e) {
 				Taskie.Controller.getUI().display(e.getMessage());
 			}
-		}catch(InvalidTaskException e){
-			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
-		}
-	}
-
-
-/*
-	@Override
-	public void execute() {
-		try {
-			_task = retrieveTaskFromParser();
-			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
-			TaskType taskType = _task.getTaskType();
-			scanListForTaskAndUnmark(_task, taskLists, taskType);
-			Taskie.Controller.getUI().display(formatUnmarkString());
 		} catch (InvalidTaskException e) {
 			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
-		} catch (TaskRetrievalFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 
-	private void scanListForTaskAndUnmark(Task task, HashMap<TaskType, ArrayList<Task>> taskLists, TaskType taskType) {
-		try {
-			ArrayList<Task> taskList = taskLists.get(taskType);
-			int taskIndex = taskList.indexOf(task);
-			Task taskRetrieved = taskList.get(taskIndex);
-			taskRetrieved.setTaskUndone();
-			Taskie.Controller.getStorage().storeTaskMap(taskLists);
-		} catch (TaskTypeNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TaskModificationFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-*/
 	private String formatUnmarkString() {
-		return String.format(taskie.models.Messages.UNMARK_STRING,
-				_task.getTitle());
+		return String.format(taskie.models.Messages.UNMARK_STRING, _task.getTitle());
 	}
 
 	private Task retrieveTaskFromUI() throws InvalidTaskException {
-
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
 	}
 
-	//@author A0121555M
+	// @author A0121555M
 	public void undo() {
 		new MarkCommand(_taskIndex).execute();
 	}
