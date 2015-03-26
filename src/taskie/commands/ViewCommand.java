@@ -223,7 +223,7 @@ public class ViewCommand implements ICommand {
 	private Task[] findCompletedTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> completedTasks = new ArrayList<Task>();
 		for (Task task : tasks) {
-			if (task.getTaskStatus()) {
+			if (task.isDone()) {
 				completedTasks.add(task);
 			}
 		}
@@ -245,7 +245,7 @@ public class ViewCommand implements ICommand {
 	private Task[] findOverDueTasksAndSort(ArrayList<Task> tasksWithDate) {
 		ArrayList<Task> unmarkedAndOverdueTask = new ArrayList<Task>();
 		for (Task task : tasksWithDate) {
-			if (!task.getTaskStatus()
+			if (!task.isDone()
 					&& task.getEndDateTime().isBefore(LocalDateTime.now())) {
 				unmarkedAndOverdueTask.add(task);
 			}
@@ -280,7 +280,7 @@ public class ViewCommand implements ICommand {
 			ArrayList<Task> tasksWithoutDate) {
 		ArrayList<Task> unmarkedTasks = new ArrayList<Task>();
 		for (Task task : tasksWithoutDate) {
-			if (!task.getTaskStatus()) {
+			if (!task.isDone()) {
 				unmarkedTasks.add(task);
 			}
 		}
@@ -293,7 +293,7 @@ public class ViewCommand implements ICommand {
 		for (Task task : tasksWithDate) {
 			LocalDateTime now = LocalDateTime.now();
 			if (task.getEndDateTime().isAfter(now)
-					&& !task.getTaskStatus())
+					&& !task.isDone())
 				tasksAfterToday.add(task);
 		}
 		tasksAfterToday.sort(new TaskEndDateComparator());

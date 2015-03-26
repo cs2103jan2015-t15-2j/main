@@ -69,7 +69,7 @@ public class Task implements Comparable<Task>, Serializable {
 		_startTime = task.getStartTime();
 		_endDate = task.getEndDate();
 		_endTime= task.getEndTime();
-		_isDone = task.getTaskStatus();
+		_isDone = task.isDone();
 	}
 
 	public String getTitle() {
@@ -166,7 +166,7 @@ public class Task implements Comparable<Task>, Serializable {
 		_isDone = false;
 	}
 
-	public Boolean getTaskStatus() {
+	public Boolean isDone() {
 		return _isDone;
 	}
 

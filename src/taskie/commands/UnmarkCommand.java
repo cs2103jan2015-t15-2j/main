@@ -44,7 +44,7 @@ public class UnmarkCommand implements ICommand {
 			_task = retrieveTaskFromUI();
 			Task updatedTask = new Task(_task);
 
-			if (_task.getTaskStatus()) {
+			if (_task.isDone()) {
 				updatedTask.setTaskUndone();
 				Taskie.Controller.getUI().display(formatUnmarkString());
 			} else {
