@@ -103,7 +103,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("create Eat fries");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
-		expectedCommand = new AddCommand("Eat fries", null, null);
+		expectedCommand = new AddCommand("Prepare Presentation for CS2103", null, null);
 		actualCommand = _parser.parse("add Prepare Presentation for CS2103");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
