@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.junit.Before;
@@ -15,10 +16,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import taskie.Taskie;
+import taskie.commands.AddCommand;
 import taskie.commands.ICommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.models.Task;
 import taskie.models.ViewType;
 import taskie.parser.CommandParser;
@@ -52,17 +55,28 @@ public class CommandTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		this.generateTasks();
 	}
 
 	@Test
-	public void testAddCommandFloating() throws InvalidCommandException, InvalidTaskException {
-		ICommand cmd = _parser.parse("create work on Task C");
+	public void testAddCommandFloating() throws InvalidCommandException, InvalidTaskException, TaskRetrievalFailedException {
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("foo");
 		Taskie.Controller.executeCommand(cmd);
-		Task[] list = Taskie.Controller.getUI().getCurrentTaskList();
-		
-		Task expectedTask = new Task("work on Task 10", LocalDate.of(2015, 3, 25), MAX_DATETIME.toLocalTime());
-		assertEquals(expectedTask.toString(), list[list.length - 1].toString());
+		ArrayList<Task> list =Taskie.Controller.getStorage().getTaskList();
+		Task expectedTask = new Task("foo");
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+	@Test
+	public void testAddCommandDeadline() throws InvalidCommandException, InvalidTaskException, TaskRetrievalFailedException {
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("bar");
+		cmd.setEndDateTime(_now);
+		Taskie.Controller.executeCommand(cmd);
+		ArrayList<Task> list =Taskie.Controller.getStorage().getTaskList();
+		Task expectedTask = new Task("bar",_today,_time);
+		System.out.println(expectedTask);
+		System.out.println(list.get(0));
+		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
 	

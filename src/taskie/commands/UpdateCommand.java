@@ -162,7 +162,7 @@ public class UpdateCommand implements ICommand {
 		} catch (TaskModificationFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
 		}catch (Exception e){
-			e.printStackTrace();
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 
