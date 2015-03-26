@@ -137,8 +137,9 @@ public class UpdateCommand implements ICommand {
 
 	public void execute() {
 		try {
-			Task task = retrieveTaskToUpdateFromParser();
-			retrieveTaskToUpdateFromStorageAndUpdate(task);
+			Task task = retrieveTaskToUpdateFromUI();
+			Task updatedTask = updateTask(task);
+			Taskie.Controller.getStorage().updateTask(task, updatedTask);
 			Taskie.Controller.getUI().display(formatUpdateMsg(task));
 		} catch (InvalidTaskException e) {
 			Taskie.Controller.getUI().display(
@@ -146,12 +147,16 @@ public class UpdateCommand implements ICommand {
 		} catch (InvalidCommandException e) {
 			Taskie.Controller.getUI().display(
 					taskie.models.Messages.INVALID_COMMAND);
+		} catch (TaskTypeNotSupportedException e) {
+			Taskie.Controller.getUI().display(e.getMessage());
+		} catch (TaskModificationFailedException e) {
+			Taskie.Controller.getUI().display(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
 	private Task updateTask(Task task) throws InvalidCommandException {
-		Task updatedTask = new Task(task.getTitle(), task.getStartDate(),
-				task.getStartTime(), task.getEndDate(), task.getEndTime());
+		Task updatedTask = new Task(task);
 		if (this.isModifiedTaskTitle()) {
 			updatedTask.setTitle(this.getTaskTitleToUpdate());
 		}
@@ -209,6 +214,8 @@ public class UpdateCommand implements ICommand {
 		}
 	}
 
+	/* @author A0097582N-unused
+	 * reason for unused: code deprecated by new APIs
 	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) throws InvalidCommandException {
 		try {
 			TaskType taskType = task.getTaskType();
@@ -234,13 +241,12 @@ public class UpdateCommand implements ICommand {
 			}
 			Taskie.Controller.getStorage().storeTaskMap(taskLists);
 		} catch (TaskTypeNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Taskie.Controller.getUI().display(e.getMessage());
 		} catch (TaskModificationFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
+	*/
 
 	private String formatUpdateMsg(Task task) {
 		String message = String.format(taskie.models.Messages.UPDATE_STRING,
@@ -264,7 +270,7 @@ public class UpdateCommand implements ICommand {
 
 	}
 
-	private Task retrieveTaskToUpdateFromParser() throws InvalidTaskException {
+	private Task retrieveTaskToUpdateFromUI() throws InvalidTaskException {
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
 	}
