@@ -275,30 +275,4 @@ public class UpdateCommand implements ICommand {
 		return sb.toString();
 	}
 
-	/*
-	 * @author A0097582N-unused reason for unused: code deprecated by new APIs
-	 * private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) throws
-	 * InvalidCommandException { try { TaskType taskType = task.getTaskType();
-	 * HashMap<TaskType, ArrayList<Task>> taskLists =
-	 * Taskie.Controller.getStorage().retrieveTaskMap(); ArrayList<Task>
-	 * taskList = taskLists.get(taskType); int taskIndexInStorage =
-	 * taskList.indexOf(task);// index of task in storage. Task updatedTask =
-	 * updateTask(task); updateTaskInStorage(taskType, taskLists, taskList,
-	 * taskIndexInStorage, updatedTask); } catch (TaskRetrievalFailedException
-	 * e) { } }
-	 * 
-	 * private void updateTaskInStorage(TaskType taskType, HashMap<TaskType,
-	 * ArrayList<Task>> taskLists, ArrayList<Task> taskList, int
-	 * taskIndexInStorage, Task updatedTask) { try { // determine if, after
-	 * updating, task still belongs to the same // taskType. If it is then we
-	 * just need to remove and delete from the // same list if (taskType ==
-	 * updatedTask.getTaskType()) { taskList.remove(taskIndexInStorage);
-	 * taskList.add(taskIndexInStorage, updatedTask); } else {
-	 * taskLists.get(updatedTask.getTaskType()).add(updatedTask); }
-	 * Taskie.Controller.getStorage().storeTaskMap(taskLists); } catch
-	 * (TaskTypeNotSupportedException e) {
-	 * Taskie.Controller.getUI().display(e.getMessage()); } catch
-	 * (TaskModificationFailedException e) {
-	 * Taskie.Controller.getUI().display(e.getMessage()); } }
-	 */
 }
