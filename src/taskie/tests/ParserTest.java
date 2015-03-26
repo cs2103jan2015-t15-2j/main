@@ -61,12 +61,36 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testInvalidCommand() {
+		try {
+			_parser.parse(null);
+			fail();
+		} catch ( InvalidCommandException e) {
+		}
+
+		try {
+			_parser.parse("");
+			fail();
+		} catch ( InvalidCommandException e) {
+		}
+		
+		try {
+			_parser.parse("invalid");
+			fail();
+		} catch ( InvalidCommandException e) {
+		}
+
+	}
+	
+	@Test
 	public void testAddCommand() throws InvalidCommandException {
 		AddCommand expectedCommand;
 		ICommand actualCommand;
 		
-		// Test Floating Tasks
+		// Test Floating Tasks - Normal Cases
 		expectedCommand = new AddCommand("Travel to London", null, null);
+		actualCommand = _parser.parse("add Travel to London");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("put Travel to London");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("create Travel to London");
@@ -74,8 +98,13 @@ public class ParserTest {
 		actualCommand = _parser.parse("ins Travel to London");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test Floating Task - Special Cases
 		expectedCommand = new AddCommand("Eat fries", null, null);
 		actualCommand = _parser.parse("create Eat fries");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Eat fries", null, null);
+		actualCommand = _parser.parse("add Prepare Presentation for CS2103");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		// Test Deadlined Tasks with Relative Dates
