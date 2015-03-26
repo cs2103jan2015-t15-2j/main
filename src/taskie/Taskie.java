@@ -12,7 +12,7 @@ public class Taskie {
 		} catch (IOException e) {
 			System.out.println("Unable to initialize Storage");
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Unknown Error: " + e.getMessage());
 		}
 	}
 

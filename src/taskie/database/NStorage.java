@@ -42,7 +42,7 @@ public class NStorage implements IStorage {
 		_databasePath = FileSystems.getDefault().getPath(filePath).toAbsolutePath();
 		_db = new FileReaderWriter(_databasePath);
 
-		_logger.log(Level.INFO, "NStorage Initialized at: " + _databasePath.toString());
+		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
 	}
 
 	public NStorage(String storageDir) {
@@ -56,7 +56,7 @@ public class NStorage implements IStorage {
 	}
 
 	public String getStorageLocation() {
-		return _databasePath.toAbsolutePath().toString();
+		return _databasePath.toAbsolutePath().getParent().toString();
 	}
 
 	public void setStorageLocation(String storageDir) {

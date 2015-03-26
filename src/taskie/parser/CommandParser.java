@@ -133,6 +133,10 @@ public class CommandParser implements Parser {
 	}
 
 	public ICommand parse(String input) throws InvalidCommandException {
+		if ( input == null ) {
+			throw new InvalidCommandException();
+		}
+		
 		String keyword = CommandParser.getCommandKeyword(input);
 		String command = CommandParser.getCommandParameters(input);
 		
