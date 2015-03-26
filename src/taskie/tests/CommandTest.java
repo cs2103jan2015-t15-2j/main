@@ -3,6 +3,7 @@ package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,30 +36,37 @@ public class CommandTest {
 
 	private static Parser _parser;
 
-	private static LocalDate _today;
-	private static LocalTime _time;
+	private static LocalDate _nowDate;
+	private static LocalTime _nowTime;
+	private static LocalDate _laterDate;
+	private static LocalTime _laterTime;
 	private static LocalDateTime _now;
+	private static LocalDateTime _later;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Taskie.Controller = new taskie.controller.Controller();
-		
 		_parser = new CommandParser();
 		_now = LocalDateTime.now();
+		_later=LocalDateTime.now();
 		
-		_today = _now.toLocalDate();
-		_time = _now.toLocalTime();
+		_nowDate = _now.toLocalDate();
+		_nowTime = _now.toLocalTime();
+		_laterDate = _later.toLocalDate();
+		_laterTime = _later.toLocalTime();
 
 		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
 		CalendarSource.setBaseDate(Date.from(instant));
 	}
 	
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws TaskRetrievalFailedException, IOException {
+		Taskie.Controller = new taskie.controller.Controller();
+		Taskie.Controller.getStorage().deleteTaskList();
 	}
 
 	@Test
-	public void testAddCommandFloating() throws InvalidCommandException, InvalidTaskException, TaskRetrievalFailedException {
+	public void testAddCommandFloating() throws InvalidCommandException, InvalidTaskException, TaskRetrievalFailedException, IOException {
+		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
 		Taskie.Controller.executeCommand(cmd);
@@ -66,21 +74,33 @@ public class CommandTest {
 		Task expectedTask = new Task("foo");
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
+	
 	@Test
-	public void testAddCommandDeadline() throws InvalidCommandException, InvalidTaskException, TaskRetrievalFailedException {
+	public void testAddCommandDeadline() throws TaskRetrievalFailedException, IOException {
+		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("bar");
 		cmd.setEndDateTime(_now);
 		Taskie.Controller.executeCommand(cmd);
 		ArrayList<Task> list =Taskie.Controller.getStorage().getTaskList();
-		Task expectedTask = new Task("bar",_today,_time);
-		System.out.println(list.size());
-		Taskie.Controller.getStorage().deleteTaskList();
-		System.out.println(list.size());
-		//System.out.println(expectedTask);
-		//System.out.println(list.get(0));
+		Task expectedTask = new Task("bar",_nowDate,_nowTime);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
+	
+	@Test
+	public void testAddCommandTimed() throws TaskRetrievalFailedException, IOException {
+		setUp();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("foobar");
+		cmd.setEndDateTime(_later);
+		cmd.setStartDateTime(_now);
+		Taskie.Controller.executeCommand(cmd);
+		ArrayList<Task> list =Taskie.Controller.getStorage().getTaskList();
+		Task expectedTask = new Task("foobar",_nowDate,_nowTime,_laterDate,_laterTime);
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+	
+	
 
 	
 	private void generateTasks() {
