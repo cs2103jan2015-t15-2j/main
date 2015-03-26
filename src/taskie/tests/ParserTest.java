@@ -209,13 +209,21 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("discard 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		try {
 			actualCommand = _parser.parse("delete invalidstring");
 			fail();
 		} catch ( InvalidCommandException e ) {
 		}
-	}
+
+		try {
+			actualCommand = _parser.parse("delete");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+}
 	
 	@Test
 	public void testUpdateCommand() throws InvalidCommandException {
