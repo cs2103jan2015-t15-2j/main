@@ -49,7 +49,7 @@ public class MarkCommand implements ICommand {
 	
 	public void execute(){
 		try{
-			_task = retrieveTaskFromParser();
+			_task = retrieveTaskFromUI();
 			Task updatedTask=new Task(_task);
 			
 			if(_task.getTaskStatus()){
@@ -106,7 +106,7 @@ public class MarkCommand implements ICommand {
 				_task.getTitle());
 	}
 
-	private Task retrieveTaskFromParser() throws InvalidTaskException {
+	private Task retrieveTaskFromUI() throws InvalidTaskException {
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
 	}

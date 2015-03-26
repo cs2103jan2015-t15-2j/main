@@ -137,7 +137,7 @@ public class UpdateCommand implements ICommand {
 
 	public void execute() {
 		try {
-			Task task = retrieveTaskToUpdateFromParser();
+			Task task = retrieveTaskToUpdateFromUI();
 			Task updatedTask = updateTask(task);
 			Taskie.Controller.getStorage().updateTask(task, updatedTask);
 			Taskie.Controller.getUI().display(formatUpdateMsg(task));
@@ -270,7 +270,7 @@ public class UpdateCommand implements ICommand {
 
 	}
 
-	private Task retrieveTaskToUpdateFromParser() throws InvalidTaskException {
+	private Task retrieveTaskToUpdateFromUI() throws InvalidTaskException {
 		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
 		return task;
 	}
