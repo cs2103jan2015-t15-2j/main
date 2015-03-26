@@ -44,6 +44,31 @@ public class UnmarkCommand implements ICommand {
 		return _task;
 	}
 
+	public void execute(){
+		try{
+			_task = retrieveTaskFromParser();
+			Task updatedTask=new Task(_task);
+			
+			if(_task.getTaskStatus()){
+				updatedTask.setTaskUndone();
+				Taskie.Controller.getUI().display(formatUnmarkString());
+			}else{
+				Taskie.Controller.getUI().display("stub. Task has not been done.");
+			}
+			try {
+				Taskie.Controller.getStorage().updateTask(_task, updatedTask);
+			} catch (TaskTypeNotSupportedException e) {
+				Taskie.Controller.getUI().display(e.getMessage());
+			} catch (TaskModificationFailedException e) {
+				Taskie.Controller.getUI().display(e.getMessage());
+			}
+		}catch(InvalidTaskException e){
+			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+		}
+	}
+
+
+/*
 	@Override
 	public void execute() {
 		try {
@@ -74,7 +99,7 @@ public class UnmarkCommand implements ICommand {
 			e.printStackTrace();
 		}
 	}
-
+*/
 	private String formatUnmarkString() {
 		return String.format(taskie.models.Messages.UNMARK_STRING,
 				_task.getTitle());

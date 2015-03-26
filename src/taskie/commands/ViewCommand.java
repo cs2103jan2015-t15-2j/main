@@ -185,8 +185,7 @@ public class ViewCommand implements ICommand {
 			}
 			Taskie.Controller.getUI().display(findSearchedTasks(tasks));
 		} catch (TaskRetrievalFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 
@@ -217,8 +216,7 @@ public class ViewCommand implements ICommand {
 			}
 			Taskie.Controller.getUI().display(findCompletedTasks(tasks));
 		} catch (TaskRetrievalFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 
@@ -240,8 +238,7 @@ public class ViewCommand implements ICommand {
 			tasksWithDate.addAll(taskLists.get(TaskType.TIMED));
 			Taskie.Controller.getUI().display(findOverDueTasksAndSort(tasksWithDate));
 		} catch (TaskRetrievalFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 
@@ -275,8 +272,7 @@ public class ViewCommand implements ICommand {
 			}
 			Taskie.Controller.getUI().display(tasksWithDate.toArray(new Task[tasksWithDate.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 
@@ -321,8 +317,7 @@ public class ViewCommand implements ICommand {
 			}
 			Taskie.Controller.getUI().display(tasksWithDate.toArray(new Task[tasksWithDate.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
 

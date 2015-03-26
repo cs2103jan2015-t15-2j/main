@@ -51,10 +51,12 @@ public class MarkCommand implements ICommand {
 		try{
 			_task = retrieveTaskFromParser();
 			Task updatedTask=new Task(_task);
+			
 			if(_task.getTaskStatus()){
 				Taskie.Controller.getUI().display("stub. Task already done");
 			}else{
 				updatedTask.setTaskDone();
+				Taskie.Controller.getUI().display(formatMarkString());
 			}
 			try {
 				Taskie.Controller.getStorage().updateTask(_task, updatedTask);
