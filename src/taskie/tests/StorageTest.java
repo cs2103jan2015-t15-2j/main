@@ -1,101 +1,119 @@
 package taskie.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
+import java.util.Date;
 
+import taskie.Taskie;
 import taskie.database.Storage;
+import taskie.database.IStorage;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.models.Task;
+import taskie.models.TaskType;
+import taskie.parser.CommandParser;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.joestelmach.natty.CalendarSource;
+
 public class StorageTest {
-	public static void main(String[] args) {
-		/*
-		 * 
-		Storage stor = new Storage();
+	
+	private static IStorage storage;
+	private static Task[] tasks;
 
-		HashMap<String,ArrayList<Task>> hm = stor.retrieveTaskMap();
-		ArrayList<Task> timedTaskList = hm.get(Storage.TIMED_TASKNAME);
+	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		storage = new Storage();
+		tasks = new Task[6];
 
-		Task taskToUpdate = timedTaskList.get(0);
-		Task newUpdatedTask = new Task();
-		newUpdatedTask.setTitle("updated");
-		stor.updateTask(taskToUpdate, newUpdatedTask);
-		*/
+	}
+	
+	@Before
+	public void setUp() throws Exception {
+		this.generateTasks();
+	}
+	
+	@Test
+	public void testAddTask() throws TaskTypeNotSupportedException, TaskModificationFailedException, TaskRetrievalFailedException {
+		storage.addTask(tasks[0]);
+		storage.addTask(tasks[1]);
+		storage.addTask(tasks[2]);
+		storage.addTask(tasks[3]);
+		storage.addTask(tasks[4]);
+		storage.addTask(tasks[5]);
 		
-		/*
-		 * Test for storeTaskMap()
-		 
-		Storage stor = new Storage();
+		HashMap<TaskType, ArrayList<Task>> hm = storage.retrieveTaskMap();
+		
 		ArrayList<Task> deadlinedTasks = new ArrayList<Task>();
 		ArrayList<Task> timedTasks = new ArrayList<Task>();
 		ArrayList<Task> floatingTasks = new ArrayList<Task>();
-		HashMap hm = new HashMap<String,ArrayList<Task>>();
-
+		
+		deadlinedTasks = hm.get(TaskType.DEADLINE);
+		timedTasks = hm.get(TaskType.TIMED);
+		floatingTasks = hm.get(TaskType.FLOATING);
+		
+		assertEquals(tasks[0].toString(), deadlinedTasks.get(0).toString());
+		assertEquals(tasks[1].toString(), deadlinedTasks.get(1).toString());
+		
+		assertEquals(tasks[2].toString(), timedTasks.get(0).toString());
+		assertEquals(tasks[3].toString(), timedTasks.get(1).toString());
+		
+		assertEquals(tasks[4].toString(), floatingTasks.get(0).toString());
+		assertEquals(tasks[5].toString(), floatingTasks.get(1).toString());
+		
+	}
+	
+	@Test
+	public void testDeleteTask() {
+		
+	}
+	
+	@Test
+	public void testUpdateTask(){
+		
+	}
+	
+	private void generateTasks() {
+		
+		//Generate deadlined tasks
 		LocalDate dlTask1Ld = LocalDate.of(2015, 2, 10);
 		LocalDate dlTask2Ld = LocalDate.of(2015, 2, 11);
 		LocalTime dlTask2Lt = LocalTime.of(15, 00);
 		Task dlTask1 = new Task("deadline1", dlTask1Ld);
 		Task dlTask2 = new Task("deadline2", dlTask2Ld, dlTask2Lt);
-
+		tasks[0] = dlTask1;
+		tasks[1] = dlTask2;
+		
+		//Generate timed tasks
 		LocalDate tTask3sd = LocalDate.of(2015, 2, 12);
 		LocalDate tTask3ed = LocalDate.of(2015, 2, 13);
 		LocalDate tTask4sd = LocalDate.of(2015, 2, 13);
 		LocalDate tTask4ed = LocalDate.of(2015, 2, 15);
 		LocalTime tTask4st = LocalTime.of(16, 00);
 		LocalTime tTask4et = LocalTime.of(10, 00);
-		Task tTask3 = new Task("timed3", tTask3sd, tTask3ed);
-		Task tTask4 = new Task("timed4", tTask4sd, tTask4st, tTask4ed, tTask4et);
-
-		Task fTask5 = new Task("time5");
-		Task fTask6 = new Task("time6");
+		tasks[2] = new Task("timed3", tTask3sd, tTask3ed);
+		tasks[3] = new Task("timed4", tTask4sd, tTask4st, tTask4ed, tTask4et);
 		
-		deadlinedTasks.add(dlTask1);
-		deadlinedTasks.add(dlTask2);
-		timedTasks.add(tTask3);
-		timedTasks.add(tTask4);
-		floatingTasks.add(fTask5);
-		floatingTasks.add(fTask6);
-		
-		hm.put(Storage.DEADLINED_TASKNAME, deadlinedTasks);
-		hm.put(Storage.TIMED_TASKNAME, timedTasks);
-		hm.put(Storage.FLOATING_TASKNAME, floatingTasks);
-		
-		stor.storeTaskMap(hm);  
-		*/
+		//Generate floating tasks
+		tasks[4] = new Task("time5");
+		tasks[5] = new Task("time6");
 		
 		
-		
-		
-		/*
-		 * Test for retrieveTaskMap() 
-		 *
-		Storage stor = new Storage();
-		HashMap<String,ArrayList<Task>> hm = stor.retrieveTaskMap();
-		for(Task t: hm.get(Storage.TIMED_TASKNAME)){
-			System.out.println(t.getStartDate());
-		}
-		
-		*/
-
-		
-		
-		/*
-		 * Test for addTimedTask()
-		 * 
-		Storage stor = new Storage();
-		LocalDate tTask7sd = LocalDate.of(2015, 1, 11);
-		LocalDate tTask7ed = LocalDate.of(2015, 1, 15);
-		LocalTime tTask7st = LocalTime.of(14, 00);
-		LocalTime tTask7et = LocalTime.of(5, 00);
-		Task tTask7 = new Task("timed7", tTask7sd, tTask7st, tTask7ed, tTask7et);
-		stor.addTimedTask(tTask7);
-		
-		*/
-		
-		
-	
 	}
+	
+
 
 }
