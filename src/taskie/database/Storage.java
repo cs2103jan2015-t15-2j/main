@@ -604,6 +604,8 @@ public class Storage implements IStorage {
 		return _storageLocation;
 	}
 	
+	
+	
 	//@author A0121555M
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		if ( task.getTaskType() == TaskType.FLOATING ) {
@@ -629,7 +631,9 @@ public class Storage implements IStorage {
 			throw new TaskTypeNotSupportedException();
 		}
 	}
+	
 
+	
 	public void close() throws IOException {		
 	}
 }

@@ -259,4 +259,32 @@ public class Task implements Comparable<Task>, Serializable {
 		}
 		return false;
 	}
+	//A0135137L
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("TaskName:" + this.getTitle() + ",");
+		try {
+			sb.append("StartDate:" + this.getStartDate() + ",");
+		} catch (NullPointerException e) {
+			sb.append("StartDate:null,");
+		}
+		try {
+			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
+		} catch (NullPointerException e) {
+			sb.append("StartDateTime:null,");
+		}
+		try {
+			sb.append("EndDate:" + this.getEndDate());
+		} catch (NullPointerException e) {
+			sb.append("EndDate:null");
+		}
+		try {
+			sb.append("EndDateTime:" + this.getEndDateTime());
+		} catch (NullPointerException e) {
+			sb.append("EndDateTime:null");
+		}
+
+		return sb.toString();
+	}
 }
