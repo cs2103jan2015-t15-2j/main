@@ -13,6 +13,8 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import taskie.Taskie;
 import taskie.exceptions.InvalidCommandException;
@@ -39,6 +41,8 @@ public class UpdateCommand implements ICommand {
 	private Boolean _isToUpdateEndDate = false;
 	private Boolean _isToUpdateEndTime = false;
 	private CommandType _commandType = CommandType.UPDATE;
+
+	private Logger _logger = Logger.getLogger(UpdateCommand.class.getName());
 
 	public UpdateCommand() {
 		_taskTitleToUpdate = null;
@@ -136,8 +140,14 @@ public class UpdateCommand implements ICommand {
 	}
 
 	public void execute() {
+		_logger.log(Level.INFO, "task Index: " + _taskIndex
+				+ " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate: "
+				+ _startDateToUpdate + " time: " + _startTimeToUpdate
+				+ "\nendDate: " + _endDateToUpdate + " time:"
+				+ _endTimeToUpdate);
 		try {
 			Task task = retrieveTaskToUpdateFromUI();
+
 			Task updatedTask = updateTask(task);
 			Taskie.Controller.getStorage().updateTask(task, updatedTask);
 			Taskie.Controller.getUI().display(formatUpdateMsg(task));
@@ -151,6 +161,7 @@ public class UpdateCommand implements ICommand {
 			Taskie.Controller.getUI().display(e.getMessage());
 		} catch (TaskModificationFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
+		}catch (Exception e){
 			e.printStackTrace();
 		}
 	}
@@ -158,7 +169,11 @@ public class UpdateCommand implements ICommand {
 	private Task updateTask(Task task) throws InvalidCommandException {
 		Task updatedTask = new Task(task);
 		if (this.isModifiedTaskTitle()) {
-			updatedTask.setTitle(this.getTaskTitleToUpdate());
+			if(_taskTitleToUpdate==null || _taskTitleToUpdate.trim().equalsIgnoreCase("")){
+				throw new InvalidCommandException();
+			}else{
+				updatedTask.setTitle(this.getTaskTitleToUpdate());
+			}
 		}
 		if (this.isModifiedStartDate()) {
 			updatedTask.setStartDate(this.getStartDateToUpdate());
@@ -172,7 +187,9 @@ public class UpdateCommand implements ICommand {
 		if (this.isModifiedEndTime()) {
 			updatedTask.setEndTime(this.getEndTimeToUpdate());
 		}
+		
 		checkForTaskModelConsistency(updatedTask);
+		
 		updatedTask = checkForStartEndDateConsistency(updatedTask);
 		return updatedTask;
 	}
@@ -180,11 +197,13 @@ public class UpdateCommand implements ICommand {
 	// if startDateTime is modified, to beyond enddatetime, enddatetime would be
 	// updated for consistency, and vice versa
 	private Task checkForStartEndDateConsistency(Task task) {
-		Long taskDuration=task.getStartDateTime().until(task.getEndDateTime(), ChronoUnit.MINUTES);
-		if(isModifiedStartDate() || isModifiedStartTime()){
-			if (task.getStartTime() != null && task.getEndTime()!=null) {
-				if (task.getStartDateTime().isAfter(task.getEndDateTime())){
-					task.setEndDateTime(task.getStartDateTime().plusMinutes(taskDuration));
+		if (isModifiedStartDate() || isModifiedStartTime()) {
+			Long taskDuration = task.getStartDateTime().until(
+					task.getEndDateTime(), ChronoUnit.MINUTES);
+			if (task.getStartTime() != null && task.getEndTime() != null) {
+				if (task.getStartDateTime().isAfter(task.getEndDateTime())) {
+					task.setEndDateTime(task.getStartDateTime().plusMinutes(
+							taskDuration));
 				}
 			}
 		}
@@ -211,8 +230,6 @@ public class UpdateCommand implements ICommand {
 			}
 		}
 	}
-
-
 
 	private String formatUpdateMsg(Task task) {
 		String message = String.format(taskie.models.Messages.UPDATE_STRING,
@@ -255,40 +272,33 @@ public class UpdateCommand implements ICommand {
 		sb.append("StartTime:" + _startTimeToUpdate + ",");
 		sb.append("EndDate:" + _endDateToUpdate + ",");
 		sb.append("EndTime:" + _endTimeToUpdate);
-		return sb.toString(); 
-	}
-	
-	/* @author A0097582N-unused
-	 * reason for unused: code deprecated by new APIs
-	private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) throws InvalidCommandException {
-		try {
-			TaskType taskType = task.getTaskType();
-			HashMap<TaskType, ArrayList<Task>> taskLists = Taskie.Controller.getStorage().retrieveTaskMap();
-			ArrayList<Task> taskList = taskLists.get(taskType);
-			int taskIndexInStorage = taskList.indexOf(task);// index of task in storage.
-			Task updatedTask = updateTask(task);
-			updateTaskInStorage(taskType, taskLists, taskList, taskIndexInStorage, updatedTask);
-		} catch (TaskRetrievalFailedException e) {
-		}
+		return sb.toString();
 	}
 
-	private void updateTaskInStorage(TaskType taskType, HashMap<TaskType, ArrayList<Task>> taskLists, ArrayList<Task> taskList, int taskIndexInStorage, Task updatedTask) {
-		try {
-			// determine if, after updating, task still belongs to the same
-			// taskType. If it is then we just need to remove and delete from the
-			// same list
-			if (taskType == updatedTask.getTaskType()) {
-				taskList.remove(taskIndexInStorage);
-				taskList.add(taskIndexInStorage, updatedTask);
-			} else {
-				taskLists.get(updatedTask.getTaskType()).add(updatedTask);
-			}
-			Taskie.Controller.getStorage().storeTaskMap(taskLists);
-		} catch (TaskTypeNotSupportedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
-		} catch (TaskModificationFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
-		}
-	}
-	*/
+	/*
+	 * @author A0097582N-unused reason for unused: code deprecated by new APIs
+	 * private void retrieveTaskToUpdateFromStorageAndUpdate(Task task) throws
+	 * InvalidCommandException { try { TaskType taskType = task.getTaskType();
+	 * HashMap<TaskType, ArrayList<Task>> taskLists =
+	 * Taskie.Controller.getStorage().retrieveTaskMap(); ArrayList<Task>
+	 * taskList = taskLists.get(taskType); int taskIndexInStorage =
+	 * taskList.indexOf(task);// index of task in storage. Task updatedTask =
+	 * updateTask(task); updateTaskInStorage(taskType, taskLists, taskList,
+	 * taskIndexInStorage, updatedTask); } catch (TaskRetrievalFailedException
+	 * e) { } }
+	 * 
+	 * private void updateTaskInStorage(TaskType taskType, HashMap<TaskType,
+	 * ArrayList<Task>> taskLists, ArrayList<Task> taskList, int
+	 * taskIndexInStorage, Task updatedTask) { try { // determine if, after
+	 * updating, task still belongs to the same // taskType. If it is then we
+	 * just need to remove and delete from the // same list if (taskType ==
+	 * updatedTask.getTaskType()) { taskList.remove(taskIndexInStorage);
+	 * taskList.add(taskIndexInStorage, updatedTask); } else {
+	 * taskLists.get(updatedTask.getTaskType()).add(updatedTask); }
+	 * Taskie.Controller.getStorage().storeTaskMap(taskLists); } catch
+	 * (TaskTypeNotSupportedException e) {
+	 * Taskie.Controller.getUI().display(e.getMessage()); } catch
+	 * (TaskModificationFailedException e) {
+	 * Taskie.Controller.getUI().display(e.getMessage()); } }
+	 */
 }

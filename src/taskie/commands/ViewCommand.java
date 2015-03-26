@@ -20,7 +20,7 @@ import taskie.parser.CommandParser;
 
 public class ViewCommand implements ICommand {
 	private CommandType _commandType = CommandType.VIEW;
-	private Logger _logger = Logger.getLogger(CommandParser.class.getName());
+	private Logger _logger = Logger.getLogger(ViewCommand.class.getName());
 	// @author A0121555M
 	private ViewType _viewType;
 	private LocalDate _startDate;
