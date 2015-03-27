@@ -90,6 +90,7 @@ public class UpdateCommand implements ICommand {
 	public void setStartDateToUpdate(LocalDate startDateToUpdate) {
 		_isToUpdateStartDate = true;
 		this._startDateToUpdate = startDateToUpdate;
+		System.out.println("startdateeeeee");
 	}
 
 	public LocalTime getStartTimeToUpdate() {
@@ -160,7 +161,7 @@ public class UpdateCommand implements ICommand {
 			Taskie.Controller.getUI().display(e.getMessage());
 		} catch (TaskModificationFailedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
-		}catch (Exception e){
+		} catch (Exception e) {
 			Taskie.Controller.getUI().display(e.getMessage());
 		}
 	}
@@ -168,10 +169,10 @@ public class UpdateCommand implements ICommand {
 	private Task updateTask(Task task) throws InvalidCommandException {
 		Task updatedTask = new Task(task);
 		if (this.isModifiedTaskTitle()) {
-			if(_taskTitleToUpdate==null || _taskTitleToUpdate.trim().equalsIgnoreCase("")){
-				_logger.log(Level.INFO,"thrown here.");
+			if (_taskTitleToUpdate == null
+					|| _taskTitleToUpdate.trim().equalsIgnoreCase("")) {
 				throw new InvalidCommandException();
-			}else{
+			} else {
 				updatedTask.setTitle(this.getTaskTitleToUpdate());
 			}
 		}
@@ -187,27 +188,24 @@ public class UpdateCommand implements ICommand {
 		if (this.isModifiedEndTime()) {
 			updatedTask.setEndTime(this.getEndTimeToUpdate());
 		}
-		
+
 		checkForTaskModelConsistency(updatedTask);
-		
-		updatedTask = checkForStartEndDateConsistency(updatedTask);
+		updatedTask = checkForStartEndDateConsistency(task, updatedTask);
 		return updatedTask;
 	}
 
 	// if startDateTime is modified, to beyond enddatetime, enddatetime would be
 	// updated for consistency, and vice versa
-	private Task checkForStartEndDateConsistency(Task task) {
+	private Task checkForStartEndDateConsistency(Task task, Task updatedTask) {
 		if (isModifiedStartDate() || isModifiedStartTime()) {
 			Long taskDuration = task.getStartDateTime().until(
 					task.getEndDateTime(), ChronoUnit.MINUTES);
-			if (task.getStartTime() != null && task.getEndTime() != null) {
-				if (task.getStartDateTime().isAfter(task.getEndDateTime())) {
-					task.setEndDateTime(task.getStartDateTime().plusMinutes(
-							taskDuration));
-				}
+			if (updatedTask.getStartDateTime().isAfter(updatedTask.getEndDateTime())) {
+				updatedTask.setEndDateTime(updatedTask.getStartDateTime().plusMinutes(
+						taskDuration));
 			}
 		}
-		return task;
+		return updatedTask;
 	}
 
 	// task model consistency refers to datetime consistency. Time cannot be
@@ -216,17 +214,20 @@ public class UpdateCommand implements ICommand {
 			throws InvalidCommandException {
 		if (task.getStartDate() == null) {
 			if (task.getStartTime() != null) {
-				throw new InvalidCommandException("task startdate cannot be null when task endtime is not null");
+				throw new InvalidCommandException(
+						"task startdate cannot be null when task endtime is not null");
 			}
 		}
 		if (task.getEndDate() == null) {
 			if (task.getEndTime() != null) {
-				throw new InvalidCommandException("task enddate cannot be null when task end time is not null");
+				throw new InvalidCommandException(
+						"task enddate cannot be null when task end time is not null");
 			}
 		}
 		if (task.getEndDateTime() == null) {
 			if (task.getStartDateTime() != null) {
-				throw new InvalidCommandException("startdatetime must be null if enddatetime is null");
+				throw new InvalidCommandException(
+						"startdatetime must be null if enddatetime is null");
 			}
 		}
 	}
