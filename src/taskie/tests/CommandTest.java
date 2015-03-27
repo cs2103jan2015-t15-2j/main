@@ -115,7 +115,7 @@ public class CommandTest {
 		cmd.execute();
 	}
 	@Test
-	public void testUpdateCommandTaskName() throws TaskRetrievalFailedException, IOException, InvalidTaskException{
+	public void testUpdateCommandTaskNameSimple() throws TaskRetrievalFailedException, IOException, InvalidTaskException{
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -134,8 +134,60 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(),list.get(0).toString());
 		
 	}
+	@Test
+	public void testUpdateCommandTaskNameComplex() throws TaskRetrievalFailedException, IOException, InvalidTaskException{
+		setUp();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("foo");
+		cmd.setStartDateTime(_now);
+		cmd.setEndDateTime(_later);
+		cmd.execute();
+		ArrayList<Task> tasks=Taskie.Controller.getStorage().getTaskList();
+		Taskie.Controller.getUI().display(tasks.toArray(new Task[tasks.size()]));
+		System.out.println(Taskie.Controller.getUI().getCurrentTaskList()[0]);
+		UpdateCommand update = new UpdateCommand();
+		update.setTaskTitleToUpdate("bar");
+		update.setTaskIndex(1);
+		update.execute();
+		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		System.out.println("here: "+list.size());
+		System.out.println(list.get(0));
+		Task expectedTask=new Task("bar");
+		expectedTask.setStartDateTime(_now);
+		expectedTask.setEndDateTime(_later);
+		assertEquals(expectedTask.toString(),list.get(0).toString());
+		
+	}
+	@Test
+	public void testUpdateCommandEndTimeSimple() throws TaskRetrievalFailedException, IOException, InvalidTaskException{
+		setUp();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("foo");
+		cmd.setEndDateTime(_now);
+		cmd.execute();
+		ArrayList<Task> tasks=Taskie.Controller.getStorage().getTaskList();
+		Taskie.Controller.getUI().display(tasks.toArray(new Task[tasks.size()]));
+		System.out.println(Taskie.Controller.getUI().getCurrentTaskList()[0]);
+		UpdateCommand update = new UpdateCommand();
+		update.setEndDateToUpdate(_laterDate);
+		update.setEndTimeToUpdate(_laterTime);
+		update.setTaskIndex(1);
+		update.execute();
+		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		System.out.println("here: "+list.size());
+		System.out.println(list.get(0));
+		Task expectedTask=new Task("foo");
+		expectedTask.setEndDateTime(_later);
+		assertEquals(expectedTask.toString(),list.get(0).toString());
+		
+	}
+	
 	
 
+	
+	
+	
+	
 	
 	private void generateTasks() {
 		for(int i=0;i<10;i++){
