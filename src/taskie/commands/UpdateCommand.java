@@ -90,7 +90,6 @@ public class UpdateCommand implements ICommand {
 	public void setStartDateToUpdate(LocalDate startDateToUpdate) {
 		_isToUpdateStartDate = true;
 		this._startDateToUpdate = startDateToUpdate;
-		System.out.println("startdateeeeee");
 	}
 
 	public LocalTime getStartTimeToUpdate() {

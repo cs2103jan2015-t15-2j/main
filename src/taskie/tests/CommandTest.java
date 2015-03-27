@@ -274,7 +274,6 @@ public class CommandTest {
 		long duration = _now.until(_time1, ChronoUnit.MINUTES);
 		expectedTask.setStartDateTime(_time2);
 		expectedTask.setEndDateTime(_time2.plusMinutes(duration));
-		System.out.println();
 		System.out.println(expectedTask);
 		System.out.println(list.get(0).toString());
 		assertEquals(expectedTask.toString(), list.get(0).toString());
@@ -304,7 +303,6 @@ public class CommandTest {
 		long duration = _time1.until(_time2, ChronoUnit.MINUTES);
 		expectedTask.setStartDateTime(_time3);
 		expectedTask.setEndDateTime(_time3.plusMinutes(duration));
-		System.out.println();
 		System.out.println(expectedTask);
 		System.out.println(list.get(0).toString());
 		assertEquals(expectedTask.toString(), list.get(0).toString());
