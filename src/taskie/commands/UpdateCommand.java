@@ -9,6 +9,7 @@
 package taskie.commands;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import java.util.logging.Logger;
 import taskie.Taskie;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskDateInvalidException;
+import taskie.exceptions.TaskDateNotSetException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -165,7 +168,7 @@ public class UpdateCommand implements ICommand {
 		}
 	}
 
-	private Task updateTask(Task task) throws InvalidCommandException {
+	private Task updateTask(Task task) throws InvalidCommandException, TaskDateNotSetException, TaskDateInvalidException {
 		Task updatedTask = new Task(task);
 		if (this.isModifiedTaskTitle()) {
 			if (_taskTitleToUpdate == null
@@ -175,18 +178,18 @@ public class UpdateCommand implements ICommand {
 				updatedTask.setTitle(this.getTaskTitleToUpdate());
 			}
 		}
-		if (this.isModifiedStartDate()) {
-			updatedTask.setStartDate(this.getStartDateToUpdate());
+		LocalDateTime updateStartDateTime=task.getStartDateTime();
+		LocalDateTime updateEndDateTime=task.getEndDateTime();
+		
+		if(this.isModifiedStartDate()){
+			if(this._startDateToUpdate!=null){
+				updateStartDateTime.with(_startDateToUpdate);
+			}else{
+				updateStartDateTime=null;
+			}
 		}
-		if (this.isModifiedStartTime()) {
-			updatedTask.setStartTime(this.getStartTimeToUpdate());
-		}
-		if (this.isModifiedEndDate()) {
-			updatedTask.setEndDate(this.getEndDateToUpdate());
-		}
-		if (this.isModifiedEndTime()) {
-			updatedTask.setEndTime(this.getEndTimeToUpdate());
-		}
+
+		
 
 		checkForTaskModelConsistency(updatedTask);
 		updatedTask = checkForStartEndDateConsistency(task, updatedTask);
@@ -195,7 +198,7 @@ public class UpdateCommand implements ICommand {
 
 	// if startDateTime is modified, to beyond enddatetime, enddatetime would be
 	// updated for consistency, and vice versa
-	private Task checkForStartEndDateConsistency(Task task, Task updatedTask) {
+	private Task checkForStartEndDateConsistency(Task task, Task updatedTask) throws TaskDateNotSetException, TaskDateInvalidException {
 		if (isModifiedStartDate() || isModifiedStartTime()) {
 			Long taskDuration = task.getStartDateTime().until(
 					task.getEndDateTime(), ChronoUnit.MINUTES);

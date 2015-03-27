@@ -25,6 +25,8 @@ import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskDateInvalidException;
+import taskie.exceptions.TaskDateNotSetException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.models.Task;
 import taskie.models.ViewType;
@@ -179,7 +181,7 @@ public class CommandTest {
 	// @Test
 	public void testUpdateCommandTaskNameComplex()
 			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException {
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -203,7 +205,7 @@ public class CommandTest {
 
 	// @Test
 	public void testUpdateCommandEndTime() throws TaskRetrievalFailedException,
-			IOException, InvalidTaskException {
+			IOException, InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -226,7 +228,7 @@ public class CommandTest {
 	// @Test
 	public void testUpdateCommandStartEndDateTime()
 			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException {
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -253,7 +255,7 @@ public class CommandTest {
 	@Test
 	public void testUpdateCommandStartEndDateTimeComplex()
 			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException {
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -282,7 +284,7 @@ public class CommandTest {
 	@Test
 	public void testUpdateCommandStartEndDateTimeComplex2()
 			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException {
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");

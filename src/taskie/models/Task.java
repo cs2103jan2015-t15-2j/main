@@ -21,9 +21,9 @@ public class Task implements Comparable<Task>, Serializable {
 	public Task() {
 		_title = null;
 		_startDate = null;
-		_startTime = null;
+		_startTime = LocalTime.MAX;
 		_endDate = null;
-		_endTime = null;
+		_endTime = LocalTime.MAX;
 		_isDone = false;
 	}
 
@@ -44,7 +44,11 @@ public class Task implements Comparable<Task>, Serializable {
 	public Task(String title, LocalDate endDate, LocalTime endTime) {
 		_title = title;
 		_endDate = endDate;
-		_endTime = endTime;
+		if(endTime==null){
+			_endTime=LocalTime.MAX;
+		}else{
+			_endTime = endTime;
+		}
 		_isDone = false;
 	}
 
@@ -60,9 +64,17 @@ public class Task implements Comparable<Task>, Serializable {
 	public Task(String title, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
 		_title = title;
 		_startDate = startDate;
-		_startTime = startTime;
+		if(startTime==null){
+		_startTime = LocalTime.MAX;
+		}else{
+			_startTime=startTime;
+		}
 		_endDate = endDate;
-		_endTime = endTime;
+		if(endTime==null){
+			_endTime=LocalTime.MAX;
+		}else{
+			_endTime = endTime;
+		}
 		_isDone = false;
 	}
 	
