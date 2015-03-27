@@ -62,7 +62,8 @@ public class Task implements Comparable<Task>, Serializable {
 		_endTime = endTime;
 		_isDone = false;
 	}
-	//author:A0097582N
+	
+	//@author A0097582N
 	public Task(Task task){
 		_title=task.getTitle();
 		_startDate= task.getStartDate();
@@ -72,6 +73,7 @@ public class Task implements Comparable<Task>, Serializable {
 		_isDone = task.isDone();
 	}
 
+	//@author A0121555M
 	public String getTitle() {
 		return _title;
 	}
