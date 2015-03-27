@@ -57,9 +57,12 @@ public class CommandTest {
 
 	private static LocalDate _time2Date;
 	private static LocalTime _time2Time;
+	private static LocalDate _time3Date;
+	private static LocalTime _time3Time;
 
 	private static LocalDateTime _time1;
 	private static LocalDateTime _time2;
+	private static LocalDateTime _time3;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -67,8 +70,9 @@ public class CommandTest {
 		_now = LocalDateTime.now();
 		_later = LocalDateTime.now();
 		_evenLater = LocalDateTime.now();
-		_time1 = _now.plusDays(1).plusHours(1);
+		_time1 = LocalDateTime.of(2100,1,1,12,0).plusDays(1).plusHours(1);
 		_time2 = _time1.plusHours(2);
+		_time3 = _time1.plusDays(1);
 
 		
 		_nowDate = _now.toLocalDate();
@@ -81,6 +85,8 @@ public class CommandTest {
 		_time1Time = _time1.toLocalTime();
 		_time2Date = _time2.toLocalDate();
 		_time2Time = _time2.toLocalTime();
+		_time3Date = _time3.toLocalDate();
+		_time3Time = _time3.toLocalTime();
 
 		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
 		CalendarSource.setBaseDate(Date.from(instant));
@@ -268,6 +274,36 @@ public class CommandTest {
 		long duration = _now.until(_time1, ChronoUnit.MINUTES);
 		expectedTask.setStartDateTime(_time2);
 		expectedTask.setEndDateTime(_time2.plusMinutes(duration));
+		System.out.println();
+		System.out.println(expectedTask);
+		System.out.println(list.get(0).toString());
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
+	@Test
+	public void testUpdateCommandStartEndDateTimeComplex2()
+			throws TaskRetrievalFailedException, IOException,
+			InvalidTaskException {
+		setUp();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("foo");
+		cmd.setEndDateTime(_time2);
+		cmd.setStartDateTime(_time1);
+		cmd.execute();
+		ArrayList<Task> tasks = Taskie.Controller.getStorage().getTaskList();
+		Taskie.Controller.getUI()
+				.display(tasks.toArray(new Task[tasks.size()]));
+		UpdateCommand update = new UpdateCommand();
+		update.setStartDateToUpdate(_time3Date);
+		update.setStartTimeToUpdate(_time3Time);
+		update.setTaskIndex(1);
+		update.execute();
+		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		Task expectedTask = new Task("foo");
+
+		long duration = _time1.until(_time2, ChronoUnit.MINUTES);
+		expectedTask.setStartDateTime(_time3);
+		expectedTask.setEndDateTime(_time3.plusMinutes(duration));
 		System.out.println();
 		System.out.println(expectedTask);
 		System.out.println(list.get(0).toString());
