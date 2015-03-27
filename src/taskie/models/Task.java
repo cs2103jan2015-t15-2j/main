@@ -130,7 +130,7 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public void setStartDate(LocalDate startDate) throws TaskDateInvalidException {
-		if (_endDate == null || _endDate.isAfter(startDate)) {
+		if (_endDate == null || startDate.isAfter(_endDate)) {
 			throw new TaskDateInvalidException("startDate is after endDate");
 		} else {
 			this._startDate = startDate;
