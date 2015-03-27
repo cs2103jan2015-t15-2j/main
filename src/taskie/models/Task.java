@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.io.Serializable;
 
+import taskie.exceptions.TaskDateInvalidException;
+import taskie.exceptions.TaskDateNotSetException;
+
 public class Task implements Comparable<Task>, Serializable {
 	private String _title;
 
@@ -91,7 +94,7 @@ public class Task implements Comparable<Task>, Serializable {
 				(_startTime == null) ? LocalTime.MAX : _startTime);
 	}
 
-	public void setStartDateTime(LocalDateTime startDateTime) {
+	public void setStartDateTime(LocalDateTime startDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
 		this.setStartDate(startDateTime.toLocalDate());
 		this.setStartTime(startDateTime.toLocalTime());
 	}
@@ -105,7 +108,7 @@ public class Task implements Comparable<Task>, Serializable {
 				: _endTime);
 	}
 
-	public void setEndDateTime(LocalDateTime endDateTime) {
+	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
 		this.setEndDate(endDateTime.toLocalDate());
 		this.setEndTime(endDateTime.toLocalTime());
 	}
@@ -114,14 +117,9 @@ public class Task implements Comparable<Task>, Serializable {
 		return _startDate;
 	}
 
-	public void setStartDate(LocalDate startDate) {
-		if (_endDate == null) {
-			this._endDate = startDate;
-		}
-
-		if (_endDate.isBefore(startDate)) {
-			this._startDate = this._endDate;
-			this._endDate = startDate;
+	public void setStartDate(LocalDate startDate) throws TaskDateInvalidException {
+		if (_endDate == null || _endDate.isAfter(startDate)) {
+			throw new TaskDateInvalidException("startDate is after endDate");
 		} else {
 			this._startDate = startDate;
 		}
@@ -131,14 +129,9 @@ public class Task implements Comparable<Task>, Serializable {
 		return _endDate;
 	}
 
-	public void setEndDate(LocalDate endDate) {
-		if (_startDate == null) {
-			this._startDate = endDate;
-		}
-
-		if (_startDate.isAfter(endDate)) {
-			this._endDate = this._startDate;
-			this._startDate = endDate;
+	public void setEndDate(LocalDate endDate) throws TaskDateInvalidException {
+		if (_startDate == null || _startDate.isAfter(endDate)) {
+			throw new TaskDateInvalidException("startDate is after endDate");
 		} else {
 			this._endDate = endDate;
 		}
@@ -148,16 +141,38 @@ public class Task implements Comparable<Task>, Serializable {
 		return _startTime;
 	}
 
-	public void setStartTime(LocalTime startTime) {
-		this._startTime = startTime;
+	public void setStartTime(LocalTime startTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		if ( _startDate == null ) {
+			 throw new TaskDateNotSetException("Start date not set");
+		}
+		
+		LocalDateTime start = this.getStartDateTime().with(startTime);
+		LocalDateTime end = this.getEndDateTime();
+		
+		if ( isValidDateTime(start, end) ) {
+			this._startTime = startTime;
+		} else {
+			throw new TaskDateInvalidException("startDateTime after endDateTime");			
+		}
 	}
 
 	public LocalTime getEndTime() {
 		return _endTime;
 	}
 
-	public void setEndTime(LocalTime endTime) {
-		this._endTime = endTime;
+	public void setEndTime(LocalTime endTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		if ( _endDate == null ) {
+			 throw new TaskDateNotSetException("End date not set");
+		}
+		
+		LocalDateTime start = this.getStartDateTime();
+		LocalDateTime end = this.getEndDateTime().with(endTime);
+		
+		if ( isValidDateTime(start, end) ) {
+			this._endTime = endTime;
+		} else {
+			throw new TaskDateInvalidException("endDateTime before startDateTime");			
+		}
 	}
 
 	public void setTaskDone() {
@@ -181,6 +196,14 @@ public class Task implements Comparable<Task>, Serializable {
 		} else {
 			return TaskType.TIMED;
 		}
+	}
+	
+	private boolean isValidDateTime(LocalDateTime start, LocalDateTime end) {
+		if ( start.isAfter(end) || end.isBefore(start)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	// @author A0097582N
@@ -271,6 +294,7 @@ public class Task implements Comparable<Task>, Serializable {
 		}
 		return false;
 	}
+	
 	//A0135137L
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
