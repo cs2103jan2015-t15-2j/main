@@ -8,4 +8,8 @@ public class InvalidCommandException extends Exception {
 	public InvalidCommandException() {
 		super(DEFAULT_MESSAGE);
 	}
+
+	public InvalidCommandException(String string) {
+		super(string);
+	}
 }

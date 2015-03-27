@@ -155,8 +155,7 @@ public class UpdateCommand implements ICommand {
 			Taskie.Controller.getUI().display(
 					taskie.models.Messages.INVALID_TASK_NUM);
 		} catch (InvalidCommandException e) {
-			Taskie.Controller.getUI().display(
-					taskie.models.Messages.INVALID_COMMAND);
+			Taskie.Controller.getUI().display(e.getMessage());
 		} catch (TaskTypeNotSupportedException e) {
 			Taskie.Controller.getUI().display(e.getMessage());
 		} catch (TaskModificationFailedException e) {
@@ -170,6 +169,7 @@ public class UpdateCommand implements ICommand {
 		Task updatedTask = new Task(task);
 		if (this.isModifiedTaskTitle()) {
 			if(_taskTitleToUpdate==null || _taskTitleToUpdate.trim().equalsIgnoreCase("")){
+				_logger.log(Level.INFO,"thrown here.");
 				throw new InvalidCommandException();
 			}else{
 				updatedTask.setTitle(this.getTaskTitleToUpdate());
@@ -216,17 +216,17 @@ public class UpdateCommand implements ICommand {
 			throws InvalidCommandException {
 		if (task.getStartDate() == null) {
 			if (task.getStartTime() != null) {
-				throw new InvalidCommandException();
+				throw new InvalidCommandException("task startdate cannot be null when task endtime is not null");
 			}
 		}
 		if (task.getEndDate() == null) {
-			if (task.getEndDate() != null) {
-				throw new InvalidCommandException();
+			if (task.getEndTime() != null) {
+				throw new InvalidCommandException("task enddate cannot be null when task end time is not null");
 			}
 		}
 		if (task.getEndDateTime() == null) {
-			if (task.getStartDateTime() == null) {
-				throw new InvalidCommandException();
+			if (task.getStartDateTime() != null) {
+				throw new InvalidCommandException("startdatetime must be null if enddatetime is null");
 			}
 		}
 	}

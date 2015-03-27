@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import taskie.Taskie;
 import taskie.commands.AddCommand;
 import taskie.commands.ICommand;
+import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
@@ -57,6 +59,11 @@ public class CommandTest {
 		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
 		CalendarSource.setBaseDate(Date.from(instant));
 	}
+	@AfterClass
+	public static void cleanUp() throws IOException, TaskRetrievalFailedException{
+		Taskie.Controller = new taskie.controller.Controller();
+		Taskie.Controller.getStorage().deleteTaskList();
+	}
 	
 	@Before
 	public void setUp() throws TaskRetrievalFailedException, IOException {
@@ -64,7 +71,7 @@ public class CommandTest {
 		Taskie.Controller.getStorage().deleteTaskList();
 	}
 
-	@Test
+//	@Test
 	public void testAddCommandFloating() throws InvalidCommandException, InvalidTaskException, TaskRetrievalFailedException, IOException {
 		setUp();
 		AddCommand cmd = new AddCommand();
@@ -75,7 +82,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 	
-	@Test
+	//@Test
 	public void testAddCommandDeadline() throws TaskRetrievalFailedException, IOException {
 		setUp();
 		AddCommand cmd = new AddCommand();
@@ -87,7 +94,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 	
-	@Test
+//	@Test
 	public void testAddCommandTimed() throws TaskRetrievalFailedException, IOException {
 		setUp();
 		AddCommand cmd = new AddCommand();
@@ -100,35 +107,48 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 	
+	//@Test
+	public void testViewCommandAll() throws TaskRetrievalFailedException, IOException{
+		setUp();
+		generateTasks();
+		ViewCommand cmd = new ViewCommand(ViewType.ALL);
+		cmd.execute();
+	}
+	@Test
+	public void testUpdateCommandTaskName() throws TaskRetrievalFailedException, IOException, InvalidTaskException{
+		setUp();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("foo");
+		cmd.execute();
+		ArrayList<Task> tasks=Taskie.Controller.getStorage().getTaskList();
+		Taskie.Controller.getUI().display(tasks.toArray(new Task[tasks.size()]));
+		System.out.println(Taskie.Controller.getUI().getCurrentTaskList()[0]);
+		UpdateCommand update = new UpdateCommand();
+		update.setTaskTitleToUpdate("bar");
+		update.setTaskIndex(1);
+		update.execute();
+		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		System.out.println("here: "+list.size());
+		System.out.println(list.get(0));
+		Task expectedTask=new Task("bar");
+		assertEquals(expectedTask.toString(),list.get(0).toString());
+		
+	}
 	
 
 	
 	private void generateTasks() {
-		String[] tasks = new String[] {
-				"add do Task A",
-				"add do Task B by tomorrow",
-				"put collect Task B in 48 hours",
-				"create work on Task 1 on Monday",
-				"create work on Task 2 on Tuesday",
-				"create work on Task 3 on Wednesday",
-				"create work on Task 4 on Thursday",
-				"create work on Task 5 on Friday",
-				"create work on Task 6 on Saturday",
-				"create work on Task 7 on Sunday",
-				"create work on Task 8 by " + _now.plusDays(3),
-				"create work on Task 9 by " + _now.plusDays(4).plusHours(4),
-		};
-		
-		for (String task : tasks) {
-			try {
-				ICommand cmd = _parser.parse(task);
-				Taskie.Controller.executeCommand(cmd);
-			} catch ( InvalidCommandException e ) {
-				
+		for(int i=0;i<10;i++){
+			AddCommand cmd = new AddCommand();
+			cmd.setTaskName("foo "+i);
+			if(i%2==0){
+				cmd.setEndDateTime(_later);
+				if(i%3==0){
+					cmd.setStartDateTime(_now);
+				}
 			}
+		cmd.execute();
 		}
-		
-		Taskie.Controller.executeCommand(new ViewCommand(ViewType.ALL));
 	}
 
 }

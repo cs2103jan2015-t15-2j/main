@@ -80,19 +80,7 @@ public class Controller {
 		command.execute();
 	}
 
-	//@author A0097582N-unused
-	//Reason for unused: Moved to Task Model by Yunheng (code commented because it will break existing code)
-	/*
-	public String determineTaskType(Task task) {
-		if (task.getStartDate() == null && task.getEndDate() == null) {
-			return FLOATING_TASKNAME;
-		} else if (task.getStartDate() == null && task.getEndDate() != null) {
-			return DEADLINED_TASKNAME;
-		} else {
-			return TIMED_TASKNAME;
-		}
-	}
-	*/
+
 	
 	//@author A0121555M
 	public Stack<ICommand> getUndoStack() {
