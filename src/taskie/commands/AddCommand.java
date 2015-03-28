@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-import taskie.Taskie;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
@@ -167,25 +166,20 @@ public class AddCommand extends AbstractCommand {
 			return String.format(taskie.models.Messages.ADD_TIMED, task.getTitle(), task.getStartDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), task.getEndDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 		}
 	}
-	
+
 	//@author A0097582N-unused
-	//Reason for unused: Not necessary
+	// Reason for unused: Not necessary
 	/*
-	private Task determineTaskTypeAndAdd() {
-		Task task = null;
-		if (_startDate == null && _endDate == null) { // has no start and end date
-			task = new Task(_taskName);
-			Taskie.Controller.getStorage().addFloatingTask(task);
-		} else if (_startDate == null && _endDate != null) { // has only end date
-			task = new Task(_taskName, _endDate, _endTime);
-			Taskie.Controller.getStorage().addDeadlinedTask(task);
-		} else { // has both start and end date
-			task = new Task(_taskName, _startDate, _startTime, _endDate, _endTime);
-			Taskie.Controller.getStorage().addTimedTask(task);
-		}
-		return task;
-	}
-	*/
+	 * private Task determineTaskTypeAndAdd() { Task task = null; if (_startDate
+	 * == null && _endDate == null) { // has no start and end date task = new
+	 * Task(_taskName); Taskie.Controller.getStorage().addFloatingTask(task); }
+	 * else if (_startDate == null && _endDate != null) { // has only end date
+	 * task = new Task(_taskName, _endDate, _endTime);
+	 * Taskie.Controller.getStorage().addDeadlinedTask(task); } else { // has
+	 * both start and end date task = new Task(_taskName, _startDate,
+	 * _startTime, _endDate, _endTime);
+	 * Taskie.Controller.getStorage().addTimedTask(task); } return task; }
+	 */
 
 	//@author A0121555M
 	@Override

@@ -27,9 +27,7 @@ public class FileReaderWriter {
 	}
 
 	public void write(String str) throws IOException {
-		OutputStream out = Files
-				.newOutputStream(_file, StandardOpenOption.CREATE,
-						StandardOpenOption.TRUNCATE_EXISTING);
+		OutputStream out = Files.newOutputStream(_file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 		_writer = new OutputStreamWriter(out, DEFAULT_ENCODING);
 		_writer.write(str);
 		_writer.flush();
@@ -37,8 +35,7 @@ public class FileReaderWriter {
 
 	public String read() throws IOException {
 		InputStream in = Files.newInputStream(_file);
-		BufferedReader _reader = new BufferedReader(new InputStreamReader(in,
-				DEFAULT_ENCODING));
+		BufferedReader _reader = new BufferedReader(new InputStreamReader(in, DEFAULT_ENCODING));
 		String text = "";
 		String line;
 

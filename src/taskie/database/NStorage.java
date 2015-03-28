@@ -14,7 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.Controller;
-import taskie.Taskie;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -23,7 +22,6 @@ import taskie.models.TaskType;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sun.jmx.snmp.tasks.TaskServer;
 
 public class NStorage implements IStorage {
 	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
@@ -130,7 +128,7 @@ public class NStorage implements IStorage {
 		}
 	}
 
-	// @author A0121555M
+	//@author A0121555M
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
 			String json = _gson.toJson(task);
@@ -211,28 +209,28 @@ public class NStorage implements IStorage {
 		_logger.log(Level.INFO, "Closing Storage");
 		_db.close();
 	}
+
 	//@author A0097582N
-	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException{
-		ArrayList<Task> tasks=new ArrayList<Task>();
+	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException {
+		ArrayList<Task> tasks = new ArrayList<Task>();
 		try {
 			String json = _db.read();
 			_tasks = _gson.fromJson(json, new TypeToken<ArrayList<String>>() {
 			}.getType());
-			for(String jsonTask : _tasks){
+			for (String jsonTask : _tasks) {
 				Task task = _gson.fromJson(jsonTask, Task.class);
 				tasks.add(task);
 			}
-			
+
 		} catch (IOException e) {
 			throw new TaskRetrievalFailedException(e);
 		}
 		return tasks;
-		
-		
+
 	}
-	public void deleteTaskList() throws TaskRetrievalFailedException{
+
+	public void deleteTaskList() throws TaskRetrievalFailedException {
 		_db.deleteFile(_databasePath);
 	}
-	
-	
+
 }

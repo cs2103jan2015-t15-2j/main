@@ -8,7 +8,6 @@
 
 package taskie.commands;
 
-import taskie.Taskie;
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -71,7 +70,7 @@ public class UnmarkCommand extends AbstractCommand {
 		return task;
 	}
 
-	// @author A0121555M
+	//@author A0121555M
 	public void undo() {
 		new MarkCommand(_taskIndex).execute();
 	}

@@ -16,7 +16,6 @@ import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 
 import taskie.Controller;
-import taskie.Taskie;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.Messages;

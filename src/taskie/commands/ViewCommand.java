@@ -18,7 +18,7 @@ import taskie.models.ViewType;
 public class ViewCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.VIEW;
 	private Logger _logger = Logger.getLogger(ViewCommand.class.getName());
-	// @author A0121555M
+	//@author A0121555M
 	private ViewType _viewType;
 	private LocalDate _startDate;
 	private LocalTime _startTime;
@@ -151,7 +151,7 @@ public class ViewCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	// @author A0097582N
+	//@author A0097582N
 	@Override
 	public void execute() {
 		_logger.log(
@@ -389,7 +389,7 @@ public class ViewCommand extends AbstractCommand {
 		return tasksToDisplay;
 	}
 
-	// @author A0121555M
+	//@author A0121555M
 	public void undo() throws UndoNotSupportedException {
 		throw new UndoNotSupportedException();
 	}

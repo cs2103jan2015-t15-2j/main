@@ -19,9 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import taskie.Controller;
-import taskie.Taskie;
 import taskie.commands.AddCommand;
-import taskie.commands.ICommand;
 import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
