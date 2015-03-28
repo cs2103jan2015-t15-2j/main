@@ -144,9 +144,6 @@ public class Task implements Comparable<Task>, Serializable {
 		return _startDate;
 	}
 	
-	public void setStartAndEndDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime)  throws TaskDateNotSetException, TaskDateInvalidException {
-	}
-
 	public void setStartDate(LocalDate newStartDate) throws TaskDateInvalidException {
 		Period p = Period.between(newStartDate, _startDate);
 		_startDate = newStartDate;
