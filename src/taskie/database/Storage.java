@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
 import taskie.models.TaskType;
@@ -635,5 +636,17 @@ public class Storage implements IStorage {
 
 	
 	public void close() throws IOException {		
+	}
+
+	@Override
+	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteTaskList() throws TaskRetrievalFailedException {
+		// TODO Auto-generated method stub
+		
 	}
 }
