@@ -168,7 +168,8 @@ public class UpdateCommand implements ICommand {
 		}
 	}
 
-	private Task updateTask(Task task) throws InvalidCommandException, TaskDateNotSetException, TaskDateInvalidException {
+	private Task updateTask(Task task) throws InvalidCommandException,
+			TaskDateNotSetException, TaskDateInvalidException {
 		Task updatedTask = new Task(task);
 		if (this.isModifiedTaskTitle()) {
 			if (_taskTitleToUpdate == null
@@ -178,33 +179,65 @@ public class UpdateCommand implements ICommand {
 				updatedTask.setTitle(this.getTaskTitleToUpdate());
 			}
 		}
-		LocalDateTime updateStartDateTime=task.getStartDateTime();
-		LocalDateTime updateEndDateTime=task.getEndDateTime();
+		LocalDateTime updateStartDateTime = adjustedStartTimeToUpdate(task);
+		LocalDateTime updateEndDateTime = adjustedEndDateTimeToUpdate(task);
+		Long taskDuration = task.getStartDateTime().until(task.getEndDateTime(),ChronoUnit.MINUTES);
 		
-		if(this.isModifiedStartDate()){
-			if(this._startDateToUpdate!=null){
-				updateStartDateTime.with(_startDateToUpdate);
-			}else{
-				updateStartDateTime=null;
+		if(updateStartDateTime.isAfter(updateEndDateTime)){
+			if((isModifiedStartDate()||isModifiedStartTime())&&(isModifiedEndDate()||isModifiedEndTime())){
+				throw new InvalidCommandException(taskie.models.Messages.INVALID_DATE_INPUT);
 			}
 		}
 
-		
 
 		checkForTaskModelConsistency(updatedTask);
 		updatedTask = checkForStartEndDateConsistency(task, updatedTask);
 		return updatedTask;
 	}
 
+	private LocalDateTime adjustedEndDateTimeToUpdate(Task task) {
+		LocalDateTime updateEndDateTime = task.getEndDateTime();
+		
+		if (isModifiedEndTime() && _endTimeToUpdate == null) {
+			updateEndDateTime.with(LocalTime.MAX);
+		} else if (isModifiedEndTime()) {
+			updateEndDateTime.with(_endTimeToUpdate);
+		}
+		if (isModifiedEndDate() && _endDateToUpdate == null) {
+			updateEndDateTime=null;
+		} else if (isModifiedEndDate()) {
+			updateEndDateTime.with(_endDateToUpdate);
+		}
+		return updateEndDateTime;
+	}
+
+	private LocalDateTime adjustedStartTimeToUpdate(Task task)
+			throws TaskDateNotSetException, TaskDateInvalidException {
+		LocalDateTime updateStartDateTime = task.getStartDateTime();
+		if (isModifiedStartTime() && _startTimeToUpdate == null) {
+			updateStartDateTime.with(LocalTime.MAX);
+		} else if (isModifiedStartTime()) {
+			updateStartDateTime.with(_startTimeToUpdate);
+		}
+		if (isModifiedStartDate() && _startDateToUpdate == null) {
+			updateStartDateTime=null;
+		} else if (isModifiedStartDate()) {
+			updateStartDateTime.with(_startDateToUpdate);
+		}
+		return updateStartDateTime;
+	}
+
 	// if startDateTime is modified, to beyond enddatetime, enddatetime would be
 	// updated for consistency, and vice versa
-	private Task checkForStartEndDateConsistency(Task task, Task updatedTask) throws TaskDateNotSetException, TaskDateInvalidException {
+	private Task checkForStartEndDateConsistency(Task task, Task updatedTask)
+			throws TaskDateNotSetException, TaskDateInvalidException {
 		if (isModifiedStartDate() || isModifiedStartTime()) {
 			Long taskDuration = task.getStartDateTime().until(
 					task.getEndDateTime(), ChronoUnit.MINUTES);
-			if (updatedTask.getStartDateTime().isAfter(updatedTask.getEndDateTime())) {
-				updatedTask.setEndDateTime(updatedTask.getStartDateTime().plusMinutes(
-						taskDuration));
+			if (updatedTask.getStartDateTime().isAfter(
+					updatedTask.getEndDateTime())) {
+				updatedTask.setEndDateTime(updatedTask.getStartDateTime()
+						.plusMinutes(taskDuration));
 			}
 		}
 		return updatedTask;
@@ -216,20 +249,17 @@ public class UpdateCommand implements ICommand {
 			throws InvalidCommandException {
 		if (task.getStartDate() == null) {
 			if (task.getStartTime() != null) {
-				throw new InvalidCommandException(
-						"task startdate cannot be null when task endtime is not null");
+				throw new InvalidCommandException(taskie.models.Messages.INVALID_DATE_INPUT);
 			}
 		}
 		if (task.getEndDate() == null) {
 			if (task.getEndTime() != null) {
-				throw new InvalidCommandException(
-						"task enddate cannot be null when task end time is not null");
+				throw new InvalidCommandException(taskie.models.Messages.INVALID_DATE_INPUT);
 			}
 		}
 		if (task.getEndDateTime() == null) {
 			if (task.getStartDateTime() != null) {
-				throw new InvalidCommandException(
-						"startdatetime must be null if enddatetime is null");
+				throw new InvalidCommandException(taskie.models.Messages.INVALID_DATE_INPUT);
 			}
 		}
 	}
@@ -238,19 +268,19 @@ public class UpdateCommand implements ICommand {
 		String message = String.format(taskie.models.Messages.UPDATE_STRING,
 				task.getTitle());
 		if (this.isModifiedTaskTitle()) {
-			message = message.concat("task title\n");
+			message = message.concat(taskie.models.Messages.TASK_TITLE);
 		}
 		if (this.isModifiedStartDate()) {
-			message = message.concat("start date\n");
+			message = message.concat(taskie.models.Messages.START_DATE);
 		}
 		if (this.isModifiedStartTime()) {
-			message = message.concat("start time\n");
+			message = message.concat(taskie.models.Messages.START_TIME);
 		}
 		if (this.isModifiedEndDate()) {
-			message = message.concat("end date\n");
+			message = message.concat(taskie.models.Messages.END_DATE);
 		}
 		if (this.isModifiedEndTime()) {
-			message = message.concat("end time\n");
+			message = message.concat(taskie.models.Messages.END_TIME);
 		}
 		return message;
 
