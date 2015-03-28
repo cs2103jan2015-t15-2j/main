@@ -13,68 +13,83 @@ public class Task implements Comparable<Task>, Serializable {
 
 	//@author A0121555M
 	private LocalDate _startDate;
-	private LocalDate _endDate;
 	private LocalTime _startTime;
+	private LocalDate _endDate;
 	private LocalTime _endTime;
 	private Boolean _isDone;
 
 	public Task() {
 		_title = null;
 		_startDate = null;
-		_startTime = LocalTime.MAX;
+		_startTime = null;
 		_endDate = null;
-		_endTime = LocalTime.MAX;
+		_endTime = null;
 		_isDone = false;
 	}
 
 	// Floating Task (Tasks without specific times)
 	public Task(String title) {
 		_title = title;
+		_startDate = null;
+		_startTime = null;
+		_endDate = null;
+		_endTime = null;
 		_isDone = false;
 	}
 
 	// Deadlines (Done before specific deadline)
+	public Task(String title, LocalDateTime endDateTime) {
+		_title = title;
+		_startDate = null;
+		_startTime = null;
+		_endDate = endDateTime.toLocalDate();
+		_endTime = endDateTime.toLocalTime();
+		_isDone = false;
+	}
+
 	public Task(String title, LocalDate endDate) {
 		_title = title;
+		_startDate = null;
+		_startTime = null;
 		_endDate = endDate;
+		_endTime = null;
 		_isDone = false;
 	}
-
-	// Deadlines (Done before specific deadline)
+	
 	public Task(String title, LocalDate endDate, LocalTime endTime) {
 		_title = title;
+		_startDate = endDate;
+		_startTime = endTime;
 		_endDate = endDate;
-		if(endTime==null){
-			_endTime=LocalTime.MAX;
-		}else{
-			_endTime = endTime;
-		}
+		_endTime = endTime;
 		_isDone = false;
 	}
 
 	// Timed Task (Specific Start Time and End Time)
+	public Task(String title, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		_title = title;
+		_startDate = startDateTime.toLocalDate();
+		_startTime = startDateTime.toLocalTime();
+		_endDate = endDateTime.toLocalDate();
+		_endTime = endDateTime.toLocalTime();
+		_isDone = false;
+	}
+
 	public Task(String title, LocalDate startDate, LocalDate endDate) {
 		_title = title;
 		_startDate = startDate;
+		_startTime = null;
 		_endDate = endDate;
+		_endTime = null;
 		_isDone = false;
 	}
-
-	// Timed Task (Specific Start Time and End Time)
+	
 	public Task(String title, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
 		_title = title;
 		_startDate = startDate;
-		if(startTime==null){
-		_startTime = LocalTime.MAX;
-		}else{
-			_startTime=startTime;
-		}
+		_startTime = startTime;
 		_endDate = endDate;
-		if(endTime==null){
-			_endTime=LocalTime.MAX;
-		}else{
-			_endTime = endTime;
-		}
+		_endTime = endTime;
 		_isDone = false;
 	}
 	
@@ -102,13 +117,19 @@ public class Task implements Comparable<Task>, Serializable {
 			return null;
 		}
 
-		return LocalDateTime.of(_startDate,
-				(_startTime == null) ? LocalTime.MAX : _startTime);
+		return LocalDateTime.of(_startDate, (_startTime == null) ? LocalTime.MAX : _startTime);
 	}
 
 	public void setStartDateTime(LocalDateTime startDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		this.setStartDate(startDateTime.toLocalDate());
-		this.setStartTime(startDateTime.toLocalTime());
+		LocalDateTime start = startDateTime;
+		LocalDateTime end = this.getEndDateTime();
+		
+		if ( isValidDateTime(start, end) ) {
+			_startDate = startDateTime.toLocalDate();
+			_startTime = startDateTime.toLocalTime();
+		} else {
+			throw new TaskDateInvalidException("startDateTime after endDateTime");			
+		}
 	}
 
 	public LocalDateTime getEndDateTime() {
@@ -116,13 +137,19 @@ public class Task implements Comparable<Task>, Serializable {
 			return null;
 		}
 
-		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX
-				: _endTime);
+		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX : _endTime);
 	}
 
 	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		this.setEndDate(endDateTime.toLocalDate());
-		this.setEndTime(endDateTime.toLocalTime());
+		LocalDateTime start = this.getStartDateTime();
+		LocalDateTime end = endDateTime;
+		
+		if ( isValidDateTime(start, end) ) {
+			_endDate = endDateTime.toLocalDate();
+			_endTime = endDateTime.toLocalTime();
+		} else {
+			throw new TaskDateInvalidException("startDateTime after endDateTime");			
+		}
 	}
 
 	public LocalDate getStartDate() {
@@ -130,10 +157,13 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public void setStartDate(LocalDate startDate) throws TaskDateInvalidException {
-		if (_endDate == null || startDate.isAfter(_endDate)) {
-			throw new TaskDateInvalidException("startDate is after endDate");
+		LocalDateTime start = this.getStartDateTime().with(startDate);
+		LocalDateTime end = this.getEndDateTime();
+		
+		if (isValidDateTime(start, end) ) {
+			_startDate = startDate;
 		} else {
-			this._startDate = startDate;
+			throw new TaskDateInvalidException("startDateTime after endDateTime");			
 		}
 	}
 
@@ -142,10 +172,13 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public void setEndDate(LocalDate endDate) throws TaskDateInvalidException {
-		if (_startDate == null || _startDate.isAfter(endDate)) {
-			throw new TaskDateInvalidException("startDate is after endDate");
+		LocalDateTime start = this.getStartDateTime();
+		LocalDateTime end = this.getEndDateTime().with(endDate);
+		
+		if ( isValidDateTime(start, end) ) {
+			_endDate = endDate;
 		} else {
-			this._endDate = endDate;
+			throw new TaskDateInvalidException("startDateTime after endDateTime");			
 		}
 	}
 
@@ -199,11 +232,11 @@ public class Task implements Comparable<Task>, Serializable {
 		return _isDone;
 	}
 
-	//@author A0121555M-reused
+	//@author A0121555M
 	public TaskType getTaskType() {
-		if (this.getStartDate() == null && this.getEndDate() == null) {
+		if (_startDate == null && _endDate == null) {
 			return TaskType.FLOATING;
-		} else if (this.getStartDate() == null && this.getEndDate() != null) {
+		} else if (_startDate == null && _endDate != null) {
 			return TaskType.DEADLINE;
 		} else {
 			return TaskType.TIMED;
@@ -211,6 +244,11 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 	
 	private boolean isValidDateTime(LocalDateTime start, LocalDateTime end) {
+		if ( start == null ) {
+			// user can set end only but no start (deadlined)
+			return true;
+		}
+		
 		if ( start.isAfter(end) || end.isBefore(start)) {
 			return false;
 		}
