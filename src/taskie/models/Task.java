@@ -1,9 +1,11 @@
 package taskie.models;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.io.Serializable;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 
 import taskie.exceptions.TaskDateInvalidException;
 import taskie.exceptions.TaskDateNotSetException;
@@ -121,15 +123,8 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public void setStartDateTime(LocalDateTime startDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		LocalDateTime start = startDateTime;
-		LocalDateTime end = this.getEndDateTime();
-		
-		if ( isValidDateTime(start, end) ) {
-			_startDate = startDateTime.toLocalDate();
-			_startTime = startDateTime.toLocalTime();
-		} else {
-			throw new TaskDateInvalidException("startDateTime after endDateTime");			
-		}
+		this.setStartDate(startDateTime.toLocalDate());
+		this.setStartTime(startDateTime.toLocalTime());
 	}
 
 	public LocalDateTime getEndDateTime() {
@@ -141,63 +136,50 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		LocalDateTime start = this.getStartDateTime();
-		LocalDateTime end = endDateTime;
-		
-		if ( isValidDateTime(start, end) ) {
-			_endDate = endDateTime.toLocalDate();
-			_endTime = endDateTime.toLocalTime();
-		} else {
-			throw new TaskDateInvalidException("startDateTime after endDateTime");			
-		}
+		this.setEndDate(endDateTime.toLocalDate());
+		this.setEndTime(endDateTime.toLocalTime());
 	}
 
 	public LocalDate getStartDate() {
 		return _startDate;
 	}
+	
+	public void setStartAndEndDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime)  throws TaskDateNotSetException, TaskDateInvalidException {
+	}
 
-	public void setStartDate(LocalDate startDate) throws TaskDateInvalidException {
-		LocalDateTime start = this.getStartDateTime().with(startDate);
-		LocalDateTime end = this.getEndDateTime();
-		
-		if (isValidDateTime(start, end) ) {
-			_startDate = startDate;
-		} else {
-			throw new TaskDateInvalidException("startDateTime after endDateTime");			
-		}
+	public void setStartDate(LocalDate newStartDate) throws TaskDateInvalidException {
+		Period p = Period.between(newStartDate, _startDate);
+		_startDate = newStartDate;
+		_endDate = _endDate.plus(p);
 	}
 
 	public LocalDate getEndDate() {
 		return _endDate;
 	}
 
-	public void setEndDate(LocalDate endDate) throws TaskDateInvalidException {
-		LocalDateTime start = this.getStartDateTime();
-		LocalDateTime end = this.getEndDateTime().with(endDate);
-		
-		if ( isValidDateTime(start, end) ) {
-			_endDate = endDate;
-		} else {
-			throw new TaskDateInvalidException("startDateTime after endDateTime");			
+	public void setEndDate(LocalDate newEndDate) throws TaskDateInvalidException {
+		if ( newEndDate.isAfter(_startDate) ) {
+			throw new TaskDateInvalidException("New End Date is after Start Date");	
 		}
+
+		_endDate = newEndDate;
 	}
 
 	public LocalTime getStartTime() {
 		return _startTime;
 	}
 
-	public void setStartTime(LocalTime startTime) throws TaskDateNotSetException, TaskDateInvalidException {
+	public void setStartTime(LocalTime newStartTime) throws TaskDateInvalidException, TaskDateNotSetException {
 		if ( _startDate == null ) {
 			 throw new TaskDateNotSetException("Start date not set");
 		}
 		
-		LocalDateTime start = this.getStartDateTime().with(startTime);
-		LocalDateTime end = this.getEndDateTime();
-		
-		if ( isValidDateTime(start, end) ) {
-			this._startTime = startTime;
+		if ( newStartTime == null ) {
+			_startTime = null;
 		} else {
-			throw new TaskDateInvalidException("startDateTime after endDateTime");			
+			long difference = ChronoUnit.NANOS.between(_startTime, newStartTime);
+			_startTime = newStartTime;
+			_endTime = _endTime.plusNanos(difference);
 		}
 	}
 
@@ -205,18 +187,18 @@ public class Task implements Comparable<Task>, Serializable {
 		return _endTime;
 	}
 
-	public void setEndTime(LocalTime endTime) throws TaskDateNotSetException, TaskDateInvalidException {
+	public void setEndTime(LocalTime newEndTime) throws TaskDateInvalidException, TaskDateNotSetException {
 		if ( _endDate == null ) {
 			 throw new TaskDateNotSetException("End date not set");
 		}
 		
-		LocalDateTime start = this.getStartDateTime();
-		LocalDateTime end = this.getEndDateTime().with(endTime);
-		
-		if ( isValidDateTime(start, end) ) {
-			this._endTime = endTime;
+		if ( newEndTime == null ) {
+			_endTime = null;
 		} else {
-			throw new TaskDateInvalidException("endDateTime before startDateTime");			
+			if ( newEndTime.isBefore(_startTime) ) {
+				throw new TaskDateInvalidException("New End Time is after Start Time");	
+			}
+			_endTime = newEndTime;
 		}
 	}
 
@@ -241,19 +223,6 @@ public class Task implements Comparable<Task>, Serializable {
 		} else {
 			return TaskType.TIMED;
 		}
-	}
-	
-	private boolean isValidDateTime(LocalDateTime start, LocalDateTime end) {
-		if ( start == null ) {
-			// user can set end only but no start (deadlined)
-			return true;
-		}
-		
-		if ( start.isAfter(end) || end.isBefore(start)) {
-			return false;
-		}
-
-		return true;
 	}
 
 	// @author A0097582N
