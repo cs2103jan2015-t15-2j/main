@@ -60,8 +60,8 @@ public class Task implements Comparable<Task>, Serializable {
 	
 	public Task(String title, LocalDate endDate, LocalTime endTime) {
 		_title = title;
-		_startDate = endDate;
-		_startTime = endTime;
+		_startDate = null;
+		_startTime = null;
 		_endDate = endDate;
 		_endTime = endTime;
 		_isDone = false;
@@ -136,6 +136,10 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		if ( endDateTime.isBefore(this.getStartDateTime())) {
+			throw new TaskDateInvalidException("New End Date Time is after Start Date Time");
+		}
+		
 		this.setEndDate(endDateTime.toLocalDate());
 		this.setEndTime(endDateTime.toLocalTime());
 	}
@@ -145,9 +149,13 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 	
 	public void setStartDate(LocalDate newStartDate) throws TaskDateInvalidException {
-		Period p = Period.between(newStartDate, _startDate);
-		_startDate = newStartDate;
-		_endDate = _endDate.plus(p);
+		if ( _startDate == null ) {
+			_startDate = newStartDate;
+		} else {
+			Period p = Period.between(_startDate, newStartDate);
+			_startDate = newStartDate;
+			_endDate = _endDate.plus(p);
+		}
 	}
 
 	public LocalDate getEndDate() {
@@ -155,8 +163,8 @@ public class Task implements Comparable<Task>, Serializable {
 	}
 
 	public void setEndDate(LocalDate newEndDate) throws TaskDateInvalidException {
-		if ( newEndDate.isAfter(_startDate) ) {
-			throw new TaskDateInvalidException("New End Date is after Start Date");	
+		if ( newEndDate.isBefore(_startDate) ) {
+			throw new TaskDateInvalidException("New End Date is before Start Date");	
 		}
 
 		_endDate = newEndDate;
@@ -173,6 +181,8 @@ public class Task implements Comparable<Task>, Serializable {
 		
 		if ( newStartTime == null ) {
 			_startTime = null;
+		} else if ( _startTime == null ) {
+			_startTime = newStartTime;
 		} else {
 			long difference = ChronoUnit.NANOS.between(_startTime, newStartTime);
 			_startTime = newStartTime;
@@ -192,7 +202,8 @@ public class Task implements Comparable<Task>, Serializable {
 		if ( newEndTime == null ) {
 			_endTime = null;
 		} else {
-			if ( newEndTime.isBefore(_startTime) ) {
+			LocalDateTime newEndDateTime = LocalDateTime.of(_endDate, newEndTime);
+			if ( this.getStartDateTime() != null && newEndDateTime.isBefore(this.getStartDateTime()) ) {
 				throw new TaskDateInvalidException("New End Time is after Start Time");	
 			}
 			_endTime = newEndTime;
