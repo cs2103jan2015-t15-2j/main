@@ -29,7 +29,7 @@ import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.TaskType;
 
-public class UpdateCommand implements ICommand {
+public class UpdateCommand extends AbstractCommand {
 	int NUM_ATTRIBUTE = 2;
 	private int _taskIndex;
 	private String _taskTitleToUpdate;
@@ -152,19 +152,19 @@ public class UpdateCommand implements ICommand {
 			Task task = retrieveTaskToUpdateFromUI();
 
 			Task updatedTask = updateTask(task);
-			Taskie.Controller.getStorage().updateTask(task, updatedTask);
-			Taskie.Controller.getUI().display(formatUpdateMsg(task));
+			_controller.getStorage().updateTask(task, updatedTask);
+			_controller.getUI().display(formatUpdateMsg(task));
 		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(
+			_controller.getUI().display(
 					taskie.models.Messages.INVALID_TASK_NUM);
 		} catch (InvalidCommandException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		} catch (TaskTypeNotSupportedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		} catch (TaskModificationFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		} catch (Exception e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		}
 	}
 
@@ -287,13 +287,13 @@ public class UpdateCommand implements ICommand {
 	}
 
 	private Task retrieveTaskToUpdateFromUI() throws InvalidTaskException {
-		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
+		Task task = _controller.getUI().getTask(_taskIndex);
 		return task;
 	}
 
 	// @author A0121555M
 	public void undo() {
-		// Taskie.Controller.executeCommand(new DeleteCommand(_task));
+		// _controller.executeCommand(new DeleteCommand(_task));
 	}
 
 	public String toString() {

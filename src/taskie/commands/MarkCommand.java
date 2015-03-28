@@ -15,7 +15,7 @@ import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
-public class MarkCommand implements ICommand {
+public class MarkCommand extends AbstractCommand {
 
 	private CommandType _commandType = CommandType.MARK;
 	private Task _task;
@@ -45,20 +45,20 @@ public class MarkCommand implements ICommand {
 			Task updatedTask = new Task(_task);
 
 			if (_task.isDone()) {
-				Taskie.Controller.getUI().display("stub. Task already done");
+				_controller.getUI().display("stub. Task already done");
 			} else {
 				updatedTask.setTaskDone();
-				Taskie.Controller.getUI().display(formatMarkString());
+				_controller.getUI().display(formatMarkString());
 			}
 			try {
-				Taskie.Controller.getStorage().updateTask(_task, updatedTask);
+				_controller.getStorage().updateTask(_task, updatedTask);
 			} catch (TaskTypeNotSupportedException e) {
-				Taskie.Controller.getUI().display(e.getMessage());
+				_controller.getUI().display(e.getMessage());
 			} catch (TaskModificationFailedException e) {
-				Taskie.Controller.getUI().display(e.getMessage());
+				_controller.getUI().display(e.getMessage());
 			}
 		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+			_controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
 
@@ -67,7 +67,7 @@ public class MarkCommand implements ICommand {
 	}
 
 	private Task retrieveTaskFromUI() throws InvalidTaskException {
-		Task task = Taskie.Controller.getUI().getTask(_taskIndex);
+		Task task = _controller.getUI().getTask(_taskIndex);
 		return task;
 	}
 

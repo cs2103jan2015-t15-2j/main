@@ -4,7 +4,7 @@ package taskie.ui;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.Task;
 
-public interface UI {
+public interface UI {	
 	public void run();
 
 	public String readInput();

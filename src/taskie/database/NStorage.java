@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import taskie.Controller;
 import taskie.Taskie;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
@@ -29,6 +30,7 @@ public class NStorage implements IStorage {
 	private static final String DATABASE_FILENAME = "taskie.txt";
 	private static final String NEWLINE = System.lineSeparator();
 
+	private Controller _controller;
 	private Logger _logger;
 	private Path _databasePath;
 	private FileReaderWriter _db;
@@ -73,9 +75,9 @@ public class NStorage implements IStorage {
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());
 			_databasePath = newDatabasePath;
 			_db = new FileReaderWriter(_databasePath);
-			Taskie.Controller.getUI().display("Database is now saved at: " + _databasePath.toString());
+			_controller.getUI().display("Database is now saved at: " + _databasePath.toString());
 		} catch (IOException ex) {
-			Taskie.Controller.getUI().display("Failed to set new location: " + ex.getMessage());
+			_controller.getUI().display("Failed to set new location: " + ex.getMessage());
 		}
 	}
 

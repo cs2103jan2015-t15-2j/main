@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import taskie.Controller;
 import taskie.Taskie;
 import taskie.commands.AddCommand;
 import taskie.commands.ICommand;
@@ -39,6 +40,7 @@ public class CommandTest {
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 
+	private static Controller _controller;
 	private static Parser _parser;
 
 	private static LocalDate _nowDate;
@@ -68,6 +70,7 @@ public class CommandTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		_controller = Controller.getInstance();
 		_parser = new CommandParser();
 		_now = LocalDateTime.now();
 		_later = LocalDateTime.now();
@@ -95,16 +98,13 @@ public class CommandTest {
 	}
 
 	@AfterClass
-	public static void cleanUp() throws IOException,
-			TaskRetrievalFailedException {
-		Taskie.Controller = new taskie.controller.Controller();
-		Taskie.Controller.getStorage().deleteTaskList();
+	public static void cleanUp() throws IOException, TaskRetrievalFailedException {
+		_controller.getStorage().deleteTaskList();
 	}
 
 	@Before
 	public void setUp() throws TaskRetrievalFailedException, IOException {
-		Taskie.Controller = new taskie.controller.Controller();
-		Taskie.Controller.getStorage().deleteTaskList();
+		_controller.getStorage().deleteTaskList();
 	}
 
 	// @Test
@@ -113,8 +113,8 @@ public class CommandTest {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
-		Taskie.Controller.executeCommand(cmd);
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		_controller.executeCommand(cmd);
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo");
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
@@ -126,8 +126,8 @@ public class CommandTest {
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("bar");
 		cmd.setEndDateTime(_now);
-		Taskie.Controller.executeCommand(cmd);
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		_controller.executeCommand(cmd);
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("bar", _nowDate, _nowTime);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
@@ -140,8 +140,8 @@ public class CommandTest {
 		cmd.setTaskName("foobar");
 		cmd.setEndDateTime(_later);
 		cmd.setStartDateTime(_now);
-		Taskie.Controller.executeCommand(cmd);
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		_controller.executeCommand(cmd);
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foobar", _nowDate, _nowTime, _laterDate,
 				_laterTime);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
@@ -164,15 +164,15 @@ public class CommandTest {
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
 		cmd.execute();
-		ArrayList<Task> tasks = Taskie.Controller.getStorage().getTaskList();
-		Taskie.Controller.getUI()
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
 
 		UpdateCommand update = new UpdateCommand();
 		update.setTaskTitleToUpdate("bar");
 		update.setTaskIndex(1);
 		update.execute();
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("bar");
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 
@@ -188,14 +188,14 @@ public class CommandTest {
 		cmd.setStartDateTime(_now);
 		cmd.setEndDateTime(_later);
 		cmd.execute();
-		ArrayList<Task> tasks = Taskie.Controller.getStorage().getTaskList();
-		Taskie.Controller.getUI()
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
 		UpdateCommand update = new UpdateCommand();
 		update.setTaskTitleToUpdate("bar");
 		update.setTaskIndex(1);
 		update.execute();
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("bar");
 		expectedTask.setStartDateTime(_now);
 		expectedTask.setEndDateTime(_later);
@@ -211,15 +211,15 @@ public class CommandTest {
 		cmd.setTaskName("foo");
 		cmd.setEndDateTime(_now);
 		cmd.execute();
-		ArrayList<Task> tasks = Taskie.Controller.getStorage().getTaskList();
-		Taskie.Controller.getUI()
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
 		UpdateCommand update = new UpdateCommand();
 		update.setEndDateToUpdate(_laterDate);
 		update.setEndTimeToUpdate(_laterTime);
 		update.setTaskIndex(1);
 		update.execute();
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo");
 		expectedTask.setEndDateTime(_later);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
@@ -235,8 +235,8 @@ public class CommandTest {
 		cmd.setEndDateTime(_later);
 		cmd.setStartDateTime(_now);
 		cmd.execute();
-		ArrayList<Task> tasks = Taskie.Controller.getStorage().getTaskList();
-		Taskie.Controller.getUI()
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
 		UpdateCommand update = new UpdateCommand();
 		update.setEndDateToUpdate(_evenLaterDate);
@@ -245,7 +245,7 @@ public class CommandTest {
 		update.setStartTimeToUpdate(_laterTime);
 		update.setTaskIndex(1);
 		update.execute();
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo");
 		expectedTask.setStartDateTime(_later);
 		expectedTask.setEndDateTime(_evenLater);
@@ -262,15 +262,15 @@ public class CommandTest {
 		cmd.setEndDateTime(_time1);
 		cmd.setStartDateTime(_now);
 		cmd.execute();
-		ArrayList<Task> tasks = Taskie.Controller.getStorage().getTaskList();
-		Taskie.Controller.getUI()
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
 		UpdateCommand update = new UpdateCommand();
 		update.setStartDateToUpdate(_time2Date);
 		update.setStartTimeToUpdate(_time2Time);
 		update.setTaskIndex(1);
 		update.execute();
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo");
 
 		long duration = _now.until(_time1, ChronoUnit.MINUTES);
@@ -280,6 +280,7 @@ public class CommandTest {
 		System.out.println(list.get(0).toString());
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
+	
 	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
 	@Test
 	public void testUpdateCommandStartEndDateTimeComplex2()
@@ -291,15 +292,14 @@ public class CommandTest {
 		cmd.setEndDateTime(_time2);
 		cmd.setStartDateTime(_time1);
 		cmd.execute();
-		ArrayList<Task> tasks = Taskie.Controller.getStorage().getTaskList();
-		Taskie.Controller.getUI()
-				.display(tasks.toArray(new Task[tasks.size()]));
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI().display(tasks.toArray(new Task[tasks.size()]));
 		UpdateCommand update = new UpdateCommand();
 		update.setStartDateToUpdate(_time3Date);
 		update.setStartTimeToUpdate(_time3Time);
 		update.setTaskIndex(1);
 		update.execute();
-		ArrayList<Task> list = Taskie.Controller.getStorage().getTaskList();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo");
 
 		long duration = _time1.until(_time2, ChronoUnit.MINUTES);

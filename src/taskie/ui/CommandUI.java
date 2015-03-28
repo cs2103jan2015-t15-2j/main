@@ -15,6 +15,7 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 
+import taskie.Controller;
 import taskie.Taskie;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidTaskException;
@@ -26,13 +27,15 @@ import taskie.models.ViewType;
 public class CommandUI implements UI {
 	private static int TASKS_PER_PAGE = 20;
 
+	private Controller _controller;
 	private Scanner _scanner;
 	private Task[] _currentTaskList;
 	private static boolean _isInitialized;
 	private static boolean _isUIRunning;
 	private LocalDateTime _now;
 
-	public CommandUI() {
+	public CommandUI(Controller controller) {
+		_controller = controller;
 		_scanner = new Scanner(System.in);
 		_isInitialized = false;
 		_now = LocalDateTime.now();
@@ -136,7 +139,7 @@ public class CommandUI implements UI {
 		this.display(ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
 		this.display(ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.UI_WELCOME_MESSAGE + " ").reset() + Messages.NEWLINE);
 		this.display(ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
-		Taskie.Controller.executeCommand(new ViewCommand(ViewType.ALL));
+		_controller.executeCommand(new ViewCommand(ViewType.ALL));
 	}
 
 	public void run() {

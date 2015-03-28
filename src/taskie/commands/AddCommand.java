@@ -19,7 +19,7 @@ import taskie.models.CommandType;
 import taskie.models.Task;
 import taskie.models.TaskType;
 
-public class AddCommand implements ICommand {
+public class AddCommand extends AbstractCommand {
 	private String _taskName;
 	private LocalDate _startDate;
 	private LocalTime _startTime;
@@ -147,12 +147,12 @@ public class AddCommand implements ICommand {
 		assert _taskName != null;
 		try {
 			_task = new Task(_taskName, _startDate, _startTime, _endDate, _endTime);
-			Taskie.Controller.getStorage().addTask(_task);
-			Taskie.Controller.getUI().display(formatAddMsg(_task));
+			_controller.getStorage().addTask(_task);
+			_controller.getUI().display(formatAddMsg(_task));
 		} catch (TaskTypeNotSupportedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		} catch (TaskModificationFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		}
 	}
 

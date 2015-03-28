@@ -8,14 +8,13 @@
 
 package taskie.commands;
 
-import taskie.Taskie;
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
 
-public class DeleteCommand implements ICommand {	
+public class DeleteCommand extends AbstractCommand {	
 	private Task _task;
 	private String _taskName;
 	private int _taskIndex;
@@ -120,22 +119,22 @@ public class DeleteCommand implements ICommand {
 			if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
 					|| canDeleteEndTime()) {	//if either of these methods returned true, only task fields are to be deleted.
 				deleteTaskField();
-				Taskie.Controller.getUI().display(formatDeleteTaskFieldString());
+				_controller.getUI().display(formatDeleteTaskFieldString());
 			}else{
 				deleteTask();
-				Taskie.Controller.getUI().display(formatDeleteTaskString());
+				_controller.getUI().display(formatDeleteTaskString());
 			}
 		} catch (InvalidTaskException e) {
-			Taskie.Controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+			_controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
 		} catch (TaskTypeNotSupportedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		} catch (TaskModificationFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		}
 	}
 
 	private void getTaskFromUI() throws InvalidTaskException {
-		_task = Taskie.Controller.getUI().getTask(_taskIndex);
+		_task = _controller.getUI().getTask(_taskIndex);
 		_taskName=_task.getTitle();
 	}
 
@@ -154,7 +153,7 @@ public class DeleteCommand implements ICommand {
 		if(canDeleteEndTime()){
 			updateCommand.setEndTimeToUpdate(null);
 		}
-		Taskie.Controller.executeCommand(updateCommand);
+		_controller.executeCommand(updateCommand);
 	}
 	
 	//@author A0097582N-unused
@@ -163,18 +162,18 @@ public class DeleteCommand implements ICommand {
 	private void deleteTask() {	
 		TaskType type = _task.getTaskType();
 		if ( type == TaskType.FLOATING ) {
-			Taskie.Controller.getStorage().deleteFloatingTask(_task);
+			_controller.getStorage().deleteFloatingTask(_task);
 		} else if ( type == TaskType.DEADLINE ) {
-			Taskie.Controller.getStorage().deleteDeadlinedTask(_task);
+			_controller.getStorage().deleteDeadlinedTask(_task);
 		} else {
-			Taskie.Controller.getStorage().deleteTimedTask(_task);
+			_controller.getStorage().deleteTimedTask(_task);
 		}
 	}
 	*/
 	
 	//@author A0121555M
 	private void deleteTask() throws TaskTypeNotSupportedException, TaskModificationFailedException {
-		Taskie.Controller.getStorage().deleteTask(_task);
+		_controller.getStorage().deleteTask(_task);
 	}
 	
 	private String formatDeleteTaskString(){

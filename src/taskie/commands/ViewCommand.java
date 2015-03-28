@@ -4,21 +4,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import taskie.Taskie;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Task;
+import taskie.models.TaskEndDateComparator;
 import taskie.models.TaskType;
 import taskie.models.ViewType;
-import taskie.models.TaskEndDateComparator;
-import taskie.parser.CommandParser;
 
-public class ViewCommand implements ICommand {
+public class ViewCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.VIEW;
 	private Logger _logger = Logger.getLogger(ViewCommand.class.getName());
 	// @author A0121555M
@@ -186,23 +183,21 @@ public class ViewCommand implements ICommand {
 		ArrayList<Task> tasks = null;
 		ArrayList<Task> tasksToDisplay = null;
 		try {
-			tasks = Taskie.Controller.getStorage().getTaskList();
+			tasks = _controller.getStorage().getTaskList();
+			if (_startDate == null && _endDate == null && _searchKeywords != null) {
+				tasksToDisplay = findSearchedTasks(tasks);
+
+			} else if (_searchKeywords != null) {
+				tasksToDisplay = findTasksByDate(tasks);
+				tasksToDisplay = findSearchedTasks(tasksToDisplay);
+			} else {
+				tasksToDisplay = findTasksByDate(tasks);
+			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		}
-		if (_startDate == null && _endDate == null && _searchKeywords != null) {
-			tasksToDisplay = findSearchedTasks(tasks);
-
-		} else if (_searchKeywords != null) {
-			tasksToDisplay = findTasksByDate(tasks);
-			tasksToDisplay = findSearchedTasks(tasksToDisplay);
-		} else {
-			tasksToDisplay = findTasksByDate(tasks);
-		}
-		tasksToDisplay.sort(new TaskEndDateComparator());
-		Taskie.Controller.getUI().display(
-				tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
-
 	}
 
 	private ArrayList<Task> findTasksByDate(ArrayList<Task> tasks) {
@@ -306,49 +301,43 @@ public class ViewCommand implements ICommand {
 		LocalDateTime now = LocalDateTime.now();
 		
 		try {
-			tasks = Taskie.Controller.getStorage().getTaskList();
+			tasks = _controller.getStorage().getTaskList();
+			for (Task task:tasks){
+				if(task.isDone()){
+					break;
+				}
+				TaskType taskType=task.getTaskType();
+				if(taskType==TaskType.FLOATING){
+					tasksToDisplay.add(task);
+				}else if(task.getEndDateTime().isBefore(now)){
+					tasksToDisplay.add(task);
+				}
+			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		}
-		
-		for (Task task:tasks){
-			if(task.isDone()){
-				break;
-			}
-			TaskType taskType=task.getTaskType();
-			if(taskType==TaskType.FLOATING){
-				tasksToDisplay.add(task);
-			}else if(task.getEndDateTime().isBefore(now)){
-				tasksToDisplay.add(task);
-			}
-		}
-		tasksToDisplay.sort(new TaskEndDateComparator());
-		Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
-			
 	}
 	
-
-
 	private void executeViewCompleted() {
 		ArrayList<Task> tasks = null;
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		
 		try {
-			tasks = Taskie.Controller.getStorage().getTaskList();
-		} catch (TaskRetrievalFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
-		}
-		for (Task task:tasks){
-			if(task.isDone()){
-				tasksToDisplay.add(task);
+			tasks = _controller.getStorage().getTaskList();
+			for (Task task:tasks){
+				if(task.isDone()){
+					tasksToDisplay.add(task);
 
+				}
 			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(e.getMessage());
 		}
-		tasksToDisplay.sort(new TaskEndDateComparator());
-		Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
-			
 	}
-
 
 	private void executeViewUpcoming() {
 		ArrayList<Task> tasks = null;
@@ -356,35 +345,34 @@ public class ViewCommand implements ICommand {
 		LocalDateTime now = LocalDateTime.now();
 		
 		try {
-			tasks = Taskie.Controller.getStorage().getTaskList();
+			tasks = _controller.getStorage().getTaskList();
+			for (Task task:tasks){
+				if(task.isDone()){
+					break;
+				}
+				TaskType taskType=task.getTaskType();
+				System.out.println(taskType);
+				if(taskType==TaskType.FLOATING){
+					tasksToDisplay.add(task);
+				}else if(taskType==TaskType.DEADLINE 
+						&& task.getEndDateTime().isAfter(now)){
+					tasksToDisplay.add(task);
+				}else if(task.getStartDateTime().isAfter(now)){
+					tasksToDisplay.add(task);
+				}
+			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		}
-		
-		for (Task task:tasks){
-			if(task.isDone()){
-				break;
-			}
-			TaskType taskType=task.getTaskType();
-			System.out.println(taskType);
-			if(taskType==TaskType.FLOATING){
-				tasksToDisplay.add(task);
-			}else if(taskType==TaskType.DEADLINE 
-					&& task.getEndDateTime().isAfter(now)){
-				tasksToDisplay.add(task);
-			}else if(task.getStartDateTime().isAfter(now)){
-				tasksToDisplay.add(task);
-			}
-		}
-		tasksToDisplay.sort(new TaskEndDateComparator());
-		Taskie.Controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 	}
 
 	private ArrayList<Task> executeViewAll() {
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		try {
 
-			ArrayList<Task> tasks = Taskie.Controller.getStorage()
+			ArrayList<Task> tasks = _controller.getStorage()
 					.getTaskList();
 			for (Task task : tasks) {
 				if (!task.isDone()) {
@@ -392,12 +380,11 @@ public class ViewCommand implements ICommand {
 					tasksToDisplay.add(task);
 				}
 			}
+
 			tasksToDisplay.sort(new TaskEndDateComparator());
-			Taskie.Controller.getUI().display(
-					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
-			return tasksToDisplay;
+			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			Taskie.Controller.getUI().display(e.getMessage());
+			_controller.getUI().display(e.getMessage());
 		}
 		return tasksToDisplay;
 	}

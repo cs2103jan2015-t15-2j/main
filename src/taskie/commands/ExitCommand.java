@@ -3,14 +3,14 @@ package taskie.commands;
 
 import java.io.IOException;
 
-import taskie.Taskie;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 
-public class ExitCommand implements ICommand {
+public class ExitCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.EXIT;
 
 	public ExitCommand() {
+		super();
 	}
 
 	public CommandType getCommandType() {
@@ -19,10 +19,11 @@ public class ExitCommand implements ICommand {
 
 	public void execute() {
 		try {
-			Taskie.Controller.getStorage().close();
+			_controller.getStorage().close();
 		} catch (IOException e) {}
-		Taskie.Controller.getUI().display(taskie.models.Messages.EXIT_MESSAGE);
-		Taskie.Controller.getUI().exit();
+
+		_controller.getUI().display(taskie.models.Messages.EXIT_MESSAGE);
+		_controller.getUI().exit();
 	}
 	
 	public void undo() throws UndoNotSupportedException {

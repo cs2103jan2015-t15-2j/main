@@ -6,7 +6,7 @@ import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Messages;
 
-public class DirectoryCommand implements ICommand {
+public class DirectoryCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.DIRECTORY;
 
 	public DirectoryCommand() {
@@ -18,12 +18,12 @@ public class DirectoryCommand implements ICommand {
 
 	public void execute() {
 		try {
-			String folder = Taskie.Controller.getUI().loadSelectDirectoryDialog(Taskie.Controller.getStorage().getStorageLocation());
-			String currentFolder = Taskie.Controller.getStorage().getStorageLocation();
+			String folder = _controller.getUI().loadSelectDirectoryDialog(_controller.getStorage().getStorageLocation());
+			String currentFolder = _controller.getStorage().getStorageLocation();
 			
 			if ( folder != null && folder.equals(currentFolder) ) {
-				Taskie.Controller.getStorage().setStorageLocation(folder);
-				Taskie.Controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED_STRING, folder));
+				_controller.getStorage().setStorageLocation(folder);
+				_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED_STRING, folder));
 			}
 		} catch ( NullPointerException e ) {
 			// Directory Change Cancelled

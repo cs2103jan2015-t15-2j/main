@@ -7,7 +7,7 @@
  */
 //@author A0097582N
 
-package taskie.controller;
+package taskie;
 
 import java.io.IOException;
 import java.util.Stack;
@@ -26,6 +26,7 @@ import taskie.ui.CommandUI;
 import taskie.ui.UI;
 
 public class Controller {
+	private static Controller _instance;
 	private Logger _logger;
 	private Parser _parser;
 	private Stack<ICommand> _undoStack;
@@ -46,13 +47,31 @@ public class Controller {
 		return _parser;
 	}
 
-	public Controller() throws IOException {
+	private Controller() {
 		_logger = Logger.getLogger(Controller.class.getName());
-		_undoStack = new Stack<ICommand>();
-		_redoStack = new Stack<ICommand>();
-		_ui = new CommandUI();
+		_ui = new CommandUI(this);
 		_parser = new CommandParser();
-		_storage = new NStorage();
+
+		this.initialize();
+	}
+	
+	private void initialize() {
+		try {
+			_undoStack = new Stack<ICommand>();
+			_redoStack = new Stack<ICommand>();
+			_storage = new NStorage();
+		} catch ( IOException e ) {
+			//TODO
+			System.out.println("Unable to initialize Storage");
+			e.printStackTrace();
+		}
+	}
+
+	public static Controller getInstance()  {
+		if ( _instance == null ) { 
+			_instance = new Controller();
+		}
+		return _instance;
 	}
 
 	public void run() {
@@ -79,8 +98,6 @@ public class Controller {
 		addTaskHistory(command);
 		command.execute();
 	}
-
-
 	
 	//@author A0121555M
 	public Stack<ICommand> getUndoStack() {

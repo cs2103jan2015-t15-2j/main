@@ -8,7 +8,7 @@ import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Messages;
 
-public class RedoCommand implements ICommand {
+public class RedoCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.REDO;
 	private int _steps;
 	
@@ -27,8 +27,8 @@ public class RedoCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		Stack<ICommand> undoStack = Taskie.Controller.getUndoStack();
-		Stack<ICommand> redoStack = Taskie.Controller.getRedoStack();
+		Stack<ICommand> undoStack = _controller.getUndoStack();
+		Stack<ICommand> redoStack = _controller.getRedoStack();
 		
 		if ( redoStack.size() > 0 ) {
 			for ( int x = 0; x < _steps; x++ ) {
@@ -37,7 +37,7 @@ public class RedoCommand implements ICommand {
 				undoStack.add(cmd);
 			}
 		} else {
-			Taskie.Controller.getUI().display(Messages.NOTHING_TO_REDO);
+			_controller.getUI().display(Messages.NOTHING_TO_REDO);
 		}
 	}
 	
