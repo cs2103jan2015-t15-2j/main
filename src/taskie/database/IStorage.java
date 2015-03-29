@@ -31,5 +31,5 @@ public interface IStorage {
 	
 	ArrayList<Task> getTaskList() throws TaskRetrievalFailedException;
 	
-	void deleteTaskList() throws TaskRetrievalFailedException;
+	void deleteDatabase() throws TaskRetrievalFailedException;
 }

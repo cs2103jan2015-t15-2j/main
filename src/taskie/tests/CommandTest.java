@@ -108,12 +108,12 @@ public class CommandTest {
 
 	@AfterClass
 	public static void cleanUp() throws IOException, TaskRetrievalFailedException {
-		_controller.getStorage().deleteTaskList();
+		_controller.getStorage().deleteDatabase();
 	}
 
 	@Before
 	public void setUp() throws TaskRetrievalFailedException, IOException {
-		_controller.getStorage().deleteTaskList();
+		_controller.getStorage().deleteDatabase();
 	}
 
 	// @Test

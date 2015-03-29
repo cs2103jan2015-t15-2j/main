@@ -21,9 +21,13 @@ public class FileReaderWriter {
 
 	public FileReaderWriter(Path file) throws IOException {
 		this._file = file;
+		if (!Files.exists(_file)) {
+			initialize();
+		}
 	}
 
 	private void initialize() throws IOException {
+		Files.createFile(_file);
 	}
 
 	public void write(String str) throws IOException {

@@ -645,7 +645,7 @@ public class Storage implements IStorage {
 	}
 
 	@Override
-	public void deleteTaskList() throws TaskRetrievalFailedException {
+	public void deleteDatabase() throws TaskRetrievalFailedException {
 		// TODO Auto-generated method stub
 		
 	}

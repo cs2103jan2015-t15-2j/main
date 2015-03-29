@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 import taskie.Controller;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
@@ -26,6 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class NStorage implements IStorage {
+	
 	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
 	private static final String DATABASE_FILENAME = "taskie.txt";
 
@@ -37,24 +37,30 @@ public class NStorage implements IStorage {
 	private ArrayList<Task> _tasks;
 
 	public NStorage() throws IOException {
-		_gson = new Gson();
+		
+	//	_controller = Controller.getInstance();
 		_logger = Logger.getLogger(NStorage.class.getName());
-
 		String filePath = DEFAULT_STORAGE_DIRECTORY + "/" + DATABASE_FILENAME;
-		_databasePath = FileSystems.getDefault().getPath(filePath).toAbsolutePath();
+		_databasePath = FileSystems.getDefault().getPath(filePath);
 		_db = new FileReaderWriter(_databasePath);
-
+		_gson = new Gson();
+		try {
+			_tasks = retrieveTaskList();
+		} catch (TaskRetrievalFailedException ex) {
+			ex.getMessage();
+		}
+		
 		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
 	}
 
-	public NStorage(String storageDir) {
-		super();
-		this.setStorageLocation(storageDir);
+	public NStorage(String storageDir) throws IOException, TaskRetrievalFailedException {
+		this();
+		setStorageLocation(storageDir);
 	}
 
-	public NStorage(Path storageDir) {
-		super();
-		this.setStorageLocation(storageDir.toString());
+	public NStorage(Path storageDir) throws IOException, TaskRetrievalFailedException {
+		this();
+		setStorageLocation(storageDir.toString());
 	}
 
 	public String getStorageLocation() {
@@ -70,11 +76,14 @@ public class NStorage implements IStorage {
 			String filePath = storageDir + "/" + DATABASE_FILENAME;
 			Path newDatabasePath = FileSystems.getDefault().getPath(filePath).toAbsolutePath();
 			_logger.log(Level.INFO, "Attempting to change storage location to: " + _databasePath.toString());
+			
 			migrateExistingDatabaseFile(_databasePath, newDatabasePath);
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());
+			
 			_databasePath = newDatabasePath;
 			_db = new FileReaderWriter(_databasePath);
 			_controller.getUI().display("Database is now saved at: " + _databasePath.toString());
+			
 		} catch (IOException ex) {
 			_controller.getUI().display("Failed to set new location: " + ex.getMessage());
 		}
@@ -83,55 +92,40 @@ public class NStorage implements IStorage {
 	@Override
 	public HashMap<TaskType, ArrayList<Task>> retrieveTaskMap() throws TaskRetrievalFailedException {
 		HashMap<TaskType, ArrayList<Task>> map = new HashMap<TaskType, ArrayList<Task>>();
+		
+		for (Task task : _tasks) {
+			TaskType type = task.getTaskType();
 
-		try {
-			String json = _db.read();
-			Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
-			_tasks = _gson.fromJson(json, listType);
-
-			if (json != null) {
-				for (Task task : _tasks) {
-					TaskType type = task.getTaskType();
-
-					ArrayList<Task> list = map.get(type);
-					if (list == null) {
-						list = new ArrayList<Task>();
-						map.put(type, list);
-					}
-					list.add(task);
-				}
+			ArrayList<Task> list = map.get(type);
+			if (list == null) {
+				list = new ArrayList<Task>();
+				map.put(type, list);
 			}
-		} catch (IOException e) {
-			throw new TaskRetrievalFailedException(e);
+			list.add(task);
 		}
-
+		
 		return map;
 	}
 
 	@Override
 	public void storeTaskMap(HashMap<TaskType, ArrayList<Task>> hm) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		
 		Iterator<Entry<TaskType, ArrayList<Task>>> it = hm.entrySet().iterator();
+		
 		while (it.hasNext()) {
 			HashMap.Entry<TaskType, ArrayList<Task>> pair = (HashMap.Entry<TaskType, ArrayList<Task>>) it.next();
 			ArrayList<Task> tasks = pair.getValue();
-			_tasks.clear();
 
 			for (Task task : tasks) {
 				addTask(task);
 			}
-		}
-
-		try {
-			this.rewriteDatabase();
-		} catch (IOException e) {
-			throw new TaskModificationFailedException(e);
 		}
 	}
 
 	//@author A0121555M
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
-			this.addToDatabase(task);
+			this.addToTaskList(task);
 			this.rewriteDatabase();
 		} catch (IOException e) {
 			throw new TaskModificationFailedException(e);
@@ -140,7 +134,7 @@ public class NStorage implements IStorage {
 
 	public void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
-			boolean status = this.removeFromDatabase(task);
+			boolean status = this.removeFromTaskList(task);
 			if (status) {
 				this.rewriteDatabase();
 			} else {
@@ -153,9 +147,9 @@ public class NStorage implements IStorage {
 
 	public void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
-			boolean status = this.removeFromDatabase(oldTask);
+			boolean status = this.removeFromTaskList(oldTask);
 			if (status) {
-				this.addToDatabase(newTask);
+				this.addToTaskList(newTask);
 				this.rewriteDatabase();
 			} else {
 				throw new TaskModificationFailedException();
@@ -169,7 +163,7 @@ public class NStorage implements IStorage {
 		Files.move(oldDirectory, newDirectory, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 	}
 
-	private void addToDatabase(Task newTask) {
+	private void addToTaskList (Task newTask) {
 		if (_tasks == null) {
 			_tasks = new ArrayList<Task>();
 		}
@@ -178,7 +172,7 @@ public class NStorage implements IStorage {
 		_tasks.add(newTask);
 	}
 
-	private boolean removeFromDatabase(Task taskToRemove) {
+	private boolean removeFromTaskList (Task taskToRemove) {
 		_logger.log(Level.INFO, "Removing: " + taskToRemove.getTitle());
 		boolean removed = false;
 		int x = 0;
@@ -207,21 +201,30 @@ public class NStorage implements IStorage {
 		_db.close();
 	}
 
-	//@author A0097582N
-	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException {
-	
+	//@author A0135137L
+	public ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
 		try {
+			
 			String json = _db.read();
+			if (json.equals("")) {
+				return new ArrayList<Task>();
+			}
+			
 			Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
 			_tasks = _gson.fromJson(json, listType);
 		} catch (IOException e) {
 			throw new TaskRetrievalFailedException(e);
 		}
+		
 		return _tasks;
-
+	}
+	
+	
+	public ArrayList<Task> getTaskList()  {
+		return _tasks;
 	}
 
-	public void deleteTaskList() throws TaskRetrievalFailedException {
+	public void deleteDatabase() throws TaskRetrievalFailedException {
 		_db.deleteFile(_databasePath);
 	}
 
