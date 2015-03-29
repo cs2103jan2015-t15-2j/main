@@ -220,16 +220,14 @@ public class UpdateCommand extends AbstractCommand {
 
 		if (isConsistent(updateStartDate, updateStartTime, updateEndDate,
 				updateEndTime, updateStartDateTime, updateEndDateTime)) {
-			task.setStartDate(updateStartDate);
-			task.setStartTime(updateStartTime);
-			task.setEndDate(updateEndDate);
-			task.setEndTime(updateEndTime);
+			updatedTask.setStartDate(updateStartDate);
+			updatedTask.setStartTime(updateStartTime);
+			updatedTask.setEndDate(updateEndDate);
+			updatedTask.setEndTime(updateEndTime);
 		} else if (isModifiedStartDate() || isModifiedStartTime()) {
-			task.setStartDate(updateStartDate);
-			task.setStartTime(updateStartTime);
-		} else if (isModifiedEndDate() || isModifiedEndTime()) {
-			task.setEndDate(updateEndDate);
-			task.setEndTime(updateEndTime);
+			updatedTask.setStartDate(updateStartDate);
+			updatedTask.setStartTime(updateStartTime);
+			
 		}else{
 			throw new InvalidCommandException(taskie.models.Messages.INVALID_COMMAND);
 		}
@@ -241,15 +239,12 @@ public class UpdateCommand extends AbstractCommand {
 
 	private Boolean isConsistent(LocalDate startDate,LocalTime startTime,
 			LocalDate endDate,LocalTime endTime, LocalDateTime startDateTime, LocalDateTime endDateTime){
-		if(startDate==null){
-			if(startTime!=null){
+		if(startDate==null&&startTime!=null){
 				return false;
-			}
 		}
-		if(endDate==null){
-			if(endTime!=null){
+		
+		if(endDate==null&&endTime!=null){
 				return false;
-			}	
 		}
 		if(startDateTime!=null && endDateTime==null){
 			return false;

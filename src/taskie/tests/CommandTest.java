@@ -4,6 +4,7 @@ package taskie.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -76,9 +77,9 @@ public class CommandTest {
 		_controller = Controller.getInstance();
 		_parser = new CommandParser();
 		_now = LocalDateTime.now();
-		_later = LocalDateTime.now();
-		_evenLater = LocalDateTime.now();
-		_time1 = LocalDateTime.of(2100,1,1,12,0).plusDays(1).plusHours(1);
+		_later = _now.plusHours(1);
+		_evenLater = _later.plusHours(1);
+		_time1 = LocalDateTime.of(2100,1,2,13,0);
 		_time2 = _time1.plusHours(2);
 		_time3 = _time1.plusDays(1);
 		_time4= _time3.plusHours(2);
@@ -261,38 +262,10 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	@Test
-	public void testUpdateCommandStartEndDateTimeComplex()
-			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
-		setUp();
-		AddCommand cmd = new AddCommand();
-		cmd.setTaskName("foo");
-		cmd.setEndDateTime(_time1);
-		cmd.setStartDateTime(_now);
-		cmd.execute();
-		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
-		_controller.getUI()
-				.display(tasks.toArray(new Task[tasks.size()]));
-		UpdateCommand update = new UpdateCommand();
-		update.setStartDateToUpdate(_time2Date);
-		update.setStartTimeToUpdate(_time2Time);
-		update.setTaskIndex(1);
-		update.execute();
-		ArrayList<Task> list = _controller.getStorage().getTaskList();
-		Task expectedTask = new Task("foo");
-
-		long duration = _now.until(_time1, ChronoUnit.MINUTES);
-		expectedTask.setStartDateTime(_time2);
-		expectedTask.setEndDateTime(_time2.plusMinutes(duration));
-		System.out.println(expectedTask);
-		System.out.println(list.get(0).toString());
-		assertEquals(expectedTask.toString(), list.get(0).toString());
-	}
 	
 	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
 	@Test
-	public void testUpdateCommandStartEndDateTimeComplex2()
+	public void testUpdateCommandStartEndDateTimeComplex()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
 		setUp();
@@ -309,14 +282,15 @@ public class CommandTest {
 		update.setTaskIndex(1);
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		
+		
 		Task expectedTask = new Task("foo");
-
-		long duration = _time1.until(_time2, ChronoUnit.MINUTES);
 		expectedTask.setStartDateTime(_time2);
-		expectedTask.setEndDateTime(_time2.plusMinutes(duration));
+		expectedTask.setEndDateTime(_time3);
 		System.out.println(expectedTask);
 		System.out.println(list.get(0).toString());
 		assertEquals(expectedTask.toString(), list.get(0).toString());
+		
 	}
 
 	private void generateTasks() {

@@ -196,7 +196,6 @@ public class NStorage implements IStorage {
 			}
 			x++;
 		}
-
 		return removed;
 	}
 

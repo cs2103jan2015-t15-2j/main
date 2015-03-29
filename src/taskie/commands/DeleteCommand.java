@@ -156,20 +156,6 @@ public class DeleteCommand extends AbstractCommand {
 		_controller.executeCommand(updateCommand);
 	}
 	
-	//@author A0097582N-unused
-	//Reason for unused: Not necessary
-	/*
-	private void deleteTask() {	
-		TaskType type = _task.getTaskType();
-		if ( type == TaskType.FLOATING ) {
-			_controller.getStorage().deleteFloatingTask(_task);
-		} else if ( type == TaskType.DEADLINE ) {
-			_controller.getStorage().deleteDeadlinedTask(_task);
-		} else {
-			_controller.getStorage().deleteTimedTask(_task);
-		}
-	}
-	*/
 	
 	//@author A0121555M
 	private void deleteTask() throws TaskTypeNotSupportedException, TaskModificationFailedException {
