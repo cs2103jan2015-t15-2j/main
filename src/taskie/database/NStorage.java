@@ -2,6 +2,7 @@
 package taskie.database;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +13,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 import taskie.Controller;
 import taskie.exceptions.TaskModificationFailedException;
@@ -26,14 +28,13 @@ import com.google.gson.reflect.TypeToken;
 public class NStorage implements IStorage {
 	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
 	private static final String DATABASE_FILENAME = "taskie.txt";
-	private static final String NEWLINE = System.lineSeparator();
 
 	private Controller _controller;
 	private Logger _logger;
 	private Path _databasePath;
 	private FileReaderWriter _db;
 	private Gson _gson;
-	private ArrayList<String> _tasks;
+	private ArrayList<Task> _tasks;
 
 	public NStorage() throws IOException {
 		_gson = new Gson();
@@ -85,12 +86,11 @@ public class NStorage implements IStorage {
 
 		try {
 			String json = _db.read();
-			_tasks = _gson.fromJson(json, new TypeToken<ArrayList<String>>() {
-			}.getType());
+			Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
+			_tasks = _gson.fromJson(json, listType);
 
-			if (_tasks != null) {
-				for (String jsonTask : _tasks) {
-					Task task = _gson.fromJson(jsonTask, Task.class);
+			if (json != null) {
+				for (Task task : _tasks) {
 					TaskType type = task.getTaskType();
 
 					ArrayList<Task> list = map.get(type);
@@ -131,8 +131,7 @@ public class NStorage implements IStorage {
 	//@author A0121555M
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
-			String json = _gson.toJson(task);
-			this.addToDatabase(json);
+			this.addToDatabase(task);
 			this.rewriteDatabase();
 		} catch (IOException e) {
 			throw new TaskModificationFailedException(e);
@@ -141,8 +140,7 @@ public class NStorage implements IStorage {
 
 	public void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
-			String json = _gson.toJson(task);
-			boolean status = this.removeFromDatabase(json);
+			boolean status = this.removeFromDatabase(task);
 			if (status) {
 				this.rewriteDatabase();
 			} else {
@@ -155,11 +153,9 @@ public class NStorage implements IStorage {
 
 	public void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
-			String jsonOld = _gson.toJson(oldTask);
-			String jsonNew = _gson.toJson(newTask);
-			boolean status = this.removeFromDatabase(jsonOld);
+			boolean status = this.removeFromDatabase(oldTask);
 			if (status) {
-				this.addToDatabase(jsonNew);
+				this.addToDatabase(newTask);
 				this.rewriteDatabase();
 			} else {
 				throw new TaskModificationFailedException();
@@ -173,23 +169,23 @@ public class NStorage implements IStorage {
 		Files.move(oldDirectory, newDirectory, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 	}
 
-	private void addToDatabase(String line) {
+	private void addToDatabase(Task newTask) {
 		if (_tasks == null) {
-			_tasks = new ArrayList<String>();
+			_tasks = new ArrayList<Task>();
 		}
 
-		_logger.log(Level.INFO, "Writing: " + line);
-		_tasks.add(line);
+		_logger.log(Level.INFO, "Writing: " + newTask.getTitle());
+		_tasks.add(newTask);
 	}
 
-	private boolean removeFromDatabase(String line) {
-		_logger.log(Level.INFO, "Removing: " + line);
+	private boolean removeFromDatabase(Task taskToRemove) {
+		_logger.log(Level.INFO, "Removing: " + taskToRemove.getTitle());
 		boolean removed = false;
 		int x = 0;
 
 		while (!removed && x < _tasks.size()) {
-			String str = _tasks.get(x);
-			if (str.equals(line)) {
+			Task tempTask = _tasks.get(x);
+			if (tempTask.equals(taskToRemove)) {
 				removed = true;
 				_tasks.remove(x);
 				break;
@@ -201,7 +197,8 @@ public class NStorage implements IStorage {
 	}
 
 	private void rewriteDatabase() throws IOException {
-		String json = _gson.toJson(_tasks);
+		Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
+		String json = _gson.toJson(_tasks, listType);
 		_db.write(json);
 	}
 
@@ -212,20 +209,15 @@ public class NStorage implements IStorage {
 
 	//@author A0097582N
 	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException {
-		ArrayList<Task> tasks = new ArrayList<Task>();
+	
 		try {
 			String json = _db.read();
-			_tasks = _gson.fromJson(json, new TypeToken<ArrayList<String>>() {
-			}.getType());
-			for (String jsonTask : _tasks) {
-				Task task = _gson.fromJson(jsonTask, Task.class);
-				tasks.add(task);
-			}
-
+			Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
+			_tasks = _gson.fromJson(json, listType);
 		} catch (IOException e) {
 			throw new TaskRetrievalFailedException(e);
 		}
-		return tasks;
+		return _tasks;
 
 	}
 
