@@ -59,12 +59,17 @@ public class CommandTest {
 
 	private static LocalDate _time2Date;
 	private static LocalTime _time2Time;
+	
 	private static LocalDate _time3Date;
 	private static LocalTime _time3Time;
+	
+	private static LocalDate _time4Date;
+	private static LocalTime _time4Time;
 
 	private static LocalDateTime _time1;
 	private static LocalDateTime _time2;
 	private static LocalDateTime _time3;
+	private static LocalDateTime _time4;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -76,6 +81,7 @@ public class CommandTest {
 		_time1 = LocalDateTime.of(2100,1,1,12,0).plusDays(1).plusHours(1);
 		_time2 = _time1.plusHours(2);
 		_time3 = _time1.plusDays(1);
+		_time4= _time3.plusHours(2);
 
 		
 		_nowDate = _now.toLocalDate();
@@ -86,10 +92,15 @@ public class CommandTest {
 		_evenLaterTime = _evenLater.toLocalTime();
 		_time1Date = _time1.toLocalDate();
 		_time1Time = _time1.toLocalTime();
+		
 		_time2Date = _time2.toLocalDate();
 		_time2Time = _time2.toLocalTime();
+		
 		_time3Date = _time3.toLocalDate();
 		_time3Time = _time3.toLocalTime();
+		
+		_time4Date = _time4.toLocalDate();
+		_time4Time = _time4.toLocalTime();
 
 		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
 		CalendarSource.setBaseDate(Date.from(instant));
@@ -287,22 +298,22 @@ public class CommandTest {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
-		cmd.setEndDateTime(_time2);
+		cmd.setEndDateTime(_time3);
 		cmd.setStartDateTime(_time1);
 		cmd.execute();
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI().display(tasks.toArray(new Task[tasks.size()]));
 		UpdateCommand update = new UpdateCommand();
-		update.setStartDateToUpdate(_time3Date);
-		update.setStartTimeToUpdate(_time3Time);
+		update.setStartDateToUpdate(_time2Date);
+		update.setStartTimeToUpdate(_time2Time);
 		update.setTaskIndex(1);
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo");
 
 		long duration = _time1.until(_time2, ChronoUnit.MINUTES);
-		expectedTask.setStartDateTime(_time3);
-		expectedTask.setEndDateTime(_time3.plusMinutes(duration));
+		expectedTask.setStartDateTime(_time2);
+		expectedTask.setEndDateTime(_time2.plusMinutes(duration));
 		System.out.println(expectedTask);
 		System.out.println(list.get(0).toString());
 		assertEquals(expectedTask.toString(), list.get(0).toString());

@@ -11,6 +11,7 @@ package taskie.commands;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -138,15 +139,21 @@ public class UpdateCommand extends AbstractCommand {
 	}
 
 	public void execute() {
-		_logger.log(Level.INFO, "task Index: " + _taskIndex + " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate: " + _startDateToUpdate + " time: " + _startTimeToUpdate + "\nendDate: " + _endDateToUpdate + " time:" + _endTimeToUpdate);
+		_logger.log(Level.INFO, "task Index: " + _taskIndex
+				+ " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): "
+				+ _startDateToUpdate+" "+_isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate
+				+" "+_isToUpdateStartTime+ "\nendDate(bool): " + _endDateToUpdate +" "+_isToUpdateEndDate+ " time(bool):"
+				+ _endTimeToUpdate+" "+_isToUpdateEndTime);
+		
 		try {
 			Task task = retrieveTaskToUpdateFromUI();
-
+			_logger.log(Level.INFO,task.toString());
 			Task updatedTask = updateTask(task);
 			_controller.getStorage().updateTask(task, updatedTask);
 			_controller.getUI().display(formatUpdateMsg(task));
 		} catch (InvalidTaskException e) {
-			_controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+			_controller.getUI()
+					.display(taskie.models.Messages.INVALID_TASK_NUM);
 		} catch (InvalidCommandException e) {
 			_controller.getUI().display(e.getMessage());
 		} catch (TaskTypeNotSupportedException e) {
@@ -158,95 +165,108 @@ public class UpdateCommand extends AbstractCommand {
 		}
 	}
 
-	private Task updateTask(Task task) throws InvalidCommandException, TaskDateNotSetException, TaskDateInvalidException {
+	private Task updateTask(Task task) throws InvalidCommandException,
+			TaskDateNotSetException, TaskDateInvalidException {
 		Task updatedTask = new Task(task);
 		if (this.isModifiedTaskTitle()) {
-			if (_taskTitleToUpdate == null || _taskTitleToUpdate.trim().equalsIgnoreCase("")) {
+			if (_taskTitleToUpdate == null
+					|| _taskTitleToUpdate.trim().equalsIgnoreCase("")) {
 				throw new InvalidCommandException();
 			} else {
 				updatedTask.setTitle(this.getTaskTitleToUpdate());
 			}
 		}
-		LocalDateTime updateStartDateTime = adjustedStartTimeToUpdate(task);
-		LocalDateTime updateEndDateTime = adjustedEndDateTimeToUpdate(task);
-		Long taskDuration = task.getStartDateTime().until(task.getEndDateTime(), ChronoUnit.MINUTES);
+		LocalDate updateStartDate = task.getStartDate();
+		LocalTime updateStartTime = task.getStartTime();
+		LocalDate updateEndDate = task.getEndDate();
+		LocalTime updateEndTime = task.getEndTime();
+		LocalDateTime updateStartDateTime;
+		LocalDateTime updateEndDateTime;
 
-		if (updateStartDateTime.isAfter(updateEndDateTime)) {
-			if ((isModifiedStartDate() || isModifiedStartTime()) && (isModifiedEndDate() || isModifiedEndTime())) {
-				throw new InvalidCommandException(taskie.models.Messages.INVALID_DATE_INPUT);
-			}
+		if (isModifiedStartDate()) {
+			updateStartDate = _startDateToUpdate;
 		}
-
-		checkForTaskModelConsistency(updatedTask);
-		updatedTask = checkForStartEndDateConsistency(task, updatedTask);
-		return updatedTask;
-	}
-
-	private LocalDateTime adjustedEndDateTimeToUpdate(Task task) {
-		LocalDateTime updateEndDateTime = task.getEndDateTime();
-
-		if (isModifiedEndTime() && _endTimeToUpdate == null) {
-			updateEndDateTime.with(LocalTime.MAX);
-		} else if (isModifiedEndTime()) {
-			updateEndDateTime.with(_endTimeToUpdate);
+		if (isModifiedStartTime()) {
+			updateStartTime = _startTimeToUpdate;
 		}
-		if (isModifiedEndDate() && _endDateToUpdate == null) {
-			updateEndDateTime = null;
-		} else if (isModifiedEndDate()) {
-			updateEndDateTime.with(_endDateToUpdate);
+		if (isModifiedEndDate()) {
+			updateEndDate = _endDateToUpdate;
 		}
-		return updateEndDateTime;
-	}
-
-	private LocalDateTime adjustedStartTimeToUpdate(Task task) throws TaskDateNotSetException, TaskDateInvalidException {
-		LocalDateTime updateStartDateTime = task.getStartDateTime();
-		if (isModifiedStartTime() && _startTimeToUpdate == null) {
-			updateStartDateTime.with(LocalTime.MAX);
-		} else if (isModifiedStartTime()) {
-			updateStartDateTime.with(_startTimeToUpdate);
+		if (isModifiedEndTime()) {
+			updateEndTime = _endTimeToUpdate;
 		}
-		if (isModifiedStartDate() && _startDateToUpdate == null) {
+		if (updateStartDate == null) {
 			updateStartDateTime = null;
-		} else if (isModifiedStartDate()) {
-			updateStartDateTime.with(_startDateToUpdate);
-		}
-		return updateStartDateTime;
-	}
-
-	// if startDateTime is modified, to beyond enddatetime, enddatetime would be
-	// updated for consistency, and vice versa
-	private Task checkForStartEndDateConsistency(Task task, Task updatedTask) throws TaskDateNotSetException, TaskDateInvalidException {
-		if (isModifiedStartDate() || isModifiedStartTime()) {
-			Long taskDuration = task.getStartDateTime().until(task.getEndDateTime(), ChronoUnit.MINUTES);
-			if (updatedTask.getStartDateTime().isAfter(updatedTask.getEndDateTime())) {
-				updatedTask.setEndDateTime(updatedTask.getStartDateTime().plusMinutes(taskDuration));
+		} else {
+			if (updateStartTime == null) {
+				updateStartDateTime = LocalDateTime.of(updateStartDate,
+						LocalTime.MAX);
+			} else {
+				updateStartDateTime = LocalDateTime.of(updateStartDate,
+						updateStartTime);
 			}
 		}
+		if (updateEndDate == null) {
+			updateEndDateTime = null;
+		} else {
+			if (updateEndTime == null) {
+				updateEndDateTime = LocalDateTime.of(updateEndDate,
+						LocalTime.MAX);
+			} else {
+				updateEndDateTime = LocalDateTime.of(updateEndDate,
+						updateEndTime);
+			}
+		}
+
+		if (isConsistent(updateStartDate, updateStartTime, updateEndDate,
+				updateEndTime, updateStartDateTime, updateEndDateTime)) {
+			task.setStartDate(updateStartDate);
+			task.setStartTime(updateStartTime);
+			task.setEndDate(updateEndDate);
+			task.setEndTime(updateEndTime);
+		} else if (isModifiedStartDate() || isModifiedStartTime()) {
+			task.setStartDate(updateStartDate);
+			task.setStartTime(updateStartTime);
+		} else if (isModifiedEndDate() || isModifiedEndTime()) {
+			task.setEndDate(updateEndDate);
+			task.setEndTime(updateEndTime);
+		}else{
+			throw new InvalidCommandException(taskie.models.Messages.INVALID_COMMAND);
+		}
+	
+
+		
 		return updatedTask;
 	}
 
-	// task model consistency refers to datetime consistency. Time cannot be
-	// without date and startdate cannot be without end date
-	private void checkForTaskModelConsistency(Task task) throws InvalidCommandException {
-		if (task.getStartDate() == null) {
-			if (task.getStartTime() != null) {
-				throw new InvalidCommandException(taskie.models.Messages.INVALID_DATE_INPUT);
+	private Boolean isConsistent(LocalDate startDate,LocalTime startTime,
+			LocalDate endDate,LocalTime endTime, LocalDateTime startDateTime, LocalDateTime endDateTime){
+		if(startDate==null){
+			if(startTime!=null){
+				return false;
 			}
 		}
-		if (task.getEndDate() == null) {
-			if (task.getEndTime() != null) {
-				throw new InvalidCommandException(taskie.models.Messages.INVALID_DATE_INPUT);
-			}
+		if(endDate==null){
+			if(endTime!=null){
+				return false;
+			}	
 		}
-		if (task.getEndDateTime() == null) {
-			if (task.getStartDateTime() != null) {
-				throw new InvalidCommandException(taskie.models.Messages.INVALID_DATE_INPUT);
-			}
+		if(startDateTime!=null && endDateTime==null){
+			return false;
 		}
+		
+		if(startDateTime!=null && endDateTime!=null && startDateTime.isAfter(endDateTime)){
+			return false;
+		}
+		
+		return true;
 	}
+
+
 
 	private String formatUpdateMsg(Task task) {
-		String message = String.format(taskie.models.Messages.UPDATE_STRING, task.getTitle());
+		String message = String.format(taskie.models.Messages.UPDATE_STRING,
+				task.getTitle());
 		if (this.isModifiedTaskTitle()) {
 			message = message.concat(taskie.models.Messages.TASK_TITLE);
 		}
@@ -271,7 +291,7 @@ public class UpdateCommand extends AbstractCommand {
 		return task;
 	}
 
-	//@author A0121555M
+	// @author A0121555M
 	public void undo() {
 		// _controller.executeCommand(new DeleteCommand(_task));
 	}
