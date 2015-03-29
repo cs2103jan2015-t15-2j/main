@@ -14,8 +14,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import taskie.Controller;
 import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.ConfigurationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
@@ -26,39 +26,42 @@ import com.google.gson.reflect.TypeToken;
 
 public class NStorage implements IStorage {
 	
-	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
+
 	private static final String DATABASE_FILENAME = "taskie.txt";
 
-	private Controller _controller;
+
+	private Configuration _config;
 	private Logger _logger;
 	private Path _databasePath;
 	private FileReaderWriter _db;
 	private Gson _gson;
 	private ArrayList<Task> _tasks;
+	
 
 	public NStorage() throws IOException {
-		
-	//	_controller = Controller.getInstance();
-		_logger = Logger.getLogger(NStorage.class.getName());
-		String filePath = DEFAULT_STORAGE_DIRECTORY + "/" + DATABASE_FILENAME;
-		_databasePath = FileSystems.getDefault().getPath(filePath);
-		_db = new FileReaderWriter(_databasePath);
-		_gson = new Gson();
 		try {
+			
+			_logger = Logger.getLogger(NStorage.class.getName());
+			_config = new Configuration();
+			_databasePath = _config.getDatabasePath();
+			_db = new FileReaderWriter(_databasePath);
+			_gson = new Gson();
 			_tasks = retrieveTaskList();
 		} catch (TaskRetrievalFailedException ex) {
+			ex.getMessage();
+		} catch (ConfigurationFailedException ex) {
 			ex.getMessage();
 		}
 		
 		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
 	}
 
-	public NStorage(String storageDir) throws IOException, TaskRetrievalFailedException {
+	public NStorage(String storageDir) throws IOException, TaskRetrievalFailedException, ConfigurationFailedException {
 		this();
 		setStorageLocation(storageDir);
 	}
 
-	public NStorage(Path storageDir) throws IOException, TaskRetrievalFailedException {
+	public NStorage(Path storageDir) throws IOException, TaskRetrievalFailedException, ConfigurationFailedException {
 		this();
 		setStorageLocation(storageDir.toString());
 	}
@@ -73,19 +76,22 @@ public class NStorage implements IStorage {
 				_db.close();
 			}
 
-			String filePath = storageDir + "/" + DATABASE_FILENAME;
-			Path newDatabasePath = FileSystems.getDefault().getPath(filePath).toAbsolutePath();
-			_logger.log(Level.INFO, "Attempting to change storage location to: " + _databasePath.toString());
+			String newDatabasePath = storageDir + "/" + DATABASE_FILENAME;
+			Path newPath = FileSystems.getDefault().getPath(newDatabasePath);
+			_config.setDatabasePath(newPath);
+			_logger.log(Level.INFO, "Attempting to change storage location to: " + newDatabasePath.toString());
 			
-			migrateExistingDatabaseFile(_databasePath, newDatabasePath);
-			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());
-			
-			_databasePath = newDatabasePath;
+			migrateExistingDatabaseFile(_databasePath, newPath);
+			_databasePath = newPath;
 			_db = new FileReaderWriter(_databasePath);
-			_controller.getUI().display("Database is now saved at: " + _databasePath.toString());
+			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());	
+			//_controller.getUI().display("Database is now saved at: " + _databasePath.toString());
 			
+		} catch (ConfigurationFailedException ex) {
+			ex.getMessage();
+			//_controller.getUI().display("Failed to set new location: " + ex.getMessage());
 		} catch (IOException ex) {
-			_controller.getUI().display("Failed to set new location: " + ex.getMessage());
+			ex.getMessage();
 		}
 	}
 
@@ -159,8 +165,12 @@ public class NStorage implements IStorage {
 		}
 	}
 
-	private void migrateExistingDatabaseFile(Path oldDirectory, Path newDirectory) throws IOException {
-		Files.move(oldDirectory, newDirectory, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+	private void migrateExistingDatabaseFile(Path oldDirectory, Path newDirectory) throws ConfigurationFailedException {
+		try {
+			Files.move(oldDirectory, newDirectory, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+		} catch (IOException ex) {
+			throw new ConfigurationFailedException();
+		}
 	}
 
 	private void addToTaskList (Task newTask) {
