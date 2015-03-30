@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -68,13 +69,14 @@ public class NStorage implements IStorage {
 			if (_db != null) {
 				_db.close();
 			}
-			String newDatabasePath = storageDir + "/" + DATABASE_FILENAME;
+
+			String newDatabasePath = storageDir + "\\" + DATABASE_FILENAME;
 			Path newPath = FileSystems.getDefault().getPath(newDatabasePath);
 			_config.setDatabasePath(newPath);
 			_logger.log(Level.INFO, "Attempting to change storage location to: " + newDatabasePath.toString());
-			
 			migrateExistingDatabaseFile(_databasePath, newPath);
 			_databasePath = newPath;
+
 			_db = new FileReaderWriter(_databasePath);
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());	
 			
@@ -165,9 +167,13 @@ public class NStorage implements IStorage {
 	private void migrateExistingDatabaseFile(Path oldDirectory, Path newDirectory) throws ConfigurationFailedException {
 		try {
 			File oldFile = FileUtils.getFile(oldDirectory.toString());
-			File newFile = FileUtils.getFile(newDirectory.getParent().toString());
-			FileUtils.moveFileToDirectory(oldFile, newFile, true);
-			//Files.move(oldDirectory, newDirectory, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+			File newDir = FileUtils.getFile(newDirectory.getParent().toString());
+
+			if (Files.exists(newDirectory)) {
+				Files.delete(newDirectory);
+			}
+			FileUtils.moveFileToDirectory(oldFile, newDir, true);
+
 		} catch (IOException ex) {
 			throw new ConfigurationFailedException();
 		}
@@ -190,6 +196,9 @@ public class NStorage implements IStorage {
 		return _tasks;
 	}
 	
+	public Configuration getConfigration() {
+		return _config;
+	}
 	
 	public ArrayList<Task> getTaskList()  {
 		return _tasks;
