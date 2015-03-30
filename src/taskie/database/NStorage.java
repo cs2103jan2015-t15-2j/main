@@ -116,7 +116,15 @@ public class NStorage implements IStorage {
 			throw new TaskModificationFailedException(e);
 		}
 	}
-
+	
+	public void clearAllTasks() throws TaskModificationFailedException {
+		try {
+			_tasks.clear();
+			this.rewriteDatabase();
+		} catch (IOException e) {
+			throw new TaskModificationFailedException(e);
+		}
+	}
 
 	private void addToTaskList (Task newTask) {
 		if (_tasks == null) {
@@ -192,9 +200,5 @@ public class NStorage implements IStorage {
 		
 	public ArrayList<Task> getTaskList()  {
 		return _tasks;
-	}
-
-	public void deleteDatabase() {
-		_db.deleteFile(_databasePath);
 	}
 }

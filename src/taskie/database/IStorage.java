@@ -23,9 +23,9 @@ public interface IStorage {
 
 	void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 	
+	void clearAllTasks() throws TaskModificationFailedException;
+	
 	void close() throws IOException;
 	
 	ArrayList<Task> getTaskList() throws TaskRetrievalFailedException;
-	
-	void deleteDatabase() throws TaskRetrievalFailedException;
 }
