@@ -59,11 +59,12 @@ public class NStorage implements IStorage {
 				_db.close();
 			}
 
-			String newDatabasePath = storageDir + "\\" + DATABASE_FILENAME;
-			Path newPath = FileSystems.getDefault().getPath(newDatabasePath);
-			_logger.log(Level.INFO, "Attempting to change storage location to: " + newDatabasePath.toString());
-			migrateExistingDatabaseFile(_databasePath, newPath);
-			_databasePath = newPath;
+			Path newPath = FileSystems.getDefault().getPath(storageDir);
+			Path newDatabasePath = _databasePath.resolve(DATABASE_FILENAME);
+			
+			_logger.log(Level.INFO, "Attempting to change storage location to: " + newPath.toString());
+			migrateExistingDatabaseFile(_databasePath, newDatabasePath);
+			_databasePath = newDatabasePath;
 
 			_db = new FileReaderWriter(_databasePath);
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());	

@@ -12,7 +12,6 @@ import taskie.exceptions.ConfigurationFailedException;
 
 public class Configuration {
 	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
-	private static final String DATABASE_FILENAME = "taskie.txt";
 	private static final String CONFIG_FILENAME = "config.txt";
 	
 	private Controller _controller;
@@ -32,8 +31,7 @@ public class Configuration {
 			String databasePath = _frw.read();
 			
 			if (databasePath.equals("")) {
-				String filePath = DEFAULT_STORAGE_DIRECTORY + "/" + DATABASE_FILENAME;
-				setDatabasePath(filePath);
+				setDatabasePath(DEFAULT_STORAGE_DIRECTORY);
 			} else {
 				_databasePath = FileSystems.getDefault().getPath(databasePath);
 			}
