@@ -11,16 +11,25 @@ import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FileReaderWriter {
 	private static final String DEFAULT_ENCODING = "UTF-8";
 
+	private Logger _logger;
 	private Path _file;
 	private OutputStreamWriter _writer;
 	private BufferedReader _reader;
 
+	public FileReaderWriter() {
+		_logger = Logger.getLogger(FileReaderWriter.class.getName());
+	}
+	
 	public FileReaderWriter(Path file) throws IOException {
-		this._file = file;
+		this();
+		_logger.log(Level.INFO, "Opening File: " + file.toString());
+		_file = file;
 		if (!Files.exists(_file)) {
 			initialize();
 		}
