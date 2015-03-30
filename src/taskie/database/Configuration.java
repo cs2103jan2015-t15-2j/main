@@ -14,16 +14,14 @@ public class Configuration {
 	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
 	private static final String CONFIG_FILENAME = "config.txt";
 	
-	private Controller _controller;
 	private static Configuration _config;
 	private Path _configPath;
 	private Path _databasePath;
 	private FileReaderWriter _frw;
 	private Logger _logger;
 	
-	private Configuration(Controller controller) throws ConfigurationFailedException {
+	private Configuration() throws ConfigurationFailedException {
 		String configPath = DEFAULT_STORAGE_DIRECTORY + "/" + CONFIG_FILENAME;
-		_controller = controller;
 		_configPath = FileSystems.getDefault().getPath(configPath);
 		_logger = Logger.getLogger(Configuration.class.getName());
 		try {
@@ -42,10 +40,10 @@ public class Configuration {
 		}
 	}
 	
-	public static Configuration getInstance(Controller controller) {
+	public static Configuration getInstance() {
 		try {
 			if (_config == null) {
-				_config = new Configuration(controller);
+				_config = new Configuration();
 			}
 			return _config;
 		} catch (ConfigurationFailedException ex) {

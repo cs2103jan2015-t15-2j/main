@@ -55,7 +55,7 @@ public class Controller {
 
 	private Controller() {
 		_logger = Logger.getLogger(Controller.class.getName());
-		_config = Configuration.getInstance(this);
+		_config = Configuration.getInstance();
 		_ui = new CommandUI(this);
 		_parser = new CommandParser();
 		this.initialize();
