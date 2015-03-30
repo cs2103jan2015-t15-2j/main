@@ -1,6 +1,7 @@
 package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
+import taskie.Controller;
 import taskie.database.NStorage;
 import taskie.database.FileReaderWriter;
 import taskie.models.Task;
@@ -40,10 +41,10 @@ public class StorageTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		_storage = new NStorage();
 		String configPath = DEFAULT_STORAGE_DIRECTORY + "/" + CONFIG_FILENAME;
 		_configPath = FileSystems.getDefault().getPath(configPath);
-		_databasePath = _storage.getConfigration().getDatabasePath();
+		_storage = new NStorage(configPath);
+		_databasePath = Controller.getInstance().getConfiguration().getDatabasePath();
 		_tasks = new ArrayList<Task>();
 	}
 	

@@ -1,8 +1,8 @@
 //@author A0121555M
 package taskie.database;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import taskie.exceptions.TaskModificationFailedException;
+import org.apache.commons.io.FileUtils;
+
 import taskie.exceptions.ConfigurationFailedException;
+import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
@@ -20,43 +22,30 @@ import taskie.models.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.apache.commons.io.FileUtils;
-
 public class NStorage implements IStorage {
-	
-
 	private static final String DATABASE_FILENAME = "taskie.txt";
 
-
-	private Configuration _config;
 	private Logger _logger;
 	private Path _databasePath;
 	private FileReaderWriter _db;
 	private Gson _gson;
 	private ArrayList<Task> _tasks;
 	
+	public NStorage(String storageDir) throws IOException {
+		this(FileSystems.getDefault().getPath(storageDir));
+	}
 
-	public NStorage() throws IOException {
+	public NStorage(Path storageDir) throws IOException {
 		try {
+			_databasePath = storageDir;
 			_logger = Logger.getLogger(NStorage.class.getName());
-			_config = Configuration.getInstance();
-			_databasePath = _config.getDatabasePath();
-			_db = new FileReaderWriter(_databasePath);
+			_db = new FileReaderWriter(_databasePath.resolve(DATABASE_FILENAME));
 			_gson = new Gson();
 			_tasks = retrieveTaskList();
 		} catch (TaskRetrievalFailedException ex) {
 			ex.getMessage();
 		} 
 		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
-	}
-
-	public NStorage(String storageDir) throws IOException, TaskRetrievalFailedException, ConfigurationFailedException {
-		this();
-		setStorageLocation(storageDir);
-	}
-
-	public NStorage(Path storageDir) throws IOException, TaskRetrievalFailedException, ConfigurationFailedException {
-		this();
 		setStorageLocation(storageDir.toString());
 	}
 
@@ -195,18 +184,12 @@ public class NStorage implements IStorage {
 		
 		return _tasks;
 	}
-	
-	public Configuration getConfigration() {
-		return _config;
-	}
-	
+		
 	public ArrayList<Task> getTaskList()  {
 		return _tasks;
 	}
 
 	public void deleteDatabase() {
 		_db.deleteFile(_databasePath);
-		
 	}
-
 }

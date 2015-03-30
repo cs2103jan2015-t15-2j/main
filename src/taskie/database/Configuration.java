@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import taskie.Controller;
 import taskie.exceptions.ConfigurationFailedException;
 
 public class Configuration {
@@ -14,14 +15,16 @@ public class Configuration {
 	private static final String DATABASE_FILENAME = "taskie.txt";
 	private static final String CONFIG_FILENAME = "config.txt";
 	
+	private Controller _controller;
 	private static Configuration _config;
 	private Path _configPath;
 	private Path _databasePath;
 	private FileReaderWriter _frw;
 	private Logger _logger;
 	
-	private Configuration() throws ConfigurationFailedException {
+	private Configuration(Controller controller) throws ConfigurationFailedException {
 		String configPath = DEFAULT_STORAGE_DIRECTORY + "/" + CONFIG_FILENAME;
+		_controller = controller;
 		_configPath = FileSystems.getDefault().getPath(configPath);
 		_logger = Logger.getLogger(Configuration.class.getName());
 		try {
@@ -41,10 +44,10 @@ public class Configuration {
 		}
 	}
 	
-	public static Configuration getInstance() {
+	public static Configuration getInstance(Controller controller) {
 		try {
 			if (_config == null) {
-				_config = new Configuration();
+				_config = new Configuration(controller);
 			}
 			return _config;
 		} catch (ConfigurationFailedException ex) {
