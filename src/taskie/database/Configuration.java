@@ -14,12 +14,13 @@ public class Configuration {
 	private static final String DATABASE_FILENAME = "taskie.txt";
 	private static final String CONFIG_FILENAME = "config.txt";
 	
+	private static Configuration _config;
 	private Path _configPath;
 	private Path _databasePath;
 	private FileReaderWriter _frw;
 	private Logger _logger;
 	
-	public Configuration() throws ConfigurationFailedException {
+	private Configuration() throws ConfigurationFailedException {
 		String configPath = DEFAULT_STORAGE_DIRECTORY + "/" + CONFIG_FILENAME;
 		_configPath = FileSystems.getDefault().getPath(configPath);
 		_logger = Logger.getLogger(Configuration.class.getName());
@@ -37,6 +38,18 @@ public class Configuration {
 			_logger.log(Level.INFO, "Configuration initialized.");
 		} catch (IOException ex) {
 			throw new ConfigurationFailedException();
+		}
+	}
+	
+	public static Configuration getInstance() {
+		try {
+			if (_config == null) {
+				_config = new Configuration();
+			}
+			return _config;
+		} catch (ConfigurationFailedException ex) {
+			ex.getMessage();
+			return null;
 		}
 	}
 	

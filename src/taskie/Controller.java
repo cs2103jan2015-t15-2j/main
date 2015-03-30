@@ -51,7 +51,6 @@ public class Controller {
 		_logger = Logger.getLogger(Controller.class.getName());
 		_ui = new CommandUI(this);
 		_parser = new CommandParser();
-
 		this.initialize();
 	}
 	

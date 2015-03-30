@@ -2,15 +2,11 @@
 package taskie.database;
 
 import java.io.IOException;
+import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,10 +15,11 @@ import taskie.exceptions.ConfigurationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
-import taskie.models.TaskType;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.apache.commons.io.FileUtils;
 
 public class NStorage implements IStorage {
 	
@@ -40,19 +37,15 @@ public class NStorage implements IStorage {
 
 	public NStorage() throws IOException {
 		try {
-			
 			_logger = Logger.getLogger(NStorage.class.getName());
-			_config = new Configuration();
+			_config = Configuration.getInstance();
 			_databasePath = _config.getDatabasePath();
 			_db = new FileReaderWriter(_databasePath);
 			_gson = new Gson();
 			_tasks = retrieveTaskList();
 		} catch (TaskRetrievalFailedException ex) {
 			ex.getMessage();
-		} catch (ConfigurationFailedException ex) {
-			ex.getMessage();
-		}
-		
+		} 
 		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
 	}
 
@@ -75,7 +68,6 @@ public class NStorage implements IStorage {
 			if (_db != null) {
 				_db.close();
 			}
-
 			String newDatabasePath = storageDir + "/" + DATABASE_FILENAME;
 			Path newPath = FileSystems.getDefault().getPath(newDatabasePath);
 			_config.setDatabasePath(newPath);
@@ -85,49 +77,14 @@ public class NStorage implements IStorage {
 			_databasePath = newPath;
 			_db = new FileReaderWriter(_databasePath);
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());	
-			//_controller.getUI().display("Database is now saved at: " + _databasePath.toString());
 			
 		} catch (ConfigurationFailedException ex) {
 			ex.getMessage();
-			//_controller.getUI().display("Failed to set new location: " + ex.getMessage());
 		} catch (IOException ex) {
 			ex.getMessage();
 		}
 	}
-
-	@Override
-	public HashMap<TaskType, ArrayList<Task>> retrieveTaskMap() throws TaskRetrievalFailedException {
-		HashMap<TaskType, ArrayList<Task>> map = new HashMap<TaskType, ArrayList<Task>>();
-		
-		for (Task task : _tasks) {
-			TaskType type = task.getTaskType();
-
-			ArrayList<Task> list = map.get(type);
-			if (list == null) {
-				list = new ArrayList<Task>();
-				map.put(type, list);
-			}
-			list.add(task);
-		}
-		
-		return map;
-	}
-
-	@Override
-	public void storeTaskMap(HashMap<TaskType, ArrayList<Task>> hm) throws TaskTypeNotSupportedException, TaskModificationFailedException {
-		
-		Iterator<Entry<TaskType, ArrayList<Task>>> it = hm.entrySet().iterator();
-		
-		while (it.hasNext()) {
-			HashMap.Entry<TaskType, ArrayList<Task>> pair = (HashMap.Entry<TaskType, ArrayList<Task>>) it.next();
-			ArrayList<Task> tasks = pair.getValue();
-
-			for (Task task : tasks) {
-				addTask(task);
-			}
-		}
-	}
-
+	
 	//@author A0121555M
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
@@ -165,13 +122,6 @@ public class NStorage implements IStorage {
 		}
 	}
 
-	private void migrateExistingDatabaseFile(Path oldDirectory, Path newDirectory) throws ConfigurationFailedException {
-		try {
-			Files.move(oldDirectory, newDirectory, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-		} catch (IOException ex) {
-			throw new ConfigurationFailedException();
-		}
-	}
 
 	private void addToTaskList (Task newTask) {
 		if (_tasks == null) {
@@ -212,6 +162,17 @@ public class NStorage implements IStorage {
 	}
 
 	//@author A0135137L
+	private void migrateExistingDatabaseFile(Path oldDirectory, Path newDirectory) throws ConfigurationFailedException {
+		try {
+			File oldFile = FileUtils.getFile(oldDirectory.toString());
+			File newFile = FileUtils.getFile(newDirectory.getParent().toString());
+			FileUtils.moveFileToDirectory(oldFile, newFile, true);
+			//Files.move(oldDirectory, newDirectory, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+		} catch (IOException ex) {
+			throw new ConfigurationFailedException();
+		}
+	}
+	
 	public ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
 		try {
 			
