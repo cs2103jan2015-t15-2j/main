@@ -1,13 +1,9 @@
 package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import taskie.database.NStorage;
-import taskie.database.IStorage;
 import taskie.database.FileReaderWriter;
 import taskie.models.Task;
-import taskie.models.TaskType;
-import taskie.database.Configuration;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 
@@ -21,17 +17,13 @@ import java.lang.reflect.Type;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.io.File;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.io.IOException;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.apache.commons.io.FileUtils;
 
 public class StorageTest {
 	
@@ -52,32 +44,15 @@ public class StorageTest {
 		String configPath = DEFAULT_STORAGE_DIRECTORY + "/" + CONFIG_FILENAME;
 		_configPath = FileSystems.getDefault().getPath(configPath);
 		_databasePath = _storage.getConfigration().getDatabasePath();
+		_tasks = new ArrayList<Task>();
 	}
 	
 	@Before
 	public void setUpBeforeTest() throws Exception {
-		LocalDateTime now = LocalDateTime.of(2015, 3, 29, 17, 00);
-		_tasks = new ArrayList<Task>();
-		Task deadlinedTask = new Task("Deadlined Task 0", now.toLocalDate());
-		Task timedTask = new Task("Timed Task 0", now.toLocalDate(), now.plusDays(1).toLocalDate());
-		Task floatingTask = new Task("Floating Task 0");
-		
-		_tasks.add(deadlinedTask);
-		_tasks.add(timedTask);
-		_tasks.add(floatingTask);
-		
-		_storage.addTask(deadlinedTask);
-		_storage.addTask(timedTask);
-		_storage.addTask(floatingTask);
-
 	}
 	
 	@After
 	public void ClearUpAfterTest() throws Exception {
-		FileReaderWriter frw = new FileReaderWriter(_databasePath);
-		_tasks.clear();
-		frw.write("");
-		frw.close();
 	}
 
 	@AfterClass
@@ -115,23 +90,33 @@ public class StorageTest {
 		Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
 		LocalDateTime now = LocalDateTime.of(2015, 3, 29, 17, 00);
 		String json;
+
+		//_tasks = new ArrayList<Task>();
+		Task deadlinedTask = new Task("Deadlined Task 1", now.toLocalDate());
+		Task timedTask = new Task("Timed Task 1", now.toLocalDate(), now.plusDays(1).toLocalDate());
+		Task floatingTask = new Task("Floating Task 1");
+		
+		_tasks.add(deadlinedTask);
+		_tasks.add(timedTask);
+		_tasks.add(floatingTask);
+		
+		_storage.addTask(deadlinedTask);
+		_storage.addTask(timedTask);
+		_storage.addTask(floatingTask);
 		
 		//Add deadlined task
-		Task deadlinedTask = new Task("Deadlined Task 1", now.toLocalDate());
 		_tasks.add(deadlinedTask);
 		json = gson.toJson(_tasks, listType);
 		_storage.addTask(deadlinedTask);
 		assertEquals(json, frw.read());
 		
 		//Add timed task
-		Task timedTask = new Task("Timed Task 1", now.toLocalDate(), now.plusDays(1).toLocalDate());
 		_tasks.add(timedTask);
 		json = gson.toJson(_tasks, listType);
 		_storage.addTask(timedTask);
 		assertEquals(json, frw.read());
 		
 		//Add floating task
-		Task floatingTask = new Task("Floating Task 1");	
 		_tasks.add(floatingTask);
 		json = gson.toJson(_tasks, listType);
 		_storage.addTask(floatingTask);
@@ -144,41 +129,86 @@ public class StorageTest {
 	public void testDeleteTask() throws IOException, TaskTypeNotSupportedException, TaskModificationFailedException {
 		Gson gson = new Gson();
 		FileReaderWriter frw = new FileReaderWriter(_databasePath);
-		
-		System.out.println(frw.read());
+		String json;
 		Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
-		LocalDateTime now = LocalDateTime.of(2015, 3, 29, 17, 00);
+		LocalDateTime now = LocalDateTime.of(2015, 3, 29, 15, 39);
 		
-		Task deadlinedTask = new Task("Deadlined Task 0", now.toLocalDate());
-		Task timedTask = new Task("Timed Task 0", now.toLocalDate(), now.plusDays(1).toLocalDate());
-		Task floatingTask = new Task("Floating Task 0");
+		Task deadlinedTask = new Task("Deadlined Task 2", now.toLocalDate());
+		Task timedTask = new Task("Timed Task 2", now.toLocalDate(), now.plusDays(1).toLocalDate());
+		Task floatingTask = new Task("Floating Task 2");
+		
+		_storage.addTask(deadlinedTask);
+		_storage.addTask(timedTask);
+		_storage.addTask(floatingTask);
+		
+		_tasks.add(deadlinedTask);
+		_tasks.add(timedTask);
+		_tasks.add(floatingTask);
 
-		//Delete floating task
+		// Delete floating task
 		_storage.deleteTask(floatingTask);
 		_tasks.remove(floatingTask);
-		String json = gson.toJson(_tasks, listType);
+		json = gson.toJson(_tasks, listType);
 		assertEquals(json, frw.read());
-		frw.close();
+		
+		// Delete deadlined task
+		_storage.deleteTask(deadlinedTask);
+		_tasks.remove(deadlinedTask);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
+		
+		// Delete timed task
+		_storage.deleteTask(timedTask);
+		_tasks.remove(timedTask);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
+		
+		// Delete unexisted task
 		
 	}
 
 	@Test
-	public void testUpdateTask() {
+	public void testUpdateTask() throws IOException, TaskTypeNotSupportedException, TaskModificationFailedException {
+		
+		Gson gson = new Gson();
+		FileReaderWriter frw = new FileReaderWriter(_databasePath);
+		Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
+		LocalDateTime now = LocalDateTime.of(2015, 4, 22, 10, 39);
+		
+		Task oldTask = new Task("Deadlined Task 3", now.toLocalDate());
+		Task newTask1 = new Task("Deadlined Task 3", now.minusDays(1).toLocalDate());
+		Task newTask2 = new Task("Timed Task 3", now.toLocalDate(), now.plusDays(1).toLocalDate());
+		
+		_storage.addTask(oldTask);
+		_tasks.add(oldTask);
 
+		String json;
+		int index;
+		
+		// Update task to same type of task
+		_storage.updateTask(oldTask, newTask1);
+		index = _tasks.indexOf(oldTask);
+		_tasks.set(index, newTask1);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
+
+		// Update task to different type of task
+		_storage.updateTask(newTask1, newTask2);
+		index = _tasks.indexOf(newTask1);
+		_tasks.set(index, newTask2);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
 	}
 
-	@Test
-	public void testClose() {
-
-	}
 
 	@Test
 	public void testGetTaskList() {
-		
+		assertEquals(_tasks, _storage.getTaskList());
 	}
 	
 	@Test
 	public void testDeleteDatabase() {
+
 		
 	}
 	

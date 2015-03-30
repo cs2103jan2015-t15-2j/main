@@ -204,8 +204,9 @@ public class NStorage implements IStorage {
 		return _tasks;
 	}
 
-	public void deleteDatabase() throws TaskRetrievalFailedException {
+	public void deleteDatabase() {
 		_db.deleteFile(_databasePath);
+		
 	}
 
 }
