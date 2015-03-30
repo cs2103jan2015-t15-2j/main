@@ -1,6 +1,7 @@
 //@author A0121555M
 package taskie.commands;
 
+import taskie.exceptions.ConfigurationFailedException;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Messages;
@@ -22,10 +23,13 @@ public class DirectoryCommand extends AbstractCommand {
 
 			if (folder != null && folder.equals(currentFolder)) {
 				_controller.getStorage().setStorageLocation(folder);
+				_controller.getConfiguration().setDatabasePath(folder);
 				_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED_STRING, folder));
 			}
 		} catch (NullPointerException e) {
 			// Directory Change Cancelled
+		} catch (ConfigurationFailedException e) {
+			// TODO Auto-generated catch block
 		}
 	}
 

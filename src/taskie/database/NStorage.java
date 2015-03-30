@@ -61,7 +61,6 @@ public class NStorage implements IStorage {
 
 			String newDatabasePath = storageDir + "\\" + DATABASE_FILENAME;
 			Path newPath = FileSystems.getDefault().getPath(newDatabasePath);
-			_config.setDatabasePath(newPath);
 			_logger.log(Level.INFO, "Attempting to change storage location to: " + newDatabasePath.toString());
 			migrateExistingDatabaseFile(_databasePath, newPath);
 			_databasePath = newPath;
