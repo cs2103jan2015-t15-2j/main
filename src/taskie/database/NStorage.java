@@ -37,14 +37,15 @@ public class NStorage implements IStorage {
 
 	public NStorage(Path storageDir) throws IOException {
 		try {
-			_databasePath = storageDir;
+			_databasePath = storageDir.resolve(DATABASE_FILENAME);
 			_logger = Logger.getLogger(NStorage.class.getName());
-			_db = new FileReaderWriter(_databasePath.resolve(DATABASE_FILENAME));
+			_db = new FileReaderWriter(_databasePath);
 			_gson = new Gson();
 			_tasks = retrieveTaskList();
 		} catch (TaskRetrievalFailedException ex) {
 			ex.getMessage();
 		} 
+		
 		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
 		setStorageLocation(storageDir.toString());
 	}
