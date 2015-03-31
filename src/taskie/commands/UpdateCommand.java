@@ -232,13 +232,15 @@ public class UpdateCommand extends AbstractCommand {
 
 		if (isConsistent(updateStartDate, updateStartTime, updateEndDate,
 				updateEndTime, updateStartDateTime, updateEndDateTime)) {
-			updatedTask.setStartDate(updateStartDate); 
-			updatedTask.setStartTime(updateStartTime);
-			updatedTask.setEndDate(updateEndDate);
-			updatedTask.setEndTime(updateEndTime);
+			updatedTask.stageUpdateStartDate(updateStartDate); 
+			updatedTask.stageUpdateStartTime(updateStartTime);
+			updatedTask.stageUpdateEndDate(updateEndDate);
+			updatedTask.stageUpdateEndTime(updateEndTime);
+			updatedTask.pushStageToActual();
 		} else if (isModifiedStartDate() || isModifiedStartTime()) {
 			updatedTask.setStartDate(updateStartDate);
 			updatedTask.setStartTime(updateStartTime);
+			updatedTask.pushStageToActual();
 			
 		}else{
 			throw new InvalidCommandException(taskie.models.Messages.INVALID_COMMAND);
