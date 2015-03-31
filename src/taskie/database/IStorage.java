@@ -1,21 +1,19 @@
 //@author A0135137L
-
 package taskie.database;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
 
-
-import java.io.IOException;
-import java.util.ArrayList;
-
-
 public interface IStorage {
-	String getStorageLocation();
+	Path getStorageLocation();
 
-	void setStorageLocation(String fileDir);
+	void setStorageLocation(Path newDirectory) throws IOException;
 
 	void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 

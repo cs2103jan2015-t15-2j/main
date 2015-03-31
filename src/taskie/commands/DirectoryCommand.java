@@ -2,6 +2,8 @@
 package taskie.commands;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 
 import taskie.exceptions.ConfigurationFailedException;
 import taskie.exceptions.UndoNotSupportedException;
@@ -28,23 +30,27 @@ public class DirectoryCommand extends AbstractCommand {
 	public void execute() {
 		try {
 			String folder;
+			Path currentFolder = _controller.getStorage().getStorageLocation();
+
 			if ( _path.equals("") ) {
-				folder = _controller.getUI().loadSelectDirectoryDialog(_controller.getStorage().getStorageLocation());
+				folder = _controller.getUI().loadSelectDirectoryDialog(currentFolder.toString());
 			} else {
 				folder = _path;
 			}
-			String currentFolder = _controller.getStorage().getStorageLocation();
-
-			if (folder != null && folder.equals(currentFolder)) {
-				_controller.getStorage().setStorageLocation(folder);
-				_controller.getConfiguration().setDatabasePath(folder);
-				_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED, folder));
+			
+			if ( folder == null ) {
+				// Directory Change Cancelled
+				_controller.getUI().display(String.format(Messages.DIRECTORY_NOT_CHANGED));
+			} else {
+				if (!folder.equals(currentFolder)) {
+					_controller.getStorage().setStorageLocation(FileSystems.getDefault().getPath(folder));
+					_controller.getConfiguration().setDatabasePath(folder);
+					_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED, folder));
+				}
 			}
-		} catch (NullPointerException e) {
-			// Directory Change Cancelled
-			_controller.getUI().display(String.format(Messages.DIRECTORY_NOT_CHANGED));
 		} catch (ConfigurationFailedException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

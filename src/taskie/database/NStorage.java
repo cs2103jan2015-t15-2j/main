@@ -1,7 +1,6 @@
 //@author A0121555M
 package taskie.database;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystems;
@@ -11,9 +10,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FileUtils;
-
-import taskie.exceptions.ConfigurationFailedException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -47,37 +43,28 @@ public class NStorage implements IStorage {
 		} 
 		
 		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
-		setStorageLocation(storageDir.toString());
 	}
 
-	public String getStorageLocation() {
-		return _databasePath.toAbsolutePath().getParent().toString();
+	public Path getStorageLocation() {
+		return _databasePath.toAbsolutePath().getParent();
 	}
 
-	public void setStorageLocation(String storageDir) {
-		try {
-			Path newPath = FileSystems.getDefault().getPath(storageDir);
-			Path newDatabasePath = _databasePath.resolve(DATABASE_FILENAME);
-
-			if ( newPath.toString().equals(this.getStorageLocation()) ) {
-				return;
-			}
-			
-			if (_db != null) {
-				_db.close();
-			}
-
-			_logger.log(Level.INFO, "Attempting to change storage location to: " + newPath.toString());
-			migrateExistingDatabaseFile(_databasePath, newDatabasePath);
-			_databasePath = newDatabasePath;
-
-			_db = new FileReaderWriter(_databasePath);
-			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());				
-		} catch (ConfigurationFailedException ex) {
-			ex.getMessage();
-		} catch (IOException ex) {
-			ex.getMessage();
+	public void setStorageLocation(Path newDirectory) throws IOException {
+		if ( newDirectory.toString().equals(this.getStorageLocation()) ) {
+			return;
 		}
+		
+		if (_db != null) {
+			_db.close();
+		}
+
+		_logger.log(Level.INFO, "Attempting to change storage location to: " + newDirectory.toString());
+		migrateFiles(this.getStorageLocation(), newDirectory);
+
+		_databasePath = newDirectory.resolve(DATABASE_FILENAME);
+		_db = new FileReaderWriter(_databasePath);
+		this.rewriteDatabase();
+		_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());				
 	}
 	
 	//@author A0121555M
@@ -163,20 +150,12 @@ public class NStorage implements IStorage {
 		_db.close();
 	}
 
-	//@author A0135137L
-	private void migrateExistingDatabaseFile(Path oldDirectory, Path newDirectory) throws ConfigurationFailedException {
-		try {
-			File oldFile = FileUtils.getFile(oldDirectory.toString());
-			File newDir = FileUtils.getFile(newDirectory.getParent().toString());
-
-			if (Files.exists(newDirectory)) {
-				Files.delete(newDirectory);
-			}
-			FileUtils.moveFileToDirectory(oldFile, newDir, true);
-
-		} catch (IOException ex) {
-			throw new ConfigurationFailedException();
-		}
+	private void migrateFiles(Path oldDirectory, Path newDirectory) throws IOException {
+		_logger.log(Level.FINE, "Moving from: " + oldDirectory.toString() + " to " + newDirectory.toString());
+		
+		Path oldDatabasePath = oldDirectory.resolve(DATABASE_FILENAME);
+		Path newDatabasePath = newDirectory.resolve(DATABASE_FILENAME);
+		Files.move(oldDatabasePath, newDatabasePath);
 	}
 	
 	//@author A0097582N	
