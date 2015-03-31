@@ -38,10 +38,11 @@ public class DirectoryCommand extends AbstractCommand {
 			if (folder != null && folder.equals(currentFolder)) {
 				_controller.getStorage().setStorageLocation(folder);
 				_controller.getConfiguration().setDatabasePath(folder);
-				_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED_STRING, folder));
+				_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED, folder));
 			}
 		} catch (NullPointerException e) {
 			// Directory Change Cancelled
+			_controller.getUI().display(String.format(Messages.DIRECTORY_NOT_CHANGED));
 		} catch (ConfigurationFailedException e) {
 			// TODO Auto-generated catch block
 		} catch (IOException e) {

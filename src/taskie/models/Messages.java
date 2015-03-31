@@ -42,8 +42,8 @@ public class Messages {
 	public static final String END_TIME = "End time" + NEWLINE;
 
 	// DirectoryCommand messages
-	public static final String DIRECTORY_CHANGED_STRING = "Directory changed to %s"
-			+ NEWLINE;
+	public static final String DIRECTORY_CHANGED = "Directory changed to %s" + NEWLINE;
+	public static final String DIRECTORY_NOT_CHANGED = "";
 
 	// error messages
 	public static final String INVALID_TASK_NUM = "Invalid task number. Please try again."
