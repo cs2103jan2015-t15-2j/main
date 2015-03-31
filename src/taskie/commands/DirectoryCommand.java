@@ -1,6 +1,8 @@
 //@author A0121555M
 package taskie.commands;
 
+import java.io.IOException;
+
 import taskie.exceptions.ConfigurationFailedException;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
@@ -8,8 +10,15 @@ import taskie.models.Messages;
 
 public class DirectoryCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.DIRECTORY;
-
+	private String _path;
+	
 	public DirectoryCommand() {
+		_path = "";
+	}
+	
+	public DirectoryCommand(String path) {
+		this();
+		_path = path;
 	}
 
 	public CommandType getCommandType() {
@@ -18,7 +27,12 @@ public class DirectoryCommand extends AbstractCommand {
 
 	public void execute() {
 		try {
-			String folder = _controller.getUI().loadSelectDirectoryDialog(_controller.getStorage().getStorageLocation());
+			String folder;
+			if ( _path.equals("") ) {
+				folder = _controller.getUI().loadSelectDirectoryDialog(_controller.getStorage().getStorageLocation());
+			} else {
+				folder = _path;
+			}
 			String currentFolder = _controller.getStorage().getStorageLocation();
 
 			if (folder != null && folder.equals(currentFolder)) {
@@ -30,6 +44,9 @@ public class DirectoryCommand extends AbstractCommand {
 			// Directory Change Cancelled
 		} catch (ConfigurationFailedException e) {
 			// TODO Auto-generated catch block
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

@@ -218,7 +218,7 @@ public class CommandParser implements Parser {
 		} else if ( cmd == CommandType.UNMARK ) {
 			return this.doUnmark(command);
 		} else if ( cmd == CommandType.DIRECTORY ) {
-			return this.doDirectory();
+			return this.doDirectory(command);
 		} else if ( cmd == CommandType.EXIT ) {
 			return this.doExit();
 		} else {
@@ -580,9 +580,14 @@ public class CommandParser implements Parser {
 		return new UnmarkCommand(itemNumber);
 	}
 
-	private ICommand doDirectory() {
-		_logger.log(Level.INFO, "Changing Directory");
-		return new DirectoryCommand();
+	private ICommand doDirectory(String command) {
+		if ( command.isEmpty() ) {
+			_logger.log(Level.INFO, "Changing Directory - Launch GUI");
+			return new DirectoryCommand();
+		} else {
+			_logger.log(Level.INFO, "Changing Directory - Target: " + command);
+			return new DirectoryCommand(command);
+		}
 	}
 	
 	private ICommand doExit() {
