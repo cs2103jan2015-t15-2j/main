@@ -41,7 +41,6 @@ public class CommandTest {
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 
 	private static Controller _controller;
-	private static Parser _parser;
 
 	private static LocalDate _nowDate;
 	private static LocalTime _nowTime;
@@ -76,7 +75,6 @@ public class CommandTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		_controller = Controller.getInstance();
-		_parser = new CommandParser();
 		_now = LocalDateTime.now();
 		_later = _now.plusHours(1);
 		_evenLater = _later.plusHours(1);
@@ -88,10 +86,13 @@ public class CommandTest {
 		
 		_nowDate = _now.toLocalDate();
 		_nowTime = _now.toLocalTime();
+		
 		_laterDate = _later.toLocalDate();
 		_laterTime = _later.toLocalTime();
+		
 		_evenLaterDate = _evenLater.toLocalDate();
 		_evenLaterTime = _evenLater.toLocalTime();
+		
 		_time1Date = _time1.toLocalDate();
 		_time1Time = _time1.toLocalTime();
 		
@@ -118,7 +119,7 @@ public class CommandTest {
 		_controller.getStorage().clearAllTasks();
 	}
 
-	// @Test
+	@Test
 	public void testAddCommandFloating() throws InvalidCommandException,
 			InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
 		setUp();
@@ -130,7 +131,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	// @Test
+	@Test
 	public void testAddCommandDeadline() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
@@ -143,7 +144,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	// @Test
+	@Test
 	public void testAddCommandTimed() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
@@ -158,7 +159,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	// @Test
+	@Test
 	public void testViewCommandAll() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
@@ -167,7 +168,7 @@ public class CommandTest {
 		cmd.execute();
 	}
 
-	// @Test
+	@Test
 	public void testUpdateCommandTaskNameSimple()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskModificationFailedException {
@@ -189,7 +190,7 @@ public class CommandTest {
 
 	}
 
-	// @Test
+	@Test
 	public void testUpdateCommandTaskNameComplex()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
@@ -214,7 +215,7 @@ public class CommandTest {
 
 	}
 
-	// @Test
+	@Test
 	public void testUpdateCommandEndTime() throws TaskRetrievalFailedException,
 			IOException, InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
@@ -236,7 +237,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	// @Test
+	@Test
 	public void testUpdateCommandStartEndDateTime()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
@@ -291,9 +292,12 @@ public class CommandTest {
 		expectedTask.setEndDateTime(_time3);
 		System.out.println(expectedTask);
 		System.out.println(list.get(0).toString());
-		assertEquals(expectedTask.toString(), list.get(0).toString());
-		
+		assertEquals(expectedTask.toString(), list.get(0).toString());	
 	}
+	
+	
+	
+	
 
 	private void generateTasks() {
 		for (int i = 0; i < 10; i++) {

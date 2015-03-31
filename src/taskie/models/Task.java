@@ -137,7 +137,7 @@ public class Task implements Comparable<Task> {
 	}
 
 	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		if (endDateTime.isBefore(this.getStartDateTime())) {
+		if (this.getStartDateTime()!=null && endDateTime.isBefore(this.getStartDateTime())) {
 			throw new TaskDateInvalidException("New End Date Time is after Start Date Time");
 		}
 

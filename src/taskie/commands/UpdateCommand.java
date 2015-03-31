@@ -139,7 +139,7 @@ public class UpdateCommand extends AbstractCommand {
 	}
 
 	public void execute() {
-		_logger.log(Level.INFO, "task Index: " + _taskIndex
+		_logger.log(Level.INFO, "UPDATECOMMAND CONFIG: task Index: " + _taskIndex
 				+ " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): "
 				+ _startDateToUpdate+" "+_isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate
 				+" "+_isToUpdateStartTime+ "\nendDate(bool): " + _endDateToUpdate +" "+_isToUpdateEndDate+ " time(bool):"
@@ -147,7 +147,7 @@ public class UpdateCommand extends AbstractCommand {
 		
 		try {
 			Task task = retrieveTaskToUpdateFromUI();
-			_logger.log(Level.INFO,task.toString());
+			_logger.log(Level.INFO,"TASK FROM UI: "+task.toString());
 			Task updatedTask = updateTask(task);
 			_controller.getStorage().updateTask(task, updatedTask);
 			_controller.getUI().display(formatUpdateMsg(task));
@@ -176,6 +176,18 @@ public class UpdateCommand extends AbstractCommand {
 				updatedTask.setTitle(this.getTaskTitleToUpdate());
 			}
 		}
+		if(isModifiedStartDate()||isModifiedStartTime()||isModifiedEndDate()||isModifiedEndTime()){
+			updateTaskDates(task, updatedTask);
+		}
+	
+
+		
+		return updatedTask;
+	}
+
+	private void updateTaskDates(Task task, Task updatedTask)
+			throws TaskDateInvalidException, TaskDateNotSetException,
+			InvalidCommandException {
 		LocalDate updateStartDate = task.getStartDate();
 		LocalTime updateStartTime = task.getStartTime();
 		LocalDate updateEndDate = task.getEndDate();
@@ -231,10 +243,6 @@ public class UpdateCommand extends AbstractCommand {
 		}else{
 			throw new InvalidCommandException(taskie.models.Messages.INVALID_COMMAND);
 		}
-	
-
-		
-		return updatedTask;
 	}
 
 	private Boolean isConsistent(LocalDate startDate,LocalTime startTime,
