@@ -119,7 +119,7 @@ public class CommandTest {
 		_controller.getStorage().clearAllTasks();
 	}
 
-	@Test
+//	@Test
 	public void testAddCommandFloating() throws InvalidCommandException,
 			InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
 		setUp();
@@ -131,7 +131,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	@Test
+//	@Test
 	public void testAddCommandDeadline() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
@@ -144,7 +144,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	@Test
+//	@Test
 	public void testAddCommandTimed() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
@@ -159,7 +159,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	@Test
+//	@Test
 	public void testViewCommandAll() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
@@ -168,7 +168,7 @@ public class CommandTest {
 		cmd.execute();
 	}
 
-	@Test
+//	@Test
 	public void testUpdateCommandTaskNameSimple()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskModificationFailedException {
@@ -190,7 +190,7 @@ public class CommandTest {
 
 	}
 
-	@Test
+//	@Test
 	public void testUpdateCommandTaskNameComplex()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
@@ -237,7 +237,7 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-	@Test
+//	@Test
 	public void testUpdateCommandStartEndDateTime()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
@@ -267,7 +267,7 @@ public class CommandTest {
 
 	
 	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
-	@Test
+//	@Test
 	public void testUpdateCommandStartEndDateTimeComplex()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {

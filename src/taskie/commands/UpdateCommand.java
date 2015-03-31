@@ -232,7 +232,7 @@ public class UpdateCommand extends AbstractCommand {
 
 		if (isConsistent(updateStartDate, updateStartTime, updateEndDate,
 				updateEndTime, updateStartDateTime, updateEndDateTime)) {
-			updatedTask.setStartDate(updateStartDate);
+			updatedTask.setStartDate(updateStartDate); 
 			updatedTask.setStartTime(updateStartTime);
 			updatedTask.setEndDate(updateEndDate);
 			updatedTask.setEndTime(updateEndTime);
@@ -261,7 +261,6 @@ public class UpdateCommand extends AbstractCommand {
 		if(startDateTime!=null && endDateTime!=null && startDateTime.isAfter(endDateTime)){
 			return false;
 		}
-		
 		return true;
 	}
 

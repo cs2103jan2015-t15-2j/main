@@ -137,7 +137,7 @@ public class Task implements Comparable<Task> {
 	}
 
 	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		if (this.getStartDateTime()!=null && endDateTime.isBefore(this.getStartDateTime())) {
+		if (this.getStartDateTime()!=null&&this.getEndDateTime()!=null && endDateTime.isBefore(this.getStartDateTime())) {
 			throw new TaskDateInvalidException("New End Date Time is after Start Date Time");
 		}
 
@@ -164,7 +164,7 @@ public class Task implements Comparable<Task> {
 	}
 
 	public void setEndDate(LocalDate newEndDate) throws TaskDateInvalidException {
-		if (newEndDate.isBefore(_startDate)) {
+		if (_endDate!=null&&_startDate!=null&&newEndDate.isBefore(_startDate)) {
 			throw new TaskDateInvalidException("New End Date is before Start Date");
 		}
 
@@ -176,10 +176,6 @@ public class Task implements Comparable<Task> {
 	}
 
 	public void setStartTime(LocalTime newStartTime) throws TaskDateInvalidException, TaskDateNotSetException {
-		if (_startDate == null) {
-			throw new TaskDateNotSetException("Start date not set");
-		}
-
 		if (newStartTime == null) {
 			_startTime = null;
 		} else if (_startTime == null) {
@@ -196,9 +192,6 @@ public class Task implements Comparable<Task> {
 	}
 
 	public void setEndTime(LocalTime newEndTime) throws TaskDateInvalidException, TaskDateNotSetException {
-		if (_endDate == null) {
-			throw new TaskDateNotSetException("End date not set");
-		}
 
 		if (newEndTime == null) {
 			_endTime = null;
