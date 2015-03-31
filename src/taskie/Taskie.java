@@ -1,7 +1,6 @@
 //@author A0121555M
 package taskie;
 
-
 public class Taskie {
 	public static void main(String[] args) {
 		new Taskie(args);

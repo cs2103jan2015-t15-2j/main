@@ -27,6 +27,7 @@ import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskDateInvalidException;
 import taskie.exceptions.TaskDateNotSetException;
+import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.models.Task;
 import taskie.models.ViewType;
@@ -108,18 +109,18 @@ public class CommandTest {
 	}
 
 	@AfterClass
-	public static void cleanUp() throws IOException, TaskRetrievalFailedException {
-		_controller.getStorage().deleteTaskList();
+	public static void cleanUp() throws IOException, TaskRetrievalFailedException, TaskModificationFailedException {
+		_controller.getStorage().clearAllTasks();
 	}
 
 	@Before
-	public void setUp() throws TaskRetrievalFailedException, IOException {
-		_controller.getStorage().deleteTaskList();
+	public void setUp() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException {
+		_controller.getStorage().clearAllTasks();
 	}
 
 	// @Test
 	public void testAddCommandFloating() throws InvalidCommandException,
-			InvalidTaskException, TaskRetrievalFailedException, IOException {
+			InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -131,7 +132,7 @@ public class CommandTest {
 
 	// @Test
 	public void testAddCommandDeadline() throws TaskRetrievalFailedException,
-			IOException {
+			IOException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("bar");
@@ -144,7 +145,7 @@ public class CommandTest {
 
 	// @Test
 	public void testAddCommandTimed() throws TaskRetrievalFailedException,
-			IOException {
+			IOException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foobar");
@@ -159,7 +160,7 @@ public class CommandTest {
 
 	// @Test
 	public void testViewCommandAll() throws TaskRetrievalFailedException,
-			IOException {
+			IOException, TaskModificationFailedException {
 		setUp();
 		generateTasks();
 		ViewCommand cmd = new ViewCommand(ViewType.ALL);
@@ -169,7 +170,7 @@ public class CommandTest {
 	// @Test
 	public void testUpdateCommandTaskNameSimple()
 			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException {
+			InvalidTaskException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -191,7 +192,7 @@ public class CommandTest {
 	// @Test
 	public void testUpdateCommandTaskNameComplex()
 			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -215,7 +216,7 @@ public class CommandTest {
 
 	// @Test
 	public void testUpdateCommandEndTime() throws TaskRetrievalFailedException,
-			IOException, InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
+			IOException, InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -238,7 +239,7 @@ public class CommandTest {
 	// @Test
 	public void testUpdateCommandStartEndDateTime()
 			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
@@ -262,12 +263,13 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
+
 	
 	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
 	@Test
 	public void testUpdateCommandStartEndDateTimeComplex()
 			throws TaskRetrievalFailedException, IOException,
-			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException {
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");

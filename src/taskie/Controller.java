@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import taskie.commands.ExitCommand;
 import taskie.commands.ICommand;
+import taskie.database.Configuration;
 import taskie.database.IStorage;
 import taskie.database.NStorage;
 import taskie.exceptions.InvalidCommandException;
@@ -27,6 +28,7 @@ import taskie.ui.UI;
 
 public class Controller {
 	private static Controller _instance;
+	private Configuration _config;
 	private Logger _logger;
 	private Parser _parser;
 	private Stack<ICommand> _undoStack;
@@ -46,12 +48,16 @@ public class Controller {
 	public Parser getParser() {
 		return _parser;
 	}
+	
+	public Configuration getConfiguration() {
+		return _config;
+	}
 
 	private Controller() {
 		_logger = Logger.getLogger(Controller.class.getName());
+		_config = Configuration.getInstance();
 		_ui = new CommandUI(this);
 		_parser = new CommandParser();
-
 		this.initialize();
 	}
 	
@@ -59,7 +65,7 @@ public class Controller {
 		try {
 			_undoStack = new Stack<ICommand>();
 			_redoStack = new Stack<ICommand>();
-			_storage = new NStorage();
+			_storage = new NStorage(_config.getDatabasePath());
 		} catch ( IOException e ) {
 			//TODO
 			System.out.println("Unable to initialize Storage");

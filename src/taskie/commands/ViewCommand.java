@@ -380,7 +380,6 @@ public class ViewCommand extends AbstractCommand {
 					tasksToDisplay.add(task);
 				}
 			}
-
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {

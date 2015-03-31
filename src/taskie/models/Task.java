@@ -10,8 +10,8 @@ import java.time.temporal.ChronoUnit;
 import taskie.exceptions.TaskDateInvalidException;
 import taskie.exceptions.TaskDateNotSetException;
 
-public class Task implements Comparable<Task>, Serializable {
-	private static final long serialVersionUID = 2253380958397910210L;
+public class Task implements Comparable<Task> {
+	//private static final long serialVersionUID = 2253380958397910210L;
 	private String _title;
 
 	//@author A0121555M
