@@ -402,7 +402,7 @@ public class Task implements Comparable<Task> {
 	}
 
 	public void pushStageToActual() throws TaskDateInvalidException, TaskDateNotSetException {
-		if (isStagingConsistent()) {
+		if (isStagingConsistent()) {	
 			if(_isStagedStartDate){
 				setStartDate(_stageStartDate);
 			}
@@ -420,6 +420,14 @@ public class Task implements Comparable<Task> {
 			resetStaging();
 			throw new TaskDateInvalidException();
 		}
+	}
+
+	public void initialiseStaging() {
+		_stageStartDate = _startDate;
+		_stageStartTime = _startTime;
+		_stageEndDate = _endDate;
+		_stageEndTime = _endTime;
+		
 	}
 
 	private boolean isStagingConsistent() {

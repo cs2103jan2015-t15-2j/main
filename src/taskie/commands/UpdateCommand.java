@@ -232,12 +232,14 @@ public class UpdateCommand extends AbstractCommand {
 
 		if (isConsistent(updateStartDate, updateStartTime, updateEndDate,
 				updateEndTime, updateStartDateTime, updateEndDateTime)) {
+			updatedTask.initialiseStaging();
 			updatedTask.stageUpdateStartDate(updateStartDate); 
 			updatedTask.stageUpdateStartTime(updateStartTime);
 			updatedTask.stageUpdateEndDate(updateEndDate);
 			updatedTask.stageUpdateEndTime(updateEndTime);
 			updatedTask.pushStageToActual();
 		} else if (isModifiedStartDate() || isModifiedStartTime()) {
+			updatedTask.initialiseStaging();
 			updatedTask.setStartDate(updateStartDate);
 			updatedTask.setStartTime(updateStartTime);
 			updatedTask.pushStageToActual();
