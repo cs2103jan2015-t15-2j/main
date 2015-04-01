@@ -4,6 +4,9 @@ package taskie.database;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import taskie.exceptions.FileExistsException;
+import taskie.exceptions.StorageLocationInvalidException;
+import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -18,6 +21,8 @@ import java.time.LocalTime;
 import java.util.Scanner;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.StringTokenizer;
 import java.time.format.DateTimeFormatter;
 
@@ -601,8 +606,12 @@ public class Storage implements IStorage {
 		}
 	}
 
-	public String getStorageLocation() {
-		return _storageLocation;
+	@Override
+	public Path getStorageLocation() {
+		// TODO Auto-generated method stub
+		Path p = FileSystems.getDefault().getPath("C:\\");
+		return p;
+		
 	}
 	
 	
@@ -648,5 +657,16 @@ public class Storage implements IStorage {
 	public void clearAllTasks() throws TaskModificationFailedException {
 		// TODO Auto-generated method stub
 		
+	}
+	
+
+	@Override
+	public void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		// TODO Auto-generated method stub	
 	}
 }

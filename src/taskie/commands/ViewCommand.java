@@ -351,7 +351,6 @@ public class ViewCommand extends AbstractCommand {
 					break;
 				}
 				TaskType taskType=task.getTaskType();
-				System.out.println(taskType);
 				if(taskType==TaskType.FLOATING){
 					tasksToDisplay.add(task);
 				}else if(taskType==TaskType.DEADLINE 
