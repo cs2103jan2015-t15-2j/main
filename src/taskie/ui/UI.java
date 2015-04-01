@@ -2,7 +2,9 @@
 package taskie.ui;
 
 import java.time.LocalDateTime;
+
 import taskie.exceptions.InvalidTaskException;
+import taskie.models.DisplayType;
 import taskie.models.Task;
 
 public interface UI {	
@@ -14,7 +16,7 @@ public interface UI {
 
 	public void display(Task[] task);
 
-	public void display(String message);
+	public void display(DisplayType type, String message);
 
 	public void exit();
 

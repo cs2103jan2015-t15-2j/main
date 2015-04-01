@@ -26,6 +26,7 @@ import taskie.commands.MarkCommand;
 import taskie.commands.RedoCommand;
 import taskie.commands.UndoCommand;
 import taskie.commands.UnmarkCommand;
+import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.ViewType;
@@ -124,6 +125,12 @@ public class ParserTest {
 
 		expectedCommand = new AddCommand("Complete CE2", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.MAX);
 		actualCommand = _parser.parse("put Complete CE2 on Saturday");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Complete CE2", null, null, _today.plusDays(1), LocalTime.of(16, 0, 0, 0));
+		actualCommand = _parser.parse("put Complete CE2 by 4pm tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("put Complete CE2 by tomorrow 4pm");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Work on the code done by Amy", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.MONDAY)), LocalTime.MAX);
@@ -259,7 +266,47 @@ public class ParserTest {
 	
 	@Test
 	public void testUpdateCommand() throws InvalidCommandException {
+		UpdateCommand expectedCommand;
+		ICommand actualCommand;
 		
+		// Equivalence Partitioning
+		// Test all possible variants of UpdateCommand
+		expectedCommand = new UpdateCommand(1);
+		actualCommand = _parser.parse("update 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("change 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("modify 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("edit 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("alter 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		try {
+			actualCommand = _parser.parse("update");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+		
+		// Test Update Title only
+		expectedCommand = new UpdateCommand(1);
+		expectedCommand.setTaskTitleToUpdate("new title");
+		actualCommand = _parser.parse("update 1 new title");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test Update End Date only
+		expectedCommand = new UpdateCommand(1);
+		expectedCommand.setEndDateToUpdate(_today.plusDays(1));
+		actualCommand = _parser.parse("update 1 by tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test Update Title and End Date
+		expectedCommand = new UpdateCommand(1);
+		expectedCommand.setTaskTitleToUpdate("new title");
+		expectedCommand.setEndDateToUpdate(_today.plusDays(1));
+		actualCommand = _parser.parse("update 1 new title by tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 	}
 	
 	@Test

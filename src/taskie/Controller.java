@@ -21,6 +21,8 @@ import taskie.database.IStorage;
 import taskie.database.NStorage;
 import taskie.exceptions.InvalidCommandException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
 import taskie.ui.CommandUI;
@@ -92,7 +94,7 @@ public class Controller {
 						ICommand cmd = _parser.parse(string);
 						this.executeCommand(cmd);
 					} catch (InvalidCommandException e) {
-						_ui.display(taskie.models.Messages.INVALID_COMMAND);
+						_ui.display(DisplayType.ERROR, Messages.INVALID_COMMAND);
 					}
 				}
 			}

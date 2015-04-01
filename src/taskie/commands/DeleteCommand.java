@@ -12,6 +12,8 @@ import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
 import taskie.models.Task;
 
 public class DeleteCommand extends AbstractCommand {	
@@ -119,17 +121,17 @@ public class DeleteCommand extends AbstractCommand {
 			if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
 					|| canDeleteEndTime()) {	//if either of these methods returned true, only task fields are to be deleted.
 				deleteTaskField();
-				_controller.getUI().display(formatDeleteTaskFieldString());
+				_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskFieldString());
 			}else{
 				deleteTask();
-				_controller.getUI().display(formatDeleteTaskString());
+				_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskString());
 			}
 		} catch (InvalidTaskException e) {
-			_controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+			_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
 		} catch (TaskTypeNotSupportedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (TaskModificationFailedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 

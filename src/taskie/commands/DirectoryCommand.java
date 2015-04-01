@@ -12,6 +12,7 @@ import taskie.exceptions.StorageLocationInvalidException;
 import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
 import taskie.models.Messages;
 
 public class DirectoryCommand extends AbstractCommand {
@@ -49,7 +50,7 @@ public class DirectoryCommand extends AbstractCommand {
 			
 			if ( folder == null ) {
 				// Directory Change Cancelled
-				_controller.getUI().display(String.format(Messages.DIRECTORY_NOT_CHANGED));
+				_controller.getUI().display(DisplayType.DEFAULT, String.format(Messages.DIRECTORY_NOT_CHANGED));
 			} else {
 				if (!folder.equals(currentFolder)) {
 					try {
@@ -59,15 +60,15 @@ public class DirectoryCommand extends AbstractCommand {
 					}
 					
 					_controller.getConfiguration().setDatabasePath(folder);
-					_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED, folder));
+					_controller.getUI().display(DisplayType.SUCCESS, String.format(Messages.DIRECTORY_CHANGED, folder));
 				}
 			}
 		} catch (ConfigurationFailedException e) {
-			_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGE_FAILED));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_CHANGE_FAILED));
 		} catch (StorageMigrationFailedException e) {
-			_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGE_FAILED));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_CHANGE_FAILED));
 		} catch (StorageLocationInvalidException e) {
-			_controller.getUI().display(String.format(Messages.DIRECTORY_INVALID));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_INVALID));
 		}
 	}
 

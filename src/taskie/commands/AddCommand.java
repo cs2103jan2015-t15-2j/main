@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
 import taskie.models.Task;
 import taskie.models.TaskType;
 
@@ -147,11 +148,11 @@ public class AddCommand extends AbstractCommand {
 		try {
 			_task = new Task(_taskName, _startDate, _startTime, _endDate, _endTime);
 			_controller.getStorage().addTask(_task);
-			_controller.getUI().display(formatAddMsg(_task));
+			_controller.getUI().display(DisplayType.SUCCESS, formatAddMsg(_task));
 		} catch (TaskTypeNotSupportedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (TaskModificationFailedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 
