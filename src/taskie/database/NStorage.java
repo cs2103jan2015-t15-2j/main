@@ -38,9 +38,7 @@ public class NStorage implements IStorage {
 		try {
 			this.readDatabaseFile(storageDir);
 			_logger = Logger.getLogger(NStorage.class.getName());
-			_db = new FileReaderWriter(_databasePath);
 			_gson = new Gson();
-			_tasks = retrieveTaskList();
 		} catch (TaskRetrievalFailedException ex) {
 			ex.getMessage();
 		}
@@ -83,20 +81,22 @@ public class NStorage implements IStorage {
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());
 		} catch (IOException e) {
 			throw new StorageMigrationFailedException(e);
+		} catch (TaskRetrievalFailedException e) {
+			throw new StorageMigrationFailedException(e);
 		}
 	}
 
-	private void readDatabaseFile(Path storageDir) {
-		try {
-			_databasePath = storageDir.resolve(DATABASE_FILENAME);
-			_db = new FileReaderWriter(_databasePath);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	private void readDatabaseFile(Path storageDir) throws TaskRetrievalFailedException, IOException {
+		_databasePath = storageDir.resolve(DATABASE_FILENAME);
+		_db = new FileReaderWriter(_databasePath);
+		
+		if ( _tasks != null ) {
+			_tasks.clear();
 		}
+		
+		retrieveTaskList();
 	}
 
-	//@author A0121555M
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
 			this.addToTaskList(task);
@@ -195,7 +195,6 @@ public class NStorage implements IStorage {
 	//@author A0097582N
 	public ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
 		try {
-
 			String json = _db.read();
 			if (json.equals("")) {
 				return new ArrayList<Task>();
