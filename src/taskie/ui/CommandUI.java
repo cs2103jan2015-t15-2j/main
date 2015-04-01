@@ -154,7 +154,7 @@ public class CommandUI implements UI {
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.UI_WELCOME_MESSAGE + " ").reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
-		_controller.executeCommand(new ViewCommand(ViewType.ALL));
+		_controller.executeCommand(new ViewCommand(ViewType.UPCOMING));
 	}
 
 	public void run() {
