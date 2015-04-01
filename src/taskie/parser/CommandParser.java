@@ -46,8 +46,8 @@ public class CommandParser implements Parser {
 	private static final String[] COMMAND_KEYWORD_DIRECTORY = new String[] {"directory"};
 	private static final String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
 	
-	private static final String[] VIEW_KEYWORDS_ALL = new String[] {"", "all", "everything"};
-	private static final String[] VIEW_KEYWORDS_UPCOMING = new String[] {"upcoming", "incomplete", "undone", "todo"};
+	private static final String[] VIEW_KEYWORDS_ALL = new String[] {"all", "everything"};
+	private static final String[] VIEW_KEYWORDS_UPCOMING = new String[] {"", "upcoming", "incomplete", "undone", "todo"};
 	private static final String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
 	private static final String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
 	
