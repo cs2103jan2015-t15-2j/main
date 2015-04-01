@@ -33,6 +33,7 @@ public class Taskie {
 			c.run();
 		} catch (Exception e) {
 			System.out.println("Unknown Error: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 }
