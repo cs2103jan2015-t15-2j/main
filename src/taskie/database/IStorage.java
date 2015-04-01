@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import taskie.exceptions.FileExistsException;
 import taskie.exceptions.StorageLocationInvalidException;
+import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -15,7 +16,7 @@ import taskie.models.Task;
 public interface IStorage {
 	Path getStorageLocation();
 
-	void setStorageLocation(Path newDirectory) throws IOException, StorageLocationInvalidException, FileExistsException;
+	void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException;
 
 	void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 

@@ -1,13 +1,13 @@
 //@author A0121555M
 package taskie.commands;
 
-import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 import taskie.exceptions.ConfigurationFailedException;
 import taskie.exceptions.FileExistsException;
 import taskie.exceptions.StorageLocationInvalidException;
+import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Messages;
@@ -53,8 +53,7 @@ public class DirectoryCommand extends AbstractCommand {
 		} catch (ConfigurationFailedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (StorageMigrationFailedException e) {
 			e.printStackTrace();
 		} catch (StorageLocationInvalidException e) {
 			_controller.getUI().display(String.format(Messages.DIRECTORY_INVALID));

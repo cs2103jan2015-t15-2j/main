@@ -71,17 +71,12 @@ public class FileReaderWriter {
 		}
 	}
 	
-	public void moveFile(Path oldPath, Path newPath) throws FileExistsException {
-		try {
-			if ( Files.exists(newPath) ) {
-				throw new FileExistsException(newPath.toString());
-			}
-			
-			Files.move(oldPath, newPath);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public void moveFile(Path oldPath, Path newPath) throws FileExistsException, IOException {
+		if ( Files.exists(newPath) ) {
+			throw new FileExistsException(newPath.toString());
 		}
+			
+		Files.move(oldPath, newPath);
 	}
 
 	public void deleteFile(Path path) {
