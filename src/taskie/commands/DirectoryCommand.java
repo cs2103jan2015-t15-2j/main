@@ -51,10 +51,9 @@ public class DirectoryCommand extends AbstractCommand {
 				}
 			}
 		} catch (ConfigurationFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGE_FAILED));
 		} catch (StorageMigrationFailedException e) {
-			e.printStackTrace();
+			_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGE_FAILED));
 		} catch (StorageLocationInvalidException e) {
 			_controller.getUI().display(String.format(Messages.DIRECTORY_INVALID));
 		} catch (FileExistsException e) {
