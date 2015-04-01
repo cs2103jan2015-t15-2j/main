@@ -51,8 +51,12 @@ public class NStorage implements IStorage {
 	public Path getStorageLocation() {
 		return _databasePath.toAbsolutePath().getParent();
 	}
-
+	
 	public void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		this.setStorageLocation(newDirectory, false);
+	}
+
+	public void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
 		if (newDirectory.toString().equals(this.getStorageLocation())) {
 			return;
 		}
@@ -67,7 +71,7 @@ public class NStorage implements IStorage {
 			}
 
 			_logger.log(Level.INFO, "Attempting to change storage location to: " + newDirectory.toString());
-			migrateFiles(this.getStorageLocation(), newDirectory);
+			migrateFiles(this.getStorageLocation(), newDirectory, overwrite);
 
 			this.readDatabaseFile(newDirectory);
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());
@@ -170,13 +174,13 @@ public class NStorage implements IStorage {
 		_db.close();
 	}
 
-	private void migrateFiles(Path oldDirectory, Path newDirectory) throws FileExistsException, StorageMigrationFailedException {
+	private void migrateFiles(Path oldDirectory, Path newDirectory, boolean overwrite) throws FileExistsException, StorageMigrationFailedException {
 		_logger.log(Level.FINE, "Moving from: " + oldDirectory.toString() + " to " + newDirectory.toString());
 		
 		try {
 			Path oldDatabasePath = oldDirectory.resolve(DATABASE_FILENAME);
 			Path newDatabasePath = newDirectory.resolve(DATABASE_FILENAME);
-			_db.moveFile(oldDatabasePath, newDatabasePath);
+			_db.moveFile(oldDatabasePath, newDatabasePath, overwrite);
 		} catch (IOException e) {
 			throw new StorageMigrationFailedException(e);
 		}

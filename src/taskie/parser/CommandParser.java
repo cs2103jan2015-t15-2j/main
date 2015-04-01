@@ -56,6 +56,8 @@ public class CommandParser implements Parser {
 	private static final String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
 	private static final String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
 	
+	private static final String[] OVERWRITE_KEYWORDS = new String[] { "overwrite" };
+	
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 	
@@ -587,8 +589,18 @@ public class CommandParser implements Parser {
 			_logger.log(Level.INFO, "Changing Directory - Launch GUI");
 			return new DirectoryCommand();
 		} else {
-			_logger.log(Level.INFO, "Changing Directory - Target: " + command);
-			return new DirectoryCommand(command);
+			String[] words = splitStringWithWhitespace(command);
+			int FIRST_WORD = 0;
+			int LAST_WORD = words.length - 1;
+			boolean overwrite = false;
+			
+			if ( hasKeyword(words[FIRST_WORD], OVERWRITE_KEYWORDS) || hasKeyword(words[LAST_WORD], OVERWRITE_KEYWORDS))
+			{
+				overwrite = true;
+			}
+
+			_logger.log(Level.INFO, "Changing Directory - Target: " + command + "; Overwrite: " + overwrite);
+			return new DirectoryCommand(command, overwrite);
 		}
 	}
 	

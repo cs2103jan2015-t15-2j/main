@@ -15,14 +15,17 @@ import taskie.models.Messages;
 public class DirectoryCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.DIRECTORY;
 	private String _path;
+	private boolean _overwrite;
 	
 	public DirectoryCommand() {
 		_path = "";
+		_overwrite = false;
 	}
 	
-	public DirectoryCommand(String path) {
+	public DirectoryCommand(String path, boolean overwrite) {
 		this();
 		_path = path;
+		_overwrite = overwrite;
 	}
 
 	public CommandType getCommandType() {
@@ -45,7 +48,7 @@ public class DirectoryCommand extends AbstractCommand {
 				_controller.getUI().display(String.format(Messages.DIRECTORY_NOT_CHANGED));
 			} else {
 				if (!folder.equals(currentFolder)) {
-					_controller.getStorage().setStorageLocation(FileSystems.getDefault().getPath(folder));
+					_controller.getStorage().setStorageLocation(FileSystems.getDefault().getPath(folder), _overwrite);
 					_controller.getConfiguration().setDatabasePath(folder);
 					_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED, folder));
 				}

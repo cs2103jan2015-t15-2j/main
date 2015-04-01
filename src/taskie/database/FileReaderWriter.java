@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,12 +72,12 @@ public class FileReaderWriter {
 		}
 	}
 	
-	public void moveFile(Path oldPath, Path newPath) throws FileExistsException, IOException {
-		if ( Files.exists(newPath) ) {
+	public void moveFile(Path oldPath, Path newPath, boolean overwrite) throws FileExistsException, IOException {
+		if ( Files.exists(newPath) && !overwrite ) {
 			throw new FileExistsException(newPath.toString());
 		}
 			
-		Files.move(oldPath, newPath);
+		Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
 	}
 
 	public void deleteFile(Path path) {
