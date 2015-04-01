@@ -349,17 +349,10 @@ public class ViewCommand extends AbstractCommand {
 			tasks = _controller.getStorage().getTaskList();
 			for (Task task:tasks){
 				if(task.isDone()){
-					break;
-				}
-				TaskType taskType=task.getTaskType();
-				if(taskType==TaskType.FLOATING){
-					tasksToDisplay.add(task);
-				}else if(taskType==TaskType.DEADLINE 
-						&& task.getEndDateTime().isAfter(now)){
-					tasksToDisplay.add(task);
-				}else if(task.getStartDateTime().isAfter(now)){
+				}else{
 					tasksToDisplay.add(task);
 				}
+				
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
