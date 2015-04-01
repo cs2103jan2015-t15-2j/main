@@ -370,6 +370,7 @@ public class ViewCommand extends AbstractCommand {
 
 	private ArrayList<Task> executeViewAll() {
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		ArrayList<Task> doneTasksToDisplay = new ArrayList<Task>();
 		try {
 
 			ArrayList<Task> tasks = _controller.getStorage()
@@ -378,9 +379,13 @@ public class ViewCommand extends AbstractCommand {
 				if (!task.isDone()) {
 
 					tasksToDisplay.add(task);
+				}else{
+					doneTasksToDisplay.add(task);
 				}
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
+			doneTasksToDisplay.sort(new TaskEndDateComparator());
+			tasksToDisplay.addAll(doneTasksToDisplay);
 			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
