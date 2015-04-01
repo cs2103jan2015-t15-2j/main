@@ -6,6 +6,7 @@ import static org.fusesource.jansi.Ansi.ansi;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
@@ -65,10 +66,14 @@ public class CommandUI implements UI {
 		int numTasks = tasks.length;
 		int characters = String.valueOf(numTasks).length();
 		int shown = 0;
+		
+		String padding = new String(new char[Messages.UI_HEADER.length() + 2]).replace("\0", "=");
+		this.display(Messages.NEWLINE + ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+		this.display(ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.UI_HEADER + " ").reset() + Messages.NEWLINE);
+		this.display(ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE + Messages.NEWLINE);
 
 		for (int x = 0; x < numTasks; x++) {
 			Task task = tasks[x];
-
 			display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
 			if (task.isDone()) {
 				display(ansi().fg(Color.GREEN).a(String.format("[DONE] %s%n", task.getTitle())).reset());
@@ -76,16 +81,20 @@ public class CommandUI implements UI {
 				if (task.getTaskType() == TaskType.DEADLINE) {
 					if (task.getEndDateTime().isBefore(_now)) {
 						// Task is OVERDUE
-						display(ansi().fg(Color.RED).bold().a(String.format("[!!!] %s [Overdue by %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset());
+						display(ansi().fg(Color.RED).bold().a(String.format("[!!!] %s [Overdue by %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset()); 
+						display(ansi().fg(Color.RED).bold().a(String.format(padLeft("", characters+3, " ") + "%s%n", printDateTime(task.getEndDateTime()))).reset());
 					} else {
 						display(ansi().fg(Color.DEFAULT).a(String.format("%s [Due in %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset());
+						display(ansi().fg(Color.DEFAULT).a(String.format(padLeft("", characters+3, " ") + "%s%n", printDateTime(task.getEndDateTime()))).reset());
 					}
 				} else if (task.getTaskType() == TaskType.TIMED) {
 					if (task.getEndDateTime().isBefore(_now)) {
 						// Task is OVERDUE
 						display(ansi().fg(Color.RED).bold().a(String.format("[!!!] %s [Started %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
+						display(ansi().fg(Color.RED).bold().a(String.format(padLeft("", characters+3, " ") + "%s%n", printDateTime(task.getStartDateTime(), task.getEndDateTime()))).reset());
 					} else {
 						display(ansi().fg(Color.DEFAULT).a(String.format("%s [Starts in %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
+						display(ansi().fg(Color.DEFAULT).a(String.format(padLeft("", characters+3, " ") + "%s%n", printDateTime(task.getStartDateTime(), task.getEndDateTime()))).reset());
 					}
 				} else {
 					display(String.format("%s%n", task.getTitle()));
@@ -182,6 +191,22 @@ public class CommandUI implements UI {
 
 	private String padRight(String str, int length, String padding) {
 		return String.format("%1$-" + length + "s", str).replace(" ", padding);
+	}
+	
+	private String printDateTime(LocalDateTime dateTime) {
+		if ( dateTime.toLocalTime().equals(LocalTime.MAX) ) {
+			return dateTime.format(Messages.DATE_FORMAT);
+		} else {
+			return dateTime.format(Messages.DATETIME_FORMAT);
+		}
+	}
+	
+	private String printDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		if ( startDateTime.toLocalDate().equals(endDateTime.toLocalDate()) ) {
+			return startDateTime.format(Messages.DATETIME_FORMAT) + " to " + endDateTime.format(Messages.TIME_FORMAT);
+		} else {
+			return printDateTime(startDateTime) + " to " + printDateTime(endDateTime);
+		}
 	}
 
 	private String prettyDates(LocalDateTime dateTime) {

@@ -1,12 +1,18 @@
 package taskie.models;
 
+import java.time.format.DateTimeFormatter;
+
 //@author A0097582N
 public class Messages {
 	public static final String NEWLINE = System.lineSeparator();
+	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
+	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mma");
+	public static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy hh:mm:ssa");
 
 	// UI Messages
 	public static final String UI_WELCOME_MESSAGE = "Welcome to Taskie!";
 	public static final String UI_REQUEST_INPUT = "Enter Command: ";
+	public static final String UI_HEADER = "Your To-Do List";
 
 	// AddCommand messages
 	public static final String ADD_FLOATING = "%s added." + NEWLINE;
