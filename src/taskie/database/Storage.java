@@ -659,9 +659,14 @@ public class Storage implements IStorage {
 		
 	}
 	
+
 	@Override
 	public void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
 		// TODO Auto-generated method stub
 	}
 
+	@Override
+	public void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		// TODO Auto-generated method stub	
+	}
 }
