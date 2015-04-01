@@ -21,6 +21,7 @@ import taskie.exceptions.TaskDateNotSetException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
 import taskie.models.Messages;
 import taskie.models.Task;
 
@@ -148,17 +149,17 @@ public class UpdateCommand extends AbstractCommand {
 			_logger.log(Level.INFO, "TASK FROM UI: " + _oldTask.toString());
 			_newTask = updateTask(_oldTask);
 			_controller.getStorage().updateTask(_oldTask, _newTask);
-			_controller.getUI().display(formatUpdateMsg(_newTask));
+			_controller.getUI().display(DisplayType.ERROR, formatUpdateMsg(_newTask));
 		} catch (InvalidTaskException e) {
-			_controller.getUI().display(Messages.INVALID_TASK_NUM);
+			_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
 		} catch (InvalidCommandException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (TaskTypeNotSupportedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (TaskModificationFailedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (Exception e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 
@@ -284,9 +285,9 @@ public class UpdateCommand extends AbstractCommand {
 		try {
 			_controller.getStorage().updateTask(_newTask, _oldTask);
 		} catch (TaskTypeNotSupportedException e) {
-			_controller.getUI().display(Messages.UNDO_FAILED);
+			_controller.getUI().display(DisplayType.ERROR, Messages.UNDO_FAILED);
 		} catch (TaskModificationFailedException e) {
-			_controller.getUI().display(Messages.UNDO_FAILED);
+			_controller.getUI().display(DisplayType.ERROR, Messages.UNDO_FAILED);
 		}
 	}
 

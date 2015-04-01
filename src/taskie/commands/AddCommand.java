@@ -162,25 +162,12 @@ public class AddCommand extends AbstractCommand {
 		if (type == TaskType.FLOATING) {
 			return String.format(taskie.models.Messages.ADD_FLOATING, task.getTitle());
 		} else if (type == TaskType.DEADLINE) {
-			return String.format(taskie.models.Messages.ADD_DEADLINED, task.getTitle(), task.getEndDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+			return String.format(taskie.models.Messages.ADD_DEADLINED, task.getTitle(), _controller.getUI().formatDateTime(task.getEndDateTime()));
 		} else {
-			return String.format(taskie.models.Messages.ADD_TIMED, task.getTitle(), task.getStartDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), task.getEndDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+			return String.format(taskie.models.Messages.ADD_TIMED, task.getTitle(), _controller.getUI().formatDateTime(task.getStartDateTime()), _controller.getUI().formatDateTime(task.getEndDateTime()));
 		}
 	}
 
-	//@author A0097582N-unused
-	// Reason for unused: Not necessary
-	/*
-	 * private Task determineTaskTypeAndAdd() { Task task = null; if (_startDate
-	 * == null && _endDate == null) { // has no start and end date task = new
-	 * Task(_taskName); Taskie.Controller.getStorage().addFloatingTask(task); }
-	 * else if (_startDate == null && _endDate != null) { // has only end date
-	 * task = new Task(_taskName, _endDate, _endTime);
-	 * Taskie.Controller.getStorage().addDeadlinedTask(task); } else { // has
-	 * both start and end date task = new Task(_taskName, _startDate,
-	 * _startTime, _endDate, _endTime);
-	 * Taskie.Controller.getStorage().addTimedTask(task); } return task; }
-	 */
 
 	//@author A0121555M
 	@Override

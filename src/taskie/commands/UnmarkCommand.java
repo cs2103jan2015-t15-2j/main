@@ -12,6 +12,7 @@ import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
 import taskie.models.Task;
 
 public class UnmarkCommand extends AbstractCommand {
@@ -45,19 +46,19 @@ public class UnmarkCommand extends AbstractCommand {
 
 			if (_task.isDone()) {
 				updatedTask.setTaskUndone();
-				_controller.getUI().display(formatUnmarkString());
+				_controller.getUI().display(DisplayType.ERROR, formatUnmarkString());
 			} else {
-				_controller.getUI().display("stub. Task has not been done.");
+				_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_NOT_DONE);
 			}
 			try {
 				_controller.getStorage().updateTask(_task, updatedTask);
 			} catch (TaskTypeNotSupportedException e) {
-				_controller.getUI().display(e.getMessage());
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			} catch (TaskModificationFailedException e) {
-				_controller.getUI().display(e.getMessage());
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}
 		} catch (InvalidTaskException e) {
-			_controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+			_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
 

@@ -12,6 +12,7 @@ import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
 import taskie.models.Task;
 
 public class MarkCommand extends AbstractCommand {
@@ -44,20 +45,20 @@ public class MarkCommand extends AbstractCommand {
 			Task updatedTask = new Task(_task);
 
 			if (_task.isDone()) {
-				_controller.getUI().display("stub. Task already done");
+				_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_DONE);
 			} else {
 				updatedTask.setTaskDone();
-				_controller.getUI().display(formatMarkString());
+				_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
 			}
 			try {
 				_controller.getStorage().updateTask(_task, updatedTask);
 			} catch (TaskTypeNotSupportedException e) {
-				_controller.getUI().display(e.getMessage());
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			} catch (TaskModificationFailedException e) {
-				_controller.getUI().display(e.getMessage());
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}
 		} catch (InvalidTaskException e) {
-			_controller.getUI().display(taskie.models.Messages.INVALID_TASK_NUM);
+			_controller.getUI().display(DisplayType.ERROR,taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
 

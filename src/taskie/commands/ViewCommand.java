@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
 import taskie.models.Task;
 import taskie.models.TaskEndDateComparator;
 import taskie.models.TaskType;
@@ -196,7 +197,7 @@ public class ViewCommand extends AbstractCommand {
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR,e.getMessage());
 		}
 	}
 
@@ -316,7 +317,7 @@ public class ViewCommand extends AbstractCommand {
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 	
@@ -335,7 +336,7 @@ public class ViewCommand extends AbstractCommand {
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 
@@ -363,7 +364,7 @@ public class ViewCommand extends AbstractCommand {
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 
@@ -382,7 +383,7 @@ public class ViewCommand extends AbstractCommand {
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			_controller.getUI().display(e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 		return tasksToDisplay;
 	}

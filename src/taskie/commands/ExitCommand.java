@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
 
 public class ExitCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.EXIT;
@@ -22,7 +23,7 @@ public class ExitCommand extends AbstractCommand {
 			_controller.getStorage().close();
 		} catch (IOException e) {}
 
-		_controller.getUI().display(taskie.models.Messages.EXIT_MESSAGE);
+		_controller.getUI().display(DisplayType.DEFAULT, taskie.models.Messages.EXIT_MESSAGE);
 		_controller.getUI().exit();
 	}
 	

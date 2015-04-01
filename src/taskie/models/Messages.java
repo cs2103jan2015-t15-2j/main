@@ -28,10 +28,11 @@ public class Messages {
 
 	// MarkCommand messages
 	public static final String MARK_STRING = "%s marked as done." + NEWLINE;
-
+	public static final String TASK_ALREADY_DONE = "Task is already done."+ NEWLINE;
+	
 	// UnmarkCommand messages
 	public static final String UNMARK_STRING = "%s marked as not done." + NEWLINE;
-
+	public static final String TASK_ALREADY_NOT_DONE = "Task is not done."+NEWLINE;
 	// UpdateCommand messages
 	public static final String UPDATE_STRING = "Following task fields from %s is updated:" + NEWLINE;
 	public static final String INVALID_DATE_INPUT = "Invalid Command. Date input is not valid. Please try again." + NEWLINE;
@@ -59,5 +60,6 @@ public class Messages {
 	// RedoCommand messages
 	public static final String NOTHING_TO_REDO = "Nothing to redo." + NEWLINE;
 	public static final String REDO_FAILED = "Redo failed." + NEWLINE;
+	
 
 }

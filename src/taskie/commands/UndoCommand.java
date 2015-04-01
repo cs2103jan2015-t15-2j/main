@@ -5,6 +5,7 @@ import java.util.Stack;
 
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.DisplayType;
 import taskie.models.Messages;
 
 public class UndoCommand extends AbstractCommand {
@@ -34,11 +35,11 @@ public class UndoCommand extends AbstractCommand {
 					cmd.undo();
 					redoStack.add(cmd);
 				} catch (UndoNotSupportedException e) {
-					_controller.getUI().display(e.getMessage());
+					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 				}
 			}
 		} else {
-			_controller.getUI().display(Messages.NOTHING_TO_UNDO);
+			_controller.getUI().display(DisplayType.ERROR, Messages.NOTHING_TO_UNDO);
 		}
 	}
 	
