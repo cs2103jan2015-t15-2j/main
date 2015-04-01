@@ -227,6 +227,6 @@ public class CommandUI implements UI {
 			sb.append(String.format("%d %s", relative.getSeconds(), relative.getSeconds() > 1 ? "seconds" : "second") + " ");
 		}
 
-		return "about " + sb.toString().trim();
+		return "less than " + sb.toString().trim();
 	}
 }
