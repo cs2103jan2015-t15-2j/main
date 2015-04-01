@@ -168,6 +168,22 @@ public class CommandUI implements UI {
 		return _isUIRunning;
 	}
 
+	public String formatDateTime(LocalDateTime dateTime) {
+		if ( dateTime.toLocalTime().equals(LocalTime.MAX) ) {
+			return dateTime.format(Messages.DATE_FORMAT);
+		} else {
+			return dateTime.format(Messages.DATETIME_FORMAT);
+		}
+	}
+	
+	public String formatDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		if ( startDateTime.toLocalDate().equals(endDateTime.toLocalDate()) ) {
+			return startDateTime.format(Messages.DATETIME_FORMAT) + " to " + endDateTime.format(Messages.TIME_FORMAT);
+		} else {
+			return formatDateTime(startDateTime) + " to " + formatDateTime(endDateTime);
+		}
+	}
+	
 	public String loadSelectDirectoryDialog(String currentDirectory) {
 		JFileChooser fileChooser = new JFileChooser((currentDirectory == null) ? "." : currentDirectory);
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

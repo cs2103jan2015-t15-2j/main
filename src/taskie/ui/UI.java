@@ -1,6 +1,7 @@
 //@author A0121555M
 package taskie.ui;
 
+import java.time.LocalDateTime;
 import taskie.exceptions.InvalidTaskException;
 import taskie.models.Task;
 
@@ -22,6 +23,10 @@ public interface UI {
 	public Task getTask(int index) throws InvalidTaskException;
 
 	public boolean isUIRunning();
+	
+	public String formatDateTime(LocalDateTime dateTime);
+	
+	public String formatDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime);
 
 	public String loadSelectDirectoryDialog(String currentDirectory);
 }
