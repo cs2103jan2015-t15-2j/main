@@ -373,18 +373,14 @@ public class ViewCommand extends AbstractCommand {
 
 			ArrayList<Task> tasks = _controller.getStorage()
 					.getTaskList();
-			if(tasks!=null){
-				for (Task task : tasks) {
-					if (!task.isDone()) {
-	
-						tasksToDisplay.add(task);
-					}
+			for (Task task : tasks) {
+				if (!task.isDone()) {
+
+					tasksToDisplay.add(task);
 				}
-				tasksToDisplay.sort(new TaskEndDateComparator());
-				_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
-			}else{
-				_controller.getUI().display(taskie.models.Messages.EMPTY_TASK_LIST);
 			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(e.getMessage());
 		}

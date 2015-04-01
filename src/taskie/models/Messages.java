@@ -53,8 +53,5 @@ public class Messages {
 	// RedoCommand messages
 	public static final String NOTHING_TO_REDO = "Nothing to redo." + NEWLINE;
 	public static final String REDO_FAILED = "Redo failed." + NEWLINE;
-	
-	//ViewCommand messages
-	public static final String EMPTY_TASK_LIST = "Task List is empty." + NEWLINE;
 
 }
