@@ -143,7 +143,7 @@ public class CommandParser implements Parser {
 		String command = CommandParser.getCommandParameters(input);
 		
 		CommandType cmd = this.getCommandType(keyword);
-		assert cmd != null;
+		assert cmd != null : "CommandType is null";
 		return this.executeCommandType(cmd, command);
 	}
 	
