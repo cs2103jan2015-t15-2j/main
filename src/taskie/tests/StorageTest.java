@@ -5,6 +5,9 @@ import taskie.Controller;
 import taskie.database.NStorage;
 import taskie.database.FileReaderWriter;
 import taskie.models.Task;
+import taskie.exceptions.FileExistsException;
+import taskie.exceptions.StorageLocationInvalidException;
+import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 
@@ -68,14 +71,14 @@ public class StorageTest {
 	}
 	
 	@Test
-	public void testSetStorageLocation() {
+	public void testSetStorageLocation() throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
 		//set database to directory that is existed
-		_storage.setStorageLocation("D:\\");
+		_storage.setStorageLocation(FileSystems.getDefault().getPath("D:\\"));
 		_databasePath = FileSystems.getDefault().getPath("D:\\" + DATABASE_FILENAME);
 		assertEquals("D:\\", _storage.getStorageLocation());
 				
 		//set database to directory that is not existed
-		_storage.setStorageLocation("D:\\User");
+		_storage.setStorageLocation(FileSystems.getDefault().getPath("D:\\User\\"));
 		_databasePath = FileSystems.getDefault().getPath("D:\\User\\" + DATABASE_FILENAME);
 		assertEquals("D:\\User", _storage.getStorageLocation());
 		

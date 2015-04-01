@@ -6,8 +6,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import taskie.Controller;
 import taskie.exceptions.ConfigurationFailedException;
 
 public class Configuration {
