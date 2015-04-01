@@ -71,7 +71,13 @@ public class NStorage implements IStorage {
 			}
 
 			_logger.log(Level.INFO, "Attempting to change storage location to: " + newDirectory.toString());
-			migrateFiles(this.getStorageLocation(), newDirectory, overwrite);
+			
+			try {
+				migrateFiles(this.getStorageLocation(), newDirectory, overwrite);
+			} catch ( FileExistsException e ) {
+				this.readDatabaseFile(newDirectory);
+				throw new FileExistsException(e);
+			}
 
 			this.readDatabaseFile(newDirectory);
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());
