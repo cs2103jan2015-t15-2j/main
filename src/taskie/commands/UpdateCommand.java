@@ -21,10 +21,14 @@ import taskie.exceptions.TaskDateNotSetException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
+import taskie.models.Messages;
 import taskie.models.Task;
 
 public class UpdateCommand extends AbstractCommand {
 	int NUM_ATTRIBUTE = 2;
+	private Task _oldTask;
+	private Task _newTask;
+
 	private int _taskIndex;
 	private String _taskTitleToUpdate;
 	private LocalDate _startDateToUpdate;
@@ -137,21 +141,16 @@ public class UpdateCommand extends AbstractCommand {
 	}
 
 	public void execute() {
-		_logger.log(Level.INFO, "UPDATECOMMAND CONFIG: task Index: " + _taskIndex
-				+ " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): "
-				+ _startDateToUpdate+" "+_isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate
-				+" "+_isToUpdateStartTime+ "\nendDate(bool): " + _endDateToUpdate +" "+_isToUpdateEndDate+ " time(bool):"
-				+ _endTimeToUpdate+" "+_isToUpdateEndTime);
-		
+		_logger.log(Level.INFO, "UPDATECOMMAND CONFIG: task Index: " + _taskIndex + " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): " + _startDateToUpdate + " " + _isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate + " " + _isToUpdateStartTime + "\nendDate(bool): " + _endDateToUpdate + " " + _isToUpdateEndDate + " time(bool):" + _endTimeToUpdate + " " + _isToUpdateEndTime);
+
 		try {
-			Task task = retrieveTaskToUpdateFromUI();
-			_logger.log(Level.INFO,"TASK FROM UI: "+task.toString());
-			Task updatedTask = updateTask(task);
-			_controller.getStorage().updateTask(task, updatedTask);
-			_controller.getUI().display(formatUpdateMsg(task));
+			_oldTask = retrieveTaskToUpdateFromUI();
+			_logger.log(Level.INFO, "TASK FROM UI: " + _oldTask.toString());
+			_newTask = updateTask(_oldTask);
+			_controller.getStorage().updateTask(_oldTask, _newTask);
+			_controller.getUI().display(formatUpdateMsg(_newTask));
 		} catch (InvalidTaskException e) {
-			_controller.getUI()
-					.display(taskie.models.Messages.INVALID_TASK_NUM);
+			_controller.getUI().display(Messages.INVALID_TASK_NUM);
 		} catch (InvalidCommandException e) {
 			_controller.getUI().display(e.getMessage());
 		} catch (TaskTypeNotSupportedException e) {
@@ -163,29 +162,23 @@ public class UpdateCommand extends AbstractCommand {
 		}
 	}
 
-	private Task updateTask(Task task) throws InvalidCommandException,
-			TaskDateNotSetException, TaskDateInvalidException {
+	private Task updateTask(Task task) throws InvalidCommandException, TaskDateNotSetException, TaskDateInvalidException {
 		Task updatedTask = new Task(task);
 		if (this.isModifiedTaskTitle()) {
-			if (_taskTitleToUpdate == null
-					|| _taskTitleToUpdate.trim().equalsIgnoreCase("")) {
+			if (_taskTitleToUpdate == null || _taskTitleToUpdate.trim().equalsIgnoreCase("")) {
 				throw new InvalidCommandException();
 			} else {
 				updatedTask.setTitle(this.getTaskTitleToUpdate());
 			}
 		}
-		if(isModifiedStartDate()||isModifiedStartTime()||isModifiedEndDate()||isModifiedEndTime()){
+		if (isModifiedStartDate() || isModifiedStartTime() || isModifiedEndDate() || isModifiedEndTime()) {
 			updateTaskDates(task, updatedTask);
 		}
-	
 
-		
 		return updatedTask;
 	}
 
-	private void updateTaskDates(Task task, Task updatedTask)
-			throws TaskDateInvalidException, TaskDateNotSetException,
-			InvalidCommandException {
+	private void updateTaskDates(Task task, Task updatedTask) throws TaskDateInvalidException, TaskDateNotSetException, InvalidCommandException {
 		LocalDate updateStartDate = task.getStartDate();
 		LocalTime updateStartTime = task.getStartTime();
 		LocalDate updateEndDate = task.getEndDate();
@@ -209,29 +202,24 @@ public class UpdateCommand extends AbstractCommand {
 			updateStartDateTime = null;
 		} else {
 			if (updateStartTime == null) {
-				updateStartDateTime = LocalDateTime.of(updateStartDate,
-						LocalTime.MAX);
+				updateStartDateTime = LocalDateTime.of(updateStartDate, LocalTime.MAX);
 			} else {
-				updateStartDateTime = LocalDateTime.of(updateStartDate,
-						updateStartTime);
+				updateStartDateTime = LocalDateTime.of(updateStartDate, updateStartTime);
 			}
 		}
 		if (updateEndDate == null) {
 			updateEndDateTime = null;
 		} else {
 			if (updateEndTime == null) {
-				updateEndDateTime = LocalDateTime.of(updateEndDate,
-						LocalTime.MAX);
+				updateEndDateTime = LocalDateTime.of(updateEndDate, LocalTime.MAX);
 			} else {
-				updateEndDateTime = LocalDateTime.of(updateEndDate,
-						updateEndTime);
+				updateEndDateTime = LocalDateTime.of(updateEndDate, updateEndTime);
 			}
 		}
 
-		if (isConsistent(updateStartDate, updateStartTime, updateEndDate,
-				updateEndTime, updateStartDateTime, updateEndDateTime)) {
+		if (isConsistent(updateStartDate, updateStartTime, updateEndDate, updateEndTime, updateStartDateTime, updateEndDateTime)) {
 			updatedTask.initialiseStaging();
-			updatedTask.stageUpdateStartDate(updateStartDate); 
+			updatedTask.stageUpdateStartDate(updateStartDate);
 			updatedTask.stageUpdateStartTime(updateStartTime);
 			updatedTask.stageUpdateEndDate(updateEndDate);
 			updatedTask.stageUpdateEndTime(updateEndTime);
@@ -241,36 +229,32 @@ public class UpdateCommand extends AbstractCommand {
 			updatedTask.setStartDate(updateStartDate);
 			updatedTask.setStartTime(updateStartTime);
 			updatedTask.pushStageToActual();
-			
-		}else{
-			throw new InvalidCommandException(taskie.models.Messages.INVALID_COMMAND);
+
+		} else {
+			throw new InvalidCommandException(Messages.INVALID_COMMAND);
 		}
 	}
 
-	private Boolean isConsistent(LocalDate startDate,LocalTime startTime,
-			LocalDate endDate,LocalTime endTime, LocalDateTime startDateTime, LocalDateTime endDateTime){
-		if(startDate==null&&startTime!=null){
-				return false;
-		}
-		
-		if(endDate==null&&endTime!=null){
-				return false;
-		}
-		if(startDateTime!=null && endDateTime==null){
+	private Boolean isConsistent(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		if (startDate == null && startTime != null) {
 			return false;
 		}
-		
-		if(startDateTime!=null && endDateTime!=null && startDateTime.isAfter(endDateTime)){
+
+		if (endDate == null && endTime != null) {
+			return false;
+		}
+		if (startDateTime != null && endDateTime == null) {
+			return false;
+		}
+
+		if (startDateTime != null && endDateTime != null && startDateTime.isAfter(endDateTime)) {
 			return false;
 		}
 		return true;
 	}
 
-
-
 	private String formatUpdateMsg(Task task) {
-		String message = String.format(taskie.models.Messages.UPDATE_STRING,
-				task.getTitle());
+		String message = String.format(taskie.models.Messages.UPDATE_STRING, task.getTitle());
 		if (this.isModifiedTaskTitle()) {
 			message = message.concat(taskie.models.Messages.TASK_TITLE);
 		}
@@ -297,7 +281,13 @@ public class UpdateCommand extends AbstractCommand {
 
 	// @author A0121555M
 	public void undo() {
-		// _controller.executeCommand(new DeleteCommand(_task));
+		try {
+			_controller.getStorage().updateTask(_newTask, _oldTask);
+		} catch (TaskTypeNotSupportedException e) {
+			_controller.getUI().display(Messages.UNDO_FAILED);
+		} catch (TaskModificationFailedException e) {
+			_controller.getUI().display(Messages.UNDO_FAILED);
+		}
 	}
 
 	public String toString() {
