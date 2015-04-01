@@ -204,10 +204,6 @@ public class CommandUI implements UI {
 		return null;
 	}
 
-	private void printDateHeader(LocalDate date) {
-		this.display(ansi().a(date.format(DateTimeFormatter.ofPattern("dd MM yyyy"))));
-	}
-
 	private String padLeft(String str, int length, String padding) {
 		return String.format("%1$" + length + "s", str).replace(" ", padding);
 	}
