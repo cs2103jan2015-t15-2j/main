@@ -94,7 +94,7 @@ public class NStorage implements IStorage {
 			_tasks.clear();
 		}
 		
-		retrieveTaskList();
+		_tasks = retrieveTaskList();
 	}
 
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
@@ -202,12 +202,10 @@ public class NStorage implements IStorage {
 
 			Type listType = new TypeToken<ArrayList<Task>>() {
 			}.getType();
-			_tasks = _gson.fromJson(json, listType);
+			return _gson.fromJson(json, listType);
 		} catch (IOException e) {
 			throw new TaskRetrievalFailedException(e);
 		}
-
-		return _tasks;
 	}
 
 	public ArrayList<Task> getTaskList() {
