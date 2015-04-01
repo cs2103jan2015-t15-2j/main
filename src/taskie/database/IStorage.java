@@ -18,6 +18,8 @@ public interface IStorage {
 
 	void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException;
 
+	void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException;
+
 	void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 
 	void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;

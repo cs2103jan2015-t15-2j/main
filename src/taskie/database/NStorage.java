@@ -36,11 +36,9 @@ public class NStorage implements IStorage {
 
 	public NStorage(Path storageDir) throws IOException {
 		try {
-			this.readDatabaseFile(storageDir);
 			_logger = Logger.getLogger(NStorage.class.getName());
-			_db = new FileReaderWriter(_databasePath);
 			_gson = new Gson();
-			_tasks = retrieveTaskList();
+			this.readDatabaseFile(storageDir);
 		} catch (TaskRetrievalFailedException ex) {
 			ex.getMessage();
 		}
@@ -51,8 +49,12 @@ public class NStorage implements IStorage {
 	public Path getStorageLocation() {
 		return _databasePath.toAbsolutePath().getParent();
 	}
-
+	
 	public void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		this.setStorageLocation(newDirectory, false);
+	}
+
+	public void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
 		if (newDirectory.toString().equals(this.getStorageLocation())) {
 			return;
 		}
@@ -67,26 +69,34 @@ public class NStorage implements IStorage {
 			}
 
 			_logger.log(Level.INFO, "Attempting to change storage location to: " + newDirectory.toString());
-			migrateFiles(this.getStorageLocation(), newDirectory);
+			
+			try {
+				migrateFiles(this.getStorageLocation(), newDirectory, overwrite);
+			} catch ( FileExistsException e ) {
+				this.readDatabaseFile(newDirectory);
+				throw new FileExistsException(e);
+			}
 
 			this.readDatabaseFile(newDirectory);
 			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());
 		} catch (IOException e) {
 			throw new StorageMigrationFailedException(e);
+		} catch (TaskRetrievalFailedException e) {
+			throw new StorageMigrationFailedException(e);
 		}
 	}
 
-	private void readDatabaseFile(Path storageDir) {
-		try {
-			_databasePath = storageDir.resolve(DATABASE_FILENAME);
-			_db = new FileReaderWriter(_databasePath);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	private void readDatabaseFile(Path storageDir) throws TaskRetrievalFailedException, IOException {
+		_databasePath = storageDir.resolve(DATABASE_FILENAME);
+		_db = new FileReaderWriter(_databasePath);
+		
+		if ( _tasks != null ) {
+			_tasks.clear();
 		}
+		
+		retrieveTaskList();
 	}
 
-	//@author A0121555M
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
 			this.addToTaskList(task);
@@ -170,13 +180,13 @@ public class NStorage implements IStorage {
 		_db.close();
 	}
 
-	private void migrateFiles(Path oldDirectory, Path newDirectory) throws FileExistsException, StorageMigrationFailedException {
+	private void migrateFiles(Path oldDirectory, Path newDirectory, boolean overwrite) throws FileExistsException, StorageMigrationFailedException {
 		_logger.log(Level.FINE, "Moving from: " + oldDirectory.toString() + " to " + newDirectory.toString());
 		
 		try {
 			Path oldDatabasePath = oldDirectory.resolve(DATABASE_FILENAME);
 			Path newDatabasePath = newDirectory.resolve(DATABASE_FILENAME);
-			_db.moveFile(oldDatabasePath, newDatabasePath);
+			_db.moveFile(oldDatabasePath, newDatabasePath, overwrite);
 		} catch (IOException e) {
 			throw new StorageMigrationFailedException(e);
 		}
@@ -185,7 +195,6 @@ public class NStorage implements IStorage {
 	//@author A0135137L
 	public ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
 		try {
-
 			String json = _db.read();
 			if (json.equals("")) {
 				return new ArrayList<Task>();

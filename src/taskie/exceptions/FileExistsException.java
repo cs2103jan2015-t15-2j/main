@@ -1,3 +1,4 @@
+//@author A0121555M
 package taskie.exceptions;
 
 public class FileExistsException extends Exception {
@@ -11,4 +12,13 @@ public class FileExistsException extends Exception {
 	public FileExistsException(String string) {
 		super(string);
 	}
+
+	public FileExistsException(Throwable cause) {
+		super(cause);
+	}
+	
+	public FileExistsException(String string, Throwable cause) {
+		super(string, cause);
+	}
+
 }

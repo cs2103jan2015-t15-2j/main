@@ -40,6 +40,7 @@ public class Messages {
 	public static final String DIRECTORY_NOT_CHANGED = "";
 	public static final String DIRECTORY_INVALID = "The directory you selected is not valid." + NEWLINE;
 	public static final String DIRECTORY_FILE_EXISTS = "The directory you selected contains an existing Taskie Database." + NEWLINE;
+	public static final String DIRECTORY_CHANGE_FAILED = "Directory change failed." + NEWLINE;
 
 	// error messages
 	public static final String INVALID_TASK_NUM = "Invalid task number. Please try again." + NEWLINE;
