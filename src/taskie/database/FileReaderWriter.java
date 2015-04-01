@@ -14,6 +14,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import taskie.exceptions.FileExistsException;
+
 public class FileReaderWriter {
 	private static final String DEFAULT_ENCODING = "UTF-8";
 
@@ -66,6 +68,19 @@ public class FileReaderWriter {
 
 		if (_reader != null) {
 			_reader.close();
+		}
+	}
+	
+	public void moveFile(Path oldPath, Path newPath) throws FileExistsException {
+		try {
+			if ( Files.exists(newPath) ) {
+				throw new FileExistsException(newPath.toString());
+			}
+			
+			Files.move(oldPath, newPath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import taskie.exceptions.FileExistsException;
+import taskie.exceptions.StorageLocationInvalidException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -33,7 +35,7 @@ public class NStorage implements IStorage {
 
 	public NStorage(Path storageDir) throws IOException {
 		try {
-			_databasePath = storageDir.resolve(DATABASE_FILENAME);
+			this.readDatabaseFile(storageDir);
 			_logger = Logger.getLogger(NStorage.class.getName());
 			_db = new FileReaderWriter(_databasePath);
 			_gson = new Gson();
@@ -49,9 +51,13 @@ public class NStorage implements IStorage {
 		return _databasePath.toAbsolutePath().getParent();
 	}
 
-	public void setStorageLocation(Path newDirectory) throws IOException {
+	public void setStorageLocation(Path newDirectory) throws IOException, StorageLocationInvalidException, FileExistsException {
 		if ( newDirectory.toString().equals(this.getStorageLocation()) ) {
 			return;
+		}
+		
+		if ( !Files.isDirectory(newDirectory) ) {
+			throw new StorageLocationInvalidException(newDirectory.toString());
 		}
 		
 		if (_db != null) {
@@ -61,10 +67,18 @@ public class NStorage implements IStorage {
 		_logger.log(Level.INFO, "Attempting to change storage location to: " + newDirectory.toString());
 		migrateFiles(this.getStorageLocation(), newDirectory);
 
-		_databasePath = newDirectory.resolve(DATABASE_FILENAME);
-		_db = new FileReaderWriter(_databasePath);
-		this.rewriteDatabase();
+		this.readDatabaseFile(newDirectory);
 		_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());				
+	}
+	
+	private void readDatabaseFile(Path storageDir) {
+		try {
+			_databasePath = storageDir.resolve(DATABASE_FILENAME);
+			_db = new FileReaderWriter(_databasePath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	//@author A0121555M
@@ -150,12 +164,12 @@ public class NStorage implements IStorage {
 		_db.close();
 	}
 
-	private void migrateFiles(Path oldDirectory, Path newDirectory) throws IOException {
+	private void migrateFiles(Path oldDirectory, Path newDirectory) throws IOException, FileExistsException {
 		_logger.log(Level.FINE, "Moving from: " + oldDirectory.toString() + " to " + newDirectory.toString());
 		
 		Path oldDatabasePath = oldDirectory.resolve(DATABASE_FILENAME);
 		Path newDatabasePath = newDirectory.resolve(DATABASE_FILENAME);
-		Files.move(oldDatabasePath, newDatabasePath);
+		_db.moveFile(oldDatabasePath, newDatabasePath);
 	}
 	
 	//@author A0097582N	

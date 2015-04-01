@@ -6,6 +6,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 import taskie.exceptions.ConfigurationFailedException;
+import taskie.exceptions.FileExistsException;
+import taskie.exceptions.StorageLocationInvalidException;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.Messages;
@@ -54,6 +56,10 @@ public class DirectoryCommand extends AbstractCommand {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (StorageLocationInvalidException e) {
+			_controller.getUI().display(String.format(Messages.DIRECTORY_INVALID));
+		} catch (FileExistsException e) {
+			_controller.getUI().display(String.format(Messages.DIRECTORY_FILE_EXISTS));
 		}
 	}
 
