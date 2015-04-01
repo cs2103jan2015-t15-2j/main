@@ -67,9 +67,8 @@ public class Controller {
 			_redoStack = new Stack<ICommand>();
 			_storage = new NStorage(_config.getDatabasePath());
 		} catch ( IOException e ) {
-			//TODO
-			System.out.println("Unable to initialize Storage");
-			e.printStackTrace();
+			_logger.log(Level.SEVERE, "Critital: Unable to initialize Storage System");
+			System.out.println("Critital: Unable to initialize Storage System");
 		}
 	}
 
