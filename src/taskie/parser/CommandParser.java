@@ -407,7 +407,9 @@ public class CommandParser implements Parser {
 			}
 		} else {
 			// Changing Title Only
-			cmd.setTaskTitleToUpdate(query);
+			if ( !query.isEmpty() ) {
+				cmd.setTaskTitleToUpdate(query);
+			}
 		}
 
 		_logger.log(Level.INFO, "Updated Task #{0}\n-- Title: {1}\n-- Start Date: {2}\n-- Start Time: {3}\n-- End Date: {4}\n-- End Time: {5}",  new Object[] {
