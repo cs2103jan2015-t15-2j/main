@@ -2,16 +2,21 @@
 package taskie.commands;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.DisplayType;
+import taskie.parser.CommandParser;
 
 public class ExitCommand extends AbstractCommand {
+	private Logger _logger;
 	private CommandType _commandType = CommandType.EXIT;
 
 	public ExitCommand() {
 		super();
+		_logger = Logger.getLogger(ExitCommand.class.getName());
 	}
 
 	public CommandType getCommandType() {
@@ -21,7 +26,10 @@ public class ExitCommand extends AbstractCommand {
 	public void execute() {
 		try {
 			_controller.getStorage().close();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			_logger.log(Level.INFO, "Failed to close storage properly: " + e.getMessage());
+		
+		}
 
 		_controller.getUI().display(DisplayType.DEFAULT, taskie.models.Messages.EXIT_MESSAGE);
 		_controller.getUI().exit();
