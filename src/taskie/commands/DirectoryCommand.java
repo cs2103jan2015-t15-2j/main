@@ -3,6 +3,8 @@ package taskie.commands;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import taskie.exceptions.ConfigurationFailedException;
 import taskie.exceptions.FileExistsException;
@@ -13,11 +15,13 @@ import taskie.models.CommandType;
 import taskie.models.Messages;
 
 public class DirectoryCommand extends AbstractCommand {
+	private Logger _logger;
 	private CommandType _commandType = CommandType.DIRECTORY;
 	private String _path;
 	private boolean _overwrite;
 	
 	public DirectoryCommand() {
+		_logger = Logger.getLogger(DirectoryCommand.class.getName());
 		_path = "";
 		_overwrite = false;
 	}
@@ -48,7 +52,12 @@ public class DirectoryCommand extends AbstractCommand {
 				_controller.getUI().display(String.format(Messages.DIRECTORY_NOT_CHANGED));
 			} else {
 				if (!folder.equals(currentFolder)) {
-					_controller.getStorage().setStorageLocation(FileSystems.getDefault().getPath(folder), _overwrite);
+					try {
+						_controller.getStorage().setStorageLocation(FileSystems.getDefault().getPath(folder), _overwrite);
+					} catch ( FileExistsException e ) {
+						_logger.log(Level.INFO, String.format("Database exists at %s", currentFolder));
+					}
+					
 					_controller.getConfiguration().setDatabasePath(folder);
 					_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGED, folder));
 				}
@@ -59,8 +68,6 @@ public class DirectoryCommand extends AbstractCommand {
 			_controller.getUI().display(String.format(Messages.DIRECTORY_CHANGE_FAILED));
 		} catch (StorageLocationInvalidException e) {
 			_controller.getUI().display(String.format(Messages.DIRECTORY_INVALID));
-		} catch (FileExistsException e) {
-			_controller.getUI().display(String.format(Messages.DIRECTORY_FILE_EXISTS));
 		}
 	}
 
