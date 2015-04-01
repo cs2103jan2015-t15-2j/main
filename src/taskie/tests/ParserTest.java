@@ -200,10 +200,6 @@ public class ParserTest {
 		ICommand actualCommand;
 		
 		// Test all view
-		expectedCommand = new ViewCommand(ViewType.ALL, null, null, null, null, null);
-		actualCommand = _parser.parse("display");
-		assertEquals(expectedCommand.toString(), actualCommand.toString());
-
 		expectedCommand = new ViewCommand(ViewType.ALL, _today.plusWeeks(1), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
 		actualCommand = _parser.parse("view all after next week");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -215,6 +211,8 @@ public class ParserTest {
 
 		// Test upcoming view
 		expectedCommand = new ViewCommand(ViewType.UPCOMING, null, null, null, null, null);
+		actualCommand = _parser.parse("display");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("view todo");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
