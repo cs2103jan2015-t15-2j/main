@@ -36,9 +36,9 @@ public class NStorage implements IStorage {
 
 	public NStorage(Path storageDir) throws IOException {
 		try {
-			this.readDatabaseFile(storageDir);
 			_logger = Logger.getLogger(NStorage.class.getName());
 			_gson = new Gson();
+			this.readDatabaseFile(storageDir);
 		} catch (TaskRetrievalFailedException ex) {
 			ex.getMessage();
 		}
