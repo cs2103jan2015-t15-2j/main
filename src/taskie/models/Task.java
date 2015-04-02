@@ -205,7 +205,6 @@ public class Task implements Comparable<Task> {
 	}
 
 	public void setEndTime(LocalTime newEndTime) throws TaskDateInvalidException, TaskDateNotSetException {
-
 		if (newEndTime == null) {
 			_endTime = null;
 		} else {
