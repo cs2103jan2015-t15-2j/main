@@ -135,13 +135,14 @@ public class DeleteCommand extends AbstractCommand {
 		}
 	}
 
+	
 	private void getTaskFromUI() throws InvalidTaskException {
 		_task = _controller.getUI().getTask(_taskIndex);
 		_taskName=_task.getTitle();
 	}
 
 	private void deleteTaskField() {
-		//taskfields are deleted by setting to null;
+		//taskfields are deleted by setting to them null;
 		UpdateCommand updateCommand = new UpdateCommand(_taskIndex);
 		if(canDeleteStartDate()){
 			updateCommand.setStartDateToUpdate(null);
@@ -164,6 +165,7 @@ public class DeleteCommand extends AbstractCommand {
 		_controller.getStorage().deleteTask(_task);
 	}
 	
+	//@author A0097582N
 	private String formatDeleteTaskString(){
 		return String.format(taskie.models.Messages.DELETE_TASK,_taskName);
 	}

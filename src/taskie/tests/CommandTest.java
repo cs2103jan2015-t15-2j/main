@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import taskie.Controller;
 import taskie.commands.AddCommand;
+import taskie.commands.DeleteCommand;
 import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
@@ -215,7 +216,7 @@ public class CommandTest {
 
 	}
 
-	@Test
+//	@Test
 	public void testUpdateCommandEndTime() throws TaskRetrievalFailedException,
 			IOException, InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
@@ -294,7 +295,23 @@ public class CommandTest {
 		System.out.println(list.get(0).toString());
 		assertEquals(expectedTask.toString(), list.get(0).toString());	
 	}
-	
+	@Test
+	public void testDeleteCommand() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("foo");
+		cmd.execute();
+		cmd = new AddCommand();
+		cmd.setTaskName("bar");
+		cmd.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[2]));
+		DeleteCommand dCmd = new DeleteCommand(1);
+		dCmd.execute();
+		list = _controller.getStorage().getTaskList();
+		assertEquals(1,list.size());
+		
+	}
 	
 	
 	
