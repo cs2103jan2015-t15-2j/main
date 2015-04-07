@@ -3,7 +3,7 @@ package taskie.exceptions;
 
 public class ConfigurationFailedException extends Exception {
 	private static final long serialVersionUID = -34643214965646L;
-	private static final String DEFAULT_MESSAGE = "The configuration could not be settled";
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.CONFIGURATIONFAILEDEXCEPTION_MSG;
 
 	public ConfigurationFailedException() {
 		super(DEFAULT_MESSAGE);

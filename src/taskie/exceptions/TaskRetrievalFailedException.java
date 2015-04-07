@@ -3,7 +3,7 @@ package taskie.exceptions;
 
 public class TaskRetrievalFailedException extends Exception {
 	private static final long serialVersionUID = -6851572204375503891L;
-	private static final String DEFAULT_MESSAGE = "Failed to retrieve tasks";
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.TASKRETRIEVALFAILEDEXCEPTION_MSG;
 
 	public TaskRetrievalFailedException() {
 		super(DEFAULT_MESSAGE);

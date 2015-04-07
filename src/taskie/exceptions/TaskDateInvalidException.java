@@ -3,7 +3,7 @@ package taskie.exceptions;
 
 public class TaskDateInvalidException extends Exception {
 	private static final long serialVersionUID = -591075736010014405L;
-	private static final String DEFAULT_MESSAGE = "Task time not set";
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.TASKDATEINVALIDEXCEPTION_MSG;
 
 	public TaskDateInvalidException() {
 		super(DEFAULT_MESSAGE);
