@@ -22,6 +22,8 @@ import org.junit.Test;
 import taskie.Controller;
 import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
+import taskie.commands.MarkCommand;
+import taskie.commands.UnmarkCommand;
 import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
@@ -43,18 +45,7 @@ public class CommandTest {
 
 	private static Controller _controller;
 
-	private static LocalDate _nowDate;
-	private static LocalTime _nowTime;
 
-	private static LocalDate _laterDate;
-	private static LocalTime _laterTime;
-
-	private static LocalDate _evenLaterDate;
-	private static LocalTime _evenLaterTime;
-
-	private static LocalDateTime _now;
-	private static LocalDateTime _later;
-	private static LocalDateTime _evenLater;
 
 	private static LocalDate _time1Date;
 	private static LocalTime _time1Time;
@@ -76,23 +67,11 @@ public class CommandTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		_controller = Controller.getInstance();
-		_now = LocalDateTime.now();
-		_later = _now.plusHours(1);
-		_evenLater = _later.plusHours(1);
 		_time1 = LocalDateTime.of(2100,1,2,13,0);
 		_time2 = _time1.plusHours(2);
 		_time3 = _time1.plusDays(1);
 		_time4= _time3.plusHours(2);
 
-		
-		_nowDate = _now.toLocalDate();
-		_nowTime = _now.toLocalTime();
-		
-		_laterDate = _later.toLocalDate();
-		_laterTime = _later.toLocalTime();
-		
-		_evenLaterDate = _evenLater.toLocalDate();
-		_evenLaterTime = _evenLater.toLocalTime();
 		
 		_time1Date = _time1.toLocalDate();
 		_time1Time = _time1.toLocalTime();
@@ -106,8 +85,6 @@ public class CommandTest {
 		_time4Date = _time4.toLocalDate();
 		_time4Time = _time4.toLocalTime();
 
-		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
-		CalendarSource.setBaseDate(Date.from(instant));
 	}
 
 	@AfterClass
@@ -120,7 +97,7 @@ public class CommandTest {
 		_controller.getStorage().clearAllTasks();
 	}
 
-//	@Test
+	@Test
 	public void testAddCommandFloating() throws InvalidCommandException,
 			InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
 		setUp();
@@ -128,39 +105,42 @@ public class CommandTest {
 		cmd.setTaskName("foo");
 		_controller.executeCommand(cmd);
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		
 		Task expectedTask = new Task("foo");
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-//	@Test
+	@Test
 	public void testAddCommandDeadline() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("bar");
-		cmd.setEndDateTime(_now);
+		cmd.setEndDateTime(_time1);
 		_controller.executeCommand(cmd);
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
-		Task expectedTask = new Task("bar", _nowDate, _nowTime);
+		
+		Task expectedTask = new Task("bar", _time1Date, _time1Time);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-//	@Test
+	@Test
 	public void testAddCommandTimed() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foobar");
-		cmd.setEndDateTime(_later);
-		cmd.setStartDateTime(_now);
+		cmd.setEndDateTime(_time2);
+		cmd.setStartDateTime(_time1);
 		_controller.executeCommand(cmd);
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
-		Task expectedTask = new Task("foobar", _nowDate, _nowTime, _laterDate,
-				_laterTime);
+	
+		Task expectedTask = new Task("foobar", _time1Date, _time1Time, _time2Date,
+				_time2Time);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-//	@Test
+	@Test
 	public void testViewCommandAll() throws TaskRetrievalFailedException,
 			IOException, TaskModificationFailedException {
 		setUp();
@@ -169,7 +149,7 @@ public class CommandTest {
 		cmd.execute();
 	}
 
-//	@Test
+	@Test
 	public void testUpdateCommandTaskNameSimple()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskModificationFailedException {
@@ -191,15 +171,15 @@ public class CommandTest {
 
 	}
 
-//	@Test
+	@Test
 	public void testUpdateCommandTaskNameComplex()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
-		cmd.setStartDateTime(_now);
-		cmd.setEndDateTime(_later);
+		cmd.setStartDateTime(_time1);
+		cmd.setEndDateTime(_time2);
 		cmd.execute();
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI()
@@ -210,65 +190,65 @@ public class CommandTest {
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("bar");
-		expectedTask.setStartDateTime(_now);
-		expectedTask.setEndDateTime(_later);
+		expectedTask.setStartDateTime(_time1);
+		expectedTask.setEndDateTime(_time2);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 
 	}
 
-//	@Test
+	@Test
 	public void testUpdateCommandEndTime() throws TaskRetrievalFailedException,
 			IOException, InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
-		cmd.setEndDateTime(_now);
+		cmd.setEndDateTime(_time1);
 		cmd.execute();
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
 		UpdateCommand update = new UpdateCommand();
-		update.setEndDateToUpdate(_laterDate);
-		update.setEndTimeToUpdate(_laterTime);
+		update.setEndDateToUpdate(_time2Date);
+		update.setEndTimeToUpdate(_time2Time);
 		update.setTaskIndex(1);
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo");
-		expectedTask.setEndDateTime(_later);
+		expectedTask.setEndDateTime(_time2);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
-//	@Test
+	@Test
 	public void testUpdateCommandStartEndDateTime()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName("foo");
-		cmd.setEndDateTime(_later);
-		cmd.setStartDateTime(_now);
+		cmd.setEndDateTime(_time2);
+		cmd.setStartDateTime(_time1);
 		cmd.execute();
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
 		UpdateCommand update = new UpdateCommand();
-		update.setEndDateToUpdate(_evenLaterDate);
-		update.setEndTimeToUpdate(_evenLaterTime);
-		update.setStartDateToUpdate(_laterDate);
-		update.setStartTimeToUpdate(_laterTime);
+		update.setEndDateToUpdate(_time3Date);
+		update.setEndTimeToUpdate(_time3Time);
+		update.setStartDateToUpdate(_time2Date);
+		update.setStartTimeToUpdate(_time2Time);
 		update.setTaskIndex(1);
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo");
-		expectedTask.setStartDateTime(_later);
-		expectedTask.setEndDateTime(_evenLater);
+		expectedTask.setStartDateTime(_time2);
+		expectedTask.setEndDateTime(_time3);
 		assertEquals(expectedTask.toString(), list.get(0).toString());
 	}
 
 
 	
 	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
-//	@Test
+	@Test
 	public void testUpdateCommandStartEndDateTimeComplex()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
@@ -304,15 +284,34 @@ public class CommandTest {
 		cmd = new AddCommand();
 		cmd.setTaskName("bar");
 		cmd.execute();
-		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[2]));
-		DeleteCommand dCmd = new DeleteCommand(1);
-		dCmd.execute();
-		list = _controller.getStorage().getTaskList();
+		DeleteCommand delete = new DeleteCommand(1);
+		delete.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		assertEquals(1,list.size());
 		
 	}
 	
+	@Test 
+	public void testMarkAndUnmarkCommand() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("foo");
+		cmd.execute();
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		MarkCommand mark = new MarkCommand(1);
+		mark.execute();
+		
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		assertEquals(true,list.get(0).isDone());
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		UnmarkCommand unmark = new UnmarkCommand(1);
+		unmark.execute();
+		list = _controller.getStorage().getTaskList();
+		assertEquals(false,list.get(0).isDone());	
+	}
+	
+
 	
 	
 
@@ -321,9 +320,9 @@ public class CommandTest {
 			AddCommand cmd = new AddCommand();
 			cmd.setTaskName("foo " + i);
 			if (i % 2 == 0) {
-				cmd.setEndDateTime(_later);
+				cmd.setEndDateTime(_time2);
 				if (i % 3 == 0) {
-					cmd.setStartDateTime(_now);
+					cmd.setStartDateTime(_time1);
 				}
 			}
 			cmd.execute();
