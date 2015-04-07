@@ -68,11 +68,8 @@ public class CommandUI implements UI {
 		int characters = String.valueOf(numTasks).length();
 		int shown = 0;
 		
-		String padding = new String(new char[Messages.UI_HEADER.length() + 2]).replace("\0", "=");
-		this.display(DisplayType.DEFAULT, Messages.NEWLINE + ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
-		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.UI_HEADER + " ").reset() + Messages.NEWLINE);
-		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE + Messages.NEWLINE);
-
+		this.printHeader(Messages.UI_HEADER);
+		
 		for (int x = 0; x < numTasks; x++) {
 			Task task = tasks[x];
 			display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
@@ -155,6 +152,13 @@ public class CommandUI implements UI {
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.UI_WELCOME_MESSAGE + " ").reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
 		_controller.executeCommand(new ViewCommand(ViewType.UPCOMING));
+	}
+	
+	private void printHeader(String header) {
+		String padding = new String(new char[header.length() + 2]).replace("\0", "=");
+		this.display(DisplayType.DEFAULT, Messages.NEWLINE + ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + header + " ").reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE + Messages.NEWLINE);
 	}
 
 	public void run() {
