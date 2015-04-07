@@ -49,6 +49,31 @@ public class Messages {
 	public static final String DIRECTORY_FILE_EXISTS = "The directory you selected contains an existing Taskie Database." + NEWLINE;
 	public static final String DIRECTORY_CHANGE_FAILED = "Directory change failed." + NEWLINE;
 
+	// help messages
+	public static final String ADD_HELP = "HELP: Add a New Task " + NEWLINE 
+			+ "add <task title> "
+			+ "[from/on/between/by/in/at/on <start date/time>] "
+			+ "[to/till <end date/time>]" + NEWLINE;
+	public static final String VIEW_HELP = "HELP: View and Search Existing Tasks " + NEWLINE
+			+ "view [all/undone/done/due]" + NEWLINE;
+	public static final String UPDATE_HELP = "HELP: Update an Existing Task " + NEWLINE
+			+ "update <task number> [<task title>] "
+			+ "[from <start date/time> to <end date/time> / by <end date/time>]" + NEWLINE;
+	public static final String DELETE_HELP = "HELP: Delete an Existing Task " + NEWLINE 
+			+ "delete <task number>" + NEWLINE;
+	public static final String UNDO_HELP = "HELP: Undo One or More Actions " + NEWLINE 
+			+ "undo [<number of steps>]" + NEWLINE;
+	public static final String REDO_HELP = "HELP: Redo One or More Actions " + NEWLINE 
+			+ "redo [<number of steps>]" + NEWLINE;
+	public static final String MARK_HELP = "HELP: Mark a Task as Done " + NEWLINE 
+			+ "mark <task number>" + NEWLINE;
+	public static final String UNMARK_HELP = "HELP: Mark a Task as Undone " + NEWLINE
+			+ "unmark <task number>" + NEWLINE;
+	public static final String DIRECTORY_HELP = "HELP: Change Storage Directory " + NEWLINE
+			+ "directory <new path>" + NEWLINE;
+	public static final String EXIT_HELP = "HELP: Exit Taskie " + NEWLINE 
+			+ "exit" + NEWLINE;
+	
 	// error messages
 	public static final String INVALID_TASK_NUM = "Invalid task number. Please try again." + NEWLINE;
 	public static final String INVALID_COMMAND = "Invalid Command. Please try again." + NEWLINE;

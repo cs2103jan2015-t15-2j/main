@@ -300,7 +300,7 @@ public class CommandParser implements Parser {
 	
 	private ICommand doAdd(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.ADD);
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -315,7 +315,7 @@ public class CommandParser implements Parser {
 			
 			String name = determineTaskName(parsedCommand, group);
 			if ( name.isEmpty() ) {
-				throw new InvalidCommandException();
+				throw new InvalidCommandException(CommandType.ADD);
 			}
 			
 			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
@@ -357,7 +357,7 @@ public class CommandParser implements Parser {
 	
 	private ICommand doUpdate(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.UPDATE);
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -366,7 +366,7 @@ public class CommandParser implements Parser {
 		try {
 			taskNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
 		} catch (NumberFormatException e) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.UPDATE);
 		}
 		
 		String query = CommandParser.getCommandParameters(command);		
@@ -428,7 +428,7 @@ public class CommandParser implements Parser {
 	
 	private ICommand doDelete(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.DELETE);
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -437,7 +437,7 @@ public class CommandParser implements Parser {
 		try {
 			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
 		} catch (NumberFormatException e) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.DELETE);
 		}
 		
 		_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
@@ -550,7 +550,7 @@ public class CommandParser implements Parser {
 	
 	private ICommand doMark(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.MARK);
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -559,7 +559,7 @@ public class CommandParser implements Parser {
 		try {
 			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
 		} catch (NumberFormatException e) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.MARK);
 		}
 
 		_logger.log(Level.INFO, "Marking Task {0} as Complete", itemNumber);
@@ -568,7 +568,7 @@ public class CommandParser implements Parser {
 	
 	private ICommand doUnmark(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.UNMARK);
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -577,7 +577,7 @@ public class CommandParser implements Parser {
 		try {
 			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
 		} catch (NumberFormatException e) {
-			throw new InvalidCommandException();
+			throw new InvalidCommandException(CommandType.UNMARK);
 		}
 
 		_logger.log(Level.INFO, "Unmarking Task {0} as Incomplete", itemNumber);

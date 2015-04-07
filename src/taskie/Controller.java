@@ -95,6 +95,8 @@ public class Controller {
 						this.executeCommand(cmd);
 					} catch (InvalidCommandException e) {
 						_ui.display(DisplayType.ERROR, Messages.INVALID_COMMAND);
+						this.executeCommand(e.getHelpCommand());
+						
 					}
 				}
 			}
