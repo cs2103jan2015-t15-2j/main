@@ -57,53 +57,53 @@ public class HelpCommand extends AbstractCommand {
 	}
 	
 	private void helpAdd() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Add a New Task \n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.ADD_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.ADD_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.ADD_HELP_BODY);
 	}
 	
 	private void helpUpdate() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Update an Existing Task\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.UPDATE_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.UPDATE_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.UPDATE_HELP_BODY);
 	}
 	
 	private void helpView() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: View and Search Existing Tasks\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.VIEW_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.VIEW_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.VIEW_HELP_BODY);
 	}
 	
 	private void helpDelete() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Delete an Existing Task\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.DELETE_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.DELETE_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.DELETE_HELP_BODY);
 	}
 	
 	private void helpUndo() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Undo One or More Actions\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.UNDO_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.UNDO_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.UNDO_HELP_BODY);
 	}
 	
 	private void helpRedo() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Redo One or More Actions\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.REDO_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.REDO_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.REDO_HELP_BODY);
 	}
 	
 	private void helpMark() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Mark a Task as Done\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.MARK_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.MARK_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.MARK_HELP_BODY);
 	}
 	
 	private void helpUnmark() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Mark a Task as Undone\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.UNMARK_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.UNMARK_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.UNMARK_HELP_BODY);
 	}
 
 	private void helpDirectory() {
-		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Change Storage Directory\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.DIRECTORY_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.DIRECTORY_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.DIRECTORY_HELP_BODY);
 	}
 	
 	private void helpExit() {
-		_controller.getUI().display(DisplayType.SUCCESS,"HELP: Exit Taskie\n");
-		_controller.getUI().display(DisplayType.DEFAULT, Messages.EXIT_HELP);
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.EXIT_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.EXIT_HELP_BODY);
 	}
 	
 	

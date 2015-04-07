@@ -240,7 +240,6 @@ public class CommandTest {
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		assertEquals(true,list.get(0).isDone());
 		
-		
 		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
 		UnmarkCommand unmark = new UnmarkCommand(1);
 		unmark.execute();

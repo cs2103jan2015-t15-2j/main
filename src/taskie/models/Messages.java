@@ -50,19 +50,39 @@ public class Messages {
 	public static final String DIRECTORY_CHANGE_FAILED = "Directory change failed." + NEWLINE;
 
 	// help messages
-	public static final String ADD_HELP = "add <task title> "
+	public static final String ADD_HELP_HEADER = "HELP: Add a New Task \n";
+	public static final String ADD_HELP_BODY = "add <task title> "
 			+ "[from/on/between/by/in/at/on <start date/time>] "
-			+ "[to/till <end date/time>]" + NEWLINE;
-	public static final String VIEW_HELP = "view [all/undone/done/due]" + NEWLINE;
-	public static final String UPDATE_HELP = "update <task number> [<task title>] "
-			+ "[from <start date/time> to <end date/time> / by <end date/time>]" + NEWLINE;
-	public static final String DELETE_HELP = "delete <task number>" + NEWLINE;
-	public static final String UNDO_HELP = "undo [<number of steps>]" + NEWLINE;
-	public static final String REDO_HELP = "redo [<number of steps>]" + NEWLINE;
-	public static final String MARK_HELP = "mark <task number>" + NEWLINE;
-	public static final String UNMARK_HELP = "unmark <task number>" + NEWLINE;
-	public static final String DIRECTORY_HELP = "directory <new path>" + NEWLINE;
-	public static final String EXIT_HELP = "exit" + NEWLINE;
+			+ "[to/till <end date/time>]" + NEWLINE+NEWLINE;
+	
+	public static final String VIEW_HELP_HEADER = "HELP: View and Search Existing Tasks\n";
+	public static final String VIEW_HELP_BODY = "view [all/undone/done/due]" + NEWLINE+NEWLINE;
+	
+	public static final String UPDATE_HELP_HEADER = "HELP: Update an Existing Task\n";
+	public static final String UPDATE_HELP_BODY = "update <task number> [<task title>] "
+			+ "[from <start date/time> to <end date/time> / by <end date/time>]" + NEWLINE+NEWLINE;
+	
+	public static final String DELETE_HELP_HEADER = "HELP: Delete an Existing Task\n";
+	public static final String DELETE_HELP_BODY = "delete <task number>" + NEWLINE+NEWLINE;
+	
+	public static final String UNDO_HELP_HEADER = "HELP: Undo One or More Actions\n";
+	public static final String UNDO_HELP_BODY = "undo [<number of steps>]" + NEWLINE+NEWLINE;
+	
+	public static final String REDO_HELP_HEADER = "HELP: Redo One or More Actions\n";
+	public static final String REDO_HELP_BODY = "redo [<number of steps>]" + NEWLINE+NEWLINE;
+	
+	public static final String MARK_HELP_HEADER = "HELP: Mark a Task as Done\n";
+	public static final String MARK_HELP_BODY = "mark <task number>" + NEWLINE+NEWLINE;
+	
+	public static final String UNMARK_HELP_HEADER = "HELP: Mark a Task as Undone\n";
+	public static final String UNMARK_HELP_BODY = "unmark <task number>" + NEWLINE+NEWLINE;
+	
+	public static final String DIRECTORY_HELP_HEADER = "HELP: Change Storage Directory\n";
+	public static final String DIRECTORY_HELP_BODY = "directory <new path>" + NEWLINE+NEWLINE;
+	
+	public static final String EXIT_HELP_HEADER = "HELP: Exit Taskie\n";
+	public static final String EXIT_HELP_BODY = "exit" + NEWLINE+NEWLINE;
+	
 	
 	// error messages
 	public static final String INVALID_TASK_NUM = "Invalid task number. Please try again." + NEWLINE;
