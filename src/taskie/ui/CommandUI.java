@@ -73,32 +73,8 @@ public class CommandUI implements UI {
 		for (int x = 0; x < numTasks; x++) {
 			Task task = tasks[x];
 			display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
-			if (task.isDone()) {
-				display(ansi().fg(Color.GREEN).a(String.format("[DONE] %s%n", task.getTitle())).reset());
-			} else {
-				if (task.getTaskType() == TaskType.DEADLINE) {
-					if (task.getEndDateTime().isBefore(_now)) {
-						// Task is OVERDUE
-						display(ansi().fg(Color.RED).bold().a(String.format("[!!!] %s [Overdue by %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset()); 
-						display(ansi().fg(Color.RED).bold().a(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getEndDateTime()))).reset());
-					} else {
-						display(ansi().fg(Color.DEFAULT).a(String.format("%s [Due in %s]%n", task.getTitle(), prettyDates(task.getEndDateTime()))).reset());
-						display(ansi().fg(Color.DEFAULT).a(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getEndDateTime()))).reset());
-					}
-				} else if (task.getTaskType() == TaskType.TIMED) {
-					if (task.getEndDateTime().isBefore(_now)) {
-						// Task is OVERDUE
-						display(ansi().fg(Color.RED).bold().a(String.format("[!!!] %s [Started %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
-						display(ansi().fg(Color.RED).bold().a(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime()))).reset());
-					} else {
-						display(ansi().fg(Color.DEFAULT).a(String.format("%s [Starts in %s]%n", task.getTitle(), prettyDates(task.getStartDateTime()))).reset());
-						display(ansi().fg(Color.DEFAULT).a(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime()))).reset());
-					}
-				} else {
-					display(DisplayType.DEFAULT, String.format("%s%n", task.getTitle()));
-				}
-			}
-
+			this.printTask(task);			
+			display(DisplayType.DEFAULT, Messages.NEWLINE);
 			shown++;
 		}
 
@@ -145,6 +121,38 @@ public class CommandUI implements UI {
 		assert _currentTaskList != null;
 		return _currentTaskList;
 	}
+	
+	private void printTask(Task task) {
+		int numTasks = _currentTaskList.length;
+		int characters = String.valueOf(numTasks).length();
+		
+		if (task.isDone()) {
+			this.printSuccessMessage(String.format("[DONE] %s%n", task.getTitle()));
+		} else {
+			if (task.getTaskType() == TaskType.DEADLINE) {
+				if (task.getEndDateTime().isBefore(_now)) {
+					// Task is OVERDUE
+					this.printCriticalMessage(String.format("[!!!] %s [Overdue by %s]%n", task.getTitle(), prettyDates(task.getEndDateTime())));
+					this.printCriticalMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getEndDateTime())));
+				} else {
+					this.printInfoMessage(String.format("%s [Due in %s]%n", task.getTitle(), prettyDates(task.getEndDateTime())));
+					this.printInfoMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getEndDateTime())));
+				}
+			} else if (task.getTaskType() == TaskType.TIMED) {
+				if (task.getEndDateTime().isBefore(_now)) {
+					// Task is OVERDUE
+					this.printCriticalMessage(String.format("[!!!] %s [Started %s]%n", task.getTitle(), prettyDates(task.getStartDateTime())));
+					this.printCriticalMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime())));
+				} else {
+					this.printInfoMessage(String.format("%s [Starts in %s]%n", task.getTitle(), prettyDates(task.getStartDateTime())));
+					this.printInfoMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime())));
+				}
+			} else {
+				this.printInfoMessage(String.format("%s%n", task.getTitle()));
+			}
+		}
+
+	}
 
 	private void printWelcomeMessage() {
 		String padding = new String(new char[Messages.UI_WELCOME_MESSAGE.length() + 2]).replace("\0", "=");
@@ -159,6 +167,18 @@ public class CommandUI implements UI {
 		this.display(DisplayType.DEFAULT, Messages.NEWLINE + ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + header + " ").reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE + Messages.NEWLINE);
+	}
+	
+	private void printCriticalMessage(String msg) {
+		display(ansi().fg(Color.RED).bold().a(msg).reset());
+	}
+	
+	private void printSuccessMessage(String msg) {
+		display(ansi().fg(Color.RED).bold().a(msg).reset());
+	}
+	
+	private void printInfoMessage(String msg) {
+		display(ansi().fg(Color.DEFAULT).a(msg).reset());
 	}
 
 	public void run() {
