@@ -57,48 +57,58 @@ public class HelpCommand extends AbstractCommand {
 	}
 	
 	private void helpAdd() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Add a New Task \n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.ADD_HELP);
 	}
 	
 	private void helpUpdate() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Update an Existing Task\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.UPDATE_HELP);
 	}
 	
 	private void helpView() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: View and Search Existing Tasks\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.VIEW_HELP);
 	}
 	
 	private void helpDelete() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Delete an Existing Task\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.DELETE_HELP);
 	}
 	
 	private void helpUndo() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Undo One or More Actions\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.UNDO_HELP);
 	}
 	
 	private void helpRedo() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Redo One or More Actions\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.REDO_HELP);
 	}
 	
 	private void helpMark() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Mark a Task as Done\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.MARK_HELP);
 	}
 	
 	private void helpUnmark() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Mark a Task as Undone\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.UNMARK_HELP);
 	}
 
 	private void helpDirectory() {
+		_controller.getUI().display(DisplayType.SUCCESS, "HELP: Change Storage Directory\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.DIRECTORY_HELP);
 	}
 	
 	private void helpExit() {
+		_controller.getUI().display(DisplayType.SUCCESS,"HELP: Exit Taskie\n");
 		_controller.getUI().display(DisplayType.DEFAULT, Messages.EXIT_HELP);
 	}
 	
 	
 	private void helpAll() {
-		_controller.getUI().display(DisplayType.DEFAULT, "Taskie Help\n");
+		_controller.getUI().display(DisplayType.SUCCESS, "###Taskie Help###\n");
 		helpAdd();
 		helpUpdate();
 		helpView();
