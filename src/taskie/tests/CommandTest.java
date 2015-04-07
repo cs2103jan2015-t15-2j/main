@@ -4,13 +4,7 @@ package taskie.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -20,20 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import taskie.Controller;
-import taskie.commands.AddCommand;
-import taskie.commands.DeleteCommand;
-import taskie.commands.MarkCommand;
-import taskie.commands.RedoCommand;
-import taskie.commands.UndoCommand;
-import taskie.commands.UnmarkCommand;
-import taskie.commands.UpdateCommand;
-import taskie.commands.ViewCommand;
-import taskie.exceptions.InvalidCommandException;
-import taskie.exceptions.InvalidTaskException;
-import taskie.exceptions.TaskDateInvalidException;
-import taskie.exceptions.TaskDateNotSetException;
-import taskie.exceptions.TaskModificationFailedException;
-import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.commands.*;
+import taskie.exceptions.*;
 import taskie.models.Task;
 import taskie.models.ViewType;
 import taskie.parser.CommandParser;
@@ -281,6 +263,16 @@ public class CommandTest {
 		assertEquals(1,list.size());
 	}
 	
+//  @Test
+	public void testDirectoryCommand(){
+		String path = _controller.getStorage().getStorageLocation().toString();
+		path=path.concat("/test");
+		DirectoryCommand cmd = new DirectoryCommand(path,false);
+		cmd.execute();
+		assertEquals(path,_controller.getStorage().getStorageLocation().toString());
+	}
+	
+	
 	
 	
 	
@@ -297,7 +289,7 @@ public class CommandTest {
 		cmd.execute();
 	}
 	
-	
+
 	
 	
 

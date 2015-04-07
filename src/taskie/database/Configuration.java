@@ -10,7 +10,7 @@ import taskie.exceptions.ConfigurationFailedException;
 
 public class Configuration {
 	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
-	private static final String CONFIG_FILENAME = "config.txt";
+	private static final String CONFIG_FILENAME = "taskieconfig.txt";
 	
 	private static Configuration _config;
 	private Path _configPath;
