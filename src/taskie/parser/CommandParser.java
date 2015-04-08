@@ -140,12 +140,13 @@ public class CommandParser implements Parser {
 			throw new InvalidCommandException();
 		}
 		
-		String keyword = CommandParser.getCommandKeyword(input);
-		String command = CommandParser.getCommandParameters(input);
+		String keyword = CommandParser.getFirstKeyword(input);
+		String parameters = CommandParser.getNonKeywords(input);
 		
 		CommandType cmd = this.getCommandType(keyword);
 		assert cmd != null : "CommandType is null";
-		return this.executeCommandType(cmd, command);
+		
+		return this.executeCommandType(cmd, parameters);
 	}
 	
 	private ViewType getViewType(String key) {
@@ -369,12 +370,12 @@ public class CommandParser implements Parser {
 		
 		int taskNumber = 0;
 		try {
-			taskNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+			taskNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
 		} catch (NumberFormatException e) {
 			throw new InvalidCommandException(CommandType.UPDATE);
 		}
 		
-		String query = CommandParser.getCommandParameters(command);		
+		String query = CommandParser.getNonKeywords(command);		
 		UpdateCommand cmd = new UpdateCommand(taskNumber);
 		
 		String[] parsedQuery = parseCommandForNameAndDates(query);
@@ -440,7 +441,7 @@ public class CommandParser implements Parser {
 		
 		int itemNumber = 0;
 		try {
-			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+			itemNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
 		} catch (NumberFormatException e) {
 			throw new InvalidCommandException(CommandType.DELETE);
 		}
@@ -452,8 +453,8 @@ public class CommandParser implements Parser {
 	private ICommand doView(String command) {
 		String keywords;
 		
-		String keyword = CommandParser.getCommandKeyword(command);
-		String query = CommandParser.getCommandParameters(command);
+		String keyword = CommandParser.getFirstKeyword(command);
+		String query = CommandParser.getNonKeywords(command);
 
 		ViewType viewType = getViewType(keyword);
 		ViewCommand cmd = new ViewCommand(viewType);
@@ -701,12 +702,12 @@ public class CommandParser implements Parser {
 		return Arrays.asList(haystack).contains(needle);
 	}
 	
-	private static String getCommandKeyword(String command) {
+	private static String getFirstKeyword(String command) {
 		return splitStringWithWhitespace(command)[0];
 	}
 
-	private static String getCommandParameters(String command) {
-		String find = Pattern.quote(getCommandKeyword(command));
+	private static String getNonKeywords(String command) {
+		String find = Pattern.quote(getFirstKeyword(command));
 		return command.replaceFirst(find, "").trim();
 	}
 
