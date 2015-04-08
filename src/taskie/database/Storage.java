@@ -1,4 +1,6 @@
-//@author A0135137L
+//@author A0135137L-unused 
+//Reason: Json implementation is deployed for storage since v0.2 instead.
+
 package taskie.database;
 
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ import java.util.StringTokenizer;
 import java.time.format.DateTimeFormatter;
 
 public class Storage implements IStorage {
-	public static final String DEFAULT_LOCATION = "C:\\Users\\Haihui\\Desktop\\Taskie";
+	public static final String DEFAULT_LOCATION = System.getProperty("user.home");
 	private static final String DEADLINED_TASKS_FILENAME = "deadlined tasks.txt";
 	private static final String TIMED_TASKS_FILENAME = "timed tasks.txt";
 	private static final String FLOATING_TASKS_FILENAME = "floating tasks.txt";

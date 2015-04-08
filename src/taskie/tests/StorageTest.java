@@ -1,10 +1,8 @@
+//@author A0135137L
 package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import taskie.Controller;
 import taskie.database.NStorage;
-import taskie.database.Configuration;
 import taskie.database.FileReaderWriter;
 import taskie.models.Task;
 import taskie.exceptions.FileExistsException;
@@ -15,8 +13,6 @@ import taskie.exceptions.TaskTypeNotSupportedException;
 
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.After;
 import org.junit.Test;
 
 import java.lang.reflect.Type;
