@@ -381,9 +381,6 @@ public class ModelTest {
 			task.setStartTime(input);
 			assertEquals(expectedStart, task.getStartTime());
 			assertEquals(expectedEnd, task.getEndTime());
-			if ( _name.equals(TASK_6_NAME) ) {
-				fail("Did not throw TaskDateNotSetException: " + task.getStartDateTime() + " before " + task.getEndDateTime());	
-			}
 		} catch (TaskDateInvalidException e) {
 			fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 		} catch (TaskDateNotSetException e) {
