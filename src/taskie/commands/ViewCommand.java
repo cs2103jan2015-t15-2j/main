@@ -336,12 +336,12 @@ public class ViewCommand extends AbstractCommand {
 	private void executeViewUpcoming() {
 		ArrayList<Task> tasks = null;
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
-		LocalDateTime now = LocalDateTime.now();
 
 		try {
 			tasks = _controller.getStorage().getTaskList();
 			for (Task task : tasks) {
 				if (task.isDone()) {
+					break;
 				} else {
 					tasksToDisplay.add(task);
 				}

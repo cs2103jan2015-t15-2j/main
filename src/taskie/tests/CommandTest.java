@@ -173,6 +173,21 @@ public class CommandTest {
 		assertEquals(10,_controller.getUI().getCurrentTaskList().length);
 	}
 	
+	
+	@Test
+	public void testViewUpcoming() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException, InvalidTaskException{
+		setUp();
+		generateTasks();
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[10]));
+		int[] intArr= {1,3,5};
+		MarkCommand mark = new MarkCommand(intArr);
+		mark.execute();
+		ViewCommand view = new ViewCommand(ViewType.UPCOMING);
+		view.execute();
+		assertEquals(7,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	
 	@Test
 	public void testUpdateCommandTaskName()
 			throws TaskRetrievalFailedException, IOException,
