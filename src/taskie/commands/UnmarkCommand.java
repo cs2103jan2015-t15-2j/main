@@ -55,33 +55,27 @@ public class UnmarkCommand extends AbstractCommand {
 
 				if (_task.isDone()) {
 					updatedTask.setTaskUndone();
-					_controller.getUI().display(DisplayType.ERROR,
-							formatUnmarkString());
+					_controller.getUI().display(DisplayType.ERROR, formatUnmarkString());
 				} else {
-					_controller.getUI().display(DisplayType.ERROR,
-							taskie.models.Messages.TASK_ALREADY_NOT_DONE);
+					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_NOT_DONE);
 				}
 				try {
 					_controller.getStorage().updateTask(_task, updatedTask);
 				} catch (TaskTypeNotSupportedException e) {
-					_controller.getUI().display(DisplayType.ERROR,
-							e.getMessage());
+					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 				} catch (TaskModificationFailedException e) {
-					_controller.getUI().display(DisplayType.ERROR,
-							e.getMessage());
+					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 				}
 
 			} catch (InvalidTaskException e) {
-				_controller.getUI().display(DisplayType.ERROR,
-						taskie.models.Messages.INVALID_TASK_NUM);
+				_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.INVALID_TASK_NUM);
 
 			}
 		}
 	}
 
 	private String formatUnmarkString() {
-		return String.format(taskie.models.Messages.UNMARK_STRING,
-				_task.getTitle());
+		return String.format(taskie.models.Messages.UNMARK_STRING, _task.getTitle());
 	}
 
 	private Task retrieveTaskFromUI(int index) throws InvalidTaskException {

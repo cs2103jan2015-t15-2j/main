@@ -27,11 +27,11 @@ public class MarkCommand extends AbstractCommand {
 	public MarkCommand(int itemNumber) {
 		_taskIndexes = new int[] { itemNumber };
 	}
-	
+
 	public MarkCommand(int[] itemNumbers) {
 		_taskIndexes = itemNumbers;
 	}
-	
+
 	//@author A0097582N
 	public MarkCommand(Task task) {
 		_task = task;
@@ -47,13 +47,13 @@ public class MarkCommand extends AbstractCommand {
 
 	public void execute() {
 
-		for ( int x = 0; x < _taskIndexes.length; x++ ) {
+		for (int x = 0; x < _taskIndexes.length; x++) {
 			try {
 				int index = _taskIndexes[x];
-				
+
 				_task = retrieveTaskFromUI(index);
 				Task updatedTask = new Task(_task);
-	
+
 				if (_task.isDone()) {
 					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_DONE);
 				} else {
@@ -69,7 +69,7 @@ public class MarkCommand extends AbstractCommand {
 				}
 
 			} catch (InvalidTaskException e) {
-				_controller.getUI().display(DisplayType.ERROR,taskie.models.Messages.INVALID_TASK_NUM);
+				_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.INVALID_TASK_NUM);
 			}
 		}
 	}
@@ -77,7 +77,6 @@ public class MarkCommand extends AbstractCommand {
 	private String formatMarkString() {
 		return String.format(taskie.models.Messages.MARK_STRING, _task.getTitle());
 	}
-
 
 	private Task retrieveTaskFromUI(int index) throws InvalidTaskException {
 		Task task = _controller.getUI().getTask(index);
