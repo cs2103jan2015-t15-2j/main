@@ -124,11 +124,55 @@ public class CommandTest {
 		generateTasks();
 		ViewCommand cmd = new ViewCommand(ViewType.ALL);
 		cmd.execute();
-		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[10]));
 		assertEquals(10, _controller.getUI().getCurrentTaskList().length);
 	}
-
-
+	
+	@Test
+	public void testViewCommandSearchTaskName() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException, InvalidTaskException{
+		setUp();
+		generateTasks();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("bar");
+		cmd.execute();
+		ViewCommand view = new ViewCommand(ViewType.SEARCH);
+		view.setSearchKeywords("bar");
+		view.execute();
+		assertEquals(1,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	
+	@Test
+	public void testViewCommandSearchfromStartDate() throws InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		generateTasks();
+		ViewCommand view = new ViewCommand(ViewType.SEARCH);
+		view.setStartDate(_time3Date);
+		view.execute();
+		assertEquals(8,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	@Test
+	public void testViewCommandSearchByEndDate() throws InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		generateTasks();
+		ViewCommand view = new ViewCommand(ViewType.SEARCH);
+		view.setEndDate(_time2Date);
+		view.execute();
+		assertEquals(7,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	@Test
+	public void testViewCommandSearchBetweenDates() throws InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		generateTasks();
+		ViewCommand view = new ViewCommand(ViewType.SEARCH);
+		view.setStartDate(_time1Date);
+		view.setEndDate(_time3Date);
+		view.execute();
+		assertEquals(10,_controller.getUI().getCurrentTaskList().length);
+	}
+	
 	@Test
 	public void testUpdateCommandTaskName()
 			throws TaskRetrievalFailedException, IOException,
@@ -265,7 +309,7 @@ public class CommandTest {
 //  @Test
 	public void testDirectoryCommand(){
 		String path = _controller.getStorage().getStorageLocation().toString();
-		path=path.concat("/test");
+		path=path.concat("/Desktop");
 		DirectoryCommand cmd = new DirectoryCommand(path,false);
 		cmd.execute();
 		assertEquals(path,_controller.getStorage().getStorageLocation().toString());
@@ -297,13 +341,14 @@ public class CommandTest {
 			AddCommand cmd = new AddCommand();
 			cmd.setTaskName("foo " + i);
 			if (i % 2 == 0) {
-				cmd.setEndDateTime(_time2);
+				cmd.setEndDateTime(_time2.plusHours(i*3));
 				if (i % 3 == 0) {
-					cmd.setStartDateTime(_time1);
+					cmd.setStartDateTime(_time1.plusHours(i*3));
 				}
 			}
 			cmd.execute();
 		}
+		
 	}
 
 }

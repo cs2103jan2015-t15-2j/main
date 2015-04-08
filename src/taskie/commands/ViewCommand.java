@@ -55,7 +55,7 @@ public class ViewCommand extends AbstractCommand {
 	public LocalDateTime getStartDateTime() {
 		try {
 			return LocalDateTime.of(_startDate,
-					(_startTime == null) ? LocalTime.MAX : _startTime);
+					(_startTime == null) ? LocalTime.MIN : _startTime);
 		} catch (NullPointerException e) {
 			return null;
 		}
@@ -95,16 +95,7 @@ public class ViewCommand extends AbstractCommand {
 	}
 
 	public void setStartDate(LocalDate startDate) {
-		if (_endDate == null) {
-			this._endDate = startDate;
-		}
-
-		if (_endDate.isBefore(startDate)) {
-			this._startDate = this._endDate;
-			this._endDate = startDate;
-		} else {
-			this._startDate = startDate;
-		}
+		this._startDate = startDate;
 	}
 
 	public LocalDate getEndDate() {
@@ -112,16 +103,7 @@ public class ViewCommand extends AbstractCommand {
 	}
 
 	public void setEndDate(LocalDate endDate) {
-		if (_startDate == null) {
-			this._startDate = endDate;
-		}
-
-		if (_startDate.isAfter(endDate)) {
-			this._endDate = this._startDate;
-			this._startDate = endDate;
-		} else {
-			this._endDate = endDate;
-		}
+		this._endDate = endDate;
 	}
 
 	public LocalTime getStartTime() {
@@ -157,7 +139,8 @@ public class ViewCommand extends AbstractCommand {
 	public void execute() {
 		_logger.log(
 				Level.INFO,
-				"ViewType: "+this._viewType+"\nStartDate: " + this.getStartDate() + " StartTime: "
+				"ViewType: " + this._viewType + "\nStartDate: "
+						+ this.getStartDate() + " StartTime: "
 						+ this.getStartTime() + "\nEndDate: "
 						+ this.getEndDate() + " EndTime: " + this.getEndTime()
 						+ "\nSearch Keywords: " + this.getSearchKeywords());
@@ -185,8 +168,10 @@ public class ViewCommand extends AbstractCommand {
 		ArrayList<Task> tasksToDisplay = null;
 		try {
 			tasks = _controller.getStorage().getTaskList();
-			if (_startDate == null && _endDate == null && _searchKeywords != null) {
+			if (_startDate == null && _endDate == null
+					&& _searchKeywords != null) {
 				tasksToDisplay = findSearchedTasks(tasks);
+				_logger.log(Level.INFO, "searchType: Taskname\n");
 
 			} else if (_searchKeywords != null) {
 				tasksToDisplay = findTasksByDate(tasks);
@@ -195,19 +180,24 @@ public class ViewCommand extends AbstractCommand {
 				tasksToDisplay = findTasksByDate(tasks);
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
-			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
-			_controller.getUI().display(DisplayType.ERROR,e.getMessage());
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 
 	private ArrayList<Task> findTasksByDate(ArrayList<Task> tasks) {
 		if (_startDate == null) {
+			_logger.log(Level.INFO, "Search type: Enddate");
 			return findTasksBeforeEndDate(tasks);
 		} else if (_endDate == null) {
+			_logger.log(Level.INFO, "Search type: Startdate");
 			return findTasksFromStartDate(tasks);
+		} else {
+			_logger.log(Level.INFO, "Search type: StartEnddate");
+			return findTasksBetweenDates(tasks);
 		}
-		return findTasksBetweenDates(tasks);
 	}
 
 	private ArrayList<Task> findTasksBeforeEndDate(ArrayList<Task> tasks) {
@@ -221,10 +211,11 @@ public class ViewCommand extends AbstractCommand {
 			TaskType taskType = task.getTaskType();
 			if (taskType == TaskType.FLOATING) {
 				tasksToDisplay.add(task);
-			} else if (taskType == TaskType.DEADLINE 
-					&&task.getEndDateTime().isBefore(endDateTime)){
+			} else if (taskType == TaskType.DEADLINE
+					&& task.getEndDateTime().isBefore(endDateTime)) {
 				tasksToDisplay.add(task);
-			}else if(task.getStartDateTime().isBefore(endDateTime)){
+			} else if ((taskType == TaskType.TIMED
+					&& task.getStartDateTime().isBefore(endDateTime))) {
 				tasksToDisplay.add(task);
 			}
 		}
@@ -240,7 +231,7 @@ public class ViewCommand extends AbstractCommand {
 				break; // if task is done, we do not need to add it
 			}
 			TaskType taskType = task.getTaskType();
-			assert taskType!=null;
+			assert taskType != null;
 			if (taskType == TaskType.FLOATING) {
 				tasksToDisplay.add(task);
 			} else {
@@ -255,7 +246,7 @@ public class ViewCommand extends AbstractCommand {
 	private ArrayList<Task> findTasksBetweenDates(ArrayList<Task> tasks) {
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		LocalDateTime startDateTime = this.getStartDateTime();
-		LocalDateTime endDateTime = this.getStartDateTime();
+		LocalDateTime endDateTime = this.getEndDateTime();
 
 		for (Task task : tasks) {
 
@@ -300,41 +291,43 @@ public class ViewCommand extends AbstractCommand {
 		ArrayList<Task> tasks = null;
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		LocalDateTime now = LocalDateTime.now();
-		
+
 		try {
 			tasks = _controller.getStorage().getTaskList();
-			for (Task task:tasks){
-				if(task.isDone()){
+			for (Task task : tasks) {
+				if (task.isDone()) {
 					break;
 				}
-				TaskType taskType=task.getTaskType();
-				if(taskType==TaskType.FLOATING){
+				TaskType taskType = task.getTaskType();
+				if (taskType == TaskType.FLOATING) {
 					tasksToDisplay.add(task);
-				}else if(task.getEndDateTime().isBefore(now)){
+				} else if (task.getEndDateTime().isBefore(now)) {
 					tasksToDisplay.add(task);
 				}
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
-			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
-	
+
 	private void executeViewCompleted() {
 		ArrayList<Task> tasks = null;
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
-		
+
 		try {
 			tasks = _controller.getStorage().getTaskList();
-			for (Task task:tasks){
-				if(task.isDone()){
+			for (Task task : tasks) {
+				if (task.isDone()) {
 					tasksToDisplay.add(task);
 
 				}
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
-			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
@@ -344,18 +337,19 @@ public class ViewCommand extends AbstractCommand {
 		ArrayList<Task> tasks = null;
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		LocalDateTime now = LocalDateTime.now();
-		
+
 		try {
 			tasks = _controller.getStorage().getTaskList();
-			for (Task task:tasks){
-				if(task.isDone()){
-				}else{
+			for (Task task : tasks) {
+				if (task.isDone()) {
+				} else {
 					tasksToDisplay.add(task);
 				}
-				
+
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
-			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
@@ -366,20 +360,20 @@ public class ViewCommand extends AbstractCommand {
 		ArrayList<Task> doneTasksToDisplay = new ArrayList<Task>();
 		try {
 
-			ArrayList<Task> tasks = _controller.getStorage()
-					.getTaskList();
+			ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 			for (Task task : tasks) {
 				if (!task.isDone()) {
 
 					tasksToDisplay.add(task);
-				}else{
+				} else {
 					doneTasksToDisplay.add(task);
 				}
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			doneTasksToDisplay.sort(new TaskEndDateComparator());
 			tasksToDisplay.addAll(doneTasksToDisplay);
-			_controller.getUI().display(tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
