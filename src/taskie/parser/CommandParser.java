@@ -698,7 +698,7 @@ public class CommandParser implements Parser {
 	
 	private static boolean hasKeyword(String needle, String[] haystack) {
 		needle = needle.toLowerCase();
-		return (Arrays.asList(haystack).contains(needle));
+		return Arrays.asList(haystack).contains(needle);
 	}
 	
 	private static String getCommandKeyword(String command) {
