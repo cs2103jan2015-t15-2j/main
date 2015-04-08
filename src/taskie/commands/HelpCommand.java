@@ -108,7 +108,6 @@ public class HelpCommand extends AbstractCommand {
 	
 	
 	private void helpAll() {
-		_controller.getUI().display(DisplayType.SUCCESS, "###Taskie Help###\n");
 		helpAdd();
 		helpUpdate();
 		helpView();
