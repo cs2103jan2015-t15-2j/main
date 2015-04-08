@@ -74,9 +74,8 @@ public class CommandParser implements Parser {
 
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
-    private static final String PATTERN_ALPHANUMERIC_WORD = "\\w*";
+	private static final String PATTERN_MATCH_QUOTES = "[\"](.*)[\"]";
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
-    private static final String PATTERN_DATE = "(\\d+[-|/|.]\\d+[-|/|.]\\d+)|\\d+[-|/]\\d+";
     
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
@@ -142,12 +141,13 @@ public class CommandParser implements Parser {
 			throw new InvalidCommandException();
 		}
 		
-		String keyword = CommandParser.getCommandKeyword(input);
-		String command = CommandParser.getCommandParameters(input);
+		String keyword = CommandParser.getFirstKeyword(input);
+		String parameters = CommandParser.getNonKeywords(input);
 		
 		CommandType cmd = this.getCommandType(keyword);
 		assert cmd != null : "CommandType is null";
-		return this.executeCommandType(cmd, command);
+		
+		return this.executeCommandType(cmd, parameters);
 	}
 	
 	private ViewType getViewType(String key) {
@@ -205,29 +205,29 @@ public class CommandParser implements Parser {
 		return commandType;
 	}
 	
-	private ICommand executeCommandType(CommandType cmd, String command) throws InvalidCommandException {
-		command = command.trim();
+	private ICommand executeCommandType(CommandType cmd, String parameter) throws InvalidCommandException {
+		parameter = parameter.trim();
 
 		if ( cmd == CommandType.ADD ) {
-			return this.doAdd(command);
+			return this.doAdd(parameter);
 		} else if ( cmd == CommandType.UPDATE ) {
-			return this.doUpdate(command);
+			return this.doUpdate(parameter);
 		} else if ( cmd == CommandType.DELETE ) {
-			return this.doDelete(command);
+			return this.doDelete(parameter);
 		} else if ( cmd == CommandType.VIEW ) {
-			return this.doView(command);
+			return this.doView(parameter);
 		} else if ( cmd == CommandType.UNDO ) {
-			return this.doUndo(command);
+			return this.doUndo(parameter);
 		} else if ( cmd == CommandType.REDO ) {
-			return this.doRedo(command);
+			return this.doRedo(parameter);
 		} else if ( cmd == CommandType.MARK ) {
-			return this.doMark(command);
+			return this.doMark(parameter);
 		} else if ( cmd == CommandType.UNMARK ) {
-			return this.doUnmark(command);
+			return this.doUnmark(parameter);
 		} else if ( cmd == CommandType.DIRECTORY ) {
-			return this.doDirectory(command);
+			return this.doDirectory(parameter);
 		} else if ( cmd == CommandType.HELP ) {
-			return this.doHelp(command);
+			return this.doHelp(parameter);
 		} else if ( cmd == CommandType.EXIT ) {
 			return this.doExit();
 		} else {
@@ -260,33 +260,45 @@ public class CommandParser implements Parser {
 	
 	private String[] parseCommandForNameAndDates(String command) {
 		String[] result = new String[NUM_COMMAND_PATTERNS];
-		String[] words = splitStringWithWhitespace(command);
-		String dates = "";
-		int keywordPosition = words.length - 1;
 		
-		for ( int x = words.length - 1; x >= 0; x-- ) {
-			if( dictSeparatorKeywords.contains(words[x]) ) {
-				keywordPosition = x;
-				break;
-			} else {
-				dates = words[x] + " " + dates;
+		Pattern p = Pattern.compile(PATTERN_MATCH_QUOTES);
+		Matcher m = p.matcher(command);
+		if (m.find()) {
+			result[COMMAND_NAME] = m.group(1);
+			result[COMMAND_DATE] = command.substring(0, m.start(0)) + command.substring(m.end(0) + 1, command.length());
+			
+			String keyword = CommandParser.getFirstKeyword(result[COMMAND_DATE]);
+			if( dictSeparatorKeywords.contains(keyword) ) {
+				result[COMMAND_DATE] = CommandParser.getNonKeywords(result[COMMAND_DATE]);
 			}
-		}
-		
-		dates = dates.trim();		
-		if ( dates.equals(command) ) {
-			result[COMMAND_NAME] = command;
-			result[COMMAND_DATE] = null;
 		} else {
-			String name = "";
-			for ( int x = 0; x < keywordPosition; x++ ) {
-				name = name + words[x] + " ";
+			String[] words = splitStringWithWhitespace(command);
+			String dates = "";
+			
+			int keywordPosition = words.length - 1;
+			for ( int x = words.length - 1; x >= 0; x-- ) {
+				if( dictSeparatorKeywords.contains(words[x]) ) {
+					keywordPosition = x;
+					break;
+				} else {
+					dates = words[x] + " " + dates;
+				}
 			}
-			name = name.trim();
-			result[COMMAND_NAME] = name;
-			result[COMMAND_DATE] = dates;
+			
+			dates = dates.trim();
+			if ( dates.equals(command) ) {
+				result[COMMAND_NAME] = command;
+				result[COMMAND_DATE] = null;
+			} else {
+				String name = "";
+				for ( int x = 0; x < keywordPosition; x++ ) {
+					name = name + words[x] + " ";
+				}
+				name = name.trim();
+				result[COMMAND_NAME] = name;
+				result[COMMAND_DATE] = dates;
+			}
 		}
-		
 		return result;
 	}
 	
@@ -371,12 +383,12 @@ public class CommandParser implements Parser {
 		
 		int taskNumber = 0;
 		try {
-			taskNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+			taskNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
 		} catch (NumberFormatException e) {
 			throw new InvalidCommandException(CommandType.UPDATE);
 		}
 		
-		String query = CommandParser.getCommandParameters(command);		
+		String query = CommandParser.getNonKeywords(command);		
 		UpdateCommand cmd = new UpdateCommand(taskNumber);
 		
 		String[] parsedQuery = parseCommandForNameAndDates(query);
@@ -442,7 +454,7 @@ public class CommandParser implements Parser {
 		
 		int itemNumber = 0;
 		try {
-			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+			itemNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
 		} catch (NumberFormatException e) {
 			throw new InvalidCommandException(CommandType.DELETE);
 		}
@@ -454,8 +466,8 @@ public class CommandParser implements Parser {
 	private ICommand doView(String command) {
 		String keywords;
 		
-		String keyword = CommandParser.getCommandKeyword(command);
-		String query = CommandParser.getCommandParameters(command);
+		String keyword = CommandParser.getFirstKeyword(command);
+		String query = CommandParser.getNonKeywords(command);
 
 		ViewType viewType = getViewType(keyword);
 		ViewCommand cmd = new ViewCommand(viewType);
@@ -700,15 +712,15 @@ public class CommandParser implements Parser {
 	
 	private static boolean hasKeyword(String needle, String[] haystack) {
 		needle = needle.toLowerCase();
-		return (Arrays.asList(haystack).contains(needle));
+		return Arrays.asList(haystack).contains(needle);
 	}
 	
-	private static String getCommandKeyword(String command) {
+	private static String getFirstKeyword(String command) {
 		return splitStringWithWhitespace(command)[0];
 	}
 
-	private static String getCommandParameters(String command) {
-		String find = Pattern.quote(getCommandKeyword(command));
+	private static String getNonKeywords(String command) {
+		String find = Pattern.quote(getFirstKeyword(command));
 		return command.replaceFirst(find, "").trim();
 	}
 
