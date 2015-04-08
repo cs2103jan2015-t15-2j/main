@@ -3,6 +3,7 @@ package taskie.parser;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -561,15 +562,36 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		int itemNumber = 0;
+		String[] parts = CommandParser.splitStringWithWhitespace(command);
+		ArrayList<Integer> items = new ArrayList<Integer>();
+
 		try {
-			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+			for ( String part : parts ) {
+				String[] range = CommandParser.splitStringWithDash(part);
+				if ( range.length == 1 ) {
+					int number = Integer.parseInt(range[0]);
+					items.add(number);
+					_logger.log(Level.INFO, "Marking Task {0} as Complete", number);
+				} else if ( range.length == 2 ) {
+					int minimum = Integer.parseInt(range[0]);
+					int maximum = Integer.parseInt(range[1]);
+					if ( minimum > maximum ) {
+						throw new InvalidCommandException(CommandType.MARK);
+					}
+					
+					for ( int y = minimum; y <= maximum; y++ ) {
+						items.add(y);
+						_logger.log(Level.INFO, "Marking Task {0} as Complete", y);
+					}					
+				} else {
+					throw new InvalidCommandException(CommandType.MARK);
+				}
+			}
 		} catch (NumberFormatException e) {
 			throw new InvalidCommandException(CommandType.MARK);
 		}
 
-		_logger.log(Level.INFO, "Marking Task {0} as Complete", itemNumber);
-		return new MarkCommand(itemNumber);
+		return new MarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 	}
 	
 	private ICommand doUnmark(String command) throws InvalidCommandException {
@@ -579,15 +601,36 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		int itemNumber = 0;
+		String[] parts = CommandParser.splitStringWithWhitespace(command);
+		ArrayList<Integer> items = new ArrayList<Integer>();
+		
 		try {
-			itemNumber = Integer.parseInt(CommandParser.getCommandKeyword(command));
+			for ( String part : parts ) {
+				String[] range = CommandParser.splitStringWithDash(part);
+				if ( range.length == 1 ) {
+					int number = Integer.parseInt(range[0]);
+					items.add(number);
+					_logger.log(Level.INFO, "Marking Task {0} as Incomplete", number);
+				} else if ( range.length == 2 ) {
+					int minimum = Integer.parseInt(range[0]);
+					int maximum = Integer.parseInt(range[1]);
+					if ( minimum > maximum ) {
+						throw new InvalidCommandException(CommandType.UNMARK);
+					}
+					
+					for ( int y = minimum; y <= maximum; y++ ) {
+						items.add(y);
+						_logger.log(Level.INFO, "Marking Task {0} as Incomplete", y);
+					}					
+				} else {
+					throw new InvalidCommandException(CommandType.UNMARK);
+				}
+			}
 		} catch (NumberFormatException e) {
 			throw new InvalidCommandException(CommandType.UNMARK);
 		}
 
-		_logger.log(Level.INFO, "Unmarking Task {0} as Incomplete", itemNumber);
-		return new UnmarkCommand(itemNumber);
+		return new UnmarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 	}
 
 	private ICommand doDirectory(String command) {
@@ -646,7 +689,6 @@ public class CommandParser implements Parser {
 			}
 		} else if ( dates.size() == 1 ) {
 			// Deadline tasks
-
 			Date datetime1 = dates.get(0);
 			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
 			startAndEndDateTime[DATETIME_START] = null;
@@ -674,6 +716,10 @@ public class CommandParser implements Parser {
 		return command.trim().split("\\s+");
 	}
 
+	private static String[] splitStringWithDash(String command) {
+		return command.trim().split("-");
+	}
+	
 	private static LocalDateTime convertDateToLocalDateTime(Date date) {
 		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 	}
