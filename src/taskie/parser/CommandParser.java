@@ -74,6 +74,7 @@ public class CommandParser implements Parser {
 
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
+	private static final String PATTERN_MATCH_QUOTES = "[\"](.*)[\"]";
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
     
 	private com.joestelmach.natty.Parser _natty;
@@ -259,33 +260,45 @@ public class CommandParser implements Parser {
 	
 	private String[] parseCommandForNameAndDates(String command) {
 		String[] result = new String[NUM_COMMAND_PATTERNS];
-		String[] words = splitStringWithWhitespace(command);
-		String dates = "";
-		int keywordPosition = words.length - 1;
 		
-		for ( int x = words.length - 1; x >= 0; x-- ) {
-			if( dictSeparatorKeywords.contains(words[x]) ) {
-				keywordPosition = x;
-				break;
-			} else {
-				dates = words[x] + " " + dates;
+		Pattern p = Pattern.compile(PATTERN_MATCH_QUOTES);
+		Matcher m = p.matcher(command);
+		if (m.find()) {
+			result[COMMAND_NAME] = m.group(1);
+			result[COMMAND_DATE] = command.substring(0, m.start(0)) + command.substring(m.end(0) + 1, command.length());
+			
+			String keyword = CommandParser.getFirstKeyword(result[COMMAND_DATE]);
+			if( dictSeparatorKeywords.contains(keyword) ) {
+				result[COMMAND_DATE] = CommandParser.getNonKeywords(result[COMMAND_DATE]);
 			}
-		}
-		
-		dates = dates.trim();		
-		if ( dates.equals(command) ) {
-			result[COMMAND_NAME] = command;
-			result[COMMAND_DATE] = null;
 		} else {
-			String name = "";
-			for ( int x = 0; x < keywordPosition; x++ ) {
-				name = name + words[x] + " ";
+			String[] words = splitStringWithWhitespace(command);
+			String dates = "";
+			
+			int keywordPosition = words.length - 1;
+			for ( int x = words.length - 1; x >= 0; x-- ) {
+				if( dictSeparatorKeywords.contains(words[x]) ) {
+					keywordPosition = x;
+					break;
+				} else {
+					dates = words[x] + " " + dates;
+				}
 			}
-			name = name.trim();
-			result[COMMAND_NAME] = name;
-			result[COMMAND_DATE] = dates;
+			
+			dates = dates.trim();
+			if ( dates.equals(command) ) {
+				result[COMMAND_NAME] = command;
+				result[COMMAND_DATE] = null;
+			} else {
+				String name = "";
+				for ( int x = 0; x < keywordPosition; x++ ) {
+					name = name + words[x] + " ";
+				}
+				name = name.trim();
+				result[COMMAND_NAME] = name;
+				result[COMMAND_DATE] = dates;
+			}
 		}
-		
 		return result;
 	}
 	
