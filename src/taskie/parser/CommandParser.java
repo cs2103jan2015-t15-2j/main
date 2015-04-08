@@ -19,6 +19,7 @@ import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
 import taskie.commands.DirectoryCommand;
 import taskie.commands.ExitCommand;
+import taskie.commands.HelpCommand;
 import taskie.commands.ICommand;
 import taskie.commands.MarkCommand;
 import taskie.commands.RedoCommand;
@@ -44,6 +45,7 @@ public class CommandParser implements Parser {
 	private static final String[] COMMAND_KEYWORD_MARK = new String[] {"mark", "complete", "done", "check"};
 	private static final String[] COMMAND_KEYWORD_UNMARK = new String[] {"unmark", "incomplete", "undone", "uncheck"};
 	private static final String[] COMMAND_KEYWORD_DIRECTORY = new String[] {"directory"};
+	private static final String[] COMMAND_KEYWORD_HELP = new String[] {"help", "?"};
 	private static final String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
 	
 	private static final String[] VIEW_KEYWORDS_ALL = new String[] {"all", "everything"};
@@ -189,6 +191,8 @@ public class CommandParser implements Parser {
 			commandType = CommandType.UNMARK;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_DIRECTORY) ) {
 			commandType = CommandType.DIRECTORY;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_HELP) ) {
+			commandType = CommandType.HELP;
 		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_EXIT) ) {
 			commandType = CommandType.EXIT;
 		}
@@ -221,6 +225,8 @@ public class CommandParser implements Parser {
 			return this.doUnmark(command);
 		} else if ( cmd == CommandType.DIRECTORY ) {
 			return this.doDirectory(command);
+		} else if ( cmd == CommandType.HELP ) {
+			return this.doHelp(command);
 		} else if ( cmd == CommandType.EXIT ) {
 			return this.doExit();
 		} else {
@@ -604,6 +610,18 @@ public class CommandParser implements Parser {
 		}
 	}
 	
+	private ICommand doHelp(String command) {
+		CommandType cmd;
+		
+		try {
+			cmd = this.getCommandType(command);
+		} catch (InvalidCommandException e) {
+			cmd = CommandType.HELP;
+		}
+		
+		return new HelpCommand(cmd);
+	}
+	
 	private ICommand doExit() {
 		_logger.log(Level.INFO, "Exiting Taskie");
 		return new ExitCommand();
@@ -648,7 +666,8 @@ public class CommandParser implements Parser {
 	}
 
 	private static String getCommandParameters(String command) {
-		return command.replaceFirst(getCommandKeyword(command), "").trim();
+		String find = Pattern.quote(getCommandKeyword(command));
+		return command.replaceFirst(find, "").trim();
 	}
 
 	private static String[] splitStringWithWhitespace(String command) {
