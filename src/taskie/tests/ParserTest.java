@@ -122,9 +122,13 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("add Have dinner in 120 minutes");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add in 2 hours Have dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Complete CE2", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.MAX);
 		actualCommand = _parser.parse("put Complete CE2 on Saturday");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("put on Saturday Complete CE2");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Complete CE2", null, null, _today.plusDays(1), LocalTime.of(16, 0, 0, 0));
@@ -183,6 +187,8 @@ public class ParserTest {
 		
 		expectedCommand = new AddCommand("Do CS2103 Tutorial 6", _today.plusDays(1), LocalTime.of(9, 0), _today.plusDays(1), LocalTime.of(11, 0));
 		actualCommand = _parser.parse("add Do CS2103 Tutorial 6 from 9 to 11am tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add from 9 to 11am tomorrow Do CS2103 Tutorial 6");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Dinner Date", _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(17, 0), _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(22, 0));
