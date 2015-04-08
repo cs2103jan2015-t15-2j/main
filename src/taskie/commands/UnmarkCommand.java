@@ -5,14 +5,9 @@
  *
  */
 //@author A0097582N
-
 package taskie.commands;
 
-import java.util.ArrayList;
-
-import org.apache.commons.lang.ArrayUtils;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
@@ -29,7 +24,6 @@ public class UnmarkCommand extends AbstractCommand {
 
 	//@author A0121555M
 	public UnmarkCommand(int itemNumber) {
-
 		_taskIndexes = new int[] { itemNumber };
 	}
 

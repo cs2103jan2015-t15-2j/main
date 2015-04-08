@@ -5,11 +5,10 @@
  *
  */
 //@author A0097582N
-
 package taskie.commands;
 
+import java.util.Arrays;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -34,8 +33,6 @@ public class MarkCommand extends AbstractCommand {
 	}
 	
 	//@author A0097582N
-
-	
 	public MarkCommand(Task task) {
 		_task = task;
 	}
