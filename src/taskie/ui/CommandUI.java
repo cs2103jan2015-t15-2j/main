@@ -4,10 +4,8 @@ package taskie.ui;
 import static org.fusesource.jansi.Ansi.ansi;
 
 import java.io.File;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import javax.swing.JFileChooser;
@@ -26,8 +24,6 @@ import taskie.models.TaskType;
 import taskie.models.ViewType;
 
 public class CommandUI implements UI {
-	private static int TASKS_PER_PAGE = 20;
-
 	private Controller _controller;
 	private Scanner _scanner;
 	private Task[] _currentTaskList;

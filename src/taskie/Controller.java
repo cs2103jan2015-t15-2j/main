@@ -42,7 +42,7 @@ public class Controller {
 	public UI getUI() {
 		return _ui;
 	}
-	
+
 	public IStorage getStorage() {
 		return _storage;
 	}
@@ -50,7 +50,7 @@ public class Controller {
 	public Parser getParser() {
 		return _parser;
 	}
-	
+
 	public Configuration getConfiguration() {
 		return _config;
 	}
@@ -62,20 +62,20 @@ public class Controller {
 		_parser = new CommandParser();
 		this.initialize();
 	}
-	
+
 	private void initialize() {
 		try {
 			_undoStack = new Stack<ICommand>();
 			_redoStack = new Stack<ICommand>();
 			_storage = new NStorage(_config.getDatabasePath());
-		} catch ( IOException e ) {
+		} catch (IOException e) {
 			_logger.log(Level.SEVERE, "Critital: Unable to initialize Storage System");
 			System.out.println("Critital: Unable to initialize Storage System");
 		}
 	}
 
-	public static Controller getInstance()  {
-		if ( _instance == null ) { 
+	public static Controller getInstance() {
+		if (_instance == null) {
 			_instance = new Controller();
 		}
 		return _instance;
@@ -96,7 +96,6 @@ public class Controller {
 					} catch (InvalidCommandException e) {
 						_ui.display(DisplayType.ERROR, Messages.INVALID_COMMAND);
 						this.executeCommand(e.getHelpCommand());
-						
 					}
 				}
 			}
@@ -107,7 +106,7 @@ public class Controller {
 		addTaskHistory(command);
 		command.execute();
 	}
-	
+
 	//@author A0121555M
 	public Stack<ICommand> getUndoStack() {
 		return _undoStack;
@@ -119,7 +118,7 @@ public class Controller {
 
 	private void addTaskHistory(ICommand command) {
 		CommandType type = command.getCommandType();
-		if ( type == CommandType.ADD ||  type == CommandType.UPDATE || type == CommandType.DELETE || type == CommandType.MARK || type == CommandType.UNMARK  ) {
+		if (type == CommandType.ADD || type == CommandType.UPDATE || type == CommandType.DELETE || type == CommandType.MARK || type == CommandType.UNMARK) {
 			_logger.log(Level.INFO, "Adding to Undo: " + command);
 			_undoStack.add(command);
 		}
