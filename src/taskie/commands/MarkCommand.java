@@ -8,6 +8,7 @@
 
 package taskie.commands;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -19,13 +20,17 @@ public class MarkCommand extends AbstractCommand {
 
 	private CommandType _commandType = CommandType.MARK;
 	private Task _task;
-	private int _taskIndex;
+	private int[] _taskIndexes;
 
 	//@author A0121555M
 	public MarkCommand(int itemNumber) {
-		_taskIndex = itemNumber;
+		_taskIndexes = new int[] { itemNumber };
 	}
-
+	
+	public MarkCommand(int[] itemNumbers) {
+		_taskIndexes = itemNumbers;
+	}
+	
 	//@author A0097582N
 	public MarkCommand(Task task) {
 		_task = task;
@@ -40,25 +45,29 @@ public class MarkCommand extends AbstractCommand {
 	}
 
 	public void execute() {
-		try {
-			_task = retrieveTaskFromUI();
-			Task updatedTask = new Task(_task);
-
-			if (_task.isDone()) {
-				_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_DONE);
-			} else {
-				updatedTask.setTaskDone();
-				_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
-			}
+		for ( int x = 0; x < _taskIndexes.length; x++ ) {
 			try {
-				_controller.getStorage().updateTask(_task, updatedTask);
-			} catch (TaskTypeNotSupportedException e) {
-				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
-			} catch (TaskModificationFailedException e) {
-				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				int index = _taskIndexes[x];
+				
+				_task = retrieveTaskFromUI(index);
+				Task updatedTask = new Task(_task);
+	
+				if (_task.isDone()) {
+					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_DONE);
+				} else {
+					updatedTask.setTaskDone();
+					_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
+				}
+				try {
+					_controller.getStorage().updateTask(_task, updatedTask);
+				} catch (TaskTypeNotSupportedException e) {
+					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				} catch (TaskModificationFailedException e) {
+					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				}
+			} catch (InvalidTaskException e) {
+				_controller.getUI().display(DisplayType.ERROR,taskie.models.Messages.INVALID_TASK_NUM);
 			}
-		} catch (InvalidTaskException e) {
-			_controller.getUI().display(DisplayType.ERROR,taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
 
@@ -66,20 +75,20 @@ public class MarkCommand extends AbstractCommand {
 		return String.format(taskie.models.Messages.MARK_STRING, _task.getTitle());
 	}
 
-	private Task retrieveTaskFromUI() throws InvalidTaskException {
-		Task task = _controller.getUI().getTask(_taskIndex);
+	private Task retrieveTaskFromUI(int index) throws InvalidTaskException {
+		Task task = _controller.getUI().getTask(index);
 		return task;
 	}
 
 	//@author A0121555M
 	public void undo() {
-		new UnmarkCommand(_taskIndex).execute();
+		new UnmarkCommand(_taskIndexes).execute();
 	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CommandType:" + _commandType + ",");
-		sb.append("TaskIndex:" + _taskIndex);
+		sb.append("TaskIndex:" + Arrays.toString(_taskIndexes));
 		return sb.toString();
 	}
 }

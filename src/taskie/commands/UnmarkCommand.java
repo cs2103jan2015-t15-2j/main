@@ -8,6 +8,7 @@
 
 package taskie.commands;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
@@ -16,14 +17,17 @@ import taskie.models.DisplayType;
 import taskie.models.Task;
 
 public class UnmarkCommand extends AbstractCommand {
-
 	private CommandType _commandType = CommandType.MARK;
-	private int _taskIndex;
 	private Task _task;
+	private int[] _taskIndexes;
 
 	//@author A0121555M
 	public UnmarkCommand(int itemNumber) {
-		_taskIndex = itemNumber;
+		_taskIndexes = new int[] { itemNumber };
+	}
+	
+	public UnmarkCommand(int[] itemNumbers) {
+		_taskIndexes = itemNumbers;
 	}
 
 	//@author A0097582N
@@ -40,25 +44,29 @@ public class UnmarkCommand extends AbstractCommand {
 	}
 
 	public void execute() {
-		try {
-			_task = retrieveTaskFromUI();
-			Task updatedTask = new Task(_task);
-
-			if (_task.isDone()) {
-				updatedTask.setTaskUndone();
-				_controller.getUI().display(DisplayType.ERROR, formatUnmarkString());
-			} else {
-				_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_NOT_DONE);
-			}
+		for ( int x = 0; x < _taskIndexes.length; x++ ) {
 			try {
-				_controller.getStorage().updateTask(_task, updatedTask);
-			} catch (TaskTypeNotSupportedException e) {
-				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
-			} catch (TaskModificationFailedException e) {
-				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				int index = _taskIndexes[x];
+				
+				_task = retrieveTaskFromUI(index);
+				Task updatedTask = new Task(_task);
+	
+				if (_task.isDone()) {
+					updatedTask.setTaskUndone();
+					_controller.getUI().display(DisplayType.ERROR, formatUnmarkString());
+				} else {
+					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_NOT_DONE);
+				}
+				try {
+					_controller.getStorage().updateTask(_task, updatedTask);
+				} catch (TaskTypeNotSupportedException e) {
+					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				} catch (TaskModificationFailedException e) {
+					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				}
+			} catch (InvalidTaskException e) {
+				_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.INVALID_TASK_NUM);
 			}
-		} catch (InvalidTaskException e) {
-			_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.INVALID_TASK_NUM);
 		}
 	}
 
@@ -66,20 +74,20 @@ public class UnmarkCommand extends AbstractCommand {
 		return String.format(taskie.models.Messages.UNMARK_STRING, _task.getTitle());
 	}
 
-	private Task retrieveTaskFromUI() throws InvalidTaskException {
-		Task task = _controller.getUI().getTask(_taskIndex);
+	private Task retrieveTaskFromUI(int index) throws InvalidTaskException {
+		Task task = _controller.getUI().getTask(index);
 		return task;
 	}
 
 	//@author A0121555M
 	public void undo() {
-		new MarkCommand(_taskIndex).execute();
+		new MarkCommand(_taskIndexes).execute();
 	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CommandType:" + _commandType + ",");
-		sb.append("TaskIndex:" + _taskIndex);
+		sb.append("TaskIndex:" + Arrays.toString(_taskIndexes));
 		return sb.toString();
 	}
 }
