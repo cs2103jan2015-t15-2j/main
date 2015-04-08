@@ -7,7 +7,7 @@ public class Messages {
 	public static final String NEWLINE = System.lineSeparator();
 	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mma");
-	public static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy hh:mm:ssa");
+	public static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy hh:mma");
 
 	// UI Messages
 	public static final String UI_WELCOME_MESSAGE = "Welcome to Taskie!";
@@ -18,6 +18,7 @@ public class Messages {
 	public static final String ADD_FLOATING = "%s added." + NEWLINE;
 	public static final String ADD_DEADLINED = "%s added at %s" + NEWLINE;
 	public static final String ADD_TIMED = "%s added from %s to %s" + NEWLINE;
+	public static final String ADD_CONFLICT = "However, task has conflict with the following task(s): "+NEWLINE;
 
 	// DeleteCommand messages
 	public static final String DELETE_TASK = "%s is deleted from list." + NEWLINE;
