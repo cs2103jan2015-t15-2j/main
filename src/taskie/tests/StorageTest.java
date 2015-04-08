@@ -1,8 +1,10 @@
 package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import taskie.Controller;
 import taskie.database.NStorage;
+import taskie.database.Configuration;
 import taskie.database.FileReaderWriter;
 import taskie.models.Task;
 import taskie.exceptions.FileExistsException;
@@ -33,57 +35,33 @@ public class StorageTest {
 	
 	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
 	private static final String DATABASE_FILENAME = "taskie.txt";
-	private static final String CONFIG_FILENAME = "config.txt";
 	
 	private static NStorage _storage;
 	private static Path _databasePath;
-	private static Path _configPath;
 	private static ArrayList<Task> _tasks;
 
 	
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		String configPath = DEFAULT_STORAGE_DIRECTORY + "/" + CONFIG_FILENAME;
-		_configPath = FileSystems.getDefault().getPath(configPath);
-		_storage = new NStorage(configPath);
-		_databasePath = Controller.getInstance().getConfiguration().getDatabasePath();
+		_storage = new NStorage(DEFAULT_STORAGE_DIRECTORY);
+		_databasePath = FileSystems.getDefault().getPath(DEFAULT_STORAGE_DIRECTORY + "/" + DATABASE_FILENAME);
 		_tasks = new ArrayList<Task>();
-	}
-	
-	@Before
-	public void setUpBeforeTest() throws Exception {
-	}
-	
-	@After
-	public void ClearUpAfterTest() throws Exception {
 	}
 
 	@AfterClass
 	public static void cleanUpAfterClass() throws Exception {
-		Files.delete(_configPath);
 		Files.delete(_databasePath);
 	}
 
 	@Test
 	public void testGetStorageLocation() throws Exception {
-		assertEquals(_databasePath.getParent().toString(), _storage.getStorageLocation());
+		assertEquals(DEFAULT_STORAGE_DIRECTORY, _storage.getStorageLocation().toString());
 	}
 	
 	@Test
 	public void testSetStorageLocation() throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
-		//set database to directory that is existed
-		_storage.setStorageLocation(FileSystems.getDefault().getPath("D:\\"));
-		_databasePath = FileSystems.getDefault().getPath("D:\\" + DATABASE_FILENAME);
-		assertEquals("D:\\", _storage.getStorageLocation());
-				
-		//set database to directory that is not existed
-		_storage.setStorageLocation(FileSystems.getDefault().getPath("D:\\User\\"));
-		_databasePath = FileSystems.getDefault().getPath("D:\\User\\" + DATABASE_FILENAME);
-		assertEquals("D:\\User", _storage.getStorageLocation());
-		
-		//set database to invalid directory 
-	
+
 	}
 	
 	
@@ -209,11 +187,6 @@ public class StorageTest {
 	public void testGetTaskList() {
 		assertEquals(_tasks, _storage.getTaskList());
 	}
-	
-	@Test
-	public void testDeleteDatabase() {
 
-		
-	}
 	
 }
