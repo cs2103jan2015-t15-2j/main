@@ -205,29 +205,29 @@ public class CommandParser implements Parser {
 		return commandType;
 	}
 	
-	private ICommand executeCommandType(CommandType cmd, String command) throws InvalidCommandException {
-		command = command.trim();
+	private ICommand executeCommandType(CommandType cmd, String parameter) throws InvalidCommandException {
+		parameter = parameter.trim();
 
 		if ( cmd == CommandType.ADD ) {
-			return this.doAdd(command);
+			return this.doAdd(parameter);
 		} else if ( cmd == CommandType.UPDATE ) {
-			return this.doUpdate(command);
+			return this.doUpdate(parameter);
 		} else if ( cmd == CommandType.DELETE ) {
-			return this.doDelete(command);
+			return this.doDelete(parameter);
 		} else if ( cmd == CommandType.VIEW ) {
-			return this.doView(command);
+			return this.doView(parameter);
 		} else if ( cmd == CommandType.UNDO ) {
-			return this.doUndo(command);
+			return this.doUndo(parameter);
 		} else if ( cmd == CommandType.REDO ) {
-			return this.doRedo(command);
+			return this.doRedo(parameter);
 		} else if ( cmd == CommandType.MARK ) {
-			return this.doMark(command);
+			return this.doMark(parameter);
 		} else if ( cmd == CommandType.UNMARK ) {
-			return this.doUnmark(command);
+			return this.doUnmark(parameter);
 		} else if ( cmd == CommandType.DIRECTORY ) {
-			return this.doDirectory(command);
+			return this.doDirectory(parameter);
 		} else if ( cmd == CommandType.HELP ) {
-			return this.doHelp(command);
+			return this.doHelp(parameter);
 		} else if ( cmd == CommandType.EXIT ) {
 			return this.doExit();
 		} else {
