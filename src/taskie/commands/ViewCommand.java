@@ -205,18 +205,17 @@ public class ViewCommand extends AbstractCommand {
 		LocalDateTime endDateTime = this.getEndDateTime();
 
 		for (Task task : tasks) {
-			if (task.isDone()) {
-				break;
-			}
-			TaskType taskType = task.getTaskType();
-			if (taskType == TaskType.FLOATING) {
-				tasksToDisplay.add(task);
-			} else if (taskType == TaskType.DEADLINE
-					&& task.getEndDateTime().isBefore(endDateTime)) {
-				tasksToDisplay.add(task);
-			} else if ((taskType == TaskType.TIMED
-					&& task.getStartDateTime().isBefore(endDateTime))) {
-				tasksToDisplay.add(task);
+			if (!task.isDone()){ 
+				TaskType taskType = task.getTaskType();
+				if (taskType == TaskType.FLOATING) {
+					tasksToDisplay.add(task);
+				} else if (taskType == TaskType.DEADLINE
+						&& task.getEndDateTime().isBefore(endDateTime)) {
+					tasksToDisplay.add(task);
+				} else if ((taskType == TaskType.TIMED
+						&& task.getStartDateTime().isBefore(endDateTime))) {
+					tasksToDisplay.add(task);
+				}
 			}
 		}
 		return tasksToDisplay;
@@ -227,16 +226,16 @@ public class ViewCommand extends AbstractCommand {
 		LocalDateTime startDateTime = this.getStartDateTime();
 
 		for (Task task : tasks) {
-			if (task.isDone()) {
-				break; // if task is done, we do not need to add it
-			}
-			TaskType taskType = task.getTaskType();
-			assert taskType != null;
-			if (taskType == TaskType.FLOATING) {
-				tasksToDisplay.add(task);
-			} else {
-				if (task.getEndDateTime().isAfter(startDateTime)) {
+			if (!task.isDone()) {
+
+				TaskType taskType = task.getTaskType();
+				assert taskType != null;
+				if (taskType == TaskType.FLOATING) {
 					tasksToDisplay.add(task);
+				} else {
+					if (task.getEndDateTime().isAfter(startDateTime)) {
+						tasksToDisplay.add(task);
+					}
 				}
 			}
 		}
@@ -250,9 +249,7 @@ public class ViewCommand extends AbstractCommand {
 
 		for (Task task : tasks) {
 
-			if (task.isDone()) {
-				continue;
-			} else {
+			if (!task.isDone()) {
 				TaskType taskType = task.getTaskType();
 				if (taskType == TaskType.FLOATING) {
 					tasksToDisplay.add(task);
