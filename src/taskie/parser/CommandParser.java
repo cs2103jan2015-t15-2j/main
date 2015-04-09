@@ -76,7 +76,7 @@ public class CommandParser implements Parser {
 	
 	private static final String PATTERN_MATCH_FOR_FROM_TIME = "(.*) (from (.*))";
 	private static final String PATTERN_MATCH_FROM_FOR_TIME = "(.*) for ([\\d+] \\w+)";
-	private static final String PATTERN_MATCH_FROM_TO_TIME = "(.*) from (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?) (?:to|-) (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?)";
+	private static final String PATTERN_MATCH_FROM_TO_TIME = "(.*) from (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?) (?:till|to|-) (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?)";
 	private static final String PATTERN_MATCH_QUOTES = "[\"](.*)[\"]";
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
     
