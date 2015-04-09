@@ -295,13 +295,13 @@ public class ViewCommand extends AbstractCommand {
 		try {
 			tasks = _controller.getStorage().getTaskList();
 			for (Task task : tasks) {
-				if (task.isDone()) {
-				}
-				TaskType taskType = task.getTaskType();
-				if (taskType == TaskType.FLOATING) {
-					tasksToDisplay.add(task);
-				} else if (task.getEndDateTime().isBefore(now)) {
-					tasksToDisplay.add(task);
+				if (!task.isDone()) {
+					TaskType taskType = task.getTaskType();
+					if (taskType == TaskType.FLOATING) {
+						tasksToDisplay.add(task);
+					} else if (task.getEndDateTime().isBefore(now)) {
+						tasksToDisplay.add(task);
+					}
 				}
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
@@ -339,8 +339,7 @@ public class ViewCommand extends AbstractCommand {
 		try {
 			tasks = _controller.getStorage().getTaskList();
 			for (Task task : tasks) {
-				if (task.isDone()) {
-				} else {
+				if (!task.isDone()) {
 					tasksToDisplay.add(task);
 				}
 
