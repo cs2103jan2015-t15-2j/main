@@ -296,7 +296,6 @@ public class ViewCommand extends AbstractCommand {
 			tasks = _controller.getStorage().getTaskList();
 			for (Task task : tasks) {
 				if (task.isDone()) {
-					break;
 				}
 				TaskType taskType = task.getTaskType();
 				if (taskType == TaskType.FLOATING) {
