@@ -138,7 +138,7 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Work on the code done by Amy", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.MONDAY)), LocalTime.MAX);
-		actualCommand = _parser.parse("create Work on the code done by Amy by Monday");
+		actualCommand = _parser.parse("create \"Work on the code done by Amy\" by Monday");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Reach Changi Airport to send friend off", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.THURSDAY)), LocalTime.of(20, 45));
