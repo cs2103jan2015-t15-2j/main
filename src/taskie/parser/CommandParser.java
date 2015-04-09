@@ -74,6 +74,8 @@ public class CommandParser implements Parser {
 
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
+	private static final String PATTERN_MATCH_FOR_FROM_TIME = "(.*) (from (.*))";
+	private static final String PATTERN_MATCH_FROM_FOR_TIME = "(.*) for ([\\d+] \\w+)";
 	private static final String PATTERN_MATCH_QUOTES = "[\"](.*)[\"]";
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
     
@@ -248,13 +250,34 @@ public class CommandParser implements Parser {
 	}
 	
 	private String reformatDateAndTime(String date) {
-		Pattern timePattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
-		Matcher timePatternMatcher = timePattern.matcher(date);
-		while ( timePatternMatcher.find() ) {
-			String matchingGroup = timePatternMatcher.group(0);
+		date = this.changeDotsToColonsInTime(date);
+		date = this.changeForToToInTime(date);
+		return date;
+	}
+	
+	private String changeDotsToColonsInTime(String date) {
+		Pattern pattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
+		Matcher matcher = pattern.matcher(date);
+		while ( matcher.find() ) {
+			String matchingGroup = matcher.group(0);
             String newTime = matchingGroup.replace(".", ":");
-            date = date.replace(timePatternMatcher.group(0), newTime);
-		}		
+            date = date.replace(matcher.group(0), newTime);
+		}
+		return date;
+	}
+	
+	private String changeForToToInTime(String date) {
+		Pattern pattern;
+		Matcher matcher;
+		
+		pattern = Pattern.compile(PATTERN_MATCH_FOR_FROM_TIME);
+		matcher = pattern.matcher(date);
+		date = matcher.replaceAll("$3 for $1");
+
+		pattern = Pattern.compile(PATTERN_MATCH_FROM_FOR_TIME);
+		matcher = pattern.matcher(date);
+		date = matcher.replaceAll("$1 to  $2");
+		
 		return date;
 	}
 	
@@ -264,6 +287,9 @@ public class CommandParser implements Parser {
 		Pattern p = Pattern.compile(PATTERN_MATCH_QUOTES);
 		Matcher m = p.matcher(command);
 		if (m.find()) {
+			// Extracts data inside quotation marks (i.e. "watch the day after tomorrow" by the day after tomorrow)
+			// result[COMMAND_NAME] = "watch the day after tomorrow"
+			// result[COMMAND_DATE] = "the day after tomorrow"
 			result[COMMAND_NAME] = m.group(1);
 			result[COMMAND_DATE] = command.substring(0, m.start(0)) + command.substring(m.end(0) + 1, command.length());
 			

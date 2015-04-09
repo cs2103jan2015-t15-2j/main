@@ -202,6 +202,14 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("add from 9 to 11am tomorrow Do CS2103 Tutorial 6");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add Do CS2103 Tutorial 6 from 9am tomorrow for 2 hours");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		//actualCommand = _parser.parse("add Do CS2103 Tutorial 6 for 2 hours from 9am tomorrow");
+		//assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add from 9am tomorrow for 2 hours Do CS2103 Tutorial 6");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		//actualCommand = _parser.parse("add for 2 hours from 9am tomorrow Do CS2103 Tutorial 6");
+		//assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Dinner Date", _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(17, 0), _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(22, 0));
 		actualCommand = _parser.parse("ins Dinner Date on Friday 5pm to 10pm");
