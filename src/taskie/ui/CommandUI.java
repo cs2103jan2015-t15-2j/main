@@ -69,8 +69,7 @@ public class CommandUI implements UI {
 		for (int x = 0; x < numTasks; x++) {
 			Task task = tasks[x];
 			display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
-			this.printTask(task);			
-			display(DisplayType.DEFAULT, Messages.NEWLINE);
+			this.printTask(task);
 			shown++;
 		}
 
@@ -146,6 +145,8 @@ public class CommandUI implements UI {
 			} else {
 				this.printInfoMessage(String.format("%s%n", task.getTitle()));
 			}
+
+			display(DisplayType.DEFAULT, Messages.NEWLINE);
 		}
 
 	}
