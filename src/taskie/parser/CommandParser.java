@@ -37,7 +37,7 @@ import com.joestelmach.natty.DateGroup;
 public class CommandParser implements Parser {
 	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on", "due" };
 	
-	private static final String[] COMMAND_KEYWORD_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
+	private static final String[] COMMAND_KEYWORD_ADD = new String[] {" ", "add", "create", "new", "ins", "insert", "put"};
 	private static final String[] COMMAND_KEYWORD_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
 	private static final String[] COMMAND_KEYWORD_DELETE = new String[] {"delete", "clear", "remove", "rm", "discard", "del"};
 	private static final String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list", "ls"};
