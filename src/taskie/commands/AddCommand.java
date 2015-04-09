@@ -240,7 +240,8 @@ public class AddCommand extends AbstractCommand {
 	private String formatAddMsgWithWarning(Task newTask) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format(Messages.ADD_TIMED, newTask.getTitle()
-				, newTask.getStartDateTime(), newTask.getEndDateTime()));
+				, _controller.getUI().formatDateTime(newTask.getStartDateTime())
+				, _controller.getUI().formatDateTime(newTask.getEndDateTime())));
 			sb.append(Messages.ADD_CONFLICT);
 		for(int i=0;i<_conflictedTask.size();i++){
 			Task task = _conflictedTask.get(i);
