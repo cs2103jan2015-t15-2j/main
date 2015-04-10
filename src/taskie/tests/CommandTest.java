@@ -276,7 +276,22 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(), list.get(0).toString());	
 	}
 	
-	
+	@Test
+	public void testUpdateCommandNoIndexReference()
+			throws TaskRetrievalFailedException, IOException,
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
+		setUp();
+		addTask("foo",_time1,_time2);
+		
+		UpdateCommand update = new UpdateCommand();
+		update.setTaskTitleToUpdate("bar");
+		update.setTaskIndex(0);
+		update.execute();
+		
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		Task expectedTask = new Task("bar",_time1,_time2);
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
 	
 	@Test
 	public void testDeleteCommand() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
