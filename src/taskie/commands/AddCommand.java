@@ -155,16 +155,18 @@ public class AddCommand extends AbstractCommand {
 					_endTime);
 			if (hasNoConflict()) {
 				_controller.getStorage().addTask(_task);
+				_controller.setLastTask(_task);
 				_controller.getUI().display(DisplayType.SUCCESS,
 						formatAddMsg(_task));
 			} else {
 				_controller.getStorage().addTask(_task);
+				_controller.setLastTask(_task);
 				_controller.getUI().display(DisplayType.ERROR,formatAddMsgWithWarning(_task));
 			}
 		} catch (TaskRetrievalFailedException e) {
 			try {
-				_controller.getStorage().addTask(_task); // this branch occurs
-															// when task
+				_controller.getStorage().addTask(_task); 	// this branch occurs
+				_controller.setLastTask(_task);				// when task
 															// retrieval fails
 															// (for sanity check
 															// purposes)

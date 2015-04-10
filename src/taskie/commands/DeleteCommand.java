@@ -10,6 +10,7 @@ package taskie.commands;
 
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.DisplayType;
@@ -132,13 +133,20 @@ public class DeleteCommand extends AbstractCommand {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (TaskModificationFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 
 	
-	private void getTaskFromUI() throws InvalidTaskException {
-		_task = _controller.getUI().getTask(_taskIndex);
-		_taskName=_task.getTitle();
+	private void getTaskFromUI() throws InvalidTaskException, TaskRetrievalFailedException {
+		if(_taskIndex==0){
+			_task = _controller.getLastTask();
+			_taskName = _task.getTitle();
+		}else{
+			_task = _controller.getUI().getTask(_taskIndex);
+			_taskName=_task.getTitle();
+		}
 	}
 
 	private void deleteTaskField() {

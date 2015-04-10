@@ -108,7 +108,7 @@ public class Messages {
 	public static final String TASKDATEINVALIDEXCEPTION_MSG = "Task time not set"+NEWLINE;
 	public static final String TASKDATENOTSETEXCEPTION_MSG = "Task date not set"+NEWLINE;
 	public static final String TASKMODIFICATIONFAILEDEXCEPTION_MSG = "Modification of the task has failed"+NEWLINE;
-	public static final String TASKRETRIEVALFAILEDEXCEPTION_MSG = "Failed to retrieve tasks"+NEWLINE;
+	public static final String TASKRETRIEVALFAILEDEXCEPTION_MSG = "Failed to retrieve task(s)"+NEWLINE;
 	public static final String TASKTYPENOTSUPPORTEDEXCEPTION_MSG = "This task type is not supported."+NEWLINE;
 	public static final String UNDONOTSUPPORTEDEXCEPTION_MSG = "Undo is not supported for this command"+NEWLINE;
 	

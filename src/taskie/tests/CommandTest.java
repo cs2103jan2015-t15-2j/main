@@ -4,6 +4,9 @@ package taskie.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -321,13 +324,15 @@ public class CommandTest {
 		assertEquals(1,list.size());
 	}
 	
-//  @Test
-	public void testDirectoryCommand(){
-		String path = _controller.getStorage().getStorageLocation().toString();
-		path=path.concat("/Desktop");
-		DirectoryCommand cmd = new DirectoryCommand(path,false);
+  @Test
+	public void testDirectoryCommand() throws IOException{
+		String pathStr = _controller.getStorage().getStorageLocation().toString();
+		pathStr = pathStr.concat("/taskie_test");
+		Path path = Paths.get(pathStr);
+		Files.createDirectory(path);
+		DirectoryCommand cmd = new DirectoryCommand(pathStr,false);
 		cmd.execute();
-		assertEquals(path,_controller.getStorage().getStorageLocation().toString());
+		assertEquals(pathStr,_controller.getStorage().getStorageLocation().toString());
 	}
 	
 	

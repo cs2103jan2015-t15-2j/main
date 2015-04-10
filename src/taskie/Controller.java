@@ -20,9 +20,11 @@ import taskie.database.Configuration;
 import taskie.database.IStorage;
 import taskie.database.NStorage;
 import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.models.CommandType;
 import taskie.models.DisplayType;
 import taskie.models.Messages;
+import taskie.models.Task;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
 import taskie.ui.CommandUI;
@@ -35,6 +37,7 @@ public class Controller {
 	private Parser _parser;
 	private Stack<ICommand> _undoStack;
 	private Stack<ICommand> _redoStack;
+	private Task _lastTask;
 
 	protected UI _ui;
 	protected IStorage _storage;
@@ -68,6 +71,7 @@ public class Controller {
 			_undoStack = new Stack<ICommand>();
 			_redoStack = new Stack<ICommand>();
 			_storage = new NStorage(_config.getDatabasePath());
+			_lastTask=null;
 		} catch (IOException e) {
 			_logger.log(Level.SEVERE, "Critital: Unable to initialize Storage System");
 			System.out.println("Critital: Unable to initialize Storage System");
@@ -80,6 +84,18 @@ public class Controller {
 		}
 		return _instance;
 	}
+	
+	public Task getLastTask() throws TaskRetrievalFailedException {
+		if(_lastTask==null){
+			throw new TaskRetrievalFailedException();
+		}
+		return _lastTask;
+	}
+	
+	public void setLastTask(Task task){
+		_lastTask = task;
+	}
+	
 
 	public void run() {
 		_ui.run();

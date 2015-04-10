@@ -19,6 +19,7 @@ import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskDateInvalidException;
 import taskie.exceptions.TaskDateNotSetException;
 import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.DisplayType;
@@ -145,7 +146,7 @@ public class UpdateCommand extends AbstractCommand {
 		_logger.log(Level.INFO, "UPDATECOMMAND CONFIG: task Index: " + _taskIndex + " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): " + _startDateToUpdate + " " + _isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate + " " + _isToUpdateStartTime + "\nendDate(bool): " + _endDateToUpdate + " " + _isToUpdateEndDate + " time(bool):" + _endTimeToUpdate + " " + _isToUpdateEndTime);
 
 		try {
-			_oldTask = retrieveTaskToUpdateFromUI();
+			_oldTask = retrieveTaskToUpdate();
 			_logger.log(Level.INFO, "TASK FROM UI: " + _oldTask.toString());
 			_newTask = updateTask(_oldTask);
 			_controller.getStorage().updateTask(_oldTask, _newTask);
@@ -275,8 +276,14 @@ public class UpdateCommand extends AbstractCommand {
 
 	}
 
-	private Task retrieveTaskToUpdateFromUI() throws InvalidTaskException {
-		Task task = _controller.getUI().getTask(_taskIndex);
+	private Task retrieveTaskToUpdate() throws InvalidTaskException, TaskRetrievalFailedException {
+		Task task = null;
+		if(_taskIndex==0){
+			task=_controller.getLastTask();
+		}else{
+			task = _controller.getUI().getTask(_taskIndex);
+			_controller.setLastTask(task);
+		}
 		return task;
 	}
 

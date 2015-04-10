@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.CommandType;
 import taskie.models.DisplayType;
@@ -51,13 +52,14 @@ public class MarkCommand extends AbstractCommand {
 			try {
 				int index = _taskIndexes[x];
 
-				_task = retrieveTaskFromUI(index);
+				_task = retrieveTask(index);
 				Task updatedTask = new Task(_task);
 
 				if (_task.isDone()) {
 					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_DONE);
 				} else {
 					updatedTask.setTaskDone();
+					_controller.setLastTask(updatedTask);
 					_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
 				}
 				try {
@@ -70,6 +72,8 @@ public class MarkCommand extends AbstractCommand {
 
 			} catch (InvalidTaskException e) {
 				_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.INVALID_TASK_NUM);
+			} catch (TaskRetrievalFailedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}
 		}
 	}
@@ -78,8 +82,13 @@ public class MarkCommand extends AbstractCommand {
 		return String.format(taskie.models.Messages.MARK_STRING, _task.getTitle());
 	}
 
-	private Task retrieveTaskFromUI(int index) throws InvalidTaskException {
-		Task task = _controller.getUI().getTask(index);
+	private Task retrieveTask(int index) throws InvalidTaskException, TaskRetrievalFailedException {
+		Task task = null;
+		if(index==0){
+			task = _controller.getLastTask();
+		}else{
+			task = _controller.getUI().getTask(index);
+		}
 		return task;
 	}
 
