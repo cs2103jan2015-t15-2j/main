@@ -56,7 +56,6 @@ public class UnmarkCommand extends AbstractCommand {
 
 				if (_task.isDone()) {
 					updatedTask.setTaskUndone();
-					_controller.setLastTask(updatedTask);
 					_controller.getUI().display(DisplayType.ERROR, formatUnmarkString());
 				} else {
 					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_NOT_DONE);
