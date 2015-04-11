@@ -167,7 +167,7 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		// Test Mix with "Public Holidays"
-		expectedCommand = new AddCommand("Buy groceries for new year", null, null, _today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)), null);
+		expectedCommand = new AddCommand("Buy groceries for new year", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), null);
 		actualCommand = _parser.parse("add Buy groceries by saturday for new year");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
@@ -193,7 +193,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("add Attend CS2103 Meeting from tomorrow 10am to 6pm");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
-		expectedCommand = new AddCommand("Prepare Cousin Wedding", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(10, 0), _today.with(TemporalAdjusters.next(DayOfWeek.SUNDAY)), LocalTime.of(18, 0));
+		expectedCommand = new AddCommand("Prepare Cousin Wedding", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(10, 0), _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)), LocalTime.of(18, 0));
 		actualCommand = _parser.parse("add Prepare Cousin Wedding from saturday 10am to sunday 6pm");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
