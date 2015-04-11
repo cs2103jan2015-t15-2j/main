@@ -46,7 +46,7 @@ public class Messages {
 
 	// DirectoryCommand messages
 	public static final String DIRECTORY_CHANGED = "Directory changed to %s" + NEWLINE;
-	public static final String DIRECTORY_NOT_CHANGED = "";
+	public static final String DIRECTORY_NOT_CHANGED = "Directory has not been changed.";
 	public static final String DIRECTORY_INVALID = "The directory you selected is not valid." + NEWLINE;
 	public static final String DIRECTORY_FILE_EXISTS = "The directory you selected contains an existing Taskie Database." + NEWLINE;
 	public static final String DIRECTORY_CHANGE_FAILED = "Directory change failed." + NEWLINE;
