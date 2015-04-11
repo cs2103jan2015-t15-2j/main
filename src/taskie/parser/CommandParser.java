@@ -352,7 +352,7 @@ public class CommandParser implements Parser {
 	 * 
 	 * @param command	COMMAND_DATE generated from parseCommandForNameAndDates
 	 * @return			DateGroup from Natty containing the detected date/time elements
-	 */		
+	 */	
 	private DateGroup parseCommandForDates(String command) {
 		if ( command == null ) { 
 			return null;
