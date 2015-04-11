@@ -8,6 +8,7 @@
 
 package taskie.commands;
 
+import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
@@ -116,7 +117,10 @@ public class DeleteCommand extends AbstractCommand {
 	public void execute() {
 		try {
 			if ( _taskName == null ) {
-				getTaskFromUI();
+				retrieveTaskToDelete();
+				if(_task==null){
+					throw new InvalidCommandException();
+				}
 			}
 			
 			if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate()
@@ -135,11 +139,13 @@ public class DeleteCommand extends AbstractCommand {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		} catch (InvalidCommandException e) {
+			_controller.getUI().display(DisplayType.ERROR,e.getMessage());
 		}
 	}
 
 	
-	private void getTaskFromUI() throws InvalidTaskException, TaskRetrievalFailedException {
+	private void retrieveTaskToDelete() throws InvalidTaskException, TaskRetrievalFailedException {
 		if(_taskIndex==0){
 			_task = _controller.getLastTask();
 			_taskName = _task.getTitle();
