@@ -203,7 +203,18 @@ public class UpdateCommand extends AbstractCommand {
 				updateEndDateTime = LocalDateTime.of(updateEndDate, updateEndTime);
 			}
 		}
+		
+		checkForConsistencyAndPushUpdate(updatedTask, updateStartDate,
+				updateStartTime, updateEndDate, updateEndTime,
+				updateStartDateTime, updateEndDateTime);
+	}
 
+	private void checkForConsistencyAndPushUpdate(Task updatedTask,
+			LocalDate updateStartDate, LocalTime updateStartTime,
+			LocalDate updateEndDate, LocalTime updateEndTime,
+			LocalDateTime updateStartDateTime, LocalDateTime updateEndDateTime)
+			throws TaskDateInvalidException, TaskDateNotSetException,
+			InvalidCommandException {
 		if (isConsistent(updateStartDate, updateStartTime, updateEndDate, updateEndTime, updateStartDateTime, updateEndDateTime)) {
 			updatedTask.initialiseStaging();
 			updatedTask.stageUpdateStartDate(updateStartDate);
