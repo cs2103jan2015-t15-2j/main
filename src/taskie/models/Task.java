@@ -178,12 +178,17 @@ public class Task implements Comparable<Task> {
 			throw new TaskDateNotSetException();
 		}
 		
-		LocalDateTime startDateTime = this.getStartDateTime();
-		LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime == null ? LocalTime.MAX : endTime);
-		
-		if ( startDateTime != null && endDateTime.isBefore(startDateTime) ) {
-			// Invalid State - End Date / Time is before Start Date / Time
-			throw new TaskDateInvalidException();			
+		if ( endDate == null && endTime == null ) {
+			// Start Date and Time should be removed if End Date and Time are removed
+			this.setStartDateTime(null, null);
+		} else {
+			LocalDateTime startDateTime = this.getStartDateTime();
+			LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime == null ? LocalTime.MAX : endTime);
+			
+			if ( startDateTime != null && endDateTime.isBefore(startDateTime) ) {
+				// Invalid State - End Date / Time is before Start Date / Time
+				throw new TaskDateInvalidException();			
+			}
 		}
 		
 		_endDate = endDate;
