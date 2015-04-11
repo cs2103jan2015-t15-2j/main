@@ -2,6 +2,7 @@
 package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -339,21 +340,35 @@ public class CommandTest {
 		assertEquals(1,list.size());
 	}
 	
-  @Test
+	//@author A0121555M
+	@Test
 	public void testDirectoryCommand() throws IOException{
-		String pathStr = _controller.getStorage().getStorageLocation().toString();
-		pathStr = pathStr.concat("/taskie_test");
-		Path path = Paths.get(pathStr);
-		Files.createDirectory(path);
-		DirectoryCommand cmd = new DirectoryCommand(pathStr,false);
+		Path pathStr = _controller.getStorage().getStorageLocation();
+		Path databaseLocation = pathStr.resolve("taskie.txt");
+		Path newPathStr = pathStr.resolve("taskie_test_folder");
+		Path newDatabaseLocation = newPathStr.resolve("taskie.txt");
+		Files.createDirectory(newPathStr);
+		DirectoryCommand cmd = new DirectoryCommand(newPathStr.toString(), false);
 		cmd.execute();
-		assertEquals(pathStr,_controller.getStorage().getStorageLocation().toString());
+		
+		if ( !Files.isRegularFile(newDatabaseLocation) ) {
+			fail("Failed to migrate file to " + newDatabaseLocation);
+		}
+
+		assertEquals(newPathStr.toString(), _controller.getStorage().getStorageLocation().toString());
+
+		// Migrate Back
+		cmd = new DirectoryCommand(pathStr.toString(), false);
+		cmd.execute();
+
+		if ( !Files.isRegularFile(databaseLocation) ) {
+			fail("Failed to migrate file back to to " + databaseLocation);
+		}
+		Files.deleteIfExists(newPathStr);
+		assertEquals(pathStr.toString(), _controller.getStorage().getStorageLocation().toString());
 	}
 	
-	
-	
-	
-	
+	//@author A0097582N
 	private void addTask(String taskName,LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName(taskName);
