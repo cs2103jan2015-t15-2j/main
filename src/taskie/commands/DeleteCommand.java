@@ -35,12 +35,10 @@ public class DeleteCommand extends AbstractCommand {
 	//@author A0121555M
 	public DeleteCommand(int itemNumber) {
 		_taskIndexes = new int[] { itemNumber };
-		this.retrieveTasks();
 	}
 
 	public DeleteCommand(int[] itemNumbers) {
 		_taskIndexes = itemNumbers;
-		this.retrieveTasks();
 	}
 
 	public DeleteCommand(Task task) {
@@ -96,13 +94,14 @@ public class DeleteCommand extends AbstractCommand {
 
 	@Override
 	public void execute() {
+		this.retrieveTasks();
+
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
 
 				if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate() || canDeleteEndTime()) {
-					// if either of these methods returned true, only task
-					// fields are to be deleted.
+					// if either of these methods returned true, only task fields are to be deleted.
 					deleteTaskField();
 					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskFieldString());
 				} else {
@@ -137,6 +136,10 @@ public class DeleteCommand extends AbstractCommand {
 
 	//@author A0121555M
 	private void retrieveTasks() {
+		if ( _taskIndexes == null ) {
+			return;
+		}
+		
 		for (int x = 0; x < _taskIndexes.length; x++) {
 			try {
 				int index = _taskIndexes[x];
