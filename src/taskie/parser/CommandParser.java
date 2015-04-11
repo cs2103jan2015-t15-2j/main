@@ -59,7 +59,7 @@ public class CommandParser implements Parser {
 	private static final String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
 	private static final String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
 	
-	private static final String[] OVERWRITE_KEYWORDS = new String[] { "overwrite" };
+	private static final String[] DIRECTORY_OVERWRITE_KEYWORDS = new String[] { "overwrite" };
 	
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
@@ -769,7 +769,7 @@ public class CommandParser implements Parser {
 			int LAST_WORD = words.length - 1;
 			boolean overwrite = false;
 			
-			if ( hasKeyword(words[FIRST_WORD], OVERWRITE_KEYWORDS) || hasKeyword(words[LAST_WORD], OVERWRITE_KEYWORDS))
+			if ( hasKeyword(words[FIRST_WORD], DIRECTORY_OVERWRITE_KEYWORDS) || hasKeyword(words[LAST_WORD], DIRECTORY_OVERWRITE_KEYWORDS))
 			{
 				overwrite = true;
 			}
