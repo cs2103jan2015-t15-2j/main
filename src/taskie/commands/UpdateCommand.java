@@ -158,97 +158,11 @@ public class UpdateCommand extends AbstractCommand {
 				updatedTask.setTitle(this.getTaskTitleToUpdate());
 			}
 		}
-		if (isModifiedStartDate() || isModifiedStartTime() || isModifiedEndDate() || isModifiedEndTime()) {
-			updateTaskDates(task, updatedTask);
-		}
+		
+		updatedTask.setStartDateTime(isModifiedStartDate() ? _startDateToUpdate : task.getStartDate(), isModifiedStartTime() ? _startTimeToUpdate : task.getStartTime());
+		updatedTask.setEndDateTime(isModifiedEndDate() ? _endDateToUpdate : task.getEndDate(), isModifiedEndTime() ? _endTimeToUpdate : task.getEndTime());
 
 		return updatedTask;
-	}
-
-	private void updateTaskDates(Task task, Task updatedTask) throws TaskDateInvalidException, TaskDateNotSetException, InvalidCommandException {
-		LocalDate updateStartDate = task.getStartDate();
-		LocalTime updateStartTime = task.getStartTime();
-		LocalDate updateEndDate = task.getEndDate();
-		LocalTime updateEndTime = task.getEndTime();
-		LocalDateTime updateStartDateTime;
-		LocalDateTime updateEndDateTime;
-
-		if (isModifiedStartDate()) {
-			updateStartDate = _startDateToUpdate;
-		}
-		if (isModifiedStartTime()) {
-			updateStartTime = _startTimeToUpdate;
-		}
-		if (isModifiedEndDate()) {
-			updateEndDate = _endDateToUpdate;
-		}
-		if (isModifiedEndTime()) {
-			updateEndTime = _endTimeToUpdate;
-		}
-		if (updateStartDate == null) {
-			updateStartDateTime = null;
-		} else {
-			if (updateStartTime == null) {
-				updateStartDateTime = LocalDateTime.of(updateStartDate, LocalTime.MAX);
-			} else {
-				updateStartDateTime = LocalDateTime.of(updateStartDate, updateStartTime);
-			}
-		}
-		if (updateEndDate == null) {
-			updateEndDateTime = null;
-		} else {
-			if (updateEndTime == null) {
-				updateEndDateTime = LocalDateTime.of(updateEndDate, LocalTime.MAX);
-			} else {
-				updateEndDateTime = LocalDateTime.of(updateEndDate, updateEndTime);
-			}
-		}
-		
-		checkForConsistencyAndPushUpdate(updatedTask, updateStartDate,
-				updateStartTime, updateEndDate, updateEndTime,
-				updateStartDateTime, updateEndDateTime);
-	}
-
-	private void checkForConsistencyAndPushUpdate(Task updatedTask,
-			LocalDate updateStartDate, LocalTime updateStartTime,
-			LocalDate updateEndDate, LocalTime updateEndTime,
-			LocalDateTime updateStartDateTime, LocalDateTime updateEndDateTime)
-			throws TaskDateInvalidException, TaskDateNotSetException,
-			InvalidCommandException {
-		if (isConsistent(updateStartDate, updateStartTime, updateEndDate, updateEndTime, updateStartDateTime, updateEndDateTime)) {
-			updatedTask.initialiseStaging();
-			updatedTask.stageUpdateStartDate(updateStartDate);
-			updatedTask.stageUpdateStartTime(updateStartTime);
-			updatedTask.stageUpdateEndDate(updateEndDate);
-			updatedTask.stageUpdateEndTime(updateEndTime);
-			updatedTask.pushStageToActual();
-		} else if (isModifiedStartDate() || isModifiedStartTime()) {
-			updatedTask.initialiseStaging();
-			updatedTask.setStartDate(updateStartDate);
-			updatedTask.setStartTime(updateStartTime);
-			updatedTask.pushStageToActual();
-
-		} else {
-			throw new InvalidCommandException(Messages.INVALID_COMMAND);
-		}
-	}
-
-	private Boolean isConsistent(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-		if (startDate == null && startTime != null) {
-			return false;
-		}
-
-		if (endDate == null && endTime != null) {
-			return false;
-		}
-		if (startDateTime != null && endDateTime == null) {
-			return false;
-		}
-
-		if (startDateTime != null && endDateTime != null && startDateTime.isAfter(endDateTime)) {
-			return false;
-		}
-		return true;
 	}
 
 	private String formatUpdateMsg(Task task) {
