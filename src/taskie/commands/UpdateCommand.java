@@ -32,11 +32,11 @@ public class UpdateCommand extends AbstractCommand {
 	private Task _newTask;
 
 	private int _taskIndex;
-	private String _taskTitleToUpdate;
-	private LocalDate _startDateToUpdate;
-	private LocalTime _startTimeToUpdate;
-	private LocalDate _endDateToUpdate;
-	private LocalTime _endTimeToUpdate;
+	private String _taskTitleToUpdate = null;
+	private LocalDate _startDateToUpdate = null;
+	private LocalTime _startTimeToUpdate = null;
+	private LocalDate _endDateToUpdate = null;
+	private LocalTime _endTimeToUpdate = null;
 
 	private Boolean _isToUpdateTaskTitle = false;
 	private Boolean _isToUpdateStartDate = false;
@@ -48,21 +48,10 @@ public class UpdateCommand extends AbstractCommand {
 	private Logger _logger = Logger.getLogger(UpdateCommand.class.getName());
 
 	public UpdateCommand() {
-		_taskTitleToUpdate = null;
-		_startDateToUpdate = null;
-		_startTimeToUpdate = null;
-		_endDateToUpdate = null;
-		_endTimeToUpdate = null;
-
 	}
 
 	public UpdateCommand(int taskIndex) {
 		_taskIndex = taskIndex;
-		_taskTitleToUpdate = null;
-		_startDateToUpdate = null;
-		_startTimeToUpdate = null;
-		_endDateToUpdate = null;
-		_endTimeToUpdate = null;
 	}
 
 	public CommandType getCommandType() {
