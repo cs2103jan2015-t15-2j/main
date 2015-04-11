@@ -42,7 +42,7 @@ public class DirectoryCommand extends AbstractCommand {
 			String folder;
 			Path currentFolder = _controller.getStorage().getStorageLocation();
 
-			if ( _path.equals("") ) {
+			if ( _path.isEmpty() ) {
 				folder = _controller.getUI().loadSelectDirectoryDialog(currentFolder.toString());
 			} else {
 				folder = _path;
