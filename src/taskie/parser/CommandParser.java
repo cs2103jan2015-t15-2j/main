@@ -239,7 +239,7 @@ public class CommandParser implements Parser {
 		}
 	}
 	
-	private String determineTaskName(String[] parsedCommand, DateGroup group) {
+	private String buildTaskName(String[] parsedCommand, DateGroup group) {
 		String command = parsedCommand[COMMAND_DATE];
 		_logger.log(Level.INFO, "Determining Task Name from: " + command + "\nDateGroup Start at position: " + group.getPosition());
 
@@ -364,7 +364,7 @@ public class CommandParser implements Parser {
 			// Tasks with date and/or time in it - either deadline or timed
 			List<Date> dates = group.getDates();
 			
-			String name = determineTaskName(parsedCommand, group);
+			String name = buildTaskName(parsedCommand, group);
 			if ( name.isEmpty() ) {
 				throw new InvalidCommandException(CommandType.ADD);
 			}
@@ -432,7 +432,7 @@ public class CommandParser implements Parser {
 			// Date and Time Specified
 			List<Date> dates = group.getDates();
 
-			String name = determineTaskName(parsedQuery, group);
+			String name = buildTaskName(parsedQuery, group);
 			if ( !name.isEmpty() ) {
 				// updating title also
 				cmd.setTaskTitleToUpdate(name);
