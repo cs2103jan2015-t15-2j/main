@@ -69,14 +69,6 @@ public class UpdateCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	public int getTaskIndex() {
-		return _taskIndex;
-	}
-
-	public void setTaskIndex(int taskIndex) {
-		this._taskIndex = taskIndex;
-	}
-
 	public void setTaskTitleToUpdate(String title) {
 		_isToUpdateTaskTitle = true;
 		_taskTitleToUpdate = title;

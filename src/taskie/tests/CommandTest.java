@@ -202,9 +202,8 @@ public class CommandTest {
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
-		UpdateCommand update = new UpdateCommand();
+		UpdateCommand update = new UpdateCommand(1);
 		update.setTaskTitleToUpdate("bar");
-		update.setTaskIndex(1);
 		update.execute();
 		
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
@@ -221,10 +220,9 @@ public class CommandTest {
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
-		UpdateCommand update = new UpdateCommand();
+		UpdateCommand update = new UpdateCommand(1);
 		update.setEndDateToUpdate(_time2Date);
 		update.setEndTimeToUpdate(_time2Time);
-		update.setTaskIndex(1);
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo",_time2);
@@ -240,12 +238,11 @@ public class CommandTest {
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI()
 				.display(tasks.toArray(new Task[tasks.size()]));
-		UpdateCommand update = new UpdateCommand();
+		UpdateCommand update = new UpdateCommand(1);
 		update.setEndDateToUpdate(_time3Date);
 		update.setEndTimeToUpdate(_time3Time);
 		update.setStartDateToUpdate(_time2Date);
 		update.setStartTimeToUpdate(_time2Time);
-		update.setTaskIndex(1);
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		Task expectedTask = new Task("foo",_time2,_time3);
@@ -265,10 +262,9 @@ public class CommandTest {
 		
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI().display(tasks.toArray(new Task[tasks.size()]));
-		UpdateCommand update = new UpdateCommand();
+		UpdateCommand update = new UpdateCommand(1);
 		update.setStartDateToUpdate(_time2Date);
 		update.setStartTimeToUpdate(_time2Time);
-		update.setTaskIndex(1);
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		
@@ -284,9 +280,8 @@ public class CommandTest {
 		setUp();
 		addTask("foo",_time1,_time2);
 		
-		UpdateCommand update = new UpdateCommand();
+		UpdateCommand update = new UpdateCommand(0);
 		update.setTaskTitleToUpdate("bar");
-		update.setTaskIndex(0);
 		update.execute();
 		
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
