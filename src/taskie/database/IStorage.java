@@ -13,6 +13,10 @@ import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
 
+/**
+ * IStorage is an interface that manages the Creating, Reading, Updating and Deleting (CRUD) of Tasks in the database
+ * It also manages the location of files in the database
+ */
 public interface IStorage {
 	Path getStorageLocation();
 

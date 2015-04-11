@@ -16,8 +16,8 @@ public class Taskie {
 	private static void configureLogger() {
 		FileHandler fh;
 		try {
+			// Redirect all logging output to the TEMP Folder on the system
 			LogManager.getLogManager().reset();
-
 			fh = new FileHandler("%t/" + LOGGER_FILENAME);
 			Logger.getLogger("").addHandler(fh);
 		} catch (SecurityException e) {

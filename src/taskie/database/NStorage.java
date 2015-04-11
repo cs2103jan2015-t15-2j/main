@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.exceptions.FileExistsException;
+import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.StorageLocationInvalidException;
 import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.TaskModificationFailedException;
@@ -20,7 +21,6 @@ import taskie.models.Task;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 public class NStorage implements IStorage {
 	private static final String DATABASE_FILENAME = "taskie.txt";
 
@@ -46,14 +46,34 @@ public class NStorage implements IStorage {
 		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
 	}
 
+	/**
+	 * Retrieve the current stage location
+	 * 
+	 * @return	Directory of the Current Storage Location
+	 */
 	public Path getStorageLocation() {
 		return _databasePath.toAbsolutePath().getParent();
 	}
 	
+	/**
+	 * Retrieve the current stage location
+	 * 
+	 * @param newDirectory	Existing directory to store file in
+	 * @return				Directory of the Current Storage Location
+	 */
 	public void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
 		this.setStorageLocation(newDirectory, false);
 	}
-
+	
+	/**
+	 * Sets the storage location to newDirectory
+	 * By default, this function does not overwrite existing files.
+	 * If a file exists in the directory, it will switch to use that file instead.
+	 * 
+	 * @param newDirectory	Existing directory to store file in
+	 * @param overwrite		Overwrite files if they already exist? False indicates to just use the existing files. True to overwrite.
+	 * @return				Directory of the Current Storage Location
+	 */
 	public void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
 		if (newDirectory.toString().equals(this.getStorageLocation())) {
 			return;
@@ -96,7 +116,12 @@ public class NStorage implements IStorage {
 		
 		_tasks = retrieveTaskList();
 	}
-
+	
+	/**
+	 * Store a new task in the database
+	 * 
+	 * @param task	Task to store
+	 */
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
 			this.addToTaskList(task);
@@ -105,7 +130,12 @@ public class NStorage implements IStorage {
 			throw new TaskModificationFailedException(e);
 		}
 	}
-
+	
+	/**
+	 * Find a task and delete it
+	 * 
+	 * @param task	Task to delete
+	 */
 	public void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
 			boolean status = this.removeFromTaskList(task);
@@ -119,6 +149,12 @@ public class NStorage implements IStorage {
 		}
 	}
 
+	/**
+	 * Replace an existing task with another task
+	 * 
+	 * @param oldTask	Current Task
+	 * @param newTask	New Task to replace the current task wwith
+	 */
 	public void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
 			boolean status = this.removeFromTaskList(oldTask);
@@ -133,6 +169,9 @@ public class NStorage implements IStorage {
 		}
 	}
 
+	/**
+	 * Delete all tasks in the database
+	 */
 	public void clearAllTasks() throws TaskModificationFailedException {
 		try {
 			_tasks.clear();
@@ -175,6 +214,9 @@ public class NStorage implements IStorage {
 		_db.write(json);
 	}
 
+	/**
+	 * Closes the database to relase locks on the database file
+	 */
 	public void close() throws IOException {
 		_logger.log(Level.INFO, "Closing Storage");
 		_db.close();
