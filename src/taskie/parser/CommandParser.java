@@ -29,6 +29,7 @@ import taskie.commands.UnmarkCommand;
 import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.InvalidRangeException;
 import taskie.models.CommandType;
 import taskie.models.ViewType;
 
@@ -546,36 +547,15 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
-		ArrayList<Integer> items = new ArrayList<Integer>();
-
 		try {
-			for ( String part : parts ) {
-				String[] range = CommandParser.splitStringWithDash(part);
-				if ( range.length == 1 ) {
-					int number = Integer.parseInt(range[0]);
-					items.add(number);
-					_logger.log(Level.INFO, "Deleting Task: {0}", number);
-				} else if ( range.length == 2 ) {
-					int minimum = Integer.parseInt(range[0]);
-					int maximum = Integer.parseInt(range[1]);
-					if ( minimum > maximum ) {
-						throw new InvalidCommandException(CommandType.MARK);
-					}
-					
-					for ( int y = minimum; y <= maximum; y++ ) {
-						items.add(y);
-						_logger.log(Level.INFO, "Deleting Task: {0}", y);
-					}					
-				} else {
-					throw new InvalidCommandException(CommandType.MARK);
-				}
+			_logger.log(Level.FINE, "Finding ranges for Delete Command");
+			ArrayList<Integer> items = this.getRanges(parameters);
+			DeleteCommand cmd = new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
 			}
-		} catch (NumberFormatException e) {
-			throw new InvalidCommandException(CommandType.MARK);
+			return cmd;
+		} catch (InvalidRangeException e) {
+			throw new InvalidCommandException(CommandType.DELETE);
 		}
-
-		return new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
 	}
 	
 	private ICommand doView(String command) {
@@ -689,36 +669,13 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
-		ArrayList<Integer> items = new ArrayList<Integer>();
-
 		try {
-			for ( String part : parts ) {
-				String[] range = CommandParser.splitStringWithDash(part);
-				if ( range.length == 1 ) {
-					int number = Integer.parseInt(range[0]);
-					items.add(number);
-					_logger.log(Level.INFO, "Marking Task {0} as Complete", number);
-				} else if ( range.length == 2 ) {
-					int minimum = Integer.parseInt(range[0]);
-					int maximum = Integer.parseInt(range[1]);
-					if ( minimum > maximum ) {
-						throw new InvalidCommandException(CommandType.MARK);
-					}
-					
-					for ( int y = minimum; y <= maximum; y++ ) {
-						items.add(y);
-						_logger.log(Level.INFO, "Marking Task {0} as Complete", y);
-					}					
-				} else {
-					throw new InvalidCommandException(CommandType.MARK);
-				}
-			}
-		} catch (NumberFormatException e) {
+			_logger.log(Level.FINE, "Finding ranges to Mark as Complete for Mark Command");
+			ArrayList<Integer> items = this.getRanges(command);
+			return new MarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
+		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.MARK);
 		}
-
-		return new MarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 	}
 	
 	private ICommand doUnmark(String command) throws InvalidCommandException {
@@ -728,36 +685,13 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
-		ArrayList<Integer> items = new ArrayList<Integer>();
-		
 		try {
-			for ( String part : parts ) {
-				String[] range = CommandParser.splitStringWithDash(part);
-				if ( range.length == 1 ) {
-					int number = Integer.parseInt(range[0]);
-					items.add(number);
-					_logger.log(Level.INFO, "Marking Task {0} as Incomplete", number);
-				} else if ( range.length == 2 ) {
-					int minimum = Integer.parseInt(range[0]);
-					int maximum = Integer.parseInt(range[1]);
-					if ( minimum > maximum ) {
-						throw new InvalidCommandException(CommandType.UNMARK);
-					}
-					
-					for ( int y = minimum; y <= maximum; y++ ) {
-						items.add(y);
-						_logger.log(Level.INFO, "Marking Task {0} as Incomplete", y);
-					}					
-				} else {
-					throw new InvalidCommandException(CommandType.UNMARK);
-				}
-			}
-		} catch (NumberFormatException e) {
+			_logger.log(Level.FINE, "Finding ranges to Mark as Incomplete for Unmark Command");
+			ArrayList<Integer> items = this.getRanges(command);
+			return new UnmarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
+		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.UNMARK);
 		}
-
-		return new UnmarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 	}
 
 	private ICommand doDirectory(String command) {
@@ -795,6 +729,43 @@ public class CommandParser implements Parser {
 	private ICommand doExit() {
 		_logger.log(Level.INFO, "Exiting Taskie");
 		return new ExitCommand();
+	}
+	
+	private ArrayList<Integer> getRanges(String parameter) throws InvalidRangeException {
+		String[] parts = parameter.split(PATTERN_MULTI_TASK_SEPARATOR);
+		return this.getRanges(parts);
+	}
+	
+	private ArrayList<Integer> getRanges(String[] parts) throws InvalidRangeException {
+		ArrayList<Integer> items = new ArrayList<Integer>();
+		
+		for ( String part : parts ) {
+			String[] range = CommandParser.splitStringWithDash(part);
+			if ( range.length == 1 ) {
+				try {
+					int number = Integer.parseInt(range[0]);
+					items.add(number);
+					_logger.log(Level.FINE, "Found Task to Range: {0}", number);
+				} catch ( NumberFormatException e ) {
+					throw new InvalidRangeException();
+				}
+			} else if ( range.length == 2 ) {
+				int minimum = Integer.parseInt(range[0]);
+				int maximum = Integer.parseInt(range[1]);
+				if ( minimum > maximum ) {
+					throw new InvalidRangeException();
+				}
+				
+				for ( int y = minimum; y <= maximum; y++ ) {
+					items.add(y);
+					_logger.log(Level.FINE, "Adding Task to Range: {0}", y);
+				}					
+			} else {
+				throw new InvalidRangeException();
+			}
+		}
+		
+		return items;
 	}
 	
 	private static LocalDateTime[] getStartAndEndDateTime(List<Date> dates) {
