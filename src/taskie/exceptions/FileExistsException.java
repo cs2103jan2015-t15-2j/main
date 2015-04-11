@@ -3,7 +3,7 @@ package taskie.exceptions;
 
 public class FileExistsException extends Exception {
 	private static final long serialVersionUID = 3659402484486185953L;
-	private static final String DEFAULT_MESSAGE = taskie.models.Messages.FILEEXISTSEXCEPTION_MSG;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.FILE_EXISTS_EXCEPTION;
 
 	public FileExistsException() {
 		super(DEFAULT_MESSAGE);

@@ -6,7 +6,7 @@ import taskie.models.CommandType;
 
 public class InvalidCommandException extends Exception {
 	private static final long serialVersionUID = -3383752749913995882L;
-	private static final String DEFAULT_MESSAGE = taskie.models.Messages.INVALIDCOMMANDEXCEPTION_MSG;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.INVALID_COMMAND_EXCEPTION;
 	private HelpCommand _help;
 
 	public InvalidCommandException() {

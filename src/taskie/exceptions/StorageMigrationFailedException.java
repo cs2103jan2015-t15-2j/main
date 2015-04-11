@@ -3,7 +3,7 @@ package taskie.exceptions;
 
 public class StorageMigrationFailedException extends Exception {
 	private static final long serialVersionUID = -2824504424968793164L;
-	private static final String DEFAULT_MESSAGE = taskie.models.Messages.STORAGEMIGRATIONFAILEDEXCEPTION_MSG;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.STORAGE_MIGRATION_FAILED_EXCEPTION;
 
 	public StorageMigrationFailedException() {
 		super(DEFAULT_MESSAGE);
