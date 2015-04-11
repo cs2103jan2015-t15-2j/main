@@ -1,14 +1,13 @@
 //@author A0097582N
 package taskie.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
