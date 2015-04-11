@@ -35,12 +35,12 @@ public class DeleteCommand extends AbstractCommand {
 	//@author A0121555M
 	public DeleteCommand(int itemNumber) {
 		_taskIndexes = new int[] { itemNumber };
-		this.retrieveTasks(_taskIndexes);
+		this.retrieveTasks();
 	}
 
 	public DeleteCommand(int[] itemNumbers) {
 		_taskIndexes = itemNumbers;
-		this.retrieveTasks(_taskIndexes);
+		this.retrieveTasks();
 	}
 
 	public DeleteCommand(Task task) {
@@ -56,8 +56,7 @@ public class DeleteCommand extends AbstractCommand {
 	//@author A0097582N
 	public void setToDeleteStartDate() {
 		_deleteStartDate = true;
-		_deleteStartTime = true; // if startDate is to be deleted, startTime
-									// will be deleted too
+		_deleteStartTime = true; // if startDate is to be deleted, startTime will be deleted too
 	}
 
 	public Boolean canDeleteStartDate() {
@@ -137,10 +136,10 @@ public class DeleteCommand extends AbstractCommand {
 	}
 
 	//@author A0121555M
-	private void retrieveTasks(int[] taskIndexes) {
-		for (int x = 0; x < taskIndexes.length; x++) {
+	private void retrieveTasks() {
+		for (int x = 0; x < _taskIndexes.length; x++) {
 			try {
-				int index = taskIndexes[x];
+				int index = _taskIndexes[x];
 				if (index == 0) {
 					_tasks.add(_controller.getLastTask());
 				} else {
