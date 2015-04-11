@@ -47,7 +47,6 @@ public class MarkCommand extends AbstractCommand {
 	}
 
 	public void execute() {
-
 		for (int x = 0; x < _taskIndexes.length; x++) {
 			try {
 				int index = _taskIndexes[x];
