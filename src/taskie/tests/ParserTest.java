@@ -48,7 +48,7 @@ public class ParserTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		_parser = new CommandParser();
-		_now = LocalDateTime.now();
+		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);
 		
 		_today = _now.toLocalDate();
 		_time = _now.toLocalTime();
