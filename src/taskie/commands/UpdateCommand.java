@@ -47,6 +47,10 @@ public class UpdateCommand extends AbstractCommand {
 
 	private Logger _logger = Logger.getLogger(UpdateCommand.class.getName());
 
+	public UpdateCommand(Task task) {
+		_oldTask = task;
+	}
+
 	public UpdateCommand(int taskIndex) {
 		_taskIndex = taskIndex;
 	}
