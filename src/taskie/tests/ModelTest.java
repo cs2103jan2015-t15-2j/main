@@ -22,14 +22,14 @@ import taskie.models.Task;
 
 @RunWith(value = Parameterized.class)
 public class ModelTest {
-	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
-	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
-	private static final String TASK_1_NAME = "Test - Time before Current"; // e.g. 28/3/2015 11.15am to 30/3/2015 9.15am
-	private static final String TASK_2_NAME = "Test - Time after Current"; // e.g. 28/3/2015 11.15am to 30/3/2015 1.15pm
-	private static final String TASK_3_NAME = "Test - Time equal Current"; // e.g. 28/3/2015 11.15am to 30/3/2015 11.15am
-	private static final String TASK_4_NAME = "Test - Same day, time after current"; // e.g. 28/3/2015 11.15am to 28/3/2015 1.15pm
-	private static final String TASK_5_NAME = "Test - Same day and time"; // e.g. 28/3/2015 11.15am to 28/3/2015 11.15am
-	private static final String TASK_6_NAME = "Test - Deadlined Task"; // e.g. null to 30/3/2015 11.15am 
+	private static final String TASK_0_NAME = "Test - Time before Current"; // e.g. 28/3/2015 11.15am to 30/3/2015 9.15am
+	private static final String TASK_1_NAME = "Test - Time after Current"; // e.g. 28/3/2015 11.15am to 30/3/2015 1.15pm
+	private static final String TASK_2_NAME = "Test - Time equal Current"; // e.g. 28/3/2015 11.15am to 30/3/2015 11.15am
+	private static final String TASK_3_NAME = "Test - Same day, time after current"; // e.g. 28/3/2015 11.15am to 28/3/2015 1.15pm
+	private static final String TASK_4_NAME = "Test - Same day and time"; // e.g. 28/3/2015 11.15am to 28/3/2015 11.15am
+	private static final String TASK_5_NAME = "Test - Deadlined Task"; // e.g. null to 30/3/2015 11.15am 
+	private static final String TASK_6_NAME = "Test - Task with only date"; // e.g. null to 30/3/2015
+	private static final String TASK_7_NAME = "Test - Deadlined Task with only date"; // e.g. null to 30/3/2015
 	
 	private static LocalDateTime _now;
 
@@ -47,25 +47,47 @@ public class ModelTest {
 	public static Iterable<Object[]> dataset() throws Exception {
 		setUpBeforeClass();
 		return Arrays.asList(new Object[][] { 
-				{ TASK_1_NAME, _now, _now.plusDays(2).plusHours(-2) },
-				{ TASK_2_NAME, _now, _now.plusDays(2).plusHours(2) }, 
-				{ TASK_3_NAME, _now, _now.plusDays(2) }, 
-				{ TASK_4_NAME, _now, _now.plusHours(2) }, 
-				{ TASK_5_NAME, _now, _now }, 
-				{ TASK_6_NAME, null, _now.plusDays(2) },
+				{ TASK_0_NAME, _now, _now.plusDays(2).plusHours(-2), false },
+				{ TASK_1_NAME, _now, _now.plusDays(2).plusHours(2), false }, 
+				{ TASK_2_NAME, _now, _now.plusDays(2), false }, 
+				{ TASK_3_NAME, _now, _now.plusHours(2), false }, 
+				{ TASK_4_NAME, _now, _now, false }, 
+				{ TASK_5_NAME, null, _now.plusDays(2), false },
+				{ TASK_6_NAME, _now, _now.plusDays(2), true },
+				{ TASK_7_NAME, null, _now.plusDays(2), true },
 			});
 	}
 	
-	public ModelTest(String name, LocalDateTime start, LocalDateTime end) throws Exception {
+	public ModelTest(String name, LocalDateTime start, LocalDateTime end, boolean isOnlyDate) throws Exception {
 		_name = name;
-		_start = start;
-		_end = end;
-		if ( start == null ) {
-			task = new Task(name, _end.toLocalDate(), _end.toLocalTime());
+		
+		if ( isOnlyDate ) {
+			if ( start == null ) {
+				_start = null;
+			} else {
+				_start = start.with(LocalTime.MAX);
+			}
+			_end = end.with(LocalTime.MAX);
 		} else {
-			task = new Task(name, _start.toLocalDate(),_start.toLocalTime(), _end.toLocalDate(), _end.toLocalTime());
+			_start = start;
+			_end = end;
+		}
+		
+		if ( isOnlyDate ) {
+			if ( start == null ) {
+				task = new Task(name, _end.toLocalDate());
+			} else {
+				task = new Task(name, _start.toLocalDate(), _end.toLocalDate());
+			}
+		} else {
+			if ( start == null ) {
+				task = new Task(name, _end.toLocalDate(), _end.toLocalTime());
+			} else {
+				task = new Task(name, _start.toLocalDate(),_start.toLocalTime(), _end.toLocalDate(), _end.toLocalTime());
+			}
 		}
 	}
+	
 	
 	@Test
 	public void testGetTitle() {
@@ -129,7 +151,7 @@ public class ModelTest {
 		LocalDateTime input = task.getEndDateTime(); // set same as end date time
 		LocalDateTime expectedStart = task.getEndDateTime();
 		long daysDifference = task.getStartDate() == null ? 0 : Period.between(task.getStartDate(), expectedStart.toLocalDate()).getDays();
-		long timeDifference = task.getStartDate() == null ? 0 : ChronoUnit.NANOS.between(task.getStartTime(), expectedStart.toLocalTime());
+		long timeDifference = task.getStartTime() == null ? 0 : ChronoUnit.NANOS.between(task.getStartTime(), expectedStart.toLocalTime());
 		LocalDateTime expectedEnd = task.getEndDateTime().plusDays(daysDifference).plusNanos(timeDifference);
 		
 		try {
@@ -216,7 +238,7 @@ public class ModelTest {
 
 	@Test
 	public void testGetStartDate() {
-		if ( _name.equals(TASK_6_NAME) ) {
+		if ( _name.equals(TASK_5_NAME) || _name.equals(TASK_7_NAME) ) {
 			assertEquals(null, task.getStartDate());
 		} else {
 			assertEquals(_start.toLocalDate(), task.getStartDate());
@@ -236,7 +258,7 @@ public class ModelTest {
 			assertEquals(expectedStart, task.getStartDate());
 			assertEquals(expectedEnd, task.getEndDate());
 		} catch (TaskDateInvalidException e) {
-			if ( !_name.equals(TASK_1_NAME) ) {
+			if ( !_name.equals(TASK_0_NAME) ) {
 				fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 			}
 		} catch (TaskDateNotSetException e) {
@@ -276,7 +298,7 @@ public class ModelTest {
 			assertEquals(expectedStart, task.getStartDate());
 			assertEquals(expectedEnd, task.getEndDate());
 		} catch (TaskDateInvalidException e) {
-			if ( !_name.equals(TASK_1_NAME) ) {
+			if ( !_name.equals(TASK_0_NAME) ) {
 				fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 			}
 		} catch (TaskDateNotSetException e) {
@@ -349,7 +371,7 @@ public class ModelTest {
 			assertEquals(expectedStart, task.getStartDate());
 			assertEquals(expectedEnd, task.getEndDate());
 		} catch (TaskDateInvalidException e) {
-			if ( !_name.equals(TASK_1_NAME) ) {
+			if ( !_name.equals(TASK_0_NAME) ) {
 				fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 			}
 		} catch (TaskDateNotSetException e) {
@@ -359,20 +381,20 @@ public class ModelTest {
 
 	@Test
 	public void testGetStartTime() {
-		if ( _name.equals(TASK_6_NAME) ) {
+		if ( _name.equals(TASK_5_NAME) || _name.equals(TASK_7_NAME) ) {
 			assertEquals(null, task.getStartTime());
 		} else {
-			assertEquals(_start.toLocalTime(), task.getStartTime());
+			assertEquals(_start.toLocalTime(), task.getStartTime() == null ? LocalTime.MAX : task.getStartTime());
 		}
 	}
 
 	@Test
 	public void testSetStartTimeAfterEnd() {
 		// Test Setting Start Time after End
-		LocalTime input = task.getEndTime().plusHours(1);
-		LocalTime expectedStart = task.getEndTime().plusHours(1);
+		LocalTime input = task.getEndTime() == null ? null : task.getEndTime().plusHours(1);
+		LocalTime expectedStart = task.getEndTime() == null ? null : task.getEndTime().plusHours(1);
 		long timeDifference = task.getStartTime() == null ? 0 : ChronoUnit.NANOS.between(task.getStartTime(), expectedStart);
-		LocalTime expectedEnd = task.getEndTime().plusNanos(timeDifference);
+		LocalTime expectedEnd = task.getEndTime() == null ? null : task.getEndTime().plusNanos(timeDifference);
 		
 		try {
 			task.setStartDateTime(task.getStartDate(), input);
@@ -381,7 +403,7 @@ public class ModelTest {
 		} catch (TaskDateInvalidException e) {
 			fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 		} catch (TaskDateNotSetException e) {
-			if ( !_name.equals(TASK_6_NAME) ) {
+			if ( !_name.equals(TASK_5_NAME) ) {
 				fail("Threw TaskDateNotSetException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 			}
 		}
@@ -390,10 +412,10 @@ public class ModelTest {
 	@Test
 	public void testSetStartTimeBeforeEnd() {
 		// Test Setting Start Time before End
-		LocalTime input = task.getEndTime().plusHours(-1);
-		LocalTime expectedStart = task.getEndTime().plusHours(-1);
+		LocalTime input = task.getEndTime() == null ? null : task.getEndTime().plusHours(-1);
+		LocalTime expectedStart = task.getEndTime() == null ? null : task.getEndTime().plusHours(-1);
 		long timeDifference = task.getStartTime() == null ? 0 : ChronoUnit.NANOS.between(task.getStartTime(), expectedStart);
-		LocalTime expectedEnd = task.getEndTime().plusNanos(timeDifference);
+		LocalTime expectedEnd = task.getEndTime() == null ? null : task.getEndTime().plusNanos(timeDifference);
 		
 		try {
 			task.setStartDateTime(task.getStartDate(), input);
@@ -402,7 +424,7 @@ public class ModelTest {
 		} catch (TaskDateInvalidException e) {
 			fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 		} catch (TaskDateNotSetException e) {
-			if ( !_name.equals(TASK_6_NAME) ) {
+			if ( !_name.equals(TASK_5_NAME) ) {
 				fail("Threw TaskDateNotSetException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 			}
 		}
@@ -411,10 +433,10 @@ public class ModelTest {
 	@Test
 	public void testSetStartTimeEqualEnd() {
 		// Test Setting Start Time equal End
-		LocalTime input = task.getEndTime();
-		LocalTime expectedStart = task.getEndTime();
+		LocalTime input = task.getEndTime() == null ? null : task.getEndTime();
+		LocalTime expectedStart = task.getEndTime() == null ? null : task.getEndTime();
 		long timeDifference = task.getStartTime() == null ? 0 : ChronoUnit.NANOS.between(task.getStartTime(), expectedStart);
-		LocalTime expectedEnd = task.getEndTime().plusNanos(timeDifference);
+		LocalTime expectedEnd = task.getEndTime() == null ? null : task.getEndTime().plusNanos(timeDifference);
 		
 		try {
 			task.setStartDateTime(task.getStartDate(), input);
@@ -423,7 +445,7 @@ public class ModelTest {
 		} catch (TaskDateInvalidException e) {
 			fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 		} catch (TaskDateNotSetException e) {
-			if ( !_name.equals(TASK_6_NAME) ) {
+			if ( !_name.equals(TASK_5_NAME) ) {
 				fail("Threw TaskDateNotSetException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 			}
 		}
@@ -431,19 +453,15 @@ public class ModelTest {
 
 	@Test
 	public void testGetEndTime() {
-		assertEquals(_end.toLocalTime(), task.getEndTime());
+		assertEquals(_end.toLocalTime(), task.getEndTime() == null ? LocalTime.MAX : task.getEndTime());
 	}
 
 	@Test
 	public void testSetEndTimeAfterStart() {
-		// Test Setting End Time after Start
-		if ( task.getStartDate() == null ) {
-			return;
-		}
-		
-		LocalTime input = task.getStartTime().plusHours(1);
-		LocalTime expectedStart = task.getStartTime();
-		LocalTime expectedEnd = task.getStartTime().plusHours(1);
+		// Test Setting End Time after Start		
+		LocalTime input = task.getStartTime() == null ? null : task.getStartTime().plusHours(1);
+		LocalTime expectedStart = task.getStartTime() == null ? null : task.getStartTime();
+		LocalTime expectedEnd = task.getStartTime() == null ? null : task.getStartTime().plusHours(1);
 		
 		try {
 			task.setEndDateTime(task.getEndDate(), input);
@@ -458,30 +476,26 @@ public class ModelTest {
 	
 	@Test
 	public void testSetEndTimeBeforeStart() {
-		// Test Setting End Time before Start
-		if ( task.getStartDate() == null ) {
-			return;
-		}
-		
-		LocalTime input = task.getStartTime().plusHours(-1);
-		LocalTime expectedStart = task.getStartTime();
+		// Test Setting End Time before Start		
+		LocalTime input = task.getStartTime() == null ? null : task.getStartTime().plusHours(-1);
+		LocalTime expectedStart = task.getStartTime() == null ? null : task.getStartTime();
 		LocalTime expectedEnd;
-		if ( _name.equals(TASK_1_NAME) || _name.equals(TASK_2_NAME) || _name.equals(TASK_3_NAME) ) {
-			expectedEnd = task.getStartTime().plusHours(-1);
-		} else {
+		if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) ) {
 			expectedEnd = task.getEndTime();
+		} else {
+			expectedEnd = task.getStartTime() == null ? null : task.getStartTime().plusHours(-1);
 		}
 		
 		try {
 			task.setEndDateTime(task.getEndDate(), input);
-			if ( _name.equals(TASK_1_NAME) || _name.equals(TASK_2_NAME) || _name.equals(TASK_3_NAME) ) {
+			if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) ) {
+				fail("Did not throw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
+			} else {
 				assertEquals(expectedStart, task.getStartTime());
 				assertEquals(expectedEnd, task.getEndTime());
-			} else {
-				fail("Did not throw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 			}
 		} catch (TaskDateInvalidException e) {
-			if ( _name.equals(TASK_4_NAME) || _name.equals(TASK_5_NAME) ) {
+			if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) ) {
 				assertEquals(expectedStart, task.getStartTime());
 				assertEquals(expectedEnd, task.getEndTime());
 			} else {
@@ -536,12 +550,6 @@ public class ModelTest {
 
 	@Test
 	public void testEqualsTask() {
-	}
-
-	@Test
-	public void testToString() {
-		String expected = "TaskName:" + task.getTitle() + ",StartDate:" + task.getStartDate() + ",StartDateTime:" + task.getStartDateTime() + ",EndDate:" + task.getEndDate() + "EndDateTime:" + task.getEndDateTime();
-		assertEquals(expected, task.toString());
 	}
 
 }
