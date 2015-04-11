@@ -414,13 +414,27 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("mark 1 2 3 4 5 6 7 8 9 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-
-		expectedCommand = new MarkCommand(new int[] { 1, 2, 3, 4, 5, 7, 8, 9 });
-		actualCommand = _parser.parse("mark 1-5 7-9");
+		actualCommand = _parser.parse("mark 1|2|3|4|5|6|7|8|9|10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		actualCommand = _parser.parse("mark 1 2 3 4 5 7 8 9");
+		actualCommand = _parser.parse("mark 1,2,3,4,5,6,7,8,9,10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1.2.3.4.5.6.7.8.9.10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		expectedCommand = new MarkCommand(new int[] { 1, 2, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("mark 1 2 4-5 7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1,2,4-5,7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2.4-5.7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1|2|4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2 4 5 7 8 9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2,4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		expectedCommand = new MarkCommand(0);
 		actualCommand = _parser.parse("mark");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -452,11 +466,25 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("unmark 1 2 3 4 5 6 7 8 9 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-
-		expectedCommand = new UnmarkCommand(new int[] { 1, 2, 3, 4, 5, 7, 8, 9 });
-		actualCommand = _parser.parse("unmark 1-5 7-9");
+		actualCommand = _parser.parse("unmark 1|2|3|4|5|6|7|8|9|10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		actualCommand = _parser.parse("unmark 1 2 3 4 5 7 8 9");
+		actualCommand = _parser.parse("unmark 1,2,3,4,5,6,7,8,9,10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1.2.3.4.5.6.7.8.9.10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new UnmarkCommand(new int[] { 1, 2, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("unmark 1 2 4-5 7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1,2,4-5,7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2.4-5.7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1|2|4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2 4 5 7 8 9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2,4-5|7-9");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		expectedCommand = new UnmarkCommand(0);
