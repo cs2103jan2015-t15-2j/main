@@ -251,46 +251,6 @@ public class CommandParser implements Parser {
 		return name;
 	}
 	
-	private String reformatDateAndTime(String date) {
-		date = this.changeDotsToColonsInTime(date);
-		date = this.changeForToToInTime(date);
-		date = this.changeFromToInTime(date);
-		return date;
-	}
-	
-	private String changeDotsToColonsInTime(String date) {
-		Pattern pattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
-		Matcher matcher = pattern.matcher(date);
-		while ( matcher.find() ) {
-			String matchingGroup = matcher.group(0);
-            String newTime = matchingGroup.replace(".", ":");
-            date = date.replace(matcher.group(0), newTime);
-		}
-		return date;
-	}
-	
-	private String changeForToToInTime(String date) {
-		Pattern pattern;
-		Matcher matcher;
-		
-		pattern = Pattern.compile(PATTERN_MATCH_FOR_FROM_TIME);
-		matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$3 for $1");
-
-		pattern = Pattern.compile(PATTERN_MATCH_FROM_FOR_TIME);
-		matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1 to  $2");
-		
-		return date;
-	}
-	
-	private String changeFromToInTime(String date) {
-		Pattern pattern = Pattern.compile(PATTERN_MATCH_FROM_TO_TIME);
-		Matcher matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1 $2 to $3");
-		return date;
-	}
-	
 	private String[] parseCommandForNameAndDates(String command) {
 		String[] result = new String[NUM_COMMAND_PATTERNS];
 		
@@ -347,6 +307,46 @@ public class CommandParser implements Parser {
 		}
 		
 		return null;
+	}
+	
+	private String reformatDateAndTime(String date) {
+		date = this.changeDotsToColonsInTime(date);
+		date = this.changeForToToInTime(date);
+		date = this.changeFromToInTime(date);
+		return date;
+	}
+	
+	private String changeDotsToColonsInTime(String date) {
+		Pattern pattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
+		Matcher matcher = pattern.matcher(date);
+		while ( matcher.find() ) {
+			String matchingGroup = matcher.group(0);
+            String newTime = matchingGroup.replace(".", ":");
+            date = date.replace(matcher.group(0), newTime);
+		}
+		return date;
+	}
+	
+	private String changeForToToInTime(String date) {
+		Pattern pattern;
+		Matcher matcher;
+		
+		pattern = Pattern.compile(PATTERN_MATCH_FOR_FROM_TIME);
+		matcher = pattern.matcher(date);
+		date = matcher.replaceAll("$3 for $1");
+
+		pattern = Pattern.compile(PATTERN_MATCH_FROM_FOR_TIME);
+		matcher = pattern.matcher(date);
+		date = matcher.replaceAll("$1 to  $2");
+		
+		return date;
+	}
+	
+	private String changeFromToInTime(String date) {
+		Pattern pattern = Pattern.compile(PATTERN_MATCH_FROM_TO_TIME);
+		Matcher matcher = pattern.matcher(date);
+		date = matcher.replaceAll("$1 $2 to $3");
+		return date;
 	}
 	
 	private ICommand doAdd(String command) throws InvalidCommandException {
