@@ -280,13 +280,11 @@ public class ParserTest {
 			fail();
 		} catch ( InvalidCommandException e ) {
 		}
-
-		try {
-			actualCommand = _parser.parse("delete");
-			fail();
-		} catch ( InvalidCommandException e ) {
-		}
-}
+		
+		expectedCommand = new DeleteCommand(0);
+		actualCommand = _parser.parse("delete");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
 	
 	@Test
 	public void testUpdateCommand() throws InvalidCommandException {
@@ -318,7 +316,12 @@ public class ParserTest {
 		expectedCommand.setTaskTitleToUpdate("new title");
 		actualCommand = _parser.parse("update 1 new title");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		
+
+		expectedCommand = new UpdateCommand(0);
+		expectedCommand.setTaskTitleToUpdate("new title");
+		actualCommand = _parser.parse("update new title");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		// Test Update End Date only
 		expectedCommand = new UpdateCommand(1);
 		expectedCommand.setEndDateToUpdate(_today.plusDays(1));
@@ -330,6 +333,14 @@ public class ParserTest {
 		expectedCommand.setTaskTitleToUpdate("new title");
 		expectedCommand.setEndDateToUpdate(_today.plusDays(1));
 		actualCommand = _parser.parse("update 1 new title by tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Update Title, Start and End Date
+		expectedCommand = new UpdateCommand(1);
+		expectedCommand.setTaskTitleToUpdate("new title");
+		expectedCommand.setStartDateToUpdate(_today.plusDays(1));
+		expectedCommand.setEndDateToUpdate(_today.plusDays(2));
+		actualCommand = _parser.parse("update 1 new title from tomorrow to the day after");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 	}
 	
@@ -403,18 +414,30 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("mark 1 2 3 4 5 6 7 8 9 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-
-		expectedCommand = new MarkCommand(new int[] { 1, 2, 3, 4, 5, 7, 8, 9 });
-		actualCommand = _parser.parse("mark 1-5 7-9");
+		actualCommand = _parser.parse("mark 1|2|3|4|5|6|7|8|9|10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		actualCommand = _parser.parse("mark 1 2 3 4 5 7 8 9");
+		actualCommand = _parser.parse("mark 1,2,3,4,5,6,7,8,9,10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1.2.3.4.5.6.7.8.9.10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
-		try {
-			actualCommand = _parser.parse("mark");
-			fail();
-		} catch ( InvalidCommandException e ) {
-		}
+		expectedCommand = new MarkCommand(new int[] { 1, 2, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("mark 1 2 4-5 7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1,2,4-5,7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2.4-5.7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1|2|4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2 4 5 7 8 9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2,4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new MarkCommand(0);
+		actualCommand = _parser.parse("mark");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		try {
 			actualCommand = _parser.parse("mark invalidstring");
@@ -443,18 +466,31 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("unmark 1 2 3 4 5 6 7 8 9 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-
-		expectedCommand = new UnmarkCommand(new int[] { 1, 2, 3, 4, 5, 7, 8, 9 });
-		actualCommand = _parser.parse("unmark 1-5 7-9");
+		actualCommand = _parser.parse("unmark 1|2|3|4|5|6|7|8|9|10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		actualCommand = _parser.parse("unmark 1 2 3 4 5 7 8 9");
+		actualCommand = _parser.parse("unmark 1,2,3,4,5,6,7,8,9,10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1.2.3.4.5.6.7.8.9.10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new UnmarkCommand(new int[] { 1, 2, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("unmark 1 2 4-5 7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1,2,4-5,7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2.4-5.7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1|2|4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2 4 5 7 8 9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2,4-5|7-9");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
-		try {
-			actualCommand = _parser.parse("unmark");
-			fail();
-		} catch ( InvalidCommandException e ) {
-		}
+		expectedCommand = new UnmarkCommand(0);
+		actualCommand = _parser.parse("unmark");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		
 		try {
 			actualCommand = _parser.parse("unmark invalidstring");
