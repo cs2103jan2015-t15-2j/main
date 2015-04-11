@@ -22,8 +22,9 @@ import taskie.models.Task;
 
 public class DeleteCommand extends AbstractCommand {
 	private ArrayList<Task> _tasks = new ArrayList<Task>();
-	private Task _currentTask;
 	private int[] _taskIndexes;
+
+	private Task _currentTask;
 	private Boolean _deleteStartDate = false;
 	private Boolean _deleteStartTime = false;
 	private Boolean _deleteEndDate = false;
