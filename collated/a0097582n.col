@@ -1,0 +1,2002 @@
+//@author: a0097582n
+
+
+
+	/**
+	 * origin: src\taskie\commands\AddCommand.java
+	 */
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+import taskie.models.Task;
+import taskie.models.TaskType;
+
+public class AddCommand extends AbstractCommand {
+	private String _taskName;
+	private LocalDate _startDate;
+	private LocalTime _startTime;
+	private LocalDate _endDate;
+	private LocalTime _endTime;
+	private CommandType _commandType = CommandType.ADD;
+	private Task _task;
+	private ArrayList<Task> _conflictedTask;
+
+	public AddCommand() {
+		_taskName = null;
+		_startDate = null;
+		_startTime = null;
+		_endDate = null;
+		_endTime = null;
+	}
+
+	public AddCommand(Task task) {
+		_taskName = task.getTitle();
+		_startDate = task.getStartDate();
+		_startTime = task.getStartTime();
+		_endDate = task.getEndDate();
+		_endTime = task.getEndTime();
+	}
+
+	public AddCommand(String taskName, LocalDate startDate,
+			LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+		super();
+		_taskName = taskName;
+		_startDate = startDate;
+		_startTime = startTime;
+		_endDate = endDate;
+		_endTime = endTime;
+	}
+
+	public AddCommand(String taskName, LocalDateTime startDateTime,
+			LocalDateTime endDateTime) {
+		super();
+		_taskName = taskName;
+		this.setStartDateTime(startDateTime);
+		this.setEndDateTime(endDateTime);
+	}
+
+	public String getTaskName() {
+		return _taskName;
+	}
+
+	public void setTaskName(String _taskName) {
+		this._taskName = _taskName;
+	}
+
+	public LocalDate getStartDate() {
+		return _startDate;
+	}
+
+	public void setStartDate(LocalDate _startDate) {
+		this._startDate = _startDate;
+	}
+
+	public LocalTime getStartTime() {
+		return _startTime;
+	}
+
+	public void setStartTime(LocalTime _startTime) {
+		this._startTime = _startTime;
+	}
+
+	public LocalDate getEndDate() {
+		return _endDate;
+	}
+
+	public void setEndDate(LocalDate _endDate) {
+		this._endDate = _endDate;
+	}
+
+	public LocalTime getEndTime() {
+		return _endTime;
+	}
+
+	public void setEndTime(LocalTime _endTime) {
+		this._endTime = _endTime;
+	}
+
+	// End of segment: src\taskie\commands\AddCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\AddCommand.java
+	 */
+
+	private boolean hasNoConflict() throws TaskRetrievalFailedException {
+		Boolean returnVal=true;
+		_conflictedTask = new ArrayList<Task>();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		for (int i=0;i<list.size();i++) {
+			Task task = list.get(i);
+			if (hasConflict(task, this._task)) {
+				_conflictedTask.add(task);
+				returnVal=false;
+			}
+		}
+		return returnVal;
+	}
+
+	private boolean hasConflict(Task task1, Task task2) {
+		if (task1.getTaskType() == TaskType.TIMED
+				&& task2.getTaskType() == TaskType.TIMED) {
+			if(hasTimeOverlap(task1, task2)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean hasTimeOverlap(Task task1, Task task2) {
+		if(task1.getStartDateTime().isBefore(task2.getEndDateTime())
+				&&task2.getStartDateTime().isBefore(task1.getEndDateTime())){
+		return true;
+		}
+		return false;
+	}
+
+	private String formatAddMsg(Task task) {
+		TaskType type = task.getTaskType();
+		if (type == TaskType.FLOATING) {
+			return String.format(taskie.models.Messages.ADD_FLOATING,
+					task.getTitle());
+		} else if (type == TaskType.DEADLINE) {
+			return String.format(taskie.models.Messages.ADD_DEADLINED,
+					task.getTitle(),
+					_controller.getUI().formatDateTime(task.getEndDateTime()));
+		} else {
+			return String
+					.format(taskie.models.Messages.ADD_TIMED,
+							task.getTitle(),
+							_controller.getUI().formatDateTime(
+									task.getStartDateTime()),
+							_controller.getUI().formatDateTime(
+									task.getEndDateTime()));
+		}
+	}
+	
+	private String formatAddMsgWithWarning(Task newTask) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(String.format(Messages.ADD_TIMED, newTask.getTitle()
+				, _controller.getUI().formatDateTime(newTask.getStartDateTime())
+				, _controller.getUI().formatDateTime(newTask.getEndDateTime())));
+			sb.append(Messages.ADD_CONFLICT);
+		for(int i=0;i<_conflictedTask.size();i++){
+			Task task = _conflictedTask.get(i);
+			sb.append(task.getTitle());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+
+	// End of segment: src\taskie\commands\AddCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\DeleteCommand.java
+	 */
+
+
+package taskie.commands;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+import taskie.models.Task;
+
+public class DeleteCommand extends AbstractCommand {
+	private ArrayList<Task> _tasks = new ArrayList<Task>();
+	private int[] _taskIndexes;
+
+	private Task _currentTask;
+	private Boolean _deleteStartDate = false;
+	private Boolean _deleteStartTime = false;
+	private Boolean _deleteEndDate = false;
+	private Boolean _deleteEndTime = false;
+
+	private CommandType _commandType = CommandType.DELETE;
+
+	// End of segment: src\taskie\commands\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\DeleteCommand.java
+	 */
+
+	public void setToDeleteStartDate() {
+		_deleteStartDate = true;
+		_deleteStartTime = true; // if startDate is to be deleted, startTime will be deleted too
+	}
+
+	public Boolean canDeleteStartDate() {
+		return _deleteStartDate;
+	}
+
+	public void setToDeleteStartTime() {
+		_deleteStartTime = true;
+	}
+
+	public Boolean canDeleteStartTime() {
+		return _deleteStartTime;
+	}
+
+	public void setToDeleteEndDate() {
+		_deleteEndDate = true;
+		_deleteEndTime = true; // if endDate is to be deleted, endTime will be
+								// deleted too
+	}
+
+	public Boolean canDeleteEndDate() {
+		return _deleteEndDate;
+	}
+
+	public void setToDeleteEndTime() {
+		_deleteEndTime = true;
+	}
+
+	public Boolean canDeleteEndTime() {
+		return _deleteEndTime;
+	}
+
+	@Override
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	@Override
+	public void execute() {
+		this.retrieveTasks();
+
+		for (Task task : _tasks) {
+			try {
+				_currentTask = task;
+
+				if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate() || canDeleteEndTime()) {
+					// if either of these methods returned true, only task fields are to be deleted.
+					deleteTaskField();
+					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskFieldString());
+				} else {
+					deleteTask();
+					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskString());
+				}
+			} catch (TaskTypeNotSupportedException e) {
+                _controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			} catch (TaskModificationFailedException e) {
+                _controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			}
+		}
+	}
+
+	private void deleteTaskField() {
+		// taskfields are deleted by setting to them null;
+		UpdateCommand updateCommand = new UpdateCommand(_currentTask);
+		if (canDeleteStartDate()) {
+			updateCommand.setStartDateToUpdate(null);
+		}
+		if (canDeleteStartTime()) {
+			updateCommand.setStartTimeToUpdate(null);
+		}
+		if (canDeleteEndDate()) {
+			updateCommand.setEndDateToUpdate(null);
+		}
+		if (canDeleteEndTime()) {
+			updateCommand.setEndTimeToUpdate(null);
+		}
+		_controller.executeCommand(updateCommand);
+	}
+
+	// End of segment: src\taskie\commands\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\DeleteCommand.java
+	 */
+
+	private String formatDeleteTaskString() {
+		return String.format(taskie.models.Messages.DELETE_TASK, _currentTask.getTitle());
+	}
+
+	private String formatDeleteTaskFieldString() {
+		String message = String.format(taskie.models.Messages.DELETE_TASK_FIELD, _currentTask.getTitle());
+		if (canDeleteStartDate()) {
+			message = message.concat("\nStart date");
+		}
+		if (canDeleteStartTime()) {
+			message = message.concat("\nStart time");
+		}
+		if (canDeleteEndDate()) {
+			message = message.concat("\nEnd date");
+		}
+		if (canDeleteEndTime()) {
+			message = message.concat("\nEnd time");
+		}
+		return message;
+	}
+
+	// End of segment: src\taskie\commands\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\ICommand.java
+	 */
+
+
+package taskie.commands;
+
+import taskie.exceptions.UndoNotSupportedException;
+import taskie.models.CommandType;
+
+public interface ICommand {
+	public CommandType getCommandType();
+
+	public void execute();
+	
+	public void undo() throws UndoNotSupportedException;
+}
+
+	// End of segment: src\taskie\commands\ICommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\MarkCommand.java
+	 */
+
+package taskie.commands;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+import taskie.models.Task;
+
+public class MarkCommand extends AbstractCommand {
+	private CommandType _commandType = CommandType.MARK;
+	private Task _currentTask;
+
+	private ArrayList<Task> _tasks = new ArrayList<Task>();
+	private int[] _taskIndexes;
+
+	// End of segment: src\taskie\commands\MarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\MarkCommand.java
+	 */
+
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	public void execute() {
+		this.retrieveTasks();
+
+		for (Task task : _tasks) {
+			try {
+				_currentTask = task;
+				Task updatedTask = new Task(_currentTask);
+
+				if (_currentTask.isDone()) {
+					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_DONE);
+				} else {
+					updatedTask.setTaskDone();
+					_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
+					_controller.getStorage().updateTask(_currentTask, updatedTask);
+				}
+
+				_controller.setLastTask(updatedTask);
+			} catch (TaskTypeNotSupportedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			} catch (TaskModificationFailedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			}
+		}
+
+		if (_tasks.size() > 1) {
+			_controller.setLastTask(null);
+		}
+	}
+
+	private String formatMarkString() {
+		return String.format(taskie.models.Messages.MARK_STRING, _currentTask.getTitle());
+	}
+
+	// End of segment: src\taskie\commands\MarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\UnmarkCommand.java
+	 */
+
+package taskie.commands;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+import taskie.models.Task;
+
+public class UnmarkCommand extends AbstractCommand {
+	private CommandType _commandType = CommandType.MARK;
+	private Task _currentTask;
+
+	private ArrayList<Task> _tasks = new ArrayList<Task>();
+	private int[] _taskIndexes;
+
+	// End of segment: src\taskie\commands\UnmarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\UnmarkCommand.java
+	 */
+
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	public void execute() {
+		this.retrieveTasks();
+		
+		for (Task task : _tasks) {
+			try {
+				_currentTask = task;
+				Task updatedTask = new Task(_currentTask);
+
+				if (_currentTask.isDone()) {
+					updatedTask.setTaskUndone();
+					_controller.getUI().display(DisplayType.ERROR, formatUnmarkString());
+					_controller.getStorage().updateTask(_currentTask, updatedTask);
+				} else {
+					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_NOT_DONE);
+				}
+
+				_controller.setLastTask(updatedTask);
+			} catch (TaskTypeNotSupportedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			} catch (TaskModificationFailedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			}
+		}
+
+		if (_tasks.size() > 1) {
+			_controller.setLastTask(null);
+		}
+	}
+
+	private String formatUnmarkString() {
+		return String.format(taskie.models.Messages.UNMARK_STRING, _currentTask.getTitle());
+	}
+
+	// End of segment: src\taskie\commands\UnmarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\UpdateCommand.java
+	 */
+
+
+package taskie.commands;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskDateInvalidException;
+import taskie.exceptions.TaskDateNotSetException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+import taskie.models.Task;
+
+public class UpdateCommand extends AbstractCommand {
+	int NUM_ATTRIBUTE = 2;
+	private Task _oldTask;
+	private Task _newTask;
+
+	private int _taskIndex;
+	private String _taskTitleToUpdate = null;
+	private LocalDate _startDateToUpdate = null;
+	private LocalTime _startTimeToUpdate = null;
+	private LocalDate _endDateToUpdate = null;
+	private LocalTime _endTimeToUpdate = null;
+
+	private Boolean _isToUpdateTaskTitle = false;
+	private Boolean _isToUpdateStartDate = false;
+	private Boolean _isToUpdateStartTime = false;
+	private Boolean _isToUpdateEndDate = false;
+	private Boolean _isToUpdateEndTime = false;
+	private CommandType _commandType = CommandType.UPDATE;
+
+	private Logger _logger = Logger.getLogger(UpdateCommand.class.getName());
+
+	public UpdateCommand(Task task) {
+		_oldTask = task;
+	}
+
+	public UpdateCommand(int taskIndex) {
+		_taskIndex = taskIndex;
+	}
+
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	public void setTaskTitleToUpdate(String title) {
+		_isToUpdateTaskTitle = true;
+		_taskTitleToUpdate = title;
+	}
+
+	public String getTaskTitleToUpdate() {
+		return _taskTitleToUpdate;
+	}
+
+	public LocalDate getStartDateToUpdate() {
+		return _startDateToUpdate;
+	}
+
+	public void setStartDateToUpdate(LocalDate startDateToUpdate) {
+		_isToUpdateStartDate = true;
+		this._startDateToUpdate = startDateToUpdate;
+	}
+
+	public LocalTime getStartTimeToUpdate() {
+		return _startTimeToUpdate;
+	}
+
+	public void setStartTimeToUpdate(LocalTime startTimeToUpdate) {
+		_isToUpdateStartTime = true;
+		this._startTimeToUpdate = startTimeToUpdate;
+	}
+
+	public LocalDate getEndDateToUpdate() {
+		return _endDateToUpdate;
+	}
+
+	public void setEndDateToUpdate(LocalDate endDateToUpdate) {
+		_isToUpdateEndDate = true;
+		this._endDateToUpdate = endDateToUpdate;
+	}
+
+	public LocalTime getEndTimeToUpdate() {
+		return _endTimeToUpdate;
+	}
+
+	public void setEndTimeToUpdate(LocalTime endTimeToUpdate) {
+		_isToUpdateEndTime = true;
+		this._endTimeToUpdate = endTimeToUpdate;
+	}
+
+	public Boolean isModifiedTaskTitle() {
+		return _isToUpdateTaskTitle;
+	}
+
+	public Boolean isModifiedStartDate() {
+		return _isToUpdateStartDate;
+	}
+
+	public Boolean isModifiedStartTime() {
+		return _isToUpdateStartTime;
+	}
+
+	public Boolean isModifiedEndDate() {
+		return _isToUpdateEndDate;
+	}
+
+	public Boolean isModifiedEndTime() {
+		return _isToUpdateEndTime;
+	}
+
+	public void execute() {
+		_logger.log(Level.INFO, "UPDATECOMMAND CONFIG: task Index: " + _taskIndex + " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): " + _startDateToUpdate + " " + _isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate + " " + _isToUpdateStartTime + "\nendDate(bool): " + _endDateToUpdate + " " + _isToUpdateEndDate + " time(bool):" + _endTimeToUpdate + " " + _isToUpdateEndTime);
+
+		try {
+			if (_oldTask == null) {
+				_oldTask = retrieveTaskToUpdate();
+			}
+
+			_logger.log(Level.INFO, "TASK FROM UI: " + _oldTask.toString());
+			_newTask = updateTask(_oldTask);
+			_controller.getStorage().updateTask(_oldTask, _newTask);
+			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(_newTask));
+		} catch (InvalidTaskException e) {
+			_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+		} catch (InvalidCommandException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		} catch (TaskTypeNotSupportedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		} catch (TaskModificationFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		} catch (Exception e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+	}
+
+	private Task updateTask(Task task) throws InvalidCommandException, TaskDateNotSetException, TaskDateInvalidException {
+		Task updatedTask = new Task(task);
+		if (this.isModifiedTaskTitle()) {
+			if (_taskTitleToUpdate == null || _taskTitleToUpdate.trim().equalsIgnoreCase("")) {
+				throw new InvalidCommandException();
+			} else {
+				updatedTask.setTitle(this.getTaskTitleToUpdate());
+			}
+		}
+		if (isModifiedStartDate() || isModifiedStartTime() || isModifiedEndDate() || isModifiedEndTime()) {
+			updateTaskDates(task, updatedTask);
+		}
+
+		return updatedTask;
+	}
+
+	private void updateTaskDates(Task task, Task updatedTask) throws TaskDateInvalidException, TaskDateNotSetException, InvalidCommandException {
+		LocalDate updateStartDate = task.getStartDate();
+		LocalTime updateStartTime = task.getStartTime();
+		LocalDate updateEndDate = task.getEndDate();
+		LocalTime updateEndTime = task.getEndTime();
+		LocalDateTime updateStartDateTime;
+		LocalDateTime updateEndDateTime;
+
+		if (isModifiedStartDate()) {
+			updateStartDate = _startDateToUpdate;
+		}
+		if (isModifiedStartTime()) {
+			updateStartTime = _startTimeToUpdate;
+		}
+		if (isModifiedEndDate()) {
+			updateEndDate = _endDateToUpdate;
+		}
+		if (isModifiedEndTime()) {
+			updateEndTime = _endTimeToUpdate;
+		}
+		if (updateStartDate == null) {
+			updateStartDateTime = null;
+		} else {
+			if (updateStartTime == null) {
+				updateStartDateTime = LocalDateTime.of(updateStartDate, LocalTime.MAX);
+			} else {
+				updateStartDateTime = LocalDateTime.of(updateStartDate, updateStartTime);
+			}
+		}
+		if (updateEndDate == null) {
+			updateEndDateTime = null;
+		} else {
+			if (updateEndTime == null) {
+				updateEndDateTime = LocalDateTime.of(updateEndDate, LocalTime.MAX);
+			} else {
+				updateEndDateTime = LocalDateTime.of(updateEndDate, updateEndTime);
+			}
+		}
+
+		if (isConsistent(updateStartDate, updateStartTime, updateEndDate, updateEndTime, updateStartDateTime, updateEndDateTime)) {
+			updatedTask.initialiseStaging();
+			updatedTask.stageUpdateStartDate(updateStartDate);
+			updatedTask.stageUpdateStartTime(updateStartTime);
+			updatedTask.stageUpdateEndDate(updateEndDate);
+			updatedTask.stageUpdateEndTime(updateEndTime);
+			updatedTask.pushStageToActual();
+		} else if (isModifiedStartDate() || isModifiedStartTime()) {
+			updatedTask.initialiseStaging();
+			updatedTask.setStartDate(updateStartDate);
+			updatedTask.setStartTime(updateStartTime);
+			updatedTask.pushStageToActual();
+
+		} else {
+			throw new InvalidCommandException(Messages.INVALID_COMMAND);
+		}
+	}
+
+	private Boolean isConsistent(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		if (startDate == null && startTime != null) {
+			return false;
+		}
+
+		if (endDate == null && endTime != null) {
+			return false;
+		}
+		if (startDateTime != null && endDateTime == null) {
+			return false;
+		}
+
+		if (startDateTime != null && endDateTime != null && startDateTime.isAfter(endDateTime)) {
+			return false;
+		}
+		return true;
+	}
+
+	private String formatUpdateMsg(Task task) {
+		String message = String.format(taskie.models.Messages.UPDATE_STRING, task.getTitle());
+		if (this.isModifiedTaskTitle()) {
+			message = message.concat(taskie.models.Messages.TASK_TITLE);
+		}
+		if (this.isModifiedStartDate()) {
+			message = message.concat(taskie.models.Messages.START_DATE);
+		}
+		if (this.isModifiedStartTime()) {
+			message = message.concat(taskie.models.Messages.START_TIME);
+		}
+		if (this.isModifiedEndDate()) {
+			message = message.concat(taskie.models.Messages.END_DATE);
+		}
+		if (this.isModifiedEndTime()) {
+			message = message.concat(taskie.models.Messages.END_TIME);
+		}
+		return message;
+
+	}
+
+	private Task retrieveTaskToUpdate() throws InvalidTaskException, TaskRetrievalFailedException, InvalidCommandException {
+		Task task = null;
+		if (_taskIndex == 0) {
+			task = _controller.getLastTask();
+		} else {
+			task = _controller.getUI().getTask(_taskIndex);
+			_controller.setLastTask(task);
+		}
+
+		if (task == null) {
+			throw new InvalidCommandException();
+		}
+
+		return task;
+	}
+
+	// End of segment: src\taskie\commands\UpdateCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\ViewCommand.java
+	 */
+
+	@Override
+	public void execute() {
+		_logger.log(
+				Level.INFO,
+				"ViewType: " + this._viewType + "\nStartDate: "
+						+ this.getStartDate() + " StartTime: "
+						+ this.getStartTime() + "\nEndDate: "
+						+ this.getEndDate() + " EndTime: " + this.getEndTime()
+						+ "\nSearch Keywords: " + this.getSearchKeywords());
+		switch (_viewType) {
+		case ALL:
+			executeViewAll();
+			break;
+		case UPCOMING:
+			executeViewUpcoming();
+			break;
+		case OVERDUE:
+			executeViewOverdue();
+			break;
+		case COMPLETED:
+			executeViewCompleted();
+			break;
+		case SEARCH:
+			executeViewSearch();
+			break;
+		}
+	}
+
+	private void executeViewSearch() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = null;
+		try {
+			tasks = _controller.getStorage().getTaskList();
+			if (_startDate == null && _endDate == null
+					&& _searchKeywords != null) {
+				tasksToDisplay = findSearchedTasks(tasks);
+				_logger.log(Level.INFO, "searchType: Taskname\n");
+
+			} else if (_searchKeywords != null) {
+				tasksToDisplay = findTasksByDate(tasks);
+				tasksToDisplay = findSearchedTasks(tasksToDisplay);
+			} else {
+				tasksToDisplay = findTasksByDate(tasks);
+			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+	}
+
+	private ArrayList<Task> findTasksByDate(ArrayList<Task> tasks) {
+		if (_startDate == null) {
+			_logger.log(Level.INFO, "Search type: Enddate");
+			return findTasksBeforeEndDate(tasks);
+		} else if (_endDate == null) {
+			_logger.log(Level.INFO, "Search type: Startdate");
+			return findTasksFromStartDate(tasks);
+		} else {
+			_logger.log(Level.INFO, "Search type: StartEnddate");
+			return findTasksBetweenDates(tasks);
+		}
+	}
+
+	private ArrayList<Task> findTasksBeforeEndDate(ArrayList<Task> tasks) {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime endDateTime = this.getEndDateTime();
+
+		for (Task task : tasks) {
+			if (!task.isDone()){ 
+				TaskType taskType = task.getTaskType();
+				if (taskType == TaskType.FLOATING) {
+					tasksToDisplay.add(task);
+				} else if (taskType == TaskType.DEADLINE
+						&& task.getEndDateTime().isBefore(endDateTime)) {
+					tasksToDisplay.add(task);
+				} else if ((taskType == TaskType.TIMED
+						&& task.getStartDateTime().isBefore(endDateTime))) {
+					tasksToDisplay.add(task);
+				}
+			}
+		}
+		return tasksToDisplay;
+	}
+
+	private ArrayList<Task> findTasksFromStartDate(ArrayList<Task> tasks) {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime startDateTime = this.getStartDateTime();
+
+		for (Task task : tasks) {
+			if (!task.isDone()) {
+
+				TaskType taskType = task.getTaskType();
+				assert taskType != null;
+				if (taskType == TaskType.FLOATING) {
+					tasksToDisplay.add(task);
+				} else {
+					if (task.getEndDateTime().isAfter(startDateTime)) {
+						tasksToDisplay.add(task);
+					}
+				}
+			}
+		}
+		return tasksToDisplay;
+	}
+
+	private ArrayList<Task> findTasksBetweenDates(ArrayList<Task> tasks) {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime startDateTime = this.getStartDateTime();
+		LocalDateTime endDateTime = this.getEndDateTime();
+
+		for (Task task : tasks) {
+
+			if (!task.isDone()) {
+				TaskType taskType = task.getTaskType();
+				if (taskType == TaskType.FLOATING) {
+					tasksToDisplay.add(task);
+
+				} else if (taskType == TaskType.DEADLINE) {
+					if (task.getEndDateTime().isAfter(startDateTime)
+							&& task.getEndDateTime().isBefore(endDateTime)) {
+						tasksToDisplay.add(task);
+					}
+				} else {
+					assert taskType != null;
+					if (task.getStartDateTime().isBefore(endDateTime)
+							|| task.getEndDateTime().isAfter(startDateTime)) {
+						tasksToDisplay.add(task);
+					}
+				}
+
+			}
+		}
+		return tasksToDisplay;
+	}
+
+	private ArrayList<Task> findSearchedTasks(ArrayList<Task> tasks) {
+		ArrayList<Task> searchedTasks = new ArrayList<Task>();
+		for (Task task : tasks) {
+			String taskTitle = task.getTitle();
+			taskTitle = taskTitle.toLowerCase();
+			if (taskTitle.contains(_searchKeywords.trim())) {
+				searchedTasks.add(task);
+			}
+		}
+		return searchedTasks;
+	}
+
+	private void executeViewOverdue() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		LocalDateTime now = LocalDateTime.now();
+
+		try {
+			tasks = _controller.getStorage().getTaskList();
+			for (Task task : tasks) {
+				if (!task.isDone()) {
+					TaskType taskType = task.getTaskType();
+					if (taskType == TaskType.FLOATING) {
+						tasksToDisplay.add(task);
+					} else if (task.getEndDateTime().isBefore(now)) {
+						tasksToDisplay.add(task);
+					}
+				}
+			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+	}
+
+	private void executeViewCompleted() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+
+		try {
+			tasks = _controller.getStorage().getTaskList();
+			for (Task task : tasks) {
+				if (task.isDone()) {
+					tasksToDisplay.add(task);
+
+				}
+			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+	}
+
+	private void executeViewUpcoming() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+
+		try {
+			tasks = _controller.getStorage().getTaskList();
+			for (Task task : tasks) {
+				if (!task.isDone()) {
+					tasksToDisplay.add(task);
+				}
+
+			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+	}
+
+	private ArrayList<Task> executeViewAll() {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		ArrayList<Task> doneTasksToDisplay = new ArrayList<Task>();
+		try {
+
+			ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+			for (Task task : tasks) {
+				if (!task.isDone()) {
+
+					tasksToDisplay.add(task);
+				} else {
+					doneTasksToDisplay.add(task);
+				}
+			}
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			doneTasksToDisplay.sort(new TaskEndDateComparator());
+			tasksToDisplay.addAll(doneTasksToDisplay);
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+		return tasksToDisplay;
+	}
+
+	// End of segment: src\taskie\commands\ViewCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\Controller.java
+	 */
+
+
+package taskie;
+
+import java.io.IOException;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import taskie.commands.ExitCommand;
+import taskie.commands.ICommand;
+import taskie.database.Configuration;
+import taskie.database.IStorage;
+import taskie.database.NStorage;
+import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+import taskie.models.Task;
+import taskie.parser.CommandParser;
+import taskie.parser.Parser;
+import taskie.ui.CommandUI;
+import taskie.ui.UI;
+
+public class Controller {
+	private static Controller _instance;
+	private Configuration _config;
+	private Logger _logger;
+	private Parser _parser;
+	private Stack<ICommand> _undoStack;
+	private Stack<ICommand> _redoStack;
+	private Task _lastTask;
+
+	protected UI _ui;
+	protected IStorage _storage;
+
+	public UI getUI() {
+		return _ui;
+	}
+
+	public IStorage getStorage() {
+		return _storage;
+	}
+
+	public Parser getParser() {
+		return _parser;
+	}
+
+	public Configuration getConfiguration() {
+		return _config;
+	}
+
+	private Controller() {
+		_logger = Logger.getLogger(Controller.class.getName());
+		_config = Configuration.getInstance();
+		_ui = new CommandUI(this);
+		_parser = new CommandParser();
+		this.initialize();
+	}
+
+	private void initialize() {
+		try {
+			_undoStack = new Stack<ICommand>();
+			_redoStack = new Stack<ICommand>();
+			_storage = new NStorage(_config.getDatabasePath());
+			_lastTask=null;
+		} catch (IOException e) {
+			_logger.log(Level.SEVERE, "Critital: Unable to initialize Storage System");
+			System.out.println("Critital: Unable to initialize Storage System");
+		}
+	}
+
+	public static Controller getInstance() {
+		if (_instance == null) {
+			_instance = new Controller();
+		}
+		return _instance;
+	}
+	
+	public Task getLastTask() throws TaskRetrievalFailedException {
+		if(_lastTask==null){
+			throw new TaskRetrievalFailedException();
+		}
+		return _lastTask;
+	}
+	
+	public void setLastTask(Task task){
+		_lastTask = task;
+	}
+	
+
+	public void run() {
+		_ui.run();
+
+		while (_ui.isUIRunning()) {
+			String string = _ui.readInput();
+			if (string == null) {
+				this.executeCommand(new ExitCommand());
+			} else {
+				if (!string.isEmpty()) {
+					try {
+						ICommand cmd = _parser.parse(string);
+						this.executeCommand(cmd);
+					} catch (InvalidCommandException e) {
+						_ui.display(DisplayType.ERROR, Messages.INVALID_COMMAND);
+						this.executeCommand(e.getHelpCommand());
+					}
+				}
+			}
+		}
+	}
+
+	public void executeCommand(ICommand command) {
+		addTaskHistory(command);
+		command.execute();
+	}
+
+	// End of segment: src\taskie\Controller.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Messages.java
+	 */
+
+public class Messages {
+	public static final String NEWLINE = System.lineSeparator();
+	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
+	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mma");
+	public static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy hh:mma");
+
+	// UI Messages
+	public static final String UI_WELCOME_MESSAGE = "Welcome to Taskie!";
+	public static final String UI_REQUEST_INPUT = "Enter Command: ";
+	public static final String UI_HEADER = "Your To-Do List";
+
+	// AddCommand messages
+	public static final String ADD_FLOATING = "%s added." + NEWLINE;
+	public static final String ADD_DEADLINED = "%s added at %s" + NEWLINE;
+	public static final String ADD_TIMED = "%s added from %s to %s" + NEWLINE;
+	public static final String ADD_CONFLICT = "Task conflicts with: " + NEWLINE;
+
+	// DeleteCommand messages
+	public static final String DELETE_TASK = "%s is deleted from list." + NEWLINE;
+	public static final String DELETE_TASK_FIELD = "Following fields are deleted from %s:" + NEWLINE;
+
+	// ExitCommand messages
+	public static final String EXIT_MESSAGE = "Taskie is exiting. Hope to see you soon!" + NEWLINE;
+
+	// MarkCommand messages
+	public static final String MARK_STRING = "%s marked as done." + NEWLINE;
+	public static final String TASK_ALREADY_DONE = "Task is already done." + NEWLINE;
+
+	// UnmarkCommand messages
+	public static final String UNMARK_STRING = "%s marked as not done." + NEWLINE;
+	public static final String TASK_ALREADY_NOT_DONE = "Task is not done." + NEWLINE;
+
+	// UpdateCommand messages
+	public static final String UPDATE_STRING = "Following task fields from %s is updated:" + NEWLINE;
+	public static final String INVALID_DATE_INPUT = "Invalid Command. Date input is not valid. Please try again." + NEWLINE;
+	public static final String TASK_TITLE = "Task Title" + NEWLINE;
+	public static final String START_DATE = "Start date" + NEWLINE;
+	public static final String START_TIME = "Start time" + NEWLINE;
+	public static final String END_DATE = "End date" + NEWLINE;
+	public static final String END_TIME = "End time" + NEWLINE;
+
+	// DirectoryCommand messages
+	public static final String DIRECTORY_CHANGED = "Directory changed to %s" + NEWLINE;
+	public static final String DIRECTORY_NOT_CHANGED = "";
+	public static final String DIRECTORY_INVALID = "The directory you selected is not valid." + NEWLINE;
+	public static final String DIRECTORY_FILE_EXISTS = "The directory you selected contains an existing Taskie Database." + NEWLINE;
+	public static final String DIRECTORY_CHANGE_FAILED = "Directory change failed." + NEWLINE;
+
+	// help messages
+	public static final String ADD_HELP_HEADER = "HELP: Add a New Task " + NEWLINE;
+	public static final String ADD_HELP_BODY = "add <task title> " + "[from/on/between/by/in/at/on <start date/time>] " + "[to/till <end date/time>]" + NEWLINE + NEWLINE;
+
+	public static final String VIEW_HELP_HEADER = "HELP: View and Search Existing Tasks" + NEWLINE;
+	public static final String VIEW_HELP_BODY = "view [all/undone/done/due]" + NEWLINE + NEWLINE;
+
+	public static final String UPDATE_HELP_HEADER = "HELP: Update an Existing Task" + NEWLINE;
+	public static final String UPDATE_HELP_BODY = "update <task number> [<task title>] " + "[from <start date/time> to <end date/time> / by <end date/time>]" + NEWLINE + NEWLINE;
+
+	public static final String DELETE_HELP_HEADER = "HELP: Delete an Existing Task" + NEWLINE;
+	public static final String DELETE_HELP_BODY = "delete <task number>" + NEWLINE + NEWLINE;
+
+	public static final String UNDO_HELP_HEADER = "HELP: Undo One or More Actions" + NEWLINE;
+	public static final String UNDO_HELP_BODY = "undo [<number of steps>]" + NEWLINE + NEWLINE;
+
+	public static final String REDO_HELP_HEADER = "HELP: Redo One or More Actions" + NEWLINE;
+	public static final String REDO_HELP_BODY = "redo [<number of steps>]" + NEWLINE + NEWLINE;
+
+	public static final String MARK_HELP_HEADER = "HELP: Mark a Task as Done" + NEWLINE;
+	public static final String MARK_HELP_BODY = "mark <task number>" + NEWLINE + NEWLINE;
+
+	public static final String UNMARK_HELP_HEADER = "HELP: Mark a Task as Undone" + NEWLINE;
+	public static final String UNMARK_HELP_BODY = "unmark <task number>" + NEWLINE + NEWLINE;
+
+	public static final String DIRECTORY_HELP_HEADER = "HELP: Change Storage Directory" + NEWLINE;
+	public static final String DIRECTORY_HELP_BODY = "directory <new path>" + NEWLINE + NEWLINE;
+
+	public static final String EXIT_HELP_HEADER = "HELP: Exit Taskie" + NEWLINE;
+	public static final String EXIT_HELP_BODY = "exit" + NEWLINE + NEWLINE;
+
+	// error messages
+	public static final String INVALID_TASK_NUM = "Invalid task number. Please try again." + NEWLINE;
+	public static final String INVALID_COMMAND = "Invalid Command. Please try again." + NEWLINE;
+
+	// UndoCommand messages
+	public static final String NOTHING_TO_UNDO = "Nothing to undo." + NEWLINE;
+	public static final String UNDO_FAILED = "Undo failed." + NEWLINE;
+
+	// RedoCommand messages
+	public static final String NOTHING_TO_REDO = "Nothing to redo." + NEWLINE;
+	public static final String REDO_FAILED = "Redo failed." + NEWLINE;
+
+	// Exception default messages
+	public static final String CONFIGURATION_FAILED_EXCEPTION = "The configuration could not be settled." + NEWLINE;
+	public static final String FILE_EXISTS_EXCEPTION = "A file already exists at this directory." + NEWLINE;
+	public static final String INVALID_COMMAND_EXCEPTION = "The command could not be parsed." + NEWLINE;
+	public static final String INVALID_TASK_EXCEPTION = "The task is not valid" + NEWLINE;
+	public static final String NOTHING_TO_REDO_EXCEPTION = "There is nothing to redo." + NEWLINE;
+	public static final String STORAGE_LOCATION_INVALID_EXCEPTION = "Storage Location is invalid" + NEWLINE;
+	public static final String STORAGE_MIGRATION_FAILED_EXCEPTION = "Storage Location is invalid" + NEWLINE;
+	public static final String TASK_DATE_INVALID_EXCEPTION = "Task time not set" + NEWLINE;
+	public static final String TASK_DATE_NOT_SET_EXCEPTION = "Task date not set" + NEWLINE;
+	public static final String TASK_MODIFICATION_FAILED_EXCEPTION = "Modification of the task has failed" + NEWLINE;
+	public static final String TASK_RETRIEVAL_FAILED_EXCEPTION = "Failed to retrieve task(s)" + NEWLINE;
+	public static final String TASK_TYPE_NOT_SUPPORTED_EXCEPTION = "This task type is not supported." + NEWLINE;
+	public static final String UNDO_NOT_SUPPORTED_EXCEPTION = "Undo is not supported for this command" + NEWLINE;
+}
+	// End of segment: src\taskie\models\Messages.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	// staging variables so that task model can be checked for consistency
+	// before actual updates.
+	private LocalDate _stageStartDate;
+	private LocalTime _stageStartTime;
+	private LocalDate _stageEndDate;
+	private LocalTime _stageEndTime;
+
+	private boolean _isStagedStartDate = false;
+	private boolean _isStagedStartTime = false;
+	private boolean _isStagedEndDate = false;
+	private boolean _isStagedEndTime = false;
+
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	public Task(Task task) {
+		_title = task.getTitle();
+		_startDate = task.getStartDate();
+		_startTime = task.getStartTime();
+		_endDate = task.getEndDate();
+		_endTime = task.getEndTime();
+		_isDone = task.isDone();
+	}
+
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	// this constructor is used to duplicate a task.
+	public int compareTo(Task other) {
+		LocalDateTime thisTaskDateTime = LocalDateTime.of(this.getEndDate(), this.getEndTime());
+		LocalDateTime otherTaskDateTime = LocalDateTime.of(other.getEndDate(), other.getEndTime());
+		return thisTaskDateTime.compareTo(otherTaskDateTime);
+	}
+
+	public int compareTo(LocalDateTime now) {
+		LocalDateTime thisTaskDateTime = LocalDateTime.of(this.getEndDate(), this.getEndTime());
+		return thisTaskDateTime.compareTo(now);
+	}
+
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	public void stageUpdateStartDate(LocalDate startDate) {
+		_stageStartDate = startDate;
+		_isStagedStartDate = true;
+	}
+
+	public void stageUpdateStartTime(LocalTime startTime) {
+		_stageStartTime = startTime;
+		_isStagedStartTime = true;
+	}
+
+	public void stageUpdateEndDate(LocalDate endDate) {
+		_stageEndDate = endDate;
+		_isStagedEndDate = true;
+	}
+
+	public void stageUpdateEndTime(LocalTime endTime) {
+		_stageEndTime = endTime;
+		_isStagedEndTime = true;
+	}
+
+	public void stageUpdateStartDateTime(LocalDate startDate, LocalTime startTime) {
+		stageUpdateStartDate(startDate);
+		stageUpdateStartTime(startTime);
+	}
+
+	public void stageUpdateEndDateTime(LocalDate startDate, LocalTime startTime) {
+		stageUpdateStartDate(startDate);
+		stageUpdateStartTime(startTime);
+	}
+
+	public void pushStageToActual() throws TaskDateInvalidException, TaskDateNotSetException {
+		if (isStagingConsistent()) {
+			if (_isStagedStartDate) {
+				setStartDate(_stageStartDate);
+			}
+			if (_isStagedStartTime) {
+				setStartTime(_stageStartTime);
+			}
+			if (_isStagedEndDate) {
+				setEndDate(_stageEndDate);
+			}
+			if (_isStagedEndTime) {
+				setEndTime(_stageEndTime);
+			}
+			resetStaging();
+		} else {
+			resetStaging();
+			throw new TaskDateInvalidException();
+		}
+	}
+
+	public void initialiseStaging() {
+		_stageStartDate = _startDate;
+		_stageStartTime = _startTime;
+		_stageEndDate = _endDate;
+		_stageEndTime = _endTime;
+
+	}
+
+	private boolean isStagingConsistent() {
+		LocalDateTime stageStartDateTime = createDateTime(_stageStartDate, _stageStartTime);
+		LocalDateTime stageEndDateTime = createDateTime(_stageEndDate, _stageEndTime);
+		if (_stageStartDate == null && _stageStartTime != null) {
+			return false;
+		}
+
+		if (_stageEndDate == null && _stageEndTime != null) {
+			return false;
+		}
+		if (stageStartDateTime != null && stageEndDateTime == null) {
+			return false;
+		}
+
+		if (stageStartDateTime != null && stageEndDateTime != null && stageStartDateTime.isAfter(stageEndDateTime)) {
+			return false;
+		}
+		return true;
+	}
+
+	private LocalDateTime createDateTime(LocalDate date, LocalTime time) {
+		if (date == null) {
+			return null;
+		} else {
+			if (time == null) {
+				return LocalDateTime.of(date, LocalTime.MAX);
+			} else {
+				return LocalDateTime.of(date, time);
+			}
+		}
+	}
+
+	private void resetStaging() {
+		_stageStartDate = null;
+		_stageStartTime = null;
+		_stageEndDate = null;
+		_stageEndTime = null;
+		_isStagedStartDate = false;
+		_isStagedStartTime = false;
+		_isStagedEndDate = false;
+		_isStagedEndTime = false;
+	}
+}
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\TaskEndDateComparator.java
+	 */
+
+import java.time.LocalDateTime;
+import java.util.Comparator;
+
+public class TaskEndDateComparator implements Comparator<Task> {
+
+	public TaskEndDateComparator() {
+		
+	}
+
+	@Override
+	public int compare(Task o1, Task o2) {
+		if(o1.getEndDate()==null){
+			if(o2.getEndDate()==null){
+				return 0;
+			}
+			else{
+				return 1;
+			}
+		}else{
+			if(o2.getEndDate()==null){
+				return -1;
+			}
+		}
+		LocalDateTime o1DateTime = o1.getEndDateTime();
+		LocalDateTime o2DateTime = o2.getEndDateTime();
+		return o1DateTime.compareTo(o2DateTime);
+		
+	}
+	public int equals(Task o1, Task o2){
+		if(o1.getEndDate()==o2.getEndDate()){
+			return 1;
+		}
+		return 0;
+	}
+
+}
+
+	// End of segment: src\taskie\models\TaskEndDateComparator.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\tests\CommandTest.java
+	 */
+
+package taskie.tests;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.*;
+import java.util.ArrayList;
+import java.util.Date;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import taskie.Controller;
+import taskie.commands.*;
+import taskie.exceptions.*;
+import taskie.models.Task;
+import taskie.models.ViewType;
+import taskie.parser.CommandParser;
+import taskie.parser.Parser;
+
+import com.joestelmach.natty.CalendarSource;
+
+public class CommandTest {
+	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
+	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
+
+	private static Controller _controller;
+
+
+
+	private static LocalDate _time1Date;
+	private static LocalTime _time1Time;
+
+	private static LocalDate _time2Date;
+	private static LocalTime _time2Time;
+	
+	private static LocalDate _time3Date;
+	private static LocalTime _time3Time;
+	
+	private static LocalDate _time4Date;
+	private static LocalTime _time4Time;
+
+	private static LocalDateTime _time1;
+	private static LocalDateTime _time2;
+	private static LocalDateTime _time3;
+	private static LocalDateTime _time4;
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		_controller = Controller.getInstance();
+		_time1 = LocalDateTime.of(2100,1,2,13,0);
+		_time2 = _time1.plusHours(2);
+		_time3 = _time1.plusDays(1);
+		_time4= _time3.plusHours(2);
+
+		
+		_time1Date = _time1.toLocalDate();
+		_time1Time = _time1.toLocalTime();
+		
+		_time2Date = _time2.toLocalDate();
+		_time2Time = _time2.toLocalTime();
+		
+		_time3Date = _time3.toLocalDate();
+		_time3Time = _time3.toLocalTime();
+		
+		_time4Date = _time4.toLocalDate();
+		_time4Time = _time4.toLocalTime();
+
+	}
+
+	@AfterClass
+	public static void cleanUp() throws IOException, TaskRetrievalFailedException, TaskModificationFailedException {
+		_controller.getStorage().clearAllTasks();
+	}
+
+	@Before
+	public void setUp() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException {
+		_controller.getStorage().clearAllTasks();
+	}
+
+	@Test
+	public void testAddCommandFloating() throws InvalidCommandException,
+			InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
+		setUp();
+		addTask("foo",null,null);
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		
+		Task expectedTask = new Task("foo");
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+
+	@Test
+	public void testAddCommandDeadline() throws TaskRetrievalFailedException,
+			IOException, TaskModificationFailedException {
+		setUp();
+		addTask("bar",null,_time1);
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		
+		Task expectedTask = new Task("bar", _time1Date, _time1Time);
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+
+	@Test
+	public void testAddCommandTimed() throws TaskRetrievalFailedException,
+			IOException, TaskModificationFailedException {
+		setUp();
+		AddCommand cmd = new AddCommand();
+		addTask("foobar",_time1,_time2);
+		_controller.executeCommand(cmd);
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+	
+		Task expectedTask = new Task("foobar", _time1Date, _time1Time, _time2Date,
+				_time2Time);
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+
+	@Test
+	public void testViewCommandAll() throws TaskRetrievalFailedException,
+			IOException, TaskModificationFailedException, InvalidTaskException {
+		setUp();
+		generateTasks();
+		ViewCommand cmd = new ViewCommand(ViewType.ALL);
+		cmd.execute();
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[10]));
+		assertEquals(10, _controller.getUI().getCurrentTaskList().length);
+	}
+	
+	@Test
+	public void testViewCommandSearchTaskName() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException, InvalidTaskException{
+		setUp();
+		generateTasks();
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName("bar");
+		cmd.execute();
+		ViewCommand view = new ViewCommand(ViewType.SEARCH);
+		view.setSearchKeywords("bar");
+		view.execute();
+		assertEquals(1,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	
+	@Test
+	public void testViewCommandSearchfromStartDate() throws InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		generateTasks();
+		ViewCommand view = new ViewCommand(ViewType.SEARCH);
+		view.setStartDate(_time3Date);
+		view.execute();
+		assertEquals(8,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	@Test
+	public void testViewCommandSearchByEndDate() throws InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		generateTasks();
+		ViewCommand view = new ViewCommand(ViewType.SEARCH);
+		view.setEndDate(_time2Date);
+		view.execute();
+		assertEquals(7,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	@Test
+	public void testViewCommandSearchBetweenDates() throws InvalidTaskException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		generateTasks();
+		ViewCommand view = new ViewCommand(ViewType.SEARCH);
+		view.setStartDate(_time1Date);
+		view.setEndDate(_time3Date);
+		view.execute();
+		assertEquals(10,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	
+	@Test
+	public void testViewUpcoming() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException, InvalidTaskException{
+		setUp();
+		generateTasks();
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[10]));
+		int[] intArr= {1,3,5};
+		MarkCommand mark = new MarkCommand(intArr);
+		mark.execute();
+		ViewCommand view = new ViewCommand(ViewType.UPCOMING);
+		view.execute();
+		assertEquals(7,_controller.getUI().getCurrentTaskList().length);
+	}
+	
+	
+	@Test
+	public void testUpdateCommandTaskName()
+			throws TaskRetrievalFailedException, IOException,
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
+		setUp();
+		AddCommand cmd = new AddCommand();
+		addTask("foo",_time1,_time2);
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI()
+				.display(tasks.toArray(new Task[tasks.size()]));
+		UpdateCommand update = new UpdateCommand(1);
+		update.setTaskTitleToUpdate("bar");
+		update.execute();
+		
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		Task expectedTask = new Task("bar",_time1,_time2);
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+
+	}
+
+	@Test
+	public void testUpdateCommandEndTime() throws TaskRetrievalFailedException,
+			IOException, InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
+		setUp();
+		addTask("foo",null,_time1);
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI()
+				.display(tasks.toArray(new Task[tasks.size()]));
+		UpdateCommand update = new UpdateCommand(1);
+		update.setEndDateToUpdate(_time2Date);
+		update.setEndTimeToUpdate(_time2Time);
+		update.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		Task expectedTask = new Task("foo",_time2);
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+
+	@Test
+	public void testUpdateCommandStartEndDateTime()
+			throws TaskRetrievalFailedException, IOException,
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
+		setUp();
+		addTask("foo",_time1,_time2);
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI()
+				.display(tasks.toArray(new Task[tasks.size()]));
+		UpdateCommand update = new UpdateCommand(1);
+		update.setEndDateToUpdate(_time3Date);
+		update.setEndTimeToUpdate(_time3Time);
+		update.setStartDateToUpdate(_time2Date);
+		update.setStartTimeToUpdate(_time2Time);
+		update.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		Task expectedTask = new Task("foo",_time2,_time3);
+
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+
+
+	
+	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
+	@Test
+	public void testUpdateCommandStartEndDateTimeComplex()
+			throws TaskRetrievalFailedException, IOException,
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
+		setUp();
+		addTask("foo",_time1,_time3);
+		
+		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
+		_controller.getUI().display(tasks.toArray(new Task[tasks.size()]));
+		UpdateCommand update = new UpdateCommand(1);
+		update.setStartDateToUpdate(_time2Date);
+		update.setStartTimeToUpdate(_time2Time);
+		update.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		
+		
+		Task expectedTask = new Task("foo",_time2,_time3);
+		assertEquals(expectedTask.toString(), list.get(0).toString());	
+	}
+	
+	@Test
+	public void testUpdateCommandNoIndexReference()
+			throws TaskRetrievalFailedException, IOException,
+			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
+		setUp();
+		addTask("foo",_time1,_time2);
+		
+		UpdateCommand update = new UpdateCommand(0);
+		update.setTaskTitleToUpdate("bar");
+		update.execute();
+		
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		Task expectedTask = new Task("bar",_time1,_time2);
+		assertEquals(expectedTask.toString(), list.get(0).toString());
+	}
+	
+	@Test
+	public void testDeleteCommand() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		addTask("foo",null,null);
+		addTask("bar",null,null);
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[2]));
+		DeleteCommand delete = new DeleteCommand(1);
+		delete.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		assertEquals(1,list.size());
+	}
+	
+	
+	@Test 
+	public void testMarkAndUnmarkCommand() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		addTask("foo",null,null);
+		
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		MarkCommand mark = new MarkCommand(1);
+		mark.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		assertEquals(true,list.get(0).isDone());
+		
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		UnmarkCommand unmark = new UnmarkCommand(1);
+		unmark.execute();
+		list = _controller.getStorage().getTaskList();
+		assertEquals(false,list.get(0).isDone());	
+	}
+
+	@Test
+	public void testUndoAndRedoCommand() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		AddCommand cmd = new AddCommand("foo",null,null);
+		_controller.executeCommand(cmd);
+		UndoCommand undo = new UndoCommand();
+		undo.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		assertEquals(0,list.size());
+		RedoCommand redo = new RedoCommand();
+		redo.execute();
+		list = _controller.getStorage().getTaskList();
+		assertEquals(1,list.size());
+	}
+	
+	// End of segment: src\taskie\tests\CommandTest.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\tests\CommandTest.java
+	 */
+
+	private void addTask(String taskName,LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		AddCommand cmd = new AddCommand();
+		cmd.setTaskName(taskName);
+		System.out.println(cmd.toString());
+		if(startDateTime!=null){
+			cmd.setStartDateTime(startDateTime);
+		}
+		if(endDateTime!=null){
+			cmd.setEndDateTime(endDateTime);
+		}
+		cmd.execute();
+	}
+	
+
+	
+	
+
+	private void generateTasks() {
+		for (int i = 0; i < 10; i++) {
+			AddCommand cmd = new AddCommand();
+			cmd.setTaskName("foo " + i);
+			if (i % 2 == 0) {
+				cmd.setEndDateTime(_time2.plusHours(i*3));
+				if (i % 3 == 0) {
+					cmd.setStartDateTime(_time1.plusHours(i*3));
+				}
+			}
+			cmd.execute();
+		}
+		
+	}
+
+}
+
+	// End of segment: src\taskie\tests\CommandTest.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\tests\FunctionalTest.java
+	 */
+
+package taskie.tests;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import taskie.Controller;
+import taskie.commands.ICommand;
+import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.models.Task;
+
+public class FunctionalTest {
+	private static Controller _controller;
+	
+	LocalDateTime _now = LocalDateTime.now();
+	LocalDateTime _today10pm = LocalDateTime.of(_now.toLocalDate(), LocalTime.of(22, 0, 0, 0));
+	LocalDateTime _today2pm = LocalDateTime.of(_now.toLocalDate(), LocalTime.of(14,0,0,0));
+	
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+		_controller.getStorage().clearAllTasks();
+	}
+	@BeforeClass
+	public static void setUp() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException {
+		_controller = Controller.getInstance();
+		_controller.getStorage().clearAllTasks();
+		
+	}
+
+	@Test
+	public void testAddFloating() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
+		setUp();
+		ICommand cmd = _controller.getParser().parse("add taskname");
+		cmd.execute();
+		Task expectedTask = new Task("taskname");
+		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
+	}
+	@Test
+	public void testAddDeadline() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		ICommand cmd=null;
+		
+		try {
+			cmd = _controller.getParser().parse("add taskname by 10pm");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		cmd.execute();
+		Task expectedTask = new Task("taskname",_today10pm);
+		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
+	}
+	@Test
+	public void testAddTimed() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		ICommand cmd=null;
+		
+		try {
+			cmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		cmd.execute();
+		Task expectedTask = new Task("taskname",_today2pm,_today10pm);
+		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
+	}
+	
+
+}
+
+	// End of segment: src\taskie\tests\FunctionalTest.java
+
+
+
+
+

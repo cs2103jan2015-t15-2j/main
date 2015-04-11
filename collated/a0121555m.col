@@ -1,0 +1,3833 @@
+//@author: a0121555m
+
+
+
+	/**
+	 * origin: src\taskie\commands\AbstractCommand.java
+	 */
+
+package taskie.commands;
+
+import taskie.Controller;
+
+public abstract class AbstractCommand implements ICommand {
+	protected Controller _controller;
+
+	public AbstractCommand() {
+		_controller = Controller.getInstance();
+	}
+}
+
+	// End of segment: src\taskie\commands\AbstractCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\AddCommand.java
+	 */
+
+	public LocalDateTime getStartDateTime() {
+		try {
+			return LocalDateTime.of(_startDate,
+					(_startTime == null) ? LocalTime.MAX : _startTime);
+		} catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	public void setStartDateTime(LocalDateTime startDateTime) {
+		if (startDateTime == null) {
+			this.setStartDate(null);
+			this.setStartTime(null);
+		} else {
+			this.setStartDate(startDateTime.toLocalDate());
+			this.setStartTime(startDateTime.toLocalTime());
+		}
+	}
+
+	public LocalDateTime getEndDateTime() {
+		try {
+			return LocalDateTime.of(_endDate,
+					(_endTime == null) ? LocalTime.MAX : _endTime);
+		} catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	public void setEndDateTime(LocalDateTime endDateTime) {
+		if (endDateTime == null) {
+			this.setEndDate(null);
+			this.setEndTime(null);
+		} else {
+			this.setEndDate(endDateTime.toLocalDate());
+			this.setEndTime(endDateTime.toLocalTime());
+		}
+	}
+
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	public void execute() {
+		assert _taskName != null;
+		try {
+			_task = new Task(_taskName, _startDate, _startTime, _endDate,
+					_endTime);
+			if (hasNoConflict()) {
+				_controller.getStorage().addTask(_task);
+				_controller.setLastTask(_task);
+				_controller.getUI().display(DisplayType.SUCCESS,
+						formatAddMsg(_task));
+			} else {
+				_controller.getStorage().addTask(_task);
+				_controller.setLastTask(_task);
+				_controller.getUI().display(DisplayType.ERROR,formatAddMsgWithWarning(_task));
+			}
+		} catch (TaskRetrievalFailedException e) {
+			try {
+				_controller.getStorage().addTask(_task); 	// this branch occurs
+				_controller.setLastTask(_task);				// when task
+															// retrieval fails
+															// (for sanity check
+															// purposes)
+															// even if task
+															// retrieval fails,
+															// we ought to
+															// try to add task.
+			} catch (TaskTypeNotSupportedException
+					| TaskModificationFailedException e1) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			}
+		} catch (TaskTypeNotSupportedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		} catch (TaskModificationFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+	}
+
+
+	// End of segment: src\taskie\commands\AddCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\AddCommand.java
+	 */
+
+	@Override
+	public void undo() {
+		new DeleteCommand(_task).execute();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("TaskName:" + _taskName + ",");
+
+		try {
+			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
+		} catch (NullPointerException e) {
+			sb.append("StartDateTime:null,");
+		}
+		try {
+			sb.append("EndDateTime:" + this.getEndDateTime());
+		} catch (NullPointerException e) {
+			sb.append("EndDateTime");
+		}
+
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\AddCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\DeleteCommand.java
+	 */
+
+	public DeleteCommand(int itemNumber) {
+		_taskIndexes = new int[] { itemNumber };
+	}
+
+	public DeleteCommand(int[] itemNumbers) {
+		_taskIndexes = itemNumbers;
+	}
+
+	public DeleteCommand(Task task) {
+		_tasks.add(task);
+	}
+
+	public DeleteCommand(Task[] tasks) {
+		for (int x = 0; x < tasks.length; x++) {
+			_tasks.add(tasks[x]);
+		}
+	}
+
+	// End of segment: src\taskie\commands\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\DeleteCommand.java
+	 */
+
+	private void retrieveTasks() {
+		if ( _taskIndexes == null ) {
+			return;
+		}
+		
+		for (int x = 0; x < _taskIndexes.length; x++) {
+			try {
+				int index = _taskIndexes[x];
+				if (index == 0) {
+					_tasks.add(_controller.getLastTask());
+				} else {
+					_tasks.add(_controller.getUI().getTask(index));
+				}
+			} catch (InvalidTaskException e) {
+				_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+			} catch (TaskRetrievalFailedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			}
+		}
+	}
+
+	private void deleteTask() throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		_controller.getStorage().deleteTask(_currentTask);
+	}
+
+	// End of segment: src\taskie\commands\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\DeleteCommand.java
+	 */
+
+	@Override
+	public void undo() {
+		new AddCommand(_currentTask).execute();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("TaskIndex:" + Arrays.toString(_taskIndexes));
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\DirectoryCommand.java
+	 */
+
+package taskie.commands;
+
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import taskie.exceptions.ConfigurationFailedException;
+import taskie.exceptions.FileExistsException;
+import taskie.exceptions.StorageLocationInvalidException;
+import taskie.exceptions.StorageMigrationFailedException;
+import taskie.exceptions.UndoNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+
+public class DirectoryCommand extends AbstractCommand {
+	private Logger _logger;
+	private CommandType _commandType = CommandType.DIRECTORY;
+	private String _path;
+	private boolean _overwrite;
+	
+	public DirectoryCommand() {
+		_logger = Logger.getLogger(DirectoryCommand.class.getName());
+		_path = "";
+		_overwrite = false;
+	}
+	
+	public DirectoryCommand(String path, boolean overwrite) {
+		this();
+		_path = path;
+		_overwrite = overwrite;
+	}
+
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	public void execute() {
+		try {
+			String folder;
+			Path currentFolder = _controller.getStorage().getStorageLocation();
+
+			if ( _path.equals("") ) {
+				folder = _controller.getUI().loadSelectDirectoryDialog(currentFolder.toString());
+			} else {
+				folder = _path;
+			}
+			
+			if ( folder == null ) {
+				// Directory Change Cancelled
+				_controller.getUI().display(DisplayType.DEFAULT, String.format(Messages.DIRECTORY_NOT_CHANGED));
+			} else {
+				if (!folder.equals(currentFolder)) {
+					try {
+						_controller.getStorage().setStorageLocation(FileSystems.getDefault().getPath(folder), _overwrite);
+					} catch ( FileExistsException e ) {
+						_logger.log(Level.INFO, String.format("Database exists at %s", currentFolder));
+					}
+					
+					_controller.getConfiguration().setDatabasePath(folder);
+					_controller.getUI().display(DisplayType.SUCCESS, String.format(Messages.DIRECTORY_CHANGED, folder));
+				}
+			}
+		} catch (ConfigurationFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_CHANGE_FAILED));
+		} catch (StorageMigrationFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_CHANGE_FAILED));
+		} catch (StorageLocationInvalidException e) {
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_INVALID));
+		}
+	}
+
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType);
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\DirectoryCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\ExitCommand.java
+	 */
+
+package taskie.commands;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import taskie.exceptions.UndoNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+
+public class ExitCommand extends AbstractCommand {
+	private Logger _logger;
+	private CommandType _commandType = CommandType.EXIT;
+
+	public ExitCommand() {
+		super();
+		_logger = Logger.getLogger(ExitCommand.class.getName());
+	}
+
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	public void execute() {
+		try {
+			_controller.getStorage().close();
+		} catch (IOException e) {
+			_logger.log(Level.INFO, "Failed to close storage properly: " + e.getMessage());
+		
+		}
+
+		_controller.getUI().display(DisplayType.DEFAULT, taskie.models.Messages.EXIT_MESSAGE);
+		_controller.getUI().exit();
+	}
+	
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType);
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\ExitCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\MarkCommand.java
+	 */
+
+	public MarkCommand(int itemNumber) {
+		_taskIndexes = new int[] { itemNumber };
+	}
+
+	public MarkCommand(int[] itemNumbers) {
+		_taskIndexes = itemNumbers;
+	}
+
+	public MarkCommand(Task task) {
+		_tasks.add(task);
+	}
+
+	public MarkCommand(Task[] tasks) {
+		for (int x = 0; x < tasks.length; x++) {
+			_tasks.add(tasks[x]);
+		}
+	}
+	
+	public MarkCommand(ArrayList<Task> tasks) {
+		_tasks.addAll(tasks);
+	}
+
+	// End of segment: src\taskie\commands\MarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\MarkCommand.java
+	 */
+
+	private void retrieveTasks() {
+		if ( _taskIndexes == null ) {
+			return;
+		}
+		
+		for (int x = 0; x < _taskIndexes.length; x++) {
+			try {
+				int index = _taskIndexes[x];
+				if (index == 0) {
+					_tasks.add(_controller.getLastTask());
+				} else {
+					_tasks.add(_controller.getUI().getTask(index));
+				}
+			} catch (InvalidTaskException e) {
+				_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+			} catch (TaskRetrievalFailedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			}
+		}
+	}
+
+	public void undo() {
+		new UnmarkCommand(_tasks).execute();
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("TaskIndex:" + Arrays.toString(_taskIndexes));
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\MarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\RedoCommand.java
+	 */
+
+package taskie.commands;
+
+import java.util.Stack;
+
+import taskie.exceptions.UndoNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+
+public class RedoCommand extends AbstractCommand {
+	private CommandType _commandType = CommandType.REDO;
+	private int _steps;
+
+	public RedoCommand() {
+		this._steps = 1;
+	}
+
+	public RedoCommand(int steps) {
+		this._steps = steps;
+	}
+
+	@Override
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	@Override
+	public void execute() {
+		Stack<ICommand> undoStack = _controller.getUndoStack();
+		Stack<ICommand> redoStack = _controller.getRedoStack();
+
+		if (redoStack.size() > 0) {
+			for (int x = 0; x < _steps; x++) {
+				ICommand cmd = redoStack.pop();
+				cmd.execute();
+				undoStack.add(cmd);
+			}
+		} else {
+			_controller.getUI().display(DisplayType.ERROR, Messages.NOTHING_TO_REDO);
+		}
+	}
+
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("Steps:" + _steps);
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\RedoCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\UndoCommand.java
+	 */
+
+package taskie.commands;
+
+import java.util.Stack;
+
+import taskie.exceptions.UndoNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+
+public class UndoCommand extends AbstractCommand {
+	private CommandType _commandType = CommandType.UNDO;
+	private int _steps;
+	
+	public UndoCommand() {
+		this._steps = 1;
+	}
+	
+	public UndoCommand(int steps) {
+		this._steps = steps;
+	}
+
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	public void execute() {
+		Stack<ICommand> undoStack = _controller.getUndoStack();
+		Stack<ICommand> redoStack = _controller.getRedoStack();
+		
+		if ( undoStack.size() > 0 ) {
+			for ( int x = 0; x < _steps; x++ ) {
+				try {
+					ICommand cmd = undoStack.pop();
+					cmd.undo();
+					redoStack.add(cmd);
+				} catch (UndoNotSupportedException e) {
+					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				}
+			}
+		} else {
+			_controller.getUI().display(DisplayType.ERROR, Messages.NOTHING_TO_UNDO);
+		}
+	}
+	
+	// End of segment: src\taskie\commands\UndoCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\UndoCommand.java
+	 */
+
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("Steps:" + _steps);
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\UndoCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\UnmarkCommand.java
+	 */
+
+	public UnmarkCommand(int itemNumber) {
+		_taskIndexes = new int[] { itemNumber };
+	}
+
+	public UnmarkCommand(int[] itemNumbers) {
+		_taskIndexes = itemNumbers;
+	}
+
+	public UnmarkCommand(Task task) {
+		_tasks.add(task);
+	}
+
+	public UnmarkCommand(Task[] tasks) {
+		for (int x = 0; x < tasks.length; x++) {
+			_tasks.add(tasks[x]);
+		}
+	}
+	
+	public UnmarkCommand(ArrayList<Task> tasks) {
+		_tasks.addAll(tasks);
+	}
+	
+	// End of segment: src\taskie\commands\UnmarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\UnmarkCommand.java
+	 */
+
+	private void retrieveTasks() {
+		if ( _taskIndexes == null ) {
+			return;
+		}
+		
+		for (int x = 0; x < _taskIndexes.length; x++) {
+			try {
+				int index = _taskIndexes[x];
+				if (index == 0) {
+					_tasks.add(_controller.getLastTask());
+				} else {
+					_tasks.add(_controller.getUI().getTask(index));
+				}
+			} catch (InvalidTaskException e) {
+				_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+			} catch (TaskRetrievalFailedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			}
+		}
+	}
+	
+	public void undo() {
+		new MarkCommand(_tasks).execute();
+
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+
+		sb.append("TaskIndexes:" + Arrays.toString(_taskIndexes));
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\UnmarkCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\UpdateCommand.java
+	 */
+
+	public void undo() {
+		try {
+			_controller.getStorage().updateTask(_newTask, _oldTask);
+		} catch (TaskTypeNotSupportedException e) {
+			_controller.getUI().display(DisplayType.ERROR, Messages.UNDO_FAILED);
+		} catch (TaskModificationFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, Messages.UNDO_FAILED);
+		}
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:" + _commandType + ",");
+		sb.append("TaskIndex:" + _taskIndex + ",");
+		sb.append("Title:" + _taskTitleToUpdate + ",");
+		sb.append("StartDate:" + _startDateToUpdate + ",");
+		sb.append("StartTime:" + _startTimeToUpdate + ",");
+		sb.append("EndDate:" + _endDateToUpdate + ",");
+		sb.append("EndTime:" + _endTimeToUpdate);
+		return sb.toString();
+	}
+
+}
+
+	// End of segment: src\taskie\commands\UpdateCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\ViewCommand.java
+	 */
+
+	private ViewType _viewType;
+	private LocalDate _startDate;
+	private LocalTime _startTime;
+	private LocalDate _endDate;
+	private LocalTime _endTime;
+	private String _searchKeywords;
+
+	public ViewCommand(ViewType viewType) {
+		_viewType = viewType;
+	}
+
+	public ViewCommand(ViewType viewType, LocalDate startDate,
+			LocalTime startTime, LocalDate endDate, LocalTime endTime,
+			String searchKeywords) {
+		super();
+		_viewType = viewType;
+		_startDate = startDate;
+		_endDate = endDate;
+		_startTime = startTime;
+		_endTime = endTime;
+		_searchKeywords = searchKeywords;
+	}
+
+	public ViewCommand(ViewType viewType, LocalDateTime startDateTime,
+			LocalDateTime endDateTime, String searchKeywords) {
+		super();
+		_viewType = viewType;
+		this.setStartDateTime(startDateTime);
+		this.setEndDateTime(endDateTime);
+		_searchKeywords = searchKeywords;
+	}
+
+	public LocalDateTime getStartDateTime() {
+		try {
+			return LocalDateTime.of(_startDate,
+					(_startTime == null) ? LocalTime.MIN : _startTime);
+		} catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	public void setStartDateTime(LocalDateTime startDateTime) {
+		if (startDateTime == null) {
+			this.setStartDate(null);
+			this.setStartTime(null);
+		} else {
+			this.setStartDate(startDateTime.toLocalDate());
+			this.setStartTime(startDateTime.toLocalTime());
+		}
+	}
+
+	public LocalDateTime getEndDateTime() {
+		try {
+			return LocalDateTime.of(_endDate,
+					(_endTime == null) ? LocalTime.MAX : _endTime);
+		} catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	public void setEndDateTime(LocalDateTime endDateTime) {
+		if (endDateTime == null) {
+			this.setEndDate(null);
+			this.setEndTime(null);
+		} else {
+			this.setEndDate(endDateTime.toLocalDate());
+			this.setEndTime(endDateTime.toLocalTime());
+		}
+	}
+
+	public LocalDate getStartDate() {
+		return _startDate;
+	}
+
+	public void setStartDate(LocalDate startDate) {
+		this._startDate = startDate;
+	}
+
+	public LocalDate getEndDate() {
+		return _endDate;
+	}
+
+	public void setEndDate(LocalDate endDate) {
+		this._endDate = endDate;
+	}
+
+	public LocalTime getStartTime() {
+		return _startTime;
+	}
+
+	public void setStartTime(LocalTime startTime) {
+		this._startTime = startTime;
+	}
+
+	public LocalTime getEndTime() {
+		return _endTime;
+	}
+
+	public void setEndTime(LocalTime endTime) {
+		this._endTime = endTime;
+	}
+
+	public String getSearchKeywords() {
+		return _searchKeywords;
+	}
+
+	public void setSearchKeywords(String searchKeywords) {
+		this._searchKeywords = searchKeywords.toLowerCase();
+	}
+
+	public CommandType getCommandType() {
+		return _commandType;
+	}
+
+	// End of segment: src\taskie\commands\ViewCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\commands\ViewCommand.java
+	 */
+
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("CommandType:View");
+		sb.append("ViewType:" + _viewType + ",");
+
+		try {
+			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
+		} catch (NullPointerException e) {
+			sb.append("StartDateTime:null,");
+		}
+		try {
+			sb.append("EndDateTime:" + this.getEndDateTime() + ",");
+		} catch (NullPointerException e) {
+			sb.append("EndDateTime,");
+		}
+
+		sb.append("SearchKeywords:"
+				+ ((_searchKeywords == null) ? "" : _searchKeywords));
+
+		return sb.toString();
+	}
+}
+
+	// End of segment: src\taskie\commands\ViewCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\Controller.java
+	 */
+
+	public Stack<ICommand> getUndoStack() {
+		return _undoStack;
+	}
+
+	public Stack<ICommand> getRedoStack() {
+		return _redoStack;
+	}
+
+	private void addTaskHistory(ICommand command) {
+		CommandType type = command.getCommandType();
+		if (type == CommandType.ADD || type == CommandType.UPDATE || type == CommandType.DELETE || type == CommandType.MARK || type == CommandType.UNMARK) {
+			_logger.log(Level.INFO, "Adding to Undo: " + command);
+			_undoStack.add(command);
+		}
+	}
+}
+	// End of segment: src\taskie\Controller.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\database\FileReaderWriter.java
+	 */
+
+package taskie.database;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import taskie.exceptions.FileExistsException;
+
+public class FileReaderWriter {
+	private static final String DEFAULT_ENCODING = "UTF-8";
+
+	private Logger _logger;
+	private Path _file;
+	private OutputStreamWriter _writer;
+	private BufferedReader _reader;
+
+	public FileReaderWriter() {
+		_logger = Logger.getLogger(FileReaderWriter.class.getName());
+	}
+	
+	public FileReaderWriter(Path file) throws IOException {
+		this();
+		_logger.log(Level.INFO, "Opening File: " + file.toString());
+		_file = file;
+		if (!Files.exists(_file)) {
+			initialize();
+		}
+	}
+
+	private void initialize() throws IOException {
+		Files.createFile(_file);
+	}
+
+	public void write(String str) throws IOException {
+		OutputStream out = Files.newOutputStream(_file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		_writer = new OutputStreamWriter(out, DEFAULT_ENCODING);
+		_writer.write(str);
+		_writer.flush();
+	}
+
+	public String read() throws IOException {
+		InputStream in = Files.newInputStream(_file);
+		BufferedReader _reader = new BufferedReader(new InputStreamReader(in, DEFAULT_ENCODING));
+		String text = "";
+		String line;
+
+		while ((line = _reader.readLine()) != null) {
+			text += line;
+		}
+
+		return text;
+	}
+
+	public void close() throws IOException {
+		if (_writer != null) {
+			_writer.close();
+		}
+
+		if (_reader != null) {
+			_reader.close();
+		}
+	}
+	
+	public void moveFile(Path oldPath, Path newPath, boolean overwrite) throws FileExistsException, IOException {
+		if ( Files.exists(newPath) && !overwrite ) {
+			throw new FileExistsException(newPath.toString());
+		}
+			
+		Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
+	}
+
+	public void deleteFile(Path path) {
+		File fileTemp = new File(path.toString());
+		if (fileTemp.exists()) {
+			fileTemp.delete();
+		}
+	}
+}
+
+	// End of segment: src\taskie\database\FileReaderWriter.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\database\NStorage.java
+	 */
+
+package taskie.database;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import taskie.exceptions.FileExistsException;
+import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.StorageLocationInvalidException;
+import taskie.exceptions.StorageMigrationFailedException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+import taskie.models.Task;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+public class NStorage implements IStorage {
+	private static final String DATABASE_FILENAME = "taskie.txt";
+
+	private Logger _logger;
+	private Path _databasePath;
+	private FileReaderWriter _db;
+	private Gson _gson;
+	private ArrayList<Task> _tasks;
+
+	public NStorage(String storageDir) throws IOException {
+		this(FileSystems.getDefault().getPath(storageDir));
+	}
+
+	public NStorage(Path storageDir) throws IOException {
+		try {
+			_logger = Logger.getLogger(NStorage.class.getName());
+			_gson = new Gson();
+			this.readDatabaseFile(storageDir);
+		} catch (TaskRetrievalFailedException ex) {
+			ex.getMessage();
+		}
+
+		_logger.log(Level.INFO, "NStorage Initialized at: " + this.getStorageLocation());
+	}
+
+	/**
+	 * Retrieve the current stage location
+	 * 
+	 * @return	Directory of the Current Storage Location
+	 */
+	public Path getStorageLocation() {
+		return _databasePath.toAbsolutePath().getParent();
+	}
+	
+	/**
+	 * Retrieve the current stage location
+	 * 
+	 * @param newDirectory	Existing directory to store file in
+	 * @return				Directory of the Current Storage Location
+	 */
+	public void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		this.setStorageLocation(newDirectory, false);
+	}
+	
+	/**
+	 * Sets the storage location to newDirectory
+	 * By default, this function does not overwrite existing files.
+	 * If a file exists in the directory, it will switch to use that file instead.
+	 * 
+	 * @param newDirectory	Existing directory to store file in
+	 * @param overwrite		Overwrite files if they already exist? False indicates to just use the existing files. True to overwrite.
+	 * @return				Directory of the Current Storage Location
+	 */
+	public void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		if (newDirectory.toString().equals(this.getStorageLocation())) {
+			return;
+		}
+
+		if (!Files.isDirectory(newDirectory)) {
+			throw new StorageLocationInvalidException(newDirectory.toString());
+		}
+
+		try {
+			if (_db != null) {
+				_db.close();
+			}
+
+			_logger.log(Level.INFO, "Attempting to change storage location to: " + newDirectory.toString());
+			
+			try {
+				migrateFiles(this.getStorageLocation(), newDirectory, overwrite);
+			} catch ( FileExistsException e ) {
+				this.readDatabaseFile(newDirectory);
+				throw new FileExistsException(e);
+			}
+
+			this.readDatabaseFile(newDirectory);
+			_logger.log(Level.INFO, "Successfully changed storage location to: " + _databasePath.toString());
+		} catch (IOException e) {
+			throw new StorageMigrationFailedException(e);
+		} catch (TaskRetrievalFailedException e) {
+			throw new StorageMigrationFailedException(e);
+		}
+	}
+
+	private void readDatabaseFile(Path storageDir) throws TaskRetrievalFailedException, IOException {
+		_databasePath = storageDir.resolve(DATABASE_FILENAME);
+		_db = new FileReaderWriter(_databasePath);
+		
+		if ( _tasks != null ) {
+			_tasks.clear();
+		}
+		
+		_tasks = retrieveTaskList();
+	}
+	
+	/**
+	 * Store a new task in the database
+	 * 
+	 * @param task	Task to store
+	 */
+	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		try {
+			assert task != null : "Task is null";
+			this.addToTaskList(task);
+			this.rewriteDatabase();
+		} catch (IOException e) {
+			throw new TaskModificationFailedException(e);
+		}
+	}
+	
+	/**
+	 * Find a task and delete it
+	 * 
+	 * @param task	Task to delete
+	 */
+	public void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		try {
+			assert task != null : "Task is null";
+			boolean status = this.removeFromTaskList(task);
+			if (status) {
+				this.rewriteDatabase();
+			} else {
+				throw new TaskModificationFailedException();
+			}
+		} catch (IOException e) {
+			throw new TaskModificationFailedException(e);
+		}
+	}
+
+	/**
+	 * Replace an existing task with another task
+	 * 
+	 * @param oldTask	Current Task
+	 * @param newTask	New Task to replace the current task wwith
+	 */
+	public void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		try {
+			assert oldTask != null : "Old Task is null";
+			assert newTask != null : "New Task is null";
+			boolean status = this.removeFromTaskList(oldTask);
+			if (status) {
+				this.addToTaskList(newTask);
+				this.rewriteDatabase();
+			} else {
+				throw new TaskModificationFailedException();
+			}
+		} catch (IOException e) {
+			throw new TaskModificationFailedException(e);
+		}
+	}
+
+	/**
+	 * Delete all tasks in the database
+	 */
+	public void clearAllTasks() throws TaskModificationFailedException {
+		try {
+			_tasks.clear();
+			this.rewriteDatabase();
+		} catch (IOException e) {
+			throw new TaskModificationFailedException(e);
+		}
+	}
+
+	private void addToTaskList(Task newTask) {
+		if (_tasks == null) {
+			_tasks = new ArrayList<Task>();
+		}
+
+		_logger.log(Level.INFO, "Writing: " + newTask.getTitle());
+		_tasks.add(newTask);
+	}
+
+	private boolean removeFromTaskList(Task taskToRemove) {
+		_logger.log(Level.INFO, "Removing: " + taskToRemove.getTitle());
+		boolean removed = false;
+		int x = 0;
+
+		while (!removed && x < _tasks.size()) {
+			Task tempTask = _tasks.get(x);
+			if (tempTask.equals(taskToRemove)) {
+				removed = true;
+				_tasks.remove(x);
+				break;
+			}
+			x++;
+		}
+		return removed;
+	}
+
+	private void rewriteDatabase() throws IOException {
+		Type listType = new TypeToken<ArrayList<Task>>() {
+		}.getType();
+		String json = _gson.toJson(_tasks, listType);
+		_db.write(json);
+	}
+
+	/**
+	 * Closes the database to relase locks on the database file
+	 */
+	public void close() throws IOException {
+		_logger.log(Level.INFO, "Closing Storage");
+		_db.close();
+	}
+
+	private void migrateFiles(Path oldDirectory, Path newDirectory, boolean overwrite) throws FileExistsException, StorageMigrationFailedException {
+		_logger.log(Level.FINE, "Moving from: " + oldDirectory.toString() + " to " + newDirectory.toString());
+		
+		try {
+			Path oldDatabasePath = oldDirectory.resolve(DATABASE_FILENAME);
+			Path newDatabasePath = newDirectory.resolve(DATABASE_FILENAME);
+			_db.moveFile(oldDatabasePath, newDatabasePath, overwrite);
+		} catch (IOException e) {
+			throw new StorageMigrationFailedException(e);
+		}
+	}
+
+	// End of segment: src\taskie\database\NStorage.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\database\Storage.java
+	 */
+
+	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		if ( task.getTaskType() == TaskType.FLOATING ) {
+			this.addFloatingTask(task);
+		} else if ( task.getTaskType() == TaskType.DEADLINE ) {
+			this.addDeadlinedTask(task);
+		} else if ( task.getTaskType() == TaskType.TIMED ){
+			this.addTimedTask(task);
+		} else {
+			throw new TaskTypeNotSupportedException();
+		}
+	}
+
+	@Override
+	public void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+		if ( task.getTaskType() == TaskType.FLOATING ) {
+			this.deleteFloatingTask(task);
+		} else if ( task.getTaskType() == TaskType.DEADLINE ) {
+			this.deleteDeadlinedTask(task);
+		} else if ( task.getTaskType() == TaskType.TIMED ){
+			this.deleteTimedTask(task);
+		} else {
+			throw new TaskTypeNotSupportedException();
+		}
+	}
+	
+
+	
+	public void close() throws IOException {		
+	}
+
+	@Override
+	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void clearAllTasks() throws TaskModificationFailedException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+	@Override
+	public void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+		// TODO Auto-generated method stub	
+	}
+}
+
+	// End of segment: src\taskie\database\Storage.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\FileExistsException.java
+	 */
+
+package taskie.exceptions;
+
+public class FileExistsException extends Exception {
+	private static final long serialVersionUID = 3659402484486185953L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.FILE_EXISTS_EXCEPTION;
+
+	public FileExistsException() {
+		super(DEFAULT_MESSAGE);
+	}
+
+	public FileExistsException(String string) {
+		super(string);
+	}
+
+	public FileExistsException(Throwable cause) {
+		super(cause);
+	}
+	
+	public FileExistsException(String string, Throwable cause) {
+		super(string, cause);
+	}
+
+}
+
+	// End of segment: src\taskie\exceptions\FileExistsException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\InvalidCommandException.java
+	 */
+
+package taskie.exceptions;
+
+import taskie.commands.HelpCommand;
+import taskie.models.CommandType;
+
+public class InvalidCommandException extends Exception {
+	private static final long serialVersionUID = -3383752749913995882L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.INVALID_COMMAND_EXCEPTION;
+	private HelpCommand _help;
+
+	public InvalidCommandException() {
+		super(DEFAULT_MESSAGE);
+		_help = new HelpCommand(CommandType.HELP);
+	}
+
+	public InvalidCommandException(String string) {
+		super(string);
+		_help = new HelpCommand(CommandType.HELP);
+	}
+	
+	// End of segment: src\taskie\exceptions\InvalidCommandException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\InvalidTaskException.java
+	 */
+
+package taskie.exceptions;
+
+public class InvalidTaskException extends Exception {
+	private static final long serialVersionUID = 912925696346606858L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.INVALID_TASK_EXCEPTION;
+
+	public InvalidTaskException() {
+		super(DEFAULT_MESSAGE);
+	}
+
+	public InvalidTaskException(String message) {
+		super(message);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\InvalidTaskException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\NothingToRedoException.java
+	 */
+
+package taskie.exceptions;
+
+public class NothingToRedoException extends Exception {
+	private static final long serialVersionUID = -7444529190562177299L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.NOTHING_TO_REDO_EXCEPTION;
+
+	public NothingToRedoException() {
+		super(DEFAULT_MESSAGE);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\NothingToRedoException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\StorageLocationInvalidException.java
+	 */
+
+package taskie.exceptions;
+
+public class StorageLocationInvalidException extends Exception {
+	private static final long serialVersionUID = -34643214965646L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.STORAGE_LOCATION_INVALID_EXCEPTION;
+
+	public StorageLocationInvalidException() {
+		super(DEFAULT_MESSAGE);
+	}
+
+	public StorageLocationInvalidException(String message) {
+		super(message);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\StorageLocationInvalidException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\StorageMigrationFailedException.java
+	 */
+
+package taskie.exceptions;
+
+public class StorageMigrationFailedException extends Exception {
+	private static final long serialVersionUID = -2824504424968793164L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.STORAGE_MIGRATION_FAILED_EXCEPTION;
+
+	public StorageMigrationFailedException() {
+		super(DEFAULT_MESSAGE);
+	}
+
+	public StorageMigrationFailedException(String message) {
+		super(message);
+	}
+
+	public StorageMigrationFailedException(Throwable cause) {
+		super(cause);
+	}
+
+	public StorageMigrationFailedException(String message, Throwable cause) {
+		super(message, cause);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\StorageMigrationFailedException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\TaskDateInvalidException.java
+	 */
+
+package taskie.exceptions;
+
+public class TaskDateInvalidException extends Exception {
+	private static final long serialVersionUID = -591075736010014405L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.TASK_DATE_INVALID_EXCEPTION;
+
+	public TaskDateInvalidException() {
+		super(DEFAULT_MESSAGE);
+	}
+	
+	public TaskDateInvalidException(Throwable cause) {
+		super(DEFAULT_MESSAGE, cause);
+	}
+	
+	public TaskDateInvalidException(String message, Throwable cause) {
+		super(message, cause);
+	}
+	
+	public TaskDateInvalidException(String message) {
+		super(message);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\TaskDateInvalidException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\TaskDateNotSetException.java
+	 */
+
+package taskie.exceptions;
+
+public class TaskDateNotSetException extends Exception {
+	private static final long serialVersionUID = -591075736010014405L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.TASK_DATE_NOT_SET_EXCEPTION;
+
+	public TaskDateNotSetException() {
+		super(DEFAULT_MESSAGE);
+	}
+	
+	public TaskDateNotSetException(Throwable cause) {
+		super(DEFAULT_MESSAGE, cause);
+	}
+	
+	public TaskDateNotSetException(String message, Throwable cause) {
+		super(message, cause);
+	}
+	
+	public TaskDateNotSetException(String message) {
+		super(message);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\TaskDateNotSetException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\TaskModificationFailedException.java
+	 */
+
+package taskie.exceptions;
+
+public class TaskModificationFailedException extends Exception {
+	private static final long serialVersionUID = 8682649329347945510L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.TASK_MODIFICATION_FAILED_EXCEPTION;
+
+	public TaskModificationFailedException() {
+		super(DEFAULT_MESSAGE);
+	}
+	
+	public TaskModificationFailedException(Throwable cause) {
+		super(DEFAULT_MESSAGE, cause);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\TaskModificationFailedException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\TaskRetrievalFailedException.java
+	 */
+
+package taskie.exceptions;
+
+public class TaskRetrievalFailedException extends Exception {
+	private static final long serialVersionUID = -6851572204375503891L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.TASK_RETRIEVAL_FAILED_EXCEPTION;
+
+	public TaskRetrievalFailedException() {
+		super(DEFAULT_MESSAGE);
+	}
+	
+	public TaskRetrievalFailedException(Throwable cause) {
+		super(DEFAULT_MESSAGE, cause);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\TaskRetrievalFailedException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\TaskTypeNotSupportedException.java
+	 */
+
+package taskie.exceptions;
+
+public class TaskTypeNotSupportedException extends Exception {
+	private static final long serialVersionUID = -3383752749913995882L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.TASK_TYPE_NOT_SUPPORTED_EXCEPTION;
+
+	public TaskTypeNotSupportedException() {
+		super(DEFAULT_MESSAGE);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\TaskTypeNotSupportedException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\UndoNotSupportedException.java
+	 */
+
+package taskie.exceptions;
+
+public class UndoNotSupportedException extends Exception {
+	private static final long serialVersionUID = -3885144311290567998L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.UNDO_NOT_SUPPORTED_EXCEPTION;
+
+	public UndoNotSupportedException() {
+		super(DEFAULT_MESSAGE);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\UndoNotSupportedException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\CommandType.java
+	 */
+
+package taskie.models;
+
+public enum CommandType {
+	ADD, UPDATE, VIEW, DELETE, UNDO, REDO, MARK, UNMARK, DIRECTORY, HELP, EXIT
+};
+
+	// End of segment: src\taskie\models\CommandType.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\DisplayType.java
+	 */
+
+package taskie.models;
+
+public enum DisplayType {
+	DEFAULT, SUCCESS, ERROR
+};
+
+	// End of segment: src\taskie\models\DisplayType.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	private LocalDate _startDate;
+	private LocalTime _startTime;
+	private LocalDate _endDate;
+	private LocalTime _endTime;
+	private Boolean _isDone;
+
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	public Task() {
+		_title = null;
+		_startDate = null;
+		_startTime = null;
+		_endDate = null;
+		_endTime = null;
+		_isDone = false;
+	}
+
+	// Floating Task (Tasks without specific times)
+	public Task(String title) {
+		_title = title;
+		_startDate = null;
+		_startTime = null;
+		_endDate = null;
+		_endTime = null;
+		_isDone = false;
+	}
+
+	// Deadlines (Done before specific deadline)
+	public Task(String title, LocalDateTime endDateTime) {
+		_title = title;
+		_startDate = null;
+		_startTime = null;
+		_endDate = endDateTime.toLocalDate();
+		_endTime = endDateTime.toLocalTime();
+		_isDone = false;
+	}
+
+	public Task(String title, LocalDate endDate) {
+		_title = title;
+		_startDate = null;
+		_startTime = null;
+		_endDate = endDate;
+		_endTime = null;
+		_isDone = false;
+	}
+
+	public Task(String title, LocalDate endDate, LocalTime endTime) {
+		_title = title;
+		_startDate = null;
+		_startTime = null;
+		_endDate = endDate;
+		_endTime = endTime;
+		_isDone = false;
+	}
+
+	// Timed Task (Specific Start Time and End Time)
+	public Task(String title, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		_title = title;
+		_startDate = startDateTime.toLocalDate();
+		_startTime = startDateTime.toLocalTime();
+		_endDate = endDateTime.toLocalDate();
+		_endTime = endDateTime.toLocalTime();
+		_isDone = false;
+	}
+
+	public Task(String title, LocalDate startDate, LocalDate endDate) {
+		_title = title;
+		_startDate = startDate;
+		_startTime = null;
+		_endDate = endDate;
+		_endTime = null;
+		_isDone = false;
+	}
+
+	public Task(String title, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+		_title = title;
+		_startDate = startDate;
+		_startTime = startTime;
+		_endDate = endDate;
+		_endTime = endTime;
+		_isDone = false;
+	}
+
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	public String getTitle() {
+		return _title;
+	}
+
+	public void setTitle(String _title) {
+		this._title = _title;
+	}
+
+	public LocalDateTime getStartDateTime() {
+		if (_startDate == null) {
+			return null;
+		}
+
+		return LocalDateTime.of(_startDate, (_startTime == null) ? LocalTime.MAX : _startTime);
+	}
+
+	public void setStartDateTime(LocalDateTime startDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		this.setStartDate(startDateTime.toLocalDate());
+		this.setStartTime(startDateTime.toLocalTime());
+	}
+
+	public LocalDateTime getEndDateTime() {
+		if (_endDate == null) {
+			return null;
+		}
+
+		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX : _endTime);
+	}
+
+	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		if (this.getStartDateTime() != null && this.getEndDateTime() != null && endDateTime.isBefore(this.getStartDateTime())) {
+			throw new TaskDateInvalidException("New End Date Time is after Start Date Time");
+		}
+
+		this.setEndDate(endDateTime.toLocalDate());
+		this.setEndTime(endDateTime.toLocalTime());
+	}
+
+	public LocalDate getStartDate() {
+		return _startDate;
+	}
+
+	public void setStartDate(LocalDate newStartDate) throws TaskDateInvalidException {
+		if (_startDate == null) {
+			_startDate = newStartDate;
+		} else {
+			Period p = Period.between(_startDate, newStartDate);
+			_startDate = newStartDate;
+			_endDate = _endDate.plus(p);
+		}
+	}
+
+	public LocalDate getEndDate() {
+		return _endDate;
+	}
+
+	public void setEndDate(LocalDate newEndDate) throws TaskDateInvalidException {
+		if (_endDate != null && _startDate != null && newEndDate.isBefore(_startDate)) {
+			throw new TaskDateInvalidException("New End Date is before Start Date");
+		}
+
+		_endDate = newEndDate;
+	}
+
+	public LocalTime getStartTime() {
+		return _startTime;
+	}
+
+	public void setStartTime(LocalTime newStartTime) throws TaskDateInvalidException, TaskDateNotSetException {
+		if (newStartTime == null) {
+			_startTime = null;
+		} else if (_startTime == null) {
+			_startTime = newStartTime;
+		} else {
+			long difference = ChronoUnit.NANOS.between(_startTime, newStartTime);
+			_startTime = newStartTime;
+			_endTime = _endTime.plusNanos(difference);
+		}
+	}
+
+	public LocalTime getEndTime() {
+		return _endTime;
+	}
+
+	public void setEndTime(LocalTime newEndTime) throws TaskDateInvalidException, TaskDateNotSetException {
+		if (newEndTime == null) {
+			_endTime = null;
+		} else {
+			LocalDateTime newEndDateTime = LocalDateTime.of(_endDate, newEndTime);
+			if (this.getStartDateTime() != null && newEndDateTime.isBefore(this.getStartDateTime())) {
+				throw new TaskDateInvalidException("New End Time is after Start Time");
+			}
+			_endTime = newEndTime;
+		}
+	}
+
+	public void setTaskDone() {
+		_isDone = true;
+	}
+
+	public void setTaskUndone() {
+		_isDone = false;
+	}
+
+	public Boolean isDone() {
+		return _isDone;
+	}
+
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	public TaskType getTaskType() {
+		if (_startDate == null && _endDate == null) {
+			return TaskType.FLOATING;
+		} else if (_startDate == null && _endDate != null) {
+			return TaskType.DEADLINE;
+		} else {
+			return TaskType.TIMED;
+		}
+	}
+
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\TaskType.java
+	 */
+
+package taskie.models;
+
+public enum TaskType {
+	DEADLINE,
+	TIMED,
+	FLOATING
+}
+	// End of segment: src\taskie\models\TaskType.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\ViewType.java
+	 */
+
+package taskie.models;
+
+public enum ViewType {
+	ALL,
+	UPCOMING,
+	OVERDUE,
+	COMPLETED,
+	SEARCH
+}
+	// End of segment: src\taskie\models\ViewType.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\parser\CommandParser.java
+	 */
+
+package taskie.parser;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import taskie.commands.AddCommand;
+import taskie.commands.DeleteCommand;
+import taskie.commands.DirectoryCommand;
+import taskie.commands.ExitCommand;
+import taskie.commands.HelpCommand;
+import taskie.commands.ICommand;
+import taskie.commands.MarkCommand;
+import taskie.commands.RedoCommand;
+import taskie.commands.UndoCommand;
+import taskie.commands.UnmarkCommand;
+import taskie.commands.UpdateCommand;
+import taskie.commands.ViewCommand;
+import taskie.exceptions.InvalidCommandException;
+import taskie.models.CommandType;
+import taskie.models.ViewType;
+
+import com.joestelmach.natty.DateGroup;
+
+public class CommandParser implements Parser {
+	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on", "due" };
+	
+	private static final String[] COMMAND_KEYWORD_ADD = new String[] {" ", "add", "create", "new", "ins", "insert", "put"};
+	private static final String[] COMMAND_KEYWORD_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
+	private static final String[] COMMAND_KEYWORD_DELETE = new String[] {"delete", "clear", "remove", "rm", "discard", "del"};
+	private static final String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list", "ls"};
+	private static final String[] COMMAND_KEYWORD_UNDO = new String[] {"undo", "revert"};
+	private static final String[] COMMAND_KEYWORD_REDO = new String[] {"redo"};
+	private static final String[] COMMAND_KEYWORD_MARK = new String[] {"mark", "complete", "done", "check"};
+	private static final String[] COMMAND_KEYWORD_UNMARK = new String[] {"unmark", "incomplete", "undone", "uncheck"};
+	private static final String[] COMMAND_KEYWORD_DIRECTORY = new String[] {"directory"};
+	private static final String[] COMMAND_KEYWORD_HELP = new String[] {"help", "?"};
+	private static final String[] COMMAND_KEYWORD_EXIT = new String[] {"exit", "quit", "close"};
+	
+	private static final String[] VIEW_KEYWORDS_ALL = new String[] {"all", "everything"};
+	private static final String[] VIEW_KEYWORDS_UPCOMING = new String[] {"", "upcoming", "incomplete", "undone", "todo"};
+	private static final String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
+	private static final String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
+	
+	private static final String[] SEARCH_RELATIVITY_BEFORE = new String[] { "before", "b4" };
+	private static final String[] SEARCH_RELATIVITY_AFTER = new String[] { "after", "aft" };
+	private static final String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
+	private static final String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
+	
+	private static final String[] OVERWRITE_KEYWORDS = new String[] { "overwrite" };
+	
+	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
+	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
+	
+	private static final int NUM_START_END_DATETIME = 2;
+	private static final int DATETIME_START = 0;
+	private static final int DATETIME_END = 1;
+
+	private static final int NUM_COMMAND_PATTERNS = 2;
+	private static final int COMMAND_NAME = 0;
+	private static final int COMMAND_DATE = 1;
+
+	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
+	
+	private static final String PATTERN_MULTI_TASK_SEPARATOR = ",|\\.|\\||\\s";
+	private static final String PATTERN_MATCH_FOR_FROM_TIME = "(.*) (from (.*))";
+	private static final String PATTERN_MATCH_FROM_FOR_TIME = "(.*) for ([\\d+] \\w+)";
+	private static final String PATTERN_MATCH_FROM_TO_TIME = "(.*) from (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?) (?:till|to|-) (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?)";
+	private static final String PATTERN_MATCH_QUOTES = "[\"](.*)[\"]";
+    private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
+    
+	private com.joestelmach.natty.Parser _natty;
+	private Logger _logger;
+	private Set<String> dictSeparatorKeywords;
+	private Map<String, ViewType> dictViewTypes;
+	private Map<String, RelativeType> dictRelativeTypes;
+	
+	public CommandParser() {
+		_natty = new com.joestelmach.natty.Parser();
+		_logger = Logger.getLogger(CommandParser.class.getName());
+		
+		initializeDictionaries();
+	}
+	
+	/**
+	 * Initialize custom language settings so that we can use them in parsing commands 
+	 */
+	private void initializeDictionaries() { 
+		dictViewTypes = new HashMap<String, ViewType>();
+		dictRelativeTypes = new HashMap<String, RelativeType>();
+		dictSeparatorKeywords = new HashSet<String>();
+		
+		for ( String word : VIEW_KEYWORDS_ALL ) {
+			dictViewTypes.put(word, ViewType.ALL);
+		}
+		
+		for ( String word : VIEW_KEYWORDS_UPCOMING ) {
+			dictViewTypes.put(word, ViewType.UPCOMING);
+		}
+
+		for ( String word : VIEW_KEYWORDS_COMPLETED ) {
+			dictViewTypes.put(word, ViewType.COMPLETED);
+		}
+
+		for ( String word : VIEW_KEYWORDS_OVERDUE ) {
+			dictViewTypes.put(word, ViewType.OVERDUE);
+		}
+		
+		for ( String word : KEYWORDS_DATETIME_SEPARATOR ) {
+			dictSeparatorKeywords.add(word);
+		}
+				
+		for ( String word : SEARCH_RELATIVITY_BEFORE ) {
+			dictRelativeTypes.put(word, RelativeType.BEFORE);
+			dictSeparatorKeywords.add(word);
+		}
+		
+		for ( String word : SEARCH_RELATIVITY_AFTER ) {
+			dictRelativeTypes.put(word, RelativeType.AFTER);
+			dictSeparatorKeywords.add(word);
+		}
+
+		for ( String word : SEARCH_RELATIVITY_EXACT ) {
+			dictRelativeTypes.put(word, RelativeType.EXACT);
+			dictSeparatorKeywords.add(word);
+		}
+
+		for ( String word : SEARCH_RELATIVITY_SPECIFIED ) {
+			dictRelativeTypes.put(word, RelativeType.SPECIFIED);
+			dictSeparatorKeywords.add(word);
+		}
+	}
+
+	/**
+	 * Parse an input.
+	 * The first word in the input is used to determine the type of command to create.
+	 * 
+	 * @param input		Input for the Parser
+	 * @return			Command to be Executed
+	 * @throws InvalidCommandException	If an invalid keyword is specified
+	 */
+	public ICommand parse(String input) throws InvalidCommandException {
+		if ( input == null ) {
+			throw new InvalidCommandException();
+		}
+		
+		String keyword = CommandParser.getFirstKeyword(input);
+		String parameters = CommandParser.getNonKeywords(input);
+		
+		CommandType cmd = this.getCommandType(keyword);
+		assert cmd != null : "CommandType is null";
+		
+		return this.executeCommandType(cmd, parameters);
+	}
+	
+	/**
+	 * Used if command type is View
+	 * Determines the type of view should be sent
+	 * 
+	 * @param input		View keyword
+	 * @return			ViewType (Defaults to SEARCH)
+	 */
+	private ViewType getViewType(String key) {
+		ViewType viewType = dictViewTypes.get(key);
+		return viewType == null ? ViewType.SEARCH : viewType;
+	}
+	
+	/**
+	 * Used if command type is View
+	 * Determines the date range to search within
+	 * 
+	 * @param input		Range Keyword
+	 * @return			RelativeType (Defaults to NONE)
+	 */
+	private RelativeType getRelativeType(String key) {
+		RelativeType relativeType = RelativeType.NONE;
+		
+		if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_BEFORE) ) {
+			relativeType = RelativeType.BEFORE;
+		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_AFTER) ) {
+			relativeType = RelativeType.AFTER;
+		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_EXACT) ) {
+			relativeType = RelativeType.EXACT;
+		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_SPECIFIED) ) {
+			relativeType = RelativeType.SPECIFIED;
+		}
+		
+		return relativeType;
+	}
+	
+	/**
+	 * Determines the type of Command to be executed based on the keywords specified in the dictionaries
+	 * 
+	 * @param input		Command Keyword
+	 * @return			CommandType
+	 * @throws InvalidCommandException	If an invalid keyword is specified
+	 */
+	private CommandType getCommandType(String key) throws InvalidCommandException {
+		CommandType commandType = null;
+		
+		if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_ADD) ) {
+			commandType = CommandType.ADD;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UPDATE) ) {
+			commandType = CommandType.UPDATE;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_DELETE) ) {
+			commandType = CommandType.DELETE;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_VIEW_AND_SEARCH) ) {
+			commandType = CommandType.VIEW;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UNDO) ) {
+			commandType = CommandType.UNDO;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_REDO) ) {
+			commandType = CommandType.REDO;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_MARK) ) {
+			commandType = CommandType.MARK;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_UNMARK) ) {
+			commandType = CommandType.UNMARK;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_DIRECTORY) ) {
+			commandType = CommandType.DIRECTORY;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_HELP) ) {
+			commandType = CommandType.HELP;
+		} else if ( hasKeyword(key, CommandParser.COMMAND_KEYWORD_EXIT) ) {
+			commandType = CommandType.EXIT;
+		}
+		
+		if ( commandType == null ) {
+			throw new InvalidCommandException();
+		}
+		
+		return commandType;
+	}
+	
+	/**
+	 * Executes parsing of the command depending on the type of Command detected
+	 * 
+	 * @param cmd		Command Type
+	 * @param parameter	String given to parser less the first word
+	 * @return			Command object generated that can be executed
+	 * @throws InvalidCommandException	If an invalid keyword is specified
+	 */	
+	private ICommand executeCommandType(CommandType cmd, String parameter) throws InvalidCommandException {
+		parameter = parameter.trim();
+
+		if ( cmd == CommandType.ADD ) {
+			return this.doAdd(parameter);
+		} else if ( cmd == CommandType.UPDATE ) {
+			return this.doUpdate(parameter);
+		} else if ( cmd == CommandType.DELETE ) {
+			return this.doDelete(parameter);
+		} else if ( cmd == CommandType.VIEW ) {
+			return this.doView(parameter);
+		} else if ( cmd == CommandType.UNDO ) {
+			return this.doUndo(parameter);
+		} else if ( cmd == CommandType.REDO ) {
+			return this.doRedo(parameter);
+		} else if ( cmd == CommandType.MARK ) {
+			return this.doMark(parameter);
+		} else if ( cmd == CommandType.UNMARK ) {
+			return this.doUnmark(parameter);
+		} else if ( cmd == CommandType.DIRECTORY ) {
+			return this.doDirectory(parameter);
+		} else if ( cmd == CommandType.HELP ) {
+			return this.doHelp(parameter);
+		} else if ( cmd == CommandType.EXIT ) {
+			return this.doExit();
+		} else {
+			throw new InvalidCommandException();
+		}
+	}
+	
+	/**
+	 * Builds a task name based on COMMAND_NAME with the remainder of COMMAND_DATE
+	 * 
+	 * @param parsedCommand	2 element string array generated from parseCommandForNameAndDates
+	 * @param group			DateGroup passed from Natty after parsing COMMAND_DATE
+	 * @return				Task Name
+	 */
+	private String buildTaskName(String[] parsedCommand, DateGroup group) {
+		String command = parsedCommand[COMMAND_DATE];
+		_logger.log(Level.INFO, "Determining Task Name from: " + command + "\nDateGroup Start at position: " + group.getPosition());
+
+		String name1 = command.substring(0, group.getPosition()).trim();
+		String name2 = command.substring(group.getPosition() + group.getText().length()).trim();
+
+		String name = (parsedCommand[COMMAND_NAME] + " " + (name1 + " " + name2).trim()).trim();
+		_logger.log(Level.INFO, "Final Task Name: " + name);
+		return name;
+	}
+	
+	/**
+	 * Separates an input into Name and Date section based on keywords in dictSeparatorKeywords
+	 * 
+	 * @param command	Input (less the command keyword)
+	 * @return			String array with two elements. First element contains the name, second element contains the date.
+	 */
+	private String[] parseCommandForNameAndDates(String command) {
+		String[] result = new String[NUM_COMMAND_PATTERNS];
+		
+		Pattern p = Pattern.compile(PATTERN_MATCH_QUOTES);
+		Matcher m = p.matcher(command);
+		if (m.find()) {
+			// Extracts data inside quotation marks (i.e. "watch the day after tomorrow" by the day after tomorrow)
+			// result[COMMAND_NAME] = "watch the day after tomorrow"
+			// result[COMMAND_DATE] = "the day after tomorrow"
+			result[COMMAND_NAME] = m.group(1);
+			result[COMMAND_DATE] = command.substring(0, m.start(0)) + command.substring(m.end(0) + 1, command.length());
+			
+			String keyword = CommandParser.getFirstKeyword(result[COMMAND_DATE]);
+			if( dictSeparatorKeywords.contains(keyword) ) {
+				result[COMMAND_DATE] = CommandParser.getNonKeywords(result[COMMAND_DATE]);
+			}
+		} else {
+			String[] words = splitStringWithWhitespace(command);
+			StringBuffer buffer = new StringBuffer(command.length());
+			
+			int keywordLength = 0;
+			for ( int x = 0; x < words.length; x++ ) {
+				if( dictSeparatorKeywords.contains(words[x]) ) {
+					keywordLength = words[x].length();
+					break;
+				} else {
+					buffer.append(words[x] + " ");
+				}
+			}
+			
+			String name = buffer.toString().trim();
+			if ( name.equals(command) ) {
+				result[COMMAND_NAME] = command;
+				result[COMMAND_DATE] = null;
+			} else {
+				String dates = command.substring(name.length() + keywordLength + 1, command.length()).trim();
+				result[COMMAND_NAME] = name;
+				result[COMMAND_DATE] = dates;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Builds a task name based on COMMAND_NAME with the remainder of COMMAND_DATE
+	 * 
+	 * @param command	COMMAND_DATE generated from parseCommandForNameAndDates
+	 * @return			DateGroup from Natty containing the detected date/time elements
+	 */	
+	private DateGroup parseCommandForDates(String command) {
+		if ( command == null ) { 
+			return null;
+		}
+		
+		command = reformatDateAndTime(command);
+		List<DateGroup> groups = _natty.parse(command);
+		if ( groups.size() > 0 ) {
+			DateGroup group = groups.get(0);
+			return group;
+		}
+		
+		return null;
+	}
+	
+	private String reformatDateAndTime(String date) {
+		date = this.changeDotsToColonsInTime(date);
+		date = this.changeForToToInTime(date);
+		date = this.changeFromToInTime(date);
+		return date;
+	}
+	
+	private String changeDotsToColonsInTime(String date) {
+		Pattern pattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
+		Matcher matcher = pattern.matcher(date);
+		while ( matcher.find() ) {
+			String matchingGroup = matcher.group(0);
+            String newTime = matchingGroup.replace(".", ":");
+            date = date.replace(matcher.group(0), newTime);
+		}
+		return date;
+	}
+	
+	private String changeForToToInTime(String date) {
+		Pattern pattern;
+		Matcher matcher;
+		
+		pattern = Pattern.compile(PATTERN_MATCH_FOR_FROM_TIME);
+		matcher = pattern.matcher(date);
+		date = matcher.replaceAll("$3 for $1");
+
+		pattern = Pattern.compile(PATTERN_MATCH_FROM_FOR_TIME);
+		matcher = pattern.matcher(date);
+		date = matcher.replaceAll("$1 to  $2");
+		
+		return date;
+	}
+	
+	private String changeFromToInTime(String date) {
+		Pattern pattern = Pattern.compile(PATTERN_MATCH_FROM_TO_TIME);
+		Matcher matcher = pattern.matcher(date);
+		date = matcher.replaceAll("$1 $2 to $3");
+		return date;
+	}
+	
+	private ICommand doAdd(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			throw new InvalidCommandException(CommandType.ADD);
+		}
+		
+		assert !command.isEmpty() : "Parameters are empty";
+		
+		String[] parsedCommand = parseCommandForNameAndDates(command);
+		DateGroup group = parseCommandForDates(parsedCommand[COMMAND_DATE]);
+		AddCommand cmd = new AddCommand();
+		
+		if ( group != null) {
+			// Tasks with date and/or time in it - either deadline or timed
+			List<Date> dates = group.getDates();
+			
+			String name = buildTaskName(parsedCommand, group);
+			if ( name.isEmpty() ) {
+				throw new InvalidCommandException(CommandType.ADD);
+			}
+			
+			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
+
+			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
+
+			cmd.setTaskName(name);
+			
+			if ( startAndEndDateTime[DATETIME_START] != null ) {
+				cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
+				
+				if ( group.isTimeInferred() ) {
+					cmd.setStartTime(null);
+				} else {
+					cmd.setStartTime(startAndEndDateTime[DATETIME_START].toLocalTime());
+				}
+			}
+			
+			if ( startAndEndDateTime[DATETIME_END] != null ) {
+				cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
+				if ( group.isTimeInferred() ) {
+					cmd.setEndTime(null);
+				} else {
+					cmd.setEndTime(startAndEndDateTime[DATETIME_END].toLocalTime());
+				}
+			}
+			
+			_logger.log(Level.INFO, "Added {0} -- {1} to {2}", new Object[] { cmd.getTaskName(), (cmd.getStartDateTime() == null ? "null" : cmd.getStartDateTime()), (cmd.getEndDateTime() == null ? "null" : cmd.getEndDateTime()) });
+		} else {
+			// Tasks without any deadlines - floating
+			String name = command.trim();
+			
+			cmd.setTaskName(name);
+			_logger.log(Level.INFO, "Added {0} - No date and time set", cmd.getTaskName());
+		}
+		
+		return cmd;
+	}
+	
+	private ICommand doUpdate(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			throw new InvalidCommandException(CommandType.UPDATE);
+		}
+		
+		assert !command.isEmpty() : "Parameters are empty";
+		
+		int taskNumber = 0;
+		String query;
+		
+		try {
+			taskNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
+			query = CommandParser.getNonKeywords(command);
+		} catch (NumberFormatException e) {
+			taskNumber = 0;
+			query = command;
+		}
+		
+		UpdateCommand cmd = new UpdateCommand(taskNumber);
+		String[] parsedQuery = parseCommandForNameAndDates(query);
+		DateGroup group = parseCommandForDates(parsedQuery[COMMAND_DATE]);
+	
+		if ( group != null ) {
+			// Date and Time Specified
+			List<Date> dates = group.getDates();
+
+			String name = buildTaskName(parsedQuery, group);
+			if ( !name.isEmpty() ) {
+				// updating title also
+				cmd.setTaskTitleToUpdate(name);
+			}
+
+			_logger.log(Level.INFO, "Updating Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
+			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
+			
+			if ( startAndEndDateTime[DATETIME_START] != null ) {
+				if ( group.getParseLocations().containsKey("date") ) {
+					cmd.setStartDateToUpdate(startAndEndDateTime[DATETIME_START].toLocalDate());
+				}
+				
+				if ( !group.isTimeInferred() ) {
+					cmd.setStartTimeToUpdate(startAndEndDateTime[DATETIME_START].toLocalTime());
+				}
+			}
+			
+			if ( startAndEndDateTime[DATETIME_END] != null ) {
+				if ( group.getParseLocations().containsKey("date") ) {
+					cmd.setEndDateToUpdate(startAndEndDateTime[DATETIME_END].toLocalDate());
+				}
+				
+				if ( !group.isTimeInferred() ) {
+					cmd.setEndTimeToUpdate(startAndEndDateTime[DATETIME_END].toLocalTime());
+				}
+			}
+		} else {
+			// Changing Title Only
+			if ( !query.isEmpty() ) {
+				cmd.setTaskTitleToUpdate(query);
+			}
+		}
+
+		_logger.log(Level.INFO, "Updated Task #{0}\n-- Title: {1}\n-- Start Date: {2}\n-- Start Time: {3}\n-- End Date: {4}\n-- End Time: {5}",  new Object[] {
+				taskNumber,
+				(cmd.getTaskTitleToUpdate() == null ? "null" : cmd.getTaskTitleToUpdate()),
+				(cmd.getStartDateToUpdate() == null ? "null" : cmd.getStartDateToUpdate()),
+				(cmd.getStartTimeToUpdate() == null ? "null" : cmd.getStartTimeToUpdate()),
+				(cmd.getEndDateToUpdate() == null ? "null" : cmd.getEndDateToUpdate()),
+				(cmd.getEndTimeToUpdate() == null ? "null" : cmd.getEndTimeToUpdate())
+			});
+		
+		return cmd;
+	}
+	
+	private ICommand doDelete(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			return new DeleteCommand(0);
+		}
+		
+		assert !command.isEmpty() : "Parameters are empty";
+
+		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
+		ArrayList<Integer> items = new ArrayList<Integer>();
+
+		try {
+			for ( String part : parts ) {
+				String[] range = CommandParser.splitStringWithDash(part);
+				if ( range.length == 1 ) {
+					int number = Integer.parseInt(range[0]);
+					items.add(number);
+					_logger.log(Level.INFO, "Deleting Task: {0}", number);
+				} else if ( range.length == 2 ) {
+					int minimum = Integer.parseInt(range[0]);
+					int maximum = Integer.parseInt(range[1]);
+					if ( minimum > maximum ) {
+						throw new InvalidCommandException(CommandType.MARK);
+					}
+					
+					for ( int y = minimum; y <= maximum; y++ ) {
+						items.add(y);
+						_logger.log(Level.INFO, "Deleting Task: {0}", y);
+					}					
+				} else {
+					throw new InvalidCommandException(CommandType.MARK);
+				}
+			}
+		} catch (NumberFormatException e) {
+			throw new InvalidCommandException(CommandType.MARK);
+		}
+
+		return new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
+	}
+	
+	private ICommand doView(String command) {
+		String keywords;
+		
+		String keyword = CommandParser.getFirstKeyword(command);
+		String query = CommandParser.getNonKeywords(command);
+
+		ViewType viewType = getViewType(keyword);
+		ViewCommand cmd = new ViewCommand(viewType);
+
+		if ( viewType == ViewType.SEARCH ) {
+			keywords = keyword + " " + query;
+		} else {
+			keywords = query;
+		}
+		
+		String[] parsedCommand = parseCommandForNameAndDates(keywords);
+		DateGroup group = parseCommandForDates(parsedCommand[COMMAND_DATE]);
+		if ( group != null ) {
+			// Search by Date and possibly keywords
+			List<Date> dates = group.getDates();
+			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
+			RelativeType relativeType = RelativeType.NONE;
+
+			if ( viewType == ViewType.SEARCH ) {
+				String keyword1 = keywords.substring(0, group.getPosition()).trim();
+				String keyword2 = keywords.substring(group.getPosition() + group.getText().length()).trim();
+
+				String[] words = splitStringWithWhitespace(keyword1);
+				int lastWord = words.length - 1;
+				relativeType = getRelativeType(words[lastWord]);
+				if( relativeType != RelativeType.NONE ) {
+					keyword1 = keyword1.substring(0, keyword1.lastIndexOf(words[lastWord])).trim();
+				}
+				
+				keywords = (keyword1 + " " + keyword2).trim();				
+				cmd.setSearchKeywords(keywords);
+			} else {
+				String[] words = splitStringWithWhitespace(keywords);
+				int firstWord = 0;
+				relativeType = getRelativeType(words[firstWord]);
+				if( relativeType != RelativeType.NONE ) {
+					keywords = keywords.substring(words[firstWord].length()).trim();
+				}
+				
+				keywords = keywords.trim();
+			}
+
+			_logger.log(Level.INFO, "View Type: " + viewType + "\nRelative Type: " + relativeType + "\nKeywords: " + keywords + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
+		
+			if ( relativeType == RelativeType.BEFORE ) {
+				cmd.setStartDateTime(MIN_DATETIME);
+				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
+			} else if ( relativeType == RelativeType.AFTER ) {
+				cmd.setStartDateTime(startAndEndDateTime[DATETIME_END]);
+				cmd.setEndDateTime(MAX_DATETIME);
+			} else if ( relativeType == RelativeType.EXACT ) {
+				cmd.setStartDateTime(startAndEndDateTime[DATETIME_START]);
+				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
+				cmd.setStartTime(null);
+				cmd.setEndTime(null);
+			} else if ( relativeType == RelativeType.SPECIFIED ) {
+				cmd.setStartDateTime(startAndEndDateTime[DATETIME_START]);
+				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
+			}
+			
+			if ( group.isTimeInferred() ) {
+				cmd.setStartTime(null);
+				cmd.setEndTime(null);
+			}
+		} else {
+			keywords = keywords.trim();
+			cmd.setSearchKeywords(keywords);
+			_logger.log(Level.INFO, "Searching for tasks with keywords: {0}", keywords);
+		}
+		
+		return cmd;
+	}
+
+	private ICommand doUndo(String command) {
+		int steps = 1;
+		try {
+			steps = Integer.parseInt(command);
+			steps = (steps > 0) ? steps : 1;
+		} catch ( NumberFormatException ex ) {
+			steps = 1;
+		}
+		
+		_logger.log(Level.INFO, "Undo (Steps: {0})", steps);
+		return new UndoCommand(steps);
+	}
+	
+	private ICommand doRedo(String command) {
+		int steps = 1;
+		try {
+			steps = Integer.parseInt(command);
+			steps = (steps > 0) ? steps : 1;
+		} catch ( NumberFormatException ex ) {
+			steps = 1;
+		}
+		
+		_logger.log(Level.INFO, "Redo (Steps: {0})", steps);
+		return new RedoCommand(steps);
+	}
+	
+	private ICommand doMark(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			return new MarkCommand(0);
+		}
+		
+		assert !command.isEmpty() : "Parameters are empty";
+
+		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
+		ArrayList<Integer> items = new ArrayList<Integer>();
+
+		try {
+			for ( String part : parts ) {
+				String[] range = CommandParser.splitStringWithDash(part);
+				if ( range.length == 1 ) {
+					int number = Integer.parseInt(range[0]);
+					items.add(number);
+					_logger.log(Level.INFO, "Marking Task {0} as Complete", number);
+				} else if ( range.length == 2 ) {
+					int minimum = Integer.parseInt(range[0]);
+					int maximum = Integer.parseInt(range[1]);
+					if ( minimum > maximum ) {
+						throw new InvalidCommandException(CommandType.MARK);
+					}
+					
+					for ( int y = minimum; y <= maximum; y++ ) {
+						items.add(y);
+						_logger.log(Level.INFO, "Marking Task {0} as Complete", y);
+					}					
+				} else {
+					throw new InvalidCommandException(CommandType.MARK);
+				}
+			}
+		} catch (NumberFormatException e) {
+			throw new InvalidCommandException(CommandType.MARK);
+		}
+
+		return new MarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
+	}
+	
+	private ICommand doUnmark(String command) throws InvalidCommandException {
+		if ( command.isEmpty() ) {
+			return new UnmarkCommand(0);
+		}
+		
+		assert !command.isEmpty() : "Parameters are empty";
+
+		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
+		ArrayList<Integer> items = new ArrayList<Integer>();
+		
+		try {
+			for ( String part : parts ) {
+				String[] range = CommandParser.splitStringWithDash(part);
+				if ( range.length == 1 ) {
+					int number = Integer.parseInt(range[0]);
+					items.add(number);
+					_logger.log(Level.INFO, "Marking Task {0} as Incomplete", number);
+				} else if ( range.length == 2 ) {
+					int minimum = Integer.parseInt(range[0]);
+					int maximum = Integer.parseInt(range[1]);
+					if ( minimum > maximum ) {
+						throw new InvalidCommandException(CommandType.UNMARK);
+					}
+					
+					for ( int y = minimum; y <= maximum; y++ ) {
+						items.add(y);
+						_logger.log(Level.INFO, "Marking Task {0} as Incomplete", y);
+					}					
+				} else {
+					throw new InvalidCommandException(CommandType.UNMARK);
+				}
+			}
+		} catch (NumberFormatException e) {
+			throw new InvalidCommandException(CommandType.UNMARK);
+		}
+
+		return new UnmarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
+	}
+
+	private ICommand doDirectory(String command) {
+		if ( command.isEmpty() ) {
+			_logger.log(Level.INFO, "Changing Directory - Launch GUI");
+			return new DirectoryCommand();
+		} else {
+			String[] words = splitStringWithWhitespace(command);
+			int FIRST_WORD = 0;
+			int LAST_WORD = words.length - 1;
+			boolean overwrite = false;
+			
+			if ( hasKeyword(words[FIRST_WORD], OVERWRITE_KEYWORDS) || hasKeyword(words[LAST_WORD], OVERWRITE_KEYWORDS))
+			{
+				overwrite = true;
+			}
+
+			_logger.log(Level.INFO, "Changing Directory - Target: " + command + "; Overwrite: " + overwrite);
+			return new DirectoryCommand(command, overwrite);
+		}
+	}
+	
+	private ICommand doHelp(String command) {
+		CommandType cmd;
+		
+		try {
+			cmd = this.getCommandType(command);
+		} catch (InvalidCommandException e) {
+			cmd = CommandType.HELP;
+		}
+		
+		return new HelpCommand(cmd);
+	}
+	
+	private ICommand doExit() {
+		_logger.log(Level.INFO, "Exiting Taskie");
+		return new ExitCommand();
+	}
+	
+	private static LocalDateTime[] getStartAndEndDateTime(List<Date> dates) {
+		LocalDateTime[] startAndEndDateTime = new LocalDateTime[NUM_START_END_DATETIME];
+
+		if ( dates.size() > 1 ) {
+			Date datetime1 = dates.get(0);
+			Date datetime2 = dates.get(1);
+			
+			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
+			LocalDateTime ldt2 = convertDateToLocalDateTime(datetime2);
+			
+			if ( ldt1.isAfter(ldt2) ) {
+				startAndEndDateTime[DATETIME_START] = ldt2;
+				startAndEndDateTime[DATETIME_END] = ldt1;
+			} else {
+				startAndEndDateTime[DATETIME_START] = ldt1;
+				startAndEndDateTime[DATETIME_END] = ldt2;
+			}
+		} else if ( dates.size() == 1 ) {
+			// Deadline tasks
+			Date datetime1 = dates.get(0);
+			LocalDateTime ldt1 = convertDateToLocalDateTime(datetime1);
+			startAndEndDateTime[DATETIME_START] = null;
+			startAndEndDateTime[DATETIME_END] = ldt1;
+		}
+		
+		return startAndEndDateTime;	
+	}
+	
+	private static boolean hasKeyword(String needle, String[] haystack) {
+		needle = needle.toLowerCase();
+		return Arrays.asList(haystack).contains(needle);
+	}
+	
+	private static String getFirstKeyword(String command) {
+		return splitStringWithWhitespace(command)[0];
+	}
+
+	private static String getNonKeywords(String command) {
+		String find = Pattern.quote(getFirstKeyword(command));
+		return command.replaceFirst(find, "").trim();
+	}
+
+	private static String[] splitStringWithWhitespace(String command) {
+		return command.trim().split("\\s+");
+	}
+
+	private static String[] splitStringWithDash(String command) {
+		return command.trim().split("-");
+	}
+	
+	private static LocalDateTime convertDateToLocalDateTime(Date date) {
+		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+	}
+}
+
+	// End of segment: src\taskie\parser\CommandParser.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\parser\Parser.java
+	 */
+
+package taskie.parser;
+
+import taskie.commands.ICommand;
+import taskie.exceptions.InvalidCommandException;
+
+/**
+ * Parser is an interface for implementing different parsers for reading user input
+ */
+public interface Parser {
+	public ICommand parse(String input) throws InvalidCommandException;
+}
+
+	// End of segment: src\taskie\parser\Parser.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\Taskie.java
+	 */
+
+package taskie;
+
+import java.io.IOException;
+import java.util.logging.FileHandler;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+public class Taskie {
+	private static String LOGGER_FILENAME = "taskie-log.txt";
+	public static void main(String[] args) {
+		configureLogger();
+		new Taskie(args);
+	}
+	
+	private static void configureLogger() {
+		FileHandler fh;
+		try {
+			// Redirect all logging output to the TEMP Folder on the system
+			LogManager.getLogManager().reset();
+			fh = new FileHandler("%t/" + LOGGER_FILENAME);
+			Logger.getLogger("").addHandler(fh);
+		} catch (SecurityException e) {
+			System.out.println("SecurityException: Unable to setup logging.");
+		} catch (IOException e) {
+			System.out.println("IOException: Unable to setup logging.");
+		}
+	}
+
+	public Taskie(String[] args) {
+		try {
+			Controller c = Controller.getInstance();
+			c.run();
+		} catch (Exception e) {
+			System.out.println("Unknown Error: " + e.getMessage());
+		}
+	}
+}
+	// End of segment: src\taskie\Taskie.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\tests\CommandTest.java
+	 */
+
+	@Test
+	public void testDirectoryCommand() throws IOException{
+		Path pathStr = _controller.getStorage().getStorageLocation();
+		Path databaseLocation = pathStr.resolve("taskie.txt");
+		Path newPathStr = pathStr.resolve("taskie_test_folder");
+		Path newDatabaseLocation = newPathStr.resolve("taskie.txt");
+		Files.createDirectory(newPathStr);
+		DirectoryCommand cmd = new DirectoryCommand(newPathStr.toString(), false);
+		cmd.execute();
+		
+		if ( !Files.isRegularFile(newDatabaseLocation) ) {
+			fail("Failed to migrate file to " + newDatabaseLocation);
+		}
+
+		assertEquals(newPathStr.toString(), _controller.getStorage().getStorageLocation().toString());
+
+		// Migrate Back
+		cmd = new DirectoryCommand(pathStr.toString(), false);
+		cmd.execute();
+
+		if ( !Files.isRegularFile(databaseLocation) ) {
+			fail("Failed to migrate file back to to " + databaseLocation);
+		}
+		Files.deleteIfExists(newPathStr);
+		assertEquals(pathStr.toString(), _controller.getStorage().getStorageLocation().toString());
+	}
+	
+	// End of segment: src\taskie\tests\CommandTest.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\tests\ParserTest.java
+	 */
+
+package taskie.tests;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import taskie.commands.AddCommand;
+import taskie.commands.DeleteCommand;
+import taskie.commands.DirectoryCommand;
+import taskie.commands.ExitCommand;
+import taskie.commands.ICommand;
+import taskie.commands.MarkCommand;
+import taskie.commands.RedoCommand;
+import taskie.commands.UndoCommand;
+import taskie.commands.UnmarkCommand;
+import taskie.commands.UpdateCommand;
+import taskie.commands.ViewCommand;
+import taskie.exceptions.InvalidCommandException;
+import taskie.models.ViewType;
+import taskie.parser.CommandParser;
+import taskie.parser.Parser;
+
+import com.joestelmach.natty.CalendarSource;
+
+public class ParserTest {
+	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
+	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
+
+	private static Parser _parser;
+
+	private static LocalDate _today;
+	private static LocalTime _time;
+	private static LocalDateTime _now;
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		_parser = new CommandParser();
+		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);
+		
+		_today = _now.toLocalDate();
+		_time = _now.toLocalTime();
+
+		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
+		CalendarSource.setBaseDate(Date.from(instant));
+	}
+
+	@Before
+	public void setUp() throws Exception {
+	}
+
+	@Test
+	public void testInvalidCommand() {
+		try {
+			_parser.parse(null);
+			fail();
+		} catch ( InvalidCommandException e) {
+		}
+
+		try {
+			_parser.parse("");
+			fail();
+		} catch ( InvalidCommandException e) {
+		}
+		
+		try {
+			_parser.parse("invalid");
+			fail();
+		} catch ( InvalidCommandException e) {
+		}
+
+	}
+	
+	@Test
+	public void testAddCommand() throws InvalidCommandException {
+		AddCommand expectedCommand;
+		ICommand actualCommand;
+		
+		// Test Floating Tasks - Normal Cases
+		expectedCommand = new AddCommand("Travel to London", null, null);
+		actualCommand = _parser.parse("add Travel to London");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("put Travel to London");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("create Travel to London");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("ins Travel to London");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Floating Task - Special Cases
+		expectedCommand = new AddCommand("Eat fries", null, null);
+		actualCommand = _parser.parse("create Eat fries");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Prepare Presentation for CS2103", null, null);
+		actualCommand = _parser.parse("add Prepare Presentation for CS2103");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Deadlined Tasks with Relative Dates
+		expectedCommand = new AddCommand("Do CE3", null, null, _today.plusDays(1), LocalTime.MAX);
+		actualCommand = _parser.parse("add Do CE3 by tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new AddCommand("Do CE3", null,  _now.plusDays(1));
+		actualCommand = _parser.parse("add Do CE3 in 24 hours");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Have dinner", null, _now.plusHours(2));
+		actualCommand = _parser.parse("add Have dinner in 2 hours");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add Have dinner in 120 minutes");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add in 2 hours Have dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Complete CE2", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.MAX);
+		actualCommand = _parser.parse("put Complete CE2 on Saturday");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("put on Saturday Complete CE2");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Complete CE2", null, null, _today.plusDays(1), LocalTime.of(16, 0, 0, 0));
+		actualCommand = _parser.parse("put Complete CE2 by 4pm tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("put Complete CE2 by tomorrow 4pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Work on the code done by Amy", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.MONDAY)), LocalTime.MAX);
+		actualCommand = _parser.parse("create \"Work on the code done by Amy\" by Monday");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Reach Changi Airport to send friend off", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.THURSDAY)), LocalTime.of(20, 45));
+		actualCommand = _parser.parse("add Reach Changi Airport to send friend off by 8.45pm thursday");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Eat fries", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.THURSDAY)), LocalTime.of(20, 30));
+		actualCommand = _parser.parse("create Eat fries at 8.30pm thurs");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Watch the Day after Tomorrow", null, null, _today.plusDays(2), LocalTime.MAX);
+		actualCommand = _parser.parse("put \"Watch the Day after Tomorrow\" on the day after tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Watch the Day after Tomorrow", null, null, _today.plusDays(2), LocalTime.of(9, 54));
+		actualCommand = _parser.parse("put \"Watch the Day after Tomorrow\" on the day after tomorrow at 9.54am");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Next Week
+		expectedCommand = new AddCommand("Complete CS2103 Tutorial 5", null, null, _today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)), LocalTime.MAX);
+		actualCommand = _parser.parse("create Complete CS2103 Tutorial 5 by next Wednesday");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Complete next Wednesday's task", null, null, _today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)), null);
+		actualCommand = _parser.parse("ins Complete next Wednesday's task by next Tuesday");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Mix with "Public Holidays"
+		expectedCommand = new AddCommand("Buy groceries for new year", null, null, _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), null);
+		actualCommand = _parser.parse("add Buy groceries by saturday for new year");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Deadlined Tasks with Fixed Dates
+		expectedCommand = new AddCommand("CS2103 Presentation", null, null, LocalDate.of(_today.getYear(), 4, 10), LocalTime.of(10,12));
+		actualCommand = _parser.parse("create CS2103 Presentation on 10 April 10:12am");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Add the create task functionality for CS2103", null, null, LocalDate.of(_today.getYear(), 3, 15), LocalTime.MAX);
+		actualCommand = _parser.parse("create Add the create task functionality for CS2103 by 15 March");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Presentation for CS2103", null, null, LocalDate.of(_today.getYear(), 4, 10), LocalTime.of(10,12));
+		actualCommand = _parser.parse("create Presentation for CS2103 on 10 April 10.12am");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new AddCommand("Watch the Day after Tomorrow", null, null, LocalDate.of(_today.getYear(), 4, 20), LocalTime.of(20, 25));
+		actualCommand = _parser.parse("put \"Watch the Day after Tomorrow\" at 8:25pm on 20 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Timed Tasks with Relative Dates
+		expectedCommand = new AddCommand("Attend CS2103 Meeting", _today.plusDays(1), LocalTime.of(10, 0), _today.plusDays(1), LocalTime.of(18, 0));
+		actualCommand = _parser.parse("add Attend CS2103 Meeting from tomorrow 10am to 6pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Prepare Cousin Wedding", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(10, 0), _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)), LocalTime.of(18, 0));
+		actualCommand = _parser.parse("add Prepare Cousin Wedding from saturday 10am to sunday 6pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new AddCommand("Do CS2103 Tutorial 6", _today.plusDays(1), LocalTime.of(9, 0), _today.plusDays(1), LocalTime.of(11, 0));
+		actualCommand = _parser.parse("add Do CS2103 Tutorial 6 from 9 to 11am tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add from 9 to 11am tomorrow Do CS2103 Tutorial 6");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add Do CS2103 Tutorial 6 from 9am tomorrow for 2 hours");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		//actualCommand = _parser.parse("add Do CS2103 Tutorial 6 for 2 hours from 9am tomorrow");
+		//assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("add from 9am tomorrow for 2 hours Do CS2103 Tutorial 6");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		//actualCommand = _parser.parse("add for 2 hours from 9am tomorrow Do CS2103 Tutorial 6");
+		//assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Dinner Date", _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(17, 0), _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(22, 0));
+		actualCommand = _parser.parse("ins Dinner Date on Friday 5pm to 10pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new AddCommand("Reunion Dinner", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(17, 45), _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(21, 15));
+		actualCommand = _parser.parse("ins Reunion Dinner on Saturday 5.45pm to 9.15pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
+	
+	@Test
+	public void testViewCommand() throws InvalidCommandException {
+		ViewCommand expectedCommand;
+		ICommand actualCommand;
+		
+		// Test all view
+		expectedCommand = new ViewCommand(ViewType.ALL, _today.plusWeeks(1), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all after next week");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test overdue view
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, null, null, null, null, null);
+		actualCommand = _parser.parse("view overdue");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test upcoming view
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, null, null, null, null, null);
+		actualCommand = _parser.parse("display");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("view todo");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test search view
+		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "dinner");
+		actualCommand = _parser.parse("find dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("search dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
+		actualCommand = _parser.parse("find CS2103 tutorial");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
+	
+	@Test
+	public void testDeleteCommand() throws InvalidCommandException {
+		DeleteCommand expectedCommand;
+		ICommand actualCommand;
+		
+		// Equivalence Partitioning 
+		// Delete command expects an integer
+		expectedCommand = new DeleteCommand(10);
+		actualCommand = _parser.parse("delete 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("clear 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("remove 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("rm 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("discard 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new DeleteCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+		actualCommand = _parser.parse("delete 1-10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1 2 3 4 5 6 7 8 9 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1|2|3|4|5|6|7|8|9|10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1,2,3,4,5,6,7,8,9,10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1.2.3.4.5.6.7.8.9.10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new DeleteCommand(new int[] { 1, 2, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("delete 1 2 4-5 7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1,2,4-5,7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1 2.4-5.7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1|2|4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1 2 4 5 7 8 9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1 2,4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		try {
+			actualCommand = _parser.parse("delete invalidstring");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+		
+		expectedCommand = new DeleteCommand(0);
+		actualCommand = _parser.parse("delete");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
+	
+	@Test
+	public void testUpdateCommand() throws InvalidCommandException {
+		UpdateCommand expectedCommand;
+		ICommand actualCommand;
+		
+		// Equivalence Partitioning
+		// Test all possible variants of UpdateCommand
+		expectedCommand = new UpdateCommand(1);
+		actualCommand = _parser.parse("update 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("change 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("modify 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("edit 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("alter 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		try {
+			actualCommand = _parser.parse("update");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+		
+		// Test Update Title only
+		expectedCommand = new UpdateCommand(1);
+		expectedCommand.setTaskTitleToUpdate("new title");
+		actualCommand = _parser.parse("update 1 new title");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new UpdateCommand(0);
+		expectedCommand.setTaskTitleToUpdate("new title");
+		actualCommand = _parser.parse("update new title");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Update End Date only
+		expectedCommand = new UpdateCommand(1);
+		expectedCommand.setEndDateToUpdate(_today.plusDays(1));
+		actualCommand = _parser.parse("update 1 by tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test Update Title and End Date
+		expectedCommand = new UpdateCommand(1);
+		expectedCommand.setTaskTitleToUpdate("new title");
+		expectedCommand.setEndDateToUpdate(_today.plusDays(1));
+		actualCommand = _parser.parse("update 1 new title by tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Update Title, Start and End Date
+		expectedCommand = new UpdateCommand(1);
+		expectedCommand.setTaskTitleToUpdate("new title");
+		expectedCommand.setStartDateToUpdate(_today.plusDays(1));
+		expectedCommand.setEndDateToUpdate(_today.plusDays(2));
+		actualCommand = _parser.parse("update 1 new title from tomorrow to the day after");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
+	
+	@Test
+	public void testUndoCommand() throws InvalidCommandException {
+		UndoCommand expectedCommand;
+		ICommand actualCommand;
+		
+		// Equivalence Partitioning 
+		// Command has an optional integer parameter.
+		// If no integer specified, it means undo just 1 step.
+		expectedCommand = new UndoCommand(1);
+		actualCommand = _parser.parse("undo");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("revert");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new UndoCommand(5);
+		actualCommand = _parser.parse("undo 5");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		try {
+			expectedCommand = new UndoCommand(1);
+			actualCommand = _parser.parse("undo invalidstring");
+			assertEquals(expectedCommand.toString(), actualCommand.toString());
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testRedoCommand() throws InvalidCommandException {
+		RedoCommand expectedCommand;
+		ICommand actualCommand;
+		
+		// Equivalence Partitioning 
+		// Command has an optional integer parameter.
+		// If no integer specified, it means redo just 1 step.
+		expectedCommand = new RedoCommand(1);
+		actualCommand = _parser.parse("redo");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new RedoCommand(5);
+		actualCommand = _parser.parse("redo 5");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		try {
+			expectedCommand = new RedoCommand(1);
+			actualCommand = _parser.parse("redo invalidstring");
+			assertEquals(expectedCommand.toString(), actualCommand.toString());
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testMarkCommand() throws InvalidCommandException {
+		MarkCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new MarkCommand(1);
+		actualCommand = _parser.parse("mark 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("complete 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("done 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("check 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new MarkCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+		actualCommand = _parser.parse("mark 1-10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2 3 4 5 6 7 8 9 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1|2|3|4|5|6|7|8|9|10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1,2,3,4,5,6,7,8,9,10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1.2.3.4.5.6.7.8.9.10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new MarkCommand(new int[] { 1, 2, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("mark 1 2 4-5 7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1,2,4-5,7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2.4-5.7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1|2|4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2 4 5 7 8 9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("mark 1 2,4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new MarkCommand(0);
+		actualCommand = _parser.parse("mark");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		try {
+			actualCommand = _parser.parse("mark invalidstring");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testUnmarkCommand() throws InvalidCommandException {
+		UnmarkCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new UnmarkCommand(1);
+		actualCommand = _parser.parse("unmark 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("incomplete 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("undone 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("uncheck 1");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new UnmarkCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+		actualCommand = _parser.parse("unmark 1-10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2 3 4 5 6 7 8 9 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1|2|3|4|5|6|7|8|9|10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1,2,3,4,5,6,7,8,9,10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1.2.3.4.5.6.7.8.9.10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new UnmarkCommand(new int[] { 1, 2, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("unmark 1 2 4-5 7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1,2,4-5,7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2.4-5.7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1|2|4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2 4 5 7 8 9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("unmark 1 2,4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new UnmarkCommand(0);
+		actualCommand = _parser.parse("unmark");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		
+		try {
+			actualCommand = _parser.parse("unmark invalidstring");
+			fail();
+		} catch ( InvalidCommandException e ) {
+		}
+	}
+	
+	@Test
+	public void testDirectoryCommand() throws InvalidCommandException {
+		DirectoryCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new DirectoryCommand();
+		actualCommand = _parser.parse("directory");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
+
+	@Test
+	public void testExitCommand() throws InvalidCommandException {
+		ExitCommand expectedCommand;
+		ICommand actualCommand;
+		
+		expectedCommand = new ExitCommand();
+		actualCommand = _parser.parse("exit");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("quit");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("close");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+	}
+}
+
+	// End of segment: src\taskie\tests\ParserTest.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\tests\UITest.java
+	 */
+
+package taskie.tests;
+
+import java.util.ArrayList;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import taskie.Controller;
+import taskie.models.Task;
+import taskie.ui.CommandUI;
+import taskie.ui.UI;
+
+public class UITest {
+	private UI UI;
+	private static ArrayList<Task> tasks;
+	private static Controller _controller;
+	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		_controller = Controller.getInstance();
+		tasks = new ArrayList<Task>();
+		
+		tasks.add(new Task("Have Dinner"));
+		tasks.add(new Task("Attend CS2103 Meeting"));
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		UI = new CommandUI(_controller);
+	}
+
+	@Test
+	public void testDisplay() {
+		UI.display(tasks.toArray(new Task[tasks.size()]));
+	}
+
+}
+
+	// End of segment: src\taskie\tests\UITest.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\ui\CommandUI.java
+	 */
+
+package taskie.ui;
+
+import static org.fusesource.jansi.Ansi.ansi;
+
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Scanner;
+
+import javax.swing.JFileChooser;
+
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
+import org.fusesource.jansi.AnsiConsole;
+
+import taskie.Controller;
+import taskie.commands.ViewCommand;
+import taskie.exceptions.InvalidTaskException;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+import taskie.models.Task;
+import taskie.models.TaskType;
+import taskie.models.ViewType;
+
+public class CommandUI implements UI {
+	private Controller _controller;
+	private Scanner _scanner;
+	private Task[] _currentTaskList;
+	private static boolean _isInitialized;
+	private static boolean _isUIRunning;
+	private LocalDateTime _now;
+
+	public CommandUI(Controller controller) {
+		_controller = controller;
+		_scanner = new Scanner(System.in);
+		_isInitialized = false;
+		_now = LocalDateTime.now();
+	}
+
+	public String readInput() {
+		this.display(DisplayType.DEFAULT, Messages.UI_REQUEST_INPUT);
+		String input = null;
+		if (_scanner.hasNextLine()) {
+			input = _scanner.nextLine();
+
+			if (input == null) {
+				return null;
+			}
+		}
+
+		return input;
+	}
+
+	public void display(Task task) {
+		this.display(new Task[] { task });
+	}
+
+	public void display(Task[] tasks) {
+		_currentTaskList = tasks;
+		_now = LocalDateTime.now();
+
+		int numTasks = tasks.length;
+		int characters = String.valueOf(numTasks).length();
+		int shown = 0;
+		
+		this.printHeader(Messages.UI_HEADER);
+		
+		for (int x = 0; x < numTasks; x++) {
+			Task task = tasks[x];
+			display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
+			this.printTask(task);
+			shown++;
+		}
+
+		display(ansi().a(String.format("---%nShowing %d out of %d tasks%n", shown, numTasks, 0)).newline().reset());
+	}
+
+	public void display(DisplayType type, String message) {
+		if ( type == DisplayType.ERROR ) {
+			this.display(ansi().fg(Color.RED).bold().a(message).reset());
+		} else if ( type == DisplayType.SUCCESS ) {
+			this.display(ansi().fg(Color.GREEN).bold().a(message).reset());
+		} else {
+			this.display(ansi().a(message));
+		}
+	}
+
+	public void display(Ansi message) {
+		System.out.print(message);
+		System.out.flush();
+	}
+
+	public Task getTask(int index) throws InvalidTaskException {
+		index = index - 1;
+
+		if (_currentTaskList == null) {
+			throw new InvalidTaskException();
+		}
+
+		assert _currentTaskList != null;
+
+		if (_currentTaskList.length > index && _currentTaskList[index] != null) {
+			assert _currentTaskList[index] != null;
+			return _currentTaskList[index];
+		}
+
+		throw new InvalidTaskException();
+	}
+
+	public Task[] getCurrentTaskList() throws InvalidTaskException {
+		if (_currentTaskList == null) {
+			throw new InvalidTaskException();
+		}
+
+		assert _currentTaskList != null;
+		return _currentTaskList;
+	}
+	
+	private void printTask(Task task) {
+		int numTasks = _currentTaskList.length;
+		int characters = String.valueOf(numTasks).length();
+		
+		if (task.isDone()) {
+			this.printSuccessMessage(String.format("[DONE] %s%n", task.getTitle()));
+		} else {
+			if (task.getTaskType() == TaskType.DEADLINE) {
+				if (task.getEndDateTime().isBefore(_now)) {
+					// Task is OVERDUE
+					this.printCriticalMessage(String.format("[!!!] %s [Overdue by %s]%n", task.getTitle(), prettyDates(task.getEndDateTime())));
+					this.printCriticalMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getEndDateTime())));
+				} else {
+					this.printInfoMessage(String.format("%s [Due in %s]%n", task.getTitle(), prettyDates(task.getEndDateTime())));
+					this.printInfoMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getEndDateTime())));
+				}
+			} else if (task.getTaskType() == TaskType.TIMED) {
+				if (task.getEndDateTime().isBefore(_now)) {
+					// Task is OVERDUE
+					this.printCriticalMessage(String.format("[!!!] %s [Started %s]%n", task.getTitle(), prettyDates(task.getStartDateTime())));
+					this.printCriticalMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime())));
+				} else {
+					this.printInfoMessage(String.format("%s [Starts in %s]%n", task.getTitle(), prettyDates(task.getStartDateTime())));
+					this.printInfoMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime())));
+				}
+			} else {
+				this.printInfoMessage(String.format("%s%n", task.getTitle()));
+			}
+
+			display(DisplayType.DEFAULT, Messages.NEWLINE);
+		}
+
+	}
+
+	private void printWelcomeMessage() {
+		String padding = new String(new char[Messages.UI_WELCOME_MESSAGE.length() + 2]).replace("\0", "=");
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.UI_WELCOME_MESSAGE + " ").reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+		_controller.executeCommand(new ViewCommand(ViewType.UPCOMING));
+	}
+	
+	private void printHeader(String header) {
+		String padding = new String(new char[header.length() + 2]).replace("\0", "=");
+		this.display(DisplayType.DEFAULT, Messages.NEWLINE + ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + header + " ").reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE + Messages.NEWLINE);
+	}
+	
+	private void printCriticalMessage(String msg) {
+		display(ansi().fg(Color.RED).bold().a(msg).reset());
+	}
+	
+	private void printSuccessMessage(String msg) {
+		display(ansi().fg(Color.RED).bold().a(msg).reset());
+	}
+	
+	private void printInfoMessage(String msg) {
+		display(ansi().fg(Color.DEFAULT).a(msg).reset());
+	}
+
+	public void run() {
+		if (!_isInitialized) {
+			AnsiConsole.systemInstall();
+			_isInitialized = true;
+			this.printWelcomeMessage();
+			_isUIRunning = true;
+		}
+	}
+
+	public void exit() {
+		AnsiConsole.systemUninstall();
+		_isUIRunning = false;
+	}
+
+	public boolean isUIRunning() {
+		return _isUIRunning;
+	}
+
+	public String formatDateTime(LocalDateTime dateTime) {
+		if ( dateTime.toLocalTime().equals(LocalTime.MAX) ) {
+			return dateTime.format(Messages.DATE_FORMAT);
+		} else {
+			return dateTime.format(Messages.DATETIME_FORMAT);
+		}
+	}
+	
+	public String formatDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		if ( startDateTime.toLocalDate().equals(endDateTime.toLocalDate()) ) {
+			return startDateTime.format(Messages.DATETIME_FORMAT) + " to " + endDateTime.format(Messages.TIME_FORMAT);
+		} else {
+			return formatDateTime(startDateTime) + " to " + formatDateTime(endDateTime);
+		}
+	}
+	
+	public String loadSelectDirectoryDialog(String currentDirectory) {
+		JFileChooser fileChooser = new JFileChooser((currentDirectory == null) ? "." : currentDirectory);
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setVisible(true);
+		int returnVal = fileChooser.showOpenDialog(null);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fileChooser.getSelectedFile();
+			return file.getAbsolutePath();
+		}
+
+		return null;
+	}
+
+	private String padLeft(String str, int length, String padding) {
+		return String.format("%1$" + length + "s", str).replace(" ", padding);
+	}
+
+	private String padRight(String str, int length, String padding) {
+		return String.format("%1$-" + length + "s", str).replace(" ", padding);
+	}
+
+	private String prettyDates(LocalDateTime dateTime) {
+		StringBuffer sb = new StringBuffer();
+		RelativeDate relative = new RelativeDate(_now);
+		relative.calculate(dateTime);
+
+		if (relative.getDays() > 0) {
+			sb.append(String.format("%d %s", relative.getDays(), relative.getDays() > 1 ? "days" : "day") + " ");
+		} else if (relative.getHours() > 0) {
+			sb.append(String.format("%d %s", relative.getHours(), relative.getHours() > 1 ? "hours" : "hour") + " ");
+		} else if (relative.getMinutes() > 0) {
+			sb.append(String.format("%d %s", relative.getMinutes(), relative.getMinutes() > 1 ? "minutes" : "minute") + " ");
+		} else {
+			sb.append(String.format("%d %s", relative.getSeconds(), relative.getSeconds() > 1 ? "seconds" : "second") + " ");
+		}
+
+		return "less than " + sb.toString().trim();
+	}
+}
+
+	// End of segment: src\taskie\ui\CommandUI.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\ui\UI.java
+	 */
+
+package taskie.ui;
+
+import java.time.LocalDateTime;
+
+import taskie.exceptions.InvalidTaskException;
+import taskie.models.DisplayType;
+import taskie.models.Task;
+
+public interface UI {	
+	public void run();
+
+	public String readInput();
+
+	public void display(Task task);
+
+	public void display(Task[] task);
+
+	public void display(DisplayType type, String message);
+
+	public void exit();
+
+	public Task[] getCurrentTaskList() throws InvalidTaskException;
+
+	public Task getTask(int index) throws InvalidTaskException;
+
+	public boolean isUIRunning();
+	
+	public String formatDateTime(LocalDateTime dateTime);
+	
+	public String formatDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+	public String loadSelectDirectoryDialog(String currentDirectory);
+}
+
+	// End of segment: src\taskie\ui\UI.java
+
+
+
+
+

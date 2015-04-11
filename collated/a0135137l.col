@@ -1,0 +1,638 @@
+//@author: a0135137l
+
+
+
+	/**
+	 * origin: src\taskie\commands\HelpCommand.java
+	 */
+
+package taskie.commands;
+
+import taskie.exceptions.UndoNotSupportedException;
+import taskie.models.CommandType;
+import taskie.models.DisplayType;
+import taskie.models.Messages;
+
+public class HelpCommand extends AbstractCommand {
+	private CommandType _commandType;
+	
+	public HelpCommand () {
+		_commandType = null;
+	}
+	
+	public HelpCommand (CommandType commandType) {
+		_commandType = commandType;
+	}
+
+	@Override
+	public void execute() {
+		switch (_commandType) {
+			case ADD: 
+				helpAdd();
+				break;
+			case UPDATE:
+				helpUpdate();
+				break;
+			case VIEW:
+				helpView();
+				break;
+			case DELETE:
+				helpDelete();
+				break;
+			case UNDO:
+				helpUndo();
+				break;
+			case REDO:
+				helpRedo();
+				break;
+			case MARK:
+				helpMark();
+				break;	
+			case UNMARK:
+				helpUnmark();
+				break;	
+			case DIRECTORY:
+				helpDirectory();
+				break;
+			case HELP:
+				helpAll();
+				break;
+			case EXIT:
+				helpExit();
+				break;	
+		}
+	}
+	
+	private void helpAdd() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.ADD_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.ADD_HELP_BODY);
+	}
+	
+	private void helpUpdate() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.UPDATE_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.UPDATE_HELP_BODY);
+	}
+	
+	private void helpView() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.VIEW_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.VIEW_HELP_BODY);
+	}
+	
+	private void helpDelete() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.DELETE_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.DELETE_HELP_BODY);
+	}
+	
+	private void helpUndo() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.UNDO_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.UNDO_HELP_BODY);
+	}
+	
+	private void helpRedo() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.REDO_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.REDO_HELP_BODY);
+	}
+	
+	private void helpMark() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.MARK_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.MARK_HELP_BODY);
+	}
+	
+	private void helpUnmark() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.UNMARK_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.UNMARK_HELP_BODY);
+	}
+
+	private void helpDirectory() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.DIRECTORY_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.DIRECTORY_HELP_BODY);
+	}
+	
+	private void helpExit() {
+		_controller.getUI().display(DisplayType.SUCCESS, Messages.EXIT_HELP_HEADER);
+		_controller.getUI().display(DisplayType.DEFAULT, Messages.EXIT_HELP_BODY);
+	}
+	
+	
+	private void helpAll() {
+		helpAdd();
+		helpUpdate();
+		helpView();
+		helpDelete();
+		helpUndo();
+		helpRedo();
+		helpMark();
+		helpUnmark();
+		helpDirectory();
+	}
+	
+	@Override
+	public CommandType getCommandType() {
+		return CommandType.HELP;
+	}
+	
+	@Override
+	public void undo() throws UndoNotSupportedException {
+		throw new UndoNotSupportedException();
+	}
+}
+
+	// End of segment: src\taskie\commands\HelpCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\database\Configuration.java
+	 */
+
+package taskie.database;
+
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import taskie.exceptions.ConfigurationFailedException;
+
+public class Configuration {
+	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
+	private static final String CONFIG_FILENAME = "taskieconfig.txt";
+	
+	private static Configuration _config;
+	private Path _configPath;
+	private Path _databasePath;
+	private FileReaderWriter _frw;
+	private Logger _logger;
+	
+	private Configuration() throws ConfigurationFailedException {
+		String configPath = DEFAULT_STORAGE_DIRECTORY + "/" + CONFIG_FILENAME;
+		_configPath = FileSystems.getDefault().getPath(configPath);
+		_logger = Logger.getLogger(Configuration.class.getName());
+		try {
+			_frw = new FileReaderWriter(_configPath);
+			String databasePath = _frw.read();
+			
+			if (databasePath.equals("")) {
+				setDatabasePath(DEFAULT_STORAGE_DIRECTORY);
+			} else {
+				_databasePath = FileSystems.getDefault().getPath(databasePath);
+			}
+
+			_logger.log(Level.INFO, "Configuration initialized.");
+		} catch (IOException ex) {
+			throw new ConfigurationFailedException();
+		}
+	}
+	
+	public static Configuration getInstance() {
+		try {
+			if (_config == null) {
+				_config = new Configuration();
+			}
+			return _config;
+		} catch (ConfigurationFailedException ex) {
+			ex.getMessage();
+			return null;
+		}
+	}
+	
+	public Path getDatabasePath() {
+		return _databasePath;
+	}
+	
+	public void setDatabasePath (Path newDatabasePath) throws ConfigurationFailedException {
+		try {
+			_databasePath = newDatabasePath;
+			_frw.write(_databasePath.toString());
+		} catch (IOException ex) {
+			throw new ConfigurationFailedException();
+		}
+	}
+	
+	public void setDatabasePath(String newDatabasePath) throws ConfigurationFailedException {
+		Path databasePath = FileSystems.getDefault().getPath(newDatabasePath);
+		setDatabasePath (databasePath);	
+	}
+	
+}
+
+	// End of segment: src\taskie\database\Configuration.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\database\IStorage.java
+	 */
+
+package taskie.database;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+
+import taskie.exceptions.FileExistsException;
+import taskie.exceptions.StorageLocationInvalidException;
+import taskie.exceptions.StorageMigrationFailedException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+import taskie.models.Task;
+
+/**
+ * IStorage is an interface that manages the Creating, Reading, Updating and Deleting (CRUD) of Tasks in the database
+ * It also manages the location of files in the database
+ */
+public interface IStorage {
+	Path getStorageLocation();
+
+	void setStorageLocation(Path newDirectory) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException;
+
+	void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException;
+
+	void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
+
+	void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
+
+	void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException;
+	
+	void clearAllTasks() throws TaskModificationFailedException;
+	
+	void close() throws IOException;
+	
+	ArrayList<Task> getTaskList() throws TaskRetrievalFailedException;
+}
+
+	// End of segment: src\taskie\database\IStorage.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\database\NStorage.java
+	 */
+
+	public ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
+		try {
+			String json = _db.read();
+			if (json.equals("")) {
+				return new ArrayList<Task>();
+			}
+
+			Type listType = new TypeToken<ArrayList<Task>>() {
+			}.getType();
+			return _gson.fromJson(json, listType);
+		} catch (IOException e) {
+			throw new TaskRetrievalFailedException(e);
+		}
+	}
+
+	public ArrayList<Task> getTaskList() {
+		return _tasks;
+	}
+}
+
+	// End of segment: src\taskie\database\NStorage.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\ConfigurationFailedException.java
+	 */
+
+package taskie.exceptions;
+
+public class ConfigurationFailedException extends Exception {
+	private static final long serialVersionUID = -34643214965646L;
+	private static final String DEFAULT_MESSAGE = taskie.models.Messages.CONFIGURATION_FAILED_EXCEPTION;
+
+	public ConfigurationFailedException() {
+		super(DEFAULT_MESSAGE);
+	}
+
+	public ConfigurationFailedException(String string) {
+		super(string);
+	}
+}
+
+	// End of segment: src\taskie\exceptions\ConfigurationFailedException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\exceptions\InvalidCommandException.java
+	 */
+
+	public InvalidCommandException(CommandType type) {
+		_help = new HelpCommand(type);
+	}
+	
+	public HelpCommand getHelpCommand() {
+		return _help;
+	}
+	
+	
+}
+
+	// End of segment: src\taskie\exceptions\InvalidCommandException.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\models\Task.java
+	 */
+
+	public boolean equals(Task other) {
+		if (equalsTitle(other) && equalsStartDate(other) && equalsStartTime(other) && equalsEndDate(other) && equalsEndTime(other)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean equalsTitle(Task other) {
+		return _title.equals(other.getTitle());
+	}
+
+	private boolean equalsStartDate(Task other) {
+		LocalDate otherStartDate = other.getStartDate();
+		if (_startDate == null && otherStartDate == null)
+			return true;
+		if (_startDate != null && otherStartDate != null) {
+			return _startDate.equals(otherStartDate);
+		}
+		return false;
+	}
+
+	private boolean equalsEndDate(Task other) {
+		LocalDate otherEndDate = other.getEndDate();
+		if (_endDate == null && otherEndDate == null)
+			return true;
+		if (_endDate != null && otherEndDate != null) {
+			return _endDate.equals(otherEndDate);
+		}
+		return false;
+	}
+
+	private boolean equalsStartTime(Task other) {
+		LocalTime otherStartTime = other.getStartTime();
+		if (_startTime == null && otherStartTime == null)
+			return true;
+		if (_startTime != null && otherStartTime != null) {
+			return _startTime.equals(otherStartTime);
+		}
+		return false;
+	}
+
+	private boolean equalsEndTime(Task other) {
+		LocalTime otherEndTime = other.getEndTime();
+		if (_endTime == null && otherEndTime == null)
+			return true;
+		if (_endTime != null && otherEndTime != null) {
+			return _endTime.equals(otherEndTime);
+		}
+		return false;
+	}
+
+	// A0135137L
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("TaskName:" + this.getTitle() + ",");
+		try {
+			sb.append("StartDate:" + this.getStartDate() + ",");
+		} catch (NullPointerException e) {
+			sb.append("StartDate:null,");
+		}
+		try {
+			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
+		} catch (NullPointerException e) {
+			sb.append("StartDateTime:null,");
+		}
+		try {
+			sb.append("EndDate:" + this.getEndDate());
+		} catch (NullPointerException e) {
+			sb.append("EndDate:null");
+		}
+		try {
+			sb.append("EndDateTime:" + this.getEndDateTime());
+		} catch (NullPointerException e) {
+			sb.append("EndDateTime:null");
+		}
+
+		return sb.toString();
+	}
+
+	// End of segment: src\taskie\models\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\taskie\tests\StorageTest.java
+	 */
+
+package taskie.tests;
+
+import static org.junit.Assert.assertEquals;
+import taskie.database.NStorage;
+import taskie.database.FileReaderWriter;
+import taskie.models.Task;
+import taskie.exceptions.FileExistsException;
+import taskie.exceptions.StorageLocationInvalidException;
+import taskie.exceptions.StorageMigrationFailedException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskTypeNotSupportedException;
+
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.Test;
+
+import java.lang.reflect.Type;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.io.IOException;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+
+public class StorageTest {
+	
+	private static final String DEFAULT_STORAGE_DIRECTORY = System.getProperty("user.home");
+	private static final String DATABASE_FILENAME = "taskie.txt";
+	
+	private static NStorage _storage;
+	private static Path _databasePath;
+	private static ArrayList<Task> _tasks;
+
+	
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		_storage = new NStorage(DEFAULT_STORAGE_DIRECTORY);
+		_databasePath = FileSystems.getDefault().getPath(DEFAULT_STORAGE_DIRECTORY + "/" + DATABASE_FILENAME);
+		_tasks = new ArrayList<Task>();
+	}
+
+	@AfterClass
+	public static void cleanUpAfterClass() throws Exception {
+		Files.delete(_databasePath);
+	}
+
+	@Test
+	public void testGetStorageLocation() throws Exception {
+		assertEquals(DEFAULT_STORAGE_DIRECTORY, _storage.getStorageLocation().toString());
+	}
+	
+	@Test
+	public void testSetStorageLocation() throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException {
+
+	}
+	
+	
+	@Test
+	public void testAddTask() throws IOException, TaskTypeNotSupportedException, TaskModificationFailedException  {
+		Gson gson = new Gson();
+		FileReaderWriter frw = new FileReaderWriter(_databasePath);
+		Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
+		LocalDateTime now = LocalDateTime.of(2015, 3, 29, 17, 00);
+		String json;
+
+		//_tasks = new ArrayList<Task>();
+		Task deadlinedTask = new Task("Deadlined Task 1", now.toLocalDate());
+		Task timedTask = new Task("Timed Task 1", now.toLocalDate(), now.plusDays(1).toLocalDate());
+		Task floatingTask = new Task("Floating Task 1");
+		
+		_tasks.add(deadlinedTask);
+		_tasks.add(timedTask);
+		_tasks.add(floatingTask);
+		
+		_storage.addTask(deadlinedTask);
+		_storage.addTask(timedTask);
+		_storage.addTask(floatingTask);
+		
+		//Add deadlined task
+		_tasks.add(deadlinedTask);
+		json = gson.toJson(_tasks, listType);
+		_storage.addTask(deadlinedTask);
+		assertEquals(json, frw.read());
+		
+		//Add timed task
+		_tasks.add(timedTask);
+		json = gson.toJson(_tasks, listType);
+		_storage.addTask(timedTask);
+		assertEquals(json, frw.read());
+		
+		//Add floating task
+		_tasks.add(floatingTask);
+		json = gson.toJson(_tasks, listType);
+		_storage.addTask(floatingTask);
+		assertEquals(json, frw.read());
+	}
+	
+
+	
+	@Test
+	public void testDeleteTask() throws IOException, TaskTypeNotSupportedException, TaskModificationFailedException {
+		Gson gson = new Gson();
+		FileReaderWriter frw = new FileReaderWriter(_databasePath);
+		String json;
+		Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
+		LocalDateTime now = LocalDateTime.of(2015, 3, 29, 15, 39);
+		
+		Task deadlinedTask = new Task("Deadlined Task 2", now.toLocalDate());
+		Task timedTask = new Task("Timed Task 2", now.toLocalDate(), now.plusDays(1).toLocalDate());
+		Task floatingTask = new Task("Floating Task 2");
+		
+		_storage.addTask(deadlinedTask);
+		_storage.addTask(timedTask);
+		_storage.addTask(floatingTask);
+		
+		_tasks.add(deadlinedTask);
+		_tasks.add(timedTask);
+		_tasks.add(floatingTask);
+
+		// Delete floating task
+		_storage.deleteTask(floatingTask);
+		_tasks.remove(floatingTask);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
+		
+		// Delete deadlined task
+		_storage.deleteTask(deadlinedTask);
+		_tasks.remove(deadlinedTask);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
+		
+		// Delete timed task
+		_storage.deleteTask(timedTask);
+		_tasks.remove(timedTask);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
+		
+		// Delete unexisted task
+		
+	}
+
+	@Test
+	public void testUpdateTask() throws IOException, TaskTypeNotSupportedException, TaskModificationFailedException {
+		
+		Gson gson = new Gson();
+		FileReaderWriter frw = new FileReaderWriter(_databasePath);
+		Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
+		LocalDateTime now = LocalDateTime.of(2015, 4, 22, 10, 39);
+		
+		Task oldTask = new Task("Deadlined Task 3", now.toLocalDate());
+		Task newTask1 = new Task("Deadlined Task 3", now.minusDays(1).toLocalDate());
+		Task newTask2 = new Task("Timed Task 3", now.toLocalDate(), now.plusDays(1).toLocalDate());
+		
+		_storage.addTask(oldTask);
+		_tasks.add(oldTask);
+
+		String json;
+		int index;
+		
+		// Update task to same type of task
+		_storage.updateTask(oldTask, newTask1);
+		index = _tasks.indexOf(oldTask);
+		_tasks.set(index, newTask1);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
+
+		// Update task to different type of task
+		_storage.updateTask(newTask1, newTask2);
+		index = _tasks.indexOf(newTask1);
+		_tasks.set(index, newTask2);
+		json = gson.toJson(_tasks, listType);
+		assertEquals(json, frw.read());
+	}
+
+
+	@Test
+	public void testGetTaskList() {
+		assertEquals(_tasks, _storage.getTaskList());
+	}
+
+	
+}
+
+	// End of segment: src\taskie\tests\StorageTest.java
+
+
+
+
+
