@@ -480,22 +480,42 @@ public class CommandParser implements Parser {
 	}
 	
 	private ICommand doDelete(String command) throws InvalidCommandException {
-		int itemNumber;
-		
 		if ( command.isEmpty() ) {
-			itemNumber = 0;
-		} else {
-			assert !command.isEmpty() : "Parameters are empty";
-			
-			try {
-				itemNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
-			} catch (NumberFormatException e) {
-				throw new InvalidCommandException(CommandType.DELETE);
-			}
+			return new DeleteCommand(0);
 		}
 		
-		_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
-		return new DeleteCommand(itemNumber);
+		assert !command.isEmpty() : "Parameters are empty";
+
+		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
+		ArrayList<Integer> items = new ArrayList<Integer>();
+
+		try {
+			for ( String part : parts ) {
+				String[] range = CommandParser.splitStringWithDash(part);
+				if ( range.length == 1 ) {
+					int number = Integer.parseInt(range[0]);
+					items.add(number);
+					_logger.log(Level.INFO, "Deleting Task: {0}", number);
+				} else if ( range.length == 2 ) {
+					int minimum = Integer.parseInt(range[0]);
+					int maximum = Integer.parseInt(range[1]);
+					if ( minimum > maximum ) {
+						throw new InvalidCommandException(CommandType.MARK);
+					}
+					
+					for ( int y = minimum; y <= maximum; y++ ) {
+						items.add(y);
+						_logger.log(Level.INFO, "Deleting Task: {0}", y);
+					}					
+				} else {
+					throw new InvalidCommandException(CommandType.MARK);
+				}
+			}
+		} catch (NumberFormatException e) {
+			throw new InvalidCommandException(CommandType.MARK);
+		}
+
+		return new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
 	}
 	
 	private ICommand doView(String command) {

@@ -275,6 +275,32 @@ public class ParserTest {
 		actualCommand = _parser.parse("del 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
+		expectedCommand = new DeleteCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+		actualCommand = _parser.parse("delete 1-10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1 2 3 4 5 6 7 8 9 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1|2|3|4|5|6|7|8|9|10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1,2,3,4,5,6,7,8,9,10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1.2.3.4.5.6.7.8.9.10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new DeleteCommand(new int[] { 1, 2, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("delete 1 2 4-5 7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1,2,4-5,7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1 2.4-5.7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1|2|4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1 2 4 5 7 8 9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("delete 1 2,4-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		try {
 			actualCommand = _parser.parse("delete invalidstring");
 			fail();
