@@ -8,6 +8,7 @@
 
 package taskie.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import taskie.exceptions.InvalidTaskException;
@@ -20,7 +21,8 @@ import taskie.models.Messages;
 import taskie.models.Task;
 
 public class DeleteCommand extends AbstractCommand {
-	private Task _task;
+	private ArrayList<Task> _tasks = new ArrayList<Task>();
+	private Task _currentTask;
 	private int[] _taskIndexes;
 	private Boolean _deleteStartDate = false;
 	private Boolean _deleteStartTime = false;
@@ -32,20 +34,29 @@ public class DeleteCommand extends AbstractCommand {
 	//@author A0121555M
 	public DeleteCommand(int itemNumber) {
 		_taskIndexes = new int[] { itemNumber };
+		this.retrieveTasks(_taskIndexes);
 	}
 
 	public DeleteCommand(int[] itemNumbers) {
 		_taskIndexes = itemNumbers;
+		this.retrieveTasks(_taskIndexes);
 	}
 
 	public DeleteCommand(Task task) {
-		_task = task;
+		_tasks.add(task);
+	}
+
+	public DeleteCommand(Task[] tasks) {
+		for (int x = 0; x < tasks.length; x++) {
+			_tasks.add(tasks[x]);
+		}
 	}
 
 	//@author A0097582N
 	public void setToDeleteStartDate() {
 		_deleteStartDate = true;
-		_deleteStartTime = true; // if startDate is to be deleted, startTime will be deleted too
+		_deleteStartTime = true; // if startDate is to be deleted, startTime
+									// will be deleted too
 	}
 
 	public Boolean canDeleteStartDate() {
@@ -85,38 +96,30 @@ public class DeleteCommand extends AbstractCommand {
 
 	@Override
 	public void execute() {
-		for (int x = 0; x < _taskIndexes.length; x++) {
+		for (Task task : _tasks) {
 			try {
-				int index = _taskIndexes[x];
-				if (index == 0) {
-					_task = _controller.getLastTask();
-				} else {
-					_task = _controller.getUI().getTask(index);
-				}
+				_currentTask = task;
 
 				if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate() || canDeleteEndTime()) {
-					// if either of these methods returned true, only task fields are to be deleted.
-					deleteTaskField(index);
+					// if either of these methods returned true, only task
+					// fields are to be deleted.
+					deleteTaskField();
 					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskFieldString());
 				} else {
 					deleteTask();
 					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskString());
 				}
-			} catch (InvalidTaskException e) {
-				_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
 			} catch (TaskTypeNotSupportedException e) {
-				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+                _controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			} catch (TaskModificationFailedException e) {
-				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
-			} catch (TaskRetrievalFailedException e) {
-				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+                _controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}
 		}
 	}
 
-	private void deleteTaskField(int index) {
+	private void deleteTaskField() {
 		// taskfields are deleted by setting to them null;
-		UpdateCommand updateCommand = new UpdateCommand(index);
+		UpdateCommand updateCommand = new UpdateCommand(_currentTask);
 		if (canDeleteStartDate()) {
 			updateCommand.setStartDateToUpdate(null);
 		}
@@ -133,17 +136,34 @@ public class DeleteCommand extends AbstractCommand {
 	}
 
 	//@author A0121555M
+	private void retrieveTasks(int[] taskIndexes) {
+		for (int x = 0; x < taskIndexes.length; x++) {
+			try {
+				int index = taskIndexes[x];
+				if (index == 0) {
+					_tasks.add(_controller.getLastTask());
+				} else {
+					_tasks.add(_controller.getUI().getTask(index));
+				}
+			} catch (InvalidTaskException e) {
+				_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+			} catch (TaskRetrievalFailedException e) {
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			}
+		}
+	}
+
 	private void deleteTask() throws TaskTypeNotSupportedException, TaskModificationFailedException {
-		_controller.getStorage().deleteTask(_task);
+		_controller.getStorage().deleteTask(_currentTask);
 	}
 
 	//@author A0097582N
 	private String formatDeleteTaskString() {
-		return String.format(taskie.models.Messages.DELETE_TASK, _task.getTitle());
+		return String.format(taskie.models.Messages.DELETE_TASK, _currentTask.getTitle());
 	}
 
 	private String formatDeleteTaskFieldString() {
-		String message = String.format(taskie.models.Messages.DELETE_TASK_FIELD, _task.getTitle());
+		String message = String.format(taskie.models.Messages.DELETE_TASK_FIELD, _currentTask.getTitle());
 		if (canDeleteStartDate()) {
 			message = message.concat("\nStart date");
 		}
@@ -162,7 +182,7 @@ public class DeleteCommand extends AbstractCommand {
 	//@author A0121555M
 	@Override
 	public void undo() {
-		new AddCommand(_task).execute();
+		new AddCommand(_currentTask).execute();
 	}
 
 	@Override

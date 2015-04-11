@@ -47,9 +47,6 @@ public class UpdateCommand extends AbstractCommand {
 
 	private Logger _logger = Logger.getLogger(UpdateCommand.class.getName());
 
-	public UpdateCommand() {
-	}
-
 	public UpdateCommand(int taskIndex) {
 		_taskIndex = taskIndex;
 	}
@@ -127,10 +124,10 @@ public class UpdateCommand extends AbstractCommand {
 		_logger.log(Level.INFO, "UPDATECOMMAND CONFIG: task Index: " + _taskIndex + " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): " + _startDateToUpdate + " " + _isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate + " " + _isToUpdateStartTime + "\nendDate(bool): " + _endDateToUpdate + " " + _isToUpdateEndDate + " time(bool):" + _endTimeToUpdate + " " + _isToUpdateEndTime);
 
 		try {
-			_oldTask = retrieveTaskToUpdate();
-			if(_oldTask==null){
-				throw new InvalidCommandException();
+			if (_oldTask == null) {
+				_oldTask = retrieveTaskToUpdate();
 			}
+
 			_logger.log(Level.INFO, "TASK FROM UI: " + _oldTask.toString());
 			_newTask = updateTask(_oldTask);
 			_controller.getStorage().updateTask(_oldTask, _newTask);
@@ -260,18 +257,23 @@ public class UpdateCommand extends AbstractCommand {
 
 	}
 
-	private Task retrieveTaskToUpdate() throws InvalidTaskException, TaskRetrievalFailedException {
+	private Task retrieveTaskToUpdate() throws InvalidTaskException, TaskRetrievalFailedException, InvalidCommandException {
 		Task task = null;
-		if(_taskIndex==0){
-			task=_controller.getLastTask();
-		}else{
+		if (_taskIndex == 0) {
+			task = _controller.getLastTask();
+		} else {
 			task = _controller.getUI().getTask(_taskIndex);
 			_controller.setLastTask(task);
 		}
+
+		if (task == null) {
+			throw new InvalidCommandException();
+		}
+
 		return task;
 	}
 
-	// @author A0121555M
+	//@author A0121555M
 	public void undo() {
 		try {
 			_controller.getStorage().updateTask(_newTask, _oldTask);
