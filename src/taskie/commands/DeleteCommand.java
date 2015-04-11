@@ -185,7 +185,9 @@ public class DeleteCommand extends AbstractCommand {
 	//@author A0121555M
 	@Override
 	public void undo() {
-		new AddCommand(_currentTask).execute();
+		for ( Task task : _tasks ) {
+			new AddCommand(task).execute();
+		}
 	}
 
 	@Override
