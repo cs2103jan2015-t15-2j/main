@@ -59,6 +59,7 @@ public class CommandParser implements Parser {
 	private static final String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
 	private static final String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
 	
+	// Keywords for advanced users
 	private static final String[] DIRECTORY_OVERWRITE_KEYWORDS = new String[] { "overwrite" };
 	
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
