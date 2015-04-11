@@ -63,6 +63,11 @@ public class CommandParser implements Parser {
 	// Keywords for advanced users
 	private static final String[] DIRECTORY_OVERWRITE_KEYWORDS = new String[] { "overwrite" };
 	
+	private static final String[] DELETE_START_DATE_KEYWORDS = new String[] { "startdate" };
+	private static final String[] DELETE_START_TIME_KEYWORDS = new String[] { "start", "starttime", "startdatetime", "starttimedate" };
+	private static final String[] DELETE_END_DATE_KEYWORDS = new String[] { "startdate" };
+	private static final String[] DELETE_END_TIME_KEYWORDS = new String[] { "end", "endtime", "enddatetime", "endtimedate" };
+	
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 	
@@ -546,12 +551,44 @@ public class CommandParser implements Parser {
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
+		
+		String keyword = CommandParser.getFirstKeyword(command);
+		String parameters = CommandParser.getNonKeywords(command);
+		boolean deleteStartDate = false, deleteStartTime = false, deleteEndDate = false, deleteEndTime = false;
+		
+		if ( CommandParser.hasKeyword(keyword, DELETE_START_DATE_KEYWORDS) ) {
+			deleteStartDate = true;
+		} else if ( CommandParser.hasKeyword(keyword, DELETE_START_TIME_KEYWORDS) ) {
+			deleteStartTime = true;
+		} else if ( CommandParser.hasKeyword(keyword, DELETE_END_DATE_KEYWORDS) ) {
+			deleteEndDate = true;
+		} else if ( CommandParser.hasKeyword(keyword, DELETE_END_TIME_KEYWORDS) ) {
+			deleteEndTime = true;
+		} else {
+			parameters = command;
+		}
 
 		try {
 			_logger.log(Level.FINE, "Finding ranges for Delete Command");
 			ArrayList<Integer> items = this.getRanges(parameters);
 			DeleteCommand cmd = new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
+			
+			if ( deleteStartDate ) {
+				cmd.setToDeleteStartDate();
 			}
+			
+			if ( deleteStartTime) {
+				cmd.setToDeleteStartTime();
+			}
+			
+			if ( deleteEndDate ) {
+				cmd.setToDeleteStartDate();			
+			}
+			
+			if ( deleteEndTime ) {
+				cmd.setToDeleteEndTime();
+			}
+			
 			return cmd;
 		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.DELETE);
