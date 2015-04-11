@@ -194,6 +194,10 @@ public class DeleteCommand extends AbstractCommand {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CommandType:" + _commandType + ",");
+		sb.append("DeleteStartDate:" + _deleteStartDate);
+		sb.append("DeleteStartTime:" + _deleteStartTime);
+		sb.append("DeleteEndDate:" + _deleteEndDate);
+		sb.append("DeleteEndTime:" + _deleteEndTime);
 		sb.append("TaskIndex:" + Arrays.toString(_taskIndexes));
 		return sb.toString();
 	}
