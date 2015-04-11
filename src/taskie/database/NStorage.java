@@ -124,6 +124,7 @@ public class NStorage implements IStorage {
 	 */
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
+			assert task != null : "Task is null";
 			this.addToTaskList(task);
 			this.rewriteDatabase();
 		} catch (IOException e) {
@@ -138,6 +139,7 @@ public class NStorage implements IStorage {
 	 */
 	public void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
+			assert task != null : "Task is null";
 			boolean status = this.removeFromTaskList(task);
 			if (status) {
 				this.rewriteDatabase();
@@ -157,6 +159,8 @@ public class NStorage implements IStorage {
 	 */
 	public void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
+			assert oldTask != null : "Old Task is null";
+			assert newTask != null : "New Task is null";
 			boolean status = this.removeFromTaskList(oldTask);
 			if (status) {
 				this.addToTaskList(newTask);
