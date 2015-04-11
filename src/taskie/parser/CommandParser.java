@@ -413,15 +413,17 @@ public class CommandParser implements Parser {
 		assert !command.isEmpty() : "Parameters are empty";
 		
 		int taskNumber = 0;
+		String query;
+		
 		try {
 			taskNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
+			query = CommandParser.getNonKeywords(command);
 		} catch (NumberFormatException e) {
-			throw new InvalidCommandException(CommandType.UPDATE);
+			taskNumber = 0;
+			query = command;
 		}
 		
-		String query = CommandParser.getNonKeywords(command);		
 		UpdateCommand cmd = new UpdateCommand(taskNumber);
-		
 		String[] parsedQuery = parseCommandForNameAndDates(query);
 		DateGroup group = parseCommandForDates(parsedQuery[COMMAND_DATE]);
 	
@@ -477,17 +479,18 @@ public class CommandParser implements Parser {
 	}
 	
 	private ICommand doDelete(String command) throws InvalidCommandException {
+		int itemNumber;
+		
 		if ( command.isEmpty() ) {
-			throw new InvalidCommandException(CommandType.DELETE);
-		}
-		
-		assert !command.isEmpty() : "Parameters are empty";
-		
-		int itemNumber = 0;
-		try {
-			itemNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
-		} catch (NumberFormatException e) {
-			throw new InvalidCommandException(CommandType.DELETE);
+			itemNumber = 0;
+		} else {
+			assert !command.isEmpty() : "Parameters are empty";
+			
+			try {
+				itemNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
+			} catch (NumberFormatException e) {
+				throw new InvalidCommandException(CommandType.DELETE);
+			}
 		}
 		
 		_logger.log(Level.INFO, "Deleting Task: {0}", itemNumber);
@@ -600,7 +603,7 @@ public class CommandParser implements Parser {
 	
 	private ICommand doMark(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
-			throw new InvalidCommandException(CommandType.MARK);
+			return new MarkCommand(0);
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
@@ -639,7 +642,7 @@ public class CommandParser implements Parser {
 	
 	private ICommand doUnmark(String command) throws InvalidCommandException {
 		if ( command.isEmpty() ) {
-			throw new InvalidCommandException(CommandType.UNMARK);
+			return new UnmarkCommand(0);
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
