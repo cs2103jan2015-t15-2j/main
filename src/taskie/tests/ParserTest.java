@@ -254,6 +254,10 @@ public class ParserTest {
 		actualCommand = _parser.parse("view all before today");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		expectedCommand = new ViewCommand(ViewType.ALL, _today.plusDays(1), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all from tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		// Test all view with date range
 		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, null);
 		actualCommand = _parser.parse("view all from 1 apr to 30 april");

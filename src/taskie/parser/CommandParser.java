@@ -663,7 +663,8 @@ public class CommandParser implements Parser {
 			if ( relativeType == RelativeType.BEFORE ) {
 				cmd.setStartDateTime(MIN_DATETIME);
 				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
-			} else if ( relativeType == RelativeType.AFTER ) {
+			} else if ( relativeType == RelativeType.AFTER || (relativeType == RelativeType.SPECIFIED && startAndEndDateTime[DATETIME_START] == null) ) {
+				// Second condition handles special cases like "from tomorrow", "from next week" that would otherwise be classified as RelativeType.SPECIFIED
 				cmd.setStartDateTime(startAndEndDateTime[DATETIME_END]);
 				cmd.setEndDateTime(MAX_DATETIME);
 			} else if ( relativeType == RelativeType.EXACT ) {
