@@ -18,14 +18,14 @@ public class Messages {
 	public static final String ADD_FLOATING = "%s added." + NEWLINE;
 	public static final String ADD_DEADLINED = "%s added at %s" + NEWLINE;
 	public static final String ADD_TIMED = "%s added from %s to %s" + NEWLINE;
-	public static final String ADD_CONFLICT = "Warning: Task(s) has already been scheduled during that time: ";
+	public static final String ADD_CONFLICT = "[!!!] Warning! This task conflicts with: ";
 
 	// DeleteCommand messages
-	public static final String DELETE_TASK = "%s is deleted from list." + NEWLINE;
-	public static final String DELETE_TASK_FIELD = "Following fields are deleted from %s:" + NEWLINE;
+	public static final String DELETE_TASK = "%s has been deleted." + NEWLINE;
+	public static final String DELETE_TASK_FIELD = "The following fields have been deleted from %s:" + NEWLINE;
 
 	// ExitCommand messages
-	public static final String EXIT_MESSAGE = "Taskie is exiting. Hope to see you soon!" + NEWLINE;
+	public static final String EXIT_MESSAGE = "Taskie is exiting."  + NEWLINE + "Hope to see you again!" + NEWLINE;
 
 	// MarkCommand messages
 	public static final String MARK_STRING = "%s marked as done." + NEWLINE;
