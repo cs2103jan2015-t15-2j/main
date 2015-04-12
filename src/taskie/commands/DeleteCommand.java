@@ -54,7 +54,8 @@ public class DeleteCommand extends AbstractCommand {
 	//@author A0097582N
 	public void setToDeleteStartDate() {
 		_deleteStartDate = true;
-		_deleteStartTime = true; // if startDate is to be deleted, startTime will be deleted too
+		_deleteStartTime = true; // if startDate is to be deleted, startTime
+									// will be deleted too
 	}
 
 	public Boolean canDeleteStartDate() {
@@ -101,7 +102,8 @@ public class DeleteCommand extends AbstractCommand {
 				_currentTask = task;
 
 				if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate() || canDeleteEndTime()) {
-					// if either of these methods returned true, only task fields are to be deleted.
+					// if either of these methods returned true, only task
+					// fields are to be deleted.
 					deleteTaskField(task);
 					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskFieldString());
 				} else {
@@ -109,52 +111,51 @@ public class DeleteCommand extends AbstractCommand {
 					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskString());
 				}
 			} catch (TaskTypeNotSupportedException e) {
-                _controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			} catch (TaskModificationFailedException e) {
-                _controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}
 		}
 	}
 
 	private void deleteTaskField(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		// taskfields are deleted by setting to them null;
-		
-		if(!canDeleteStartDate() && canDeleteEndDate()){//switch start and end date if del end date;
+
+		if (!canDeleteStartDate() && canDeleteEndDate()) {// switch start and
+															// end date if del
+															// end date;
 
 			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
 		}
-		if(canDeleteStartDate()){
+		if (canDeleteStartDate()) {
 			Task updatedTask = new Task(task.getTitle(), task.getEndDate(), task.getEndTime());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
 		}
-		if(canDeleteStartDate() && canDeleteEndDate()){
+		if (canDeleteStartDate() && canDeleteEndDate()) {
 			Task updatedTask = new Task(task.getTitle());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
 		}
-		if(canDeleteStartTime()){
-			Task updatedTask = new Task(task.getTitle(), task.getStartDate()
-					, null, task.getEndDate(), task.getEndTime());
+		if (canDeleteStartTime()) {
+			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), null, task.getEndDate(), task.getEndTime());
 			_controller.getStorage().updateTask(task, updatedTask);
 		}
-		if(canDeleteEndTime()){
-			Task updatedTask = new Task(task.getTitle(), task.getStartDate()
-					, task.getStartTime(), task.getEndDate(), null);
+		if (canDeleteEndTime()) {
+			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime(), task.getEndDate(), null);
 			_controller.getStorage().updateTask(task, updatedTask);
 		}
-		
-		
+
 	}
 
 	//@author A0121555M
 	private void retrieveTasks() {
-		if ( _taskIndexes == null ) {
+		if (_taskIndexes == null) {
 			return;
 		}
-		
+
 		for (int x = 0; x < _taskIndexes.length; x++) {
 			try {
 				int index = _taskIndexes[x];
@@ -200,7 +201,7 @@ public class DeleteCommand extends AbstractCommand {
 	//@author A0121555M
 	@Override
 	public void undo() {
-		for ( Task task : _tasks ) {
+		for (Task task : _tasks) {
 			new AddCommand(task).execute();
 		}
 	}
