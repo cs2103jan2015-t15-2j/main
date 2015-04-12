@@ -233,8 +233,12 @@ public class CommandUI implements UI {
 		StringBuffer sb = new StringBuffer();
 		RelativeDate relative = new RelativeDate(_now);
 		relative.calculate(dateTime);
-
-		if (relative.getDays() > 0) {
+		
+		if (relative.getYears() > 0 ) {
+			sb.append(String.format("%d %s", relative.getYears(), relative.getYears() > 1 ? "years" : "year") + " ");
+		} else if (relative.getMonths() > 0 ) {
+			sb.append(String.format("%d %s", relative.getMonths(), relative.getMonths() > 1 ? "months" : "month") + " ");
+		} else if (relative.getDays() > 0) {
 			sb.append(String.format("%d %s", relative.getDays(), relative.getDays() > 1 ? "days" : "day") + " ");
 		} else if (relative.getHours() > 0) {
 			sb.append(String.format("%d %s", relative.getHours(), relative.getHours() > 1 ? "hours" : "hour") + " ");
@@ -244,6 +248,6 @@ public class CommandUI implements UI {
 			sb.append(String.format("%d %s", relative.getSeconds(), relative.getSeconds() > 1 ? "seconds" : "second") + " ");
 		}
 
-		return "less than " + sb.toString().trim();
+		return "about " + sb.toString().trim();
 	}
 }
