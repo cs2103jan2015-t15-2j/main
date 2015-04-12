@@ -290,7 +290,7 @@ public class CommandTest {
 	}
 	
 	@Test
-	public void testDeleteCommand() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+	public void testDeleteCommandTaskName() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
 		setUp();
 		addTask("foo",null,null);
 		addTask("bar",null,null);
@@ -299,6 +299,43 @@ public class CommandTest {
 		delete.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		assertEquals(1,list.size());
+	}
+	
+	@Test
+	public void testDeleteCommandStartDateTime() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		addTask("foo",_time1,_time2);
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		DeleteCommand delete = new DeleteCommand(1);
+		delete.setToDeleteStartDate();
+		delete.execute();
+		Task expectedTask = new Task("foo",_time2);
+		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
+	}
+	
+	@Test
+	public void testDeleteCommandStartEndDateTime() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		addTask("foo",_time1,_time2);
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		DeleteCommand delete = new DeleteCommand(1);
+		delete.setToDeleteStartDate();
+		delete.setToDeleteEndDate();
+		delete.execute();
+		Task expectedTask = new Task("foo");
+		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
+		
+	}
+	@Test
+	public void testDeleteCommandEndDateTime() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		addTask("foo",_time1,_time2);
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		DeleteCommand delete = new DeleteCommand(1);
+		delete.setToDeleteEndDate();
+		delete.execute();
+		Task expectedTask = new Task("foo",_time1);
+		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	
 	
@@ -334,6 +371,7 @@ public class CommandTest {
 		list = _controller.getStorage().getTaskList();
 		assertEquals(1,list.size());
 	}
+
 	
 	//@author A0121555M
 	@Test

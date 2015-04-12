@@ -10,6 +10,8 @@ package taskie.commands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import taskie.exceptions.InvalidTaskException;
 import taskie.exceptions.TaskModificationFailedException;
@@ -19,10 +21,12 @@ import taskie.models.CommandType;
 import taskie.models.DisplayType;
 import taskie.models.Messages;
 import taskie.models.Task;
+import taskie.parser.CommandParser;
 
 public class DeleteCommand extends AbstractCommand {
 	private ArrayList<Task> _tasks = new ArrayList<Task>();
 	private int[] _taskIndexes;
+	Logger _logger;
 
 	private Task _currentTask;
 	private Boolean _deleteStartDate = false;
@@ -124,18 +128,15 @@ public class DeleteCommand extends AbstractCommand {
 		if (!canDeleteStartDate() && canDeleteEndDate()) {// switch start and
 															// end date if del
 															// end date;
-
 			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
-		}
-		if (canDeleteStartDate()) {
-			Task updatedTask = new Task(task.getTitle(), task.getEndDate(), task.getEndTime());
+		}else if (canDeleteStartDate()&&canDeleteEndDate()) {
+			Task updatedTask = new Task(task.getTitle());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
-		}
-		if (canDeleteStartDate() && canDeleteEndDate()) {
-			Task updatedTask = new Task(task.getTitle());
+		}else if (canDeleteStartDate()) {
+			Task updatedTask = new Task(task.getTitle(), task.getEndDate(), task.getEndTime());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
 		}
