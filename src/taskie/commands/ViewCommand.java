@@ -137,11 +137,6 @@ public class ViewCommand extends AbstractCommand {
 	//@author A0097582N
 	@Override
 	public void execute() {
-		System.out.println("ViewType: " + this._viewType + "\nStartDate: "
-						+ this.getStartDate() + " StartTime: "
-						+ this.getStartTime() + "\nEndDate: "
-						+ this.getEndDate() + " EndTime: " + this.getEndTime()
-						+ "\nSearch Keywords: " + this.getSearchKeywords());
 		_logger.log(
 				Level.INFO,
 				"ViewType: " + this._viewType + "\nStartDate: "
@@ -177,7 +172,6 @@ public class ViewCommand extends AbstractCommand {
 					&& _searchKeywords != null) {
 				tasksToDisplay = findSearchedTasks(tasks);
 				_logger.log(Level.INFO, "searchType: Taskname\n");
-
 			} else if (_searchKeywords != null) {
 				tasksToDisplay = findTasksByDate(tasks);
 				tasksToDisplay = findSearchedTasks(tasksToDisplay);
@@ -368,6 +362,11 @@ public class ViewCommand extends AbstractCommand {
 					doneTasksToDisplay.add(task);
 				}
 			}
+			if(_startDate!=null || _endDate!=null){
+				tasksToDisplay = findTasksByDate(tasksToDisplay);
+				doneTasksToDisplay = findTasksByDate(tasksToDisplay);
+			}
+			
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			doneTasksToDisplay.sort(new TaskEndDateComparator());
 			tasksToDisplay.addAll(doneTasksToDisplay);
