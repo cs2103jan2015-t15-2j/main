@@ -247,10 +247,12 @@ public class AddCommand extends AbstractCommand {
 			sb.append(Messages.ADD_CONFLICT);
 		for(int i=0;i<_conflictedTask.size();i++){
 			Task task = _conflictedTask.get(i);
-			if(i==_conflictedTask.size()-1 && i !=1){
+			if(i==_conflictedTask.size()-1 && i !=0){
 				sb.append("and ");
 				sb.append(task.getTitle());
 				sb.append(".");
+			}else if(i==_conflictedTask.size()-1 && i==0){
+				sb.append(task.getTitle()+".");
 			}else{
 				sb.append(task.getTitle());
 				sb.append(", ");
