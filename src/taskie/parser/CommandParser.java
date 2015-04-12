@@ -453,8 +453,10 @@ public class CommandParser implements Parser {
 			
 			if ( startAndEndDateTime[DATETIME_START] != null ) {
 				if ( group.getParseLocations().containsKey("date") ) {
+					// Date is specified
 					cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
 				} else {
+					// Date is not specified, Natty is going to assume its today
 					LocalTime now = LocalTime.now();
 					if ( startAndEndDateTime[DATETIME_START].toLocalTime().isBefore(now) ) {
 						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate().plusDays(1));
@@ -472,8 +474,10 @@ public class CommandParser implements Parser {
 			
 			if ( startAndEndDateTime[DATETIME_END] != null ) {
 				if ( group.getParseLocations().containsKey("date") ) {
+					// Date is specified
 					cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
 				} else {
+					// Date is not specified, Natty is going to assume its today
 					LocalTime now = LocalTime.now();
 					if ( startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(now) ) {
 						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate().plusDays(1));
