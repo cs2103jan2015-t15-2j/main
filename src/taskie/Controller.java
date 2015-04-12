@@ -140,7 +140,7 @@ public class Controller {
 	}
 	
 	//@author A0135137L
-	public void resetStacks() {
+	public void resetUndoAndRedoStacks() {
 		_undoStack = new Stack<ICommand>();
 		_redoStack = new Stack<ICommand>();
 	}

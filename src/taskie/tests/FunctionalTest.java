@@ -28,7 +28,7 @@ public class FunctionalTest {
 	@After
 	public void tearDownAfterClass() throws Exception {
 		_controller.getStorage().clearAllTasks();
-		_controller.resetStacks();
+		_controller.resetUndoAndRedoStacks();
 	}
 	
 	@Before
