@@ -48,7 +48,6 @@ public class CommandUI implements UI {
 				return null;
 			}
 		}
-
 		return input;
 	}
 
