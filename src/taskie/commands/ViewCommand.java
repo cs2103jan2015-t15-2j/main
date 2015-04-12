@@ -366,6 +366,10 @@ public class ViewCommand extends AbstractCommand {
 				tasksToDisplay = findTasksByDate(tasksToDisplay);
 				doneTasksToDisplay = findTasksByDate(tasksToDisplay);
 			}
+			if(_searchKeywords!=null){
+				tasksToDisplay=findSearchedTasks(tasksToDisplay);
+				doneTasksToDisplay = findTasksByDate(tasksToDisplay);
+			}
 			
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			doneTasksToDisplay.sort(new TaskEndDateComparator());
