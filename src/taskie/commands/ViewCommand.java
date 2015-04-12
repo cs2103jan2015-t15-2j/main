@@ -137,6 +137,11 @@ public class ViewCommand extends AbstractCommand {
 	//@author A0097582N
 	@Override
 	public void execute() {
+		System.out.println("ViewType: " + this._viewType + "\nStartDate: "
+						+ this.getStartDate() + " StartTime: "
+						+ this.getStartTime() + "\nEndDate: "
+						+ this.getEndDate() + " EndTime: " + this.getEndTime()
+						+ "\nSearch Keywords: " + this.getSearchKeywords());
 		_logger.log(
 				Level.INFO,
 				"ViewType: " + this._viewType + "\nStartDate: "
@@ -178,12 +183,23 @@ public class ViewCommand extends AbstractCommand {
 			} else {
 				tasksToDisplay = findTasksByDate(tasks);
 			}
+			tasksToDisplay = findUndoneTasks(tasksToDisplay);
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(
 					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
+	}
+
+	private ArrayList<Task> findUndoneTasks(ArrayList<Task> tasks) {
+		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
+		for(Task task: tasks){
+			if(task.isDone()){
+				tasksToDisplay.add(task);
+			}
+		}
+		return tasksToDisplay;
 	}
 
 	private ArrayList<Task> findTasksByDate(ArrayList<Task> tasks) {
@@ -203,19 +219,18 @@ public class ViewCommand extends AbstractCommand {
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		LocalDateTime endDateTime = this.getEndDateTime();
 
-		for (Task task : tasks) {
-			if (!task.isDone()){ 
-				TaskType taskType = task.getTaskType();
-				if (taskType == TaskType.FLOATING) {
-					tasksToDisplay.add(task);
-				} else if (taskType == TaskType.DEADLINE
-						&& task.getEndDateTime().isBefore(endDateTime)) {
-					tasksToDisplay.add(task);
-				} else if ((taskType == TaskType.TIMED
-						&& task.getStartDateTime().isBefore(endDateTime))) {
-					tasksToDisplay.add(task);
-				}
+		for (Task task : tasks) { 
+			TaskType taskType = task.getTaskType();
+			if (taskType == TaskType.FLOATING) {
+				tasksToDisplay.add(task);
+			} else if (taskType == TaskType.DEADLINE						
+					&& task.getEndDateTime().isBefore(endDateTime)) {
+				tasksToDisplay.add(task);
+			} else if ((taskType == TaskType.TIMED
+					&& task.getStartDateTime().isBefore(endDateTime))) {
+				tasksToDisplay.add(task);
 			}
+			
 		}
 		return tasksToDisplay;
 	}
@@ -225,16 +240,14 @@ public class ViewCommand extends AbstractCommand {
 		LocalDateTime startDateTime = this.getStartDateTime();
 
 		for (Task task : tasks) {
-			if (!task.isDone()) {
-
-				TaskType taskType = task.getTaskType();
-				assert taskType != null;
-				if (taskType == TaskType.FLOATING) {
-					tasksToDisplay.add(task);
+		
+			TaskType taskType = task.getTaskType();
+			assert taskType != null;
+			if (taskType == TaskType.FLOATING) {
+				tasksToDisplay.add(task);
 				} else {
-					if (task.getEndDateTime().isAfter(startDateTime)) {
-						tasksToDisplay.add(task);
-					}
+				if (task.getEndDateTime().isAfter(startDateTime)) {
+					tasksToDisplay.add(task);
 				}
 			}
 		}
@@ -247,26 +260,20 @@ public class ViewCommand extends AbstractCommand {
 		LocalDateTime endDateTime = this.getEndDateTime();
 
 		for (Task task : tasks) {
-
-			if (!task.isDone()) {
-				TaskType taskType = task.getTaskType();
-				if (taskType == TaskType.FLOATING) {
+			TaskType taskType = task.getTaskType();
+			if (taskType == TaskType.FLOATING) {
+				tasksToDisplay.add(task);
+			} else if (taskType == TaskType.DEADLINE) {
+				if (task.getEndDateTime().isAfter(startDateTime)
+						&& task.getEndDateTime().isBefore(endDateTime)) {
 					tasksToDisplay.add(task);
-
-				} else if (taskType == TaskType.DEADLINE) {
-					if (task.getEndDateTime().isAfter(startDateTime)
-							&& task.getEndDateTime().isBefore(endDateTime)) {
-						tasksToDisplay.add(task);
-					}
-				} else {
-					assert taskType != null;
-					if (task.getStartDateTime().isBefore(endDateTime)
-							&& task.getEndDateTime().isAfter(startDateTime)) {
-						tasksToDisplay.add(task);
-					}
 				}
-
-			}
+				} else {
+				assert taskType != null;
+				if (task.getStartDateTime().isBefore(endDateTime)
+						&& task.getEndDateTime().isAfter(startDateTime)) {
+					tasksToDisplay.add(task);					}
+				}
 		}
 		return tasksToDisplay;
 	}
@@ -356,7 +363,6 @@ public class ViewCommand extends AbstractCommand {
 			ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 			for (Task task : tasks) {
 				if (!task.isDone()) {
-
 					tasksToDisplay.add(task);
 				} else {
 					doneTasksToDisplay.add(task);
@@ -364,11 +370,11 @@ public class ViewCommand extends AbstractCommand {
 			}
 			if(_startDate!=null || _endDate!=null){
 				tasksToDisplay = findTasksByDate(tasksToDisplay);
-				doneTasksToDisplay = findTasksByDate(tasksToDisplay);
+				doneTasksToDisplay = findTasksByDate(doneTasksToDisplay);
 			}
 			if(_searchKeywords!=null){
 				tasksToDisplay=findSearchedTasks(tasksToDisplay);
-				doneTasksToDisplay = findTasksByDate(tasksToDisplay);
+				doneTasksToDisplay = findTasksByDate(doneTasksToDisplay);
 			}
 			
 			tasksToDisplay.sort(new TaskEndDateComparator());
