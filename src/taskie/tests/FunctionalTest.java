@@ -70,6 +70,7 @@ public class FunctionalTest {
 		Task expectedTask = new Task("taskname",_today2pm,_today10pm);
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
+	
 	//@author A0135137L
 	@Test
 	public void testDeleteFloating() throws TaskRetrievalFailedException {
@@ -158,5 +159,50 @@ public class FunctionalTest {
 				_controller.getStorage().getTaskList().toString());
 	}
 	
-
+	@Test
+	public void testUpdateTaskname() throws TaskRetrievalFailedException {
+		ICommand addCmd = null;
+		ICommand displayCmd = null;
+		ICommand updateCmd = null;
+		
+		try {
+			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			displayCmd = _controller.getParser().parse("display");
+			updateCmd = _controller.getParser().parse("update 1 newTaskname");	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		addCmd.execute();
+		displayCmd.execute();
+		updateCmd.execute();
+		
+		Task expectedTask = new Task("newTaskname", _today2pm, _today10pm);
+		assertEquals(expectedTask.toString(), _controller.getStorage().getTaskList().get(0).toString());
+	}
+	
+	@Test
+	public void testUpdateDateTime() throws TaskRetrievalFailedException {
+		ICommand addCmd = null;
+		ICommand displayCmd = null;
+		ICommand updateCmd = null;
+		
+		LocalDateTime _tmr9pm = LocalDateTime.of(_now.toLocalDate().plusDays(1), LocalTime.of(21, 0, 0, 0));
+		LocalDateTime _tmr3pm = LocalDateTime.of(_now.toLocalDate().plusDays(1), LocalTime.of(15,0,0,0));
+		
+		try {
+			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			displayCmd = _controller.getParser().parse("display");
+			updateCmd = _controller.getParser().parse("update 1 from 3pm to 9pm tomorrow");	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		addCmd.execute();
+		displayCmd.execute();
+		updateCmd.execute();
+		
+		Task expectedTask = new Task("taskname", _tmr3pm, _tmr9pm);
+		assertEquals(expectedTask.toString(), _controller.getStorage().getTaskList().get(0).toString());
+	}
 }
