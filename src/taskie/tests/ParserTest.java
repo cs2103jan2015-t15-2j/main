@@ -254,11 +254,23 @@ public class ParserTest {
 		actualCommand = _parser.parse("view all before today");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
-		// Test all view
-		expectedCommand = new ViewCommand(ViewType.ALL, null, null, LocalDate.of(2015, 4, 1), null, null);
-		actualCommand = _parser.parse("view all on 1 april");
+		// Test all view with date range
+		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, null);
+		actualCommand = _parser.parse("view all from 1 apr to 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all after 30 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		expectedCommand = new ViewCommand(ViewType.ALL, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, null);
+		actualCommand = _parser.parse("view all before 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		// Test overdue view
 		expectedCommand = new ViewCommand(ViewType.OVERDUE, null, null, null, null, null);
 		actualCommand = _parser.parse("view overdue");
@@ -282,7 +294,11 @@ public class ParserTest {
 		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, "dinner");
 		actualCommand = _parser.parse("find dinner from 1 apr to 30 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-
+		
+		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("find dinner on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), "dinner");
 		actualCommand = _parser.parse("find dinner after 30 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -290,7 +306,8 @@ public class ParserTest {
 		expectedCommand = new ViewCommand(ViewType.SEARCH, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, "dinner");
 		actualCommand = _parser.parse("find dinner before 1 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-
+		
+		// Test search case sensitivity
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
 		actualCommand = _parser.parse("find CS2103 tutorial");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
