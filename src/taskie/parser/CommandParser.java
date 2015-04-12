@@ -291,7 +291,7 @@ public class CommandParser implements Parser {
 	 * @param group			DateGroup passed from Natty after parsing COMMAND_DATE
 	 * @return				Task Name
 	 */
-	private String buildTaskName(String[] parsedCommand, DateGroup group) {
+	private String findNonDatePartsOfQuery(String[] parsedCommand, DateGroup group) {
 		String command = parsedCommand[COMMAND_DATE];
 		_logger.log(Level.INFO, "Determining Task Name from: " + command + "\nDateGroup Start at position: " + group.getPosition());
 
@@ -434,7 +434,7 @@ public class CommandParser implements Parser {
 			// Tasks with date and/or time in it - either deadline or timed
 			List<Date> dates = group.getDates();
 			
-			String name = buildTaskName(parsedCommand, group);
+			String name = findNonDatePartsOfQuery(parsedCommand, group);
 			if ( name.isEmpty() ) {
 				throw new InvalidCommandException(CommandType.ADD);
 			}
@@ -524,7 +524,7 @@ public class CommandParser implements Parser {
 			// Date and Time Specified
 			List<Date> dates = group.getDates();
 
-			String name = buildTaskName(parsedQuery, group);
+			String name = findNonDatePartsOfQuery(parsedQuery, group);
 			if ( !name.isEmpty() ) {
 				// updating title also
 				cmd.setTaskTitleToUpdate(name);
@@ -643,7 +643,7 @@ public class CommandParser implements Parser {
 			List<Date> dates = group.getDates();
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
 			RelativeType relativeType = this.getRelativeType(parsedCommand[COMMAND_KEYWORD]);
-			String searchKeywords = buildTaskName(parsedCommand, group);	
+			String searchKeywords = findNonDatePartsOfQuery(parsedCommand, group);	
 			cmd.setSearchKeywords(searchKeywords);
 
 			_logger.log(Level.INFO, "View Type: " + viewType + "\nRelative Type: " + relativeType + "\nKeywords: " + keywords + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
