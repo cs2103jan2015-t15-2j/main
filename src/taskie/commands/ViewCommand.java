@@ -57,7 +57,7 @@ public class ViewCommand extends AbstractCommand {
 			return LocalDateTime.of(_startDate,
 					(_startTime == null) ? LocalTime.MIN : _startTime);
 		} catch (NullPointerException e) {
-			return null;
+			return LocalDateTime.MIN;
 		}
 	}
 
@@ -76,7 +76,7 @@ public class ViewCommand extends AbstractCommand {
 			return LocalDateTime.of(_endDate,
 					(_endTime == null) ? LocalTime.MAX : _endTime);
 		} catch (NullPointerException e) {
-			return null;
+			return LocalDateTime.MAX;
 		}
 	}
 
