@@ -48,7 +48,7 @@ public class ParserTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		_parser = new CommandParser();
-		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);
+		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);  // Fix current time to 15 April 6.30pm
 		
 		_today = _now.toLocalDate();
 		_time = _now.toLocalTime();
@@ -112,7 +112,16 @@ public class ParserTest {
 		expectedCommand = new AddCommand("Prepare Presentation for CS2103", null, null, _today.plusDays(1), LocalTime.of(15, 0));
 		actualCommand = _parser.parse("add Prepare Presentation for CS2103 by 3pm");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		
+
+		// Test Timed Tasks with Time before Current
+		expectedCommand = new AddCommand("Lunch with Alan", _today.plusDays(1), LocalTime.of(12, 0), _today.plusDays(1), LocalTime.of(15, 0));
+		actualCommand = _parser.parse("add Lunch with Alan from 12pm to 3pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Lunch with Alan", _today.plusDays(1), LocalTime.of(12, 0), _today.plusDays(1), LocalTime.of(16, 0));
+		actualCommand = _parser.parse("add Lunch with Alan from 12pm to 4pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		// Test Deadlined Tasks with Relative Dates
 		expectedCommand = new AddCommand("Do CE3", null, null, _today.plusDays(1), LocalTime.MAX);
 		actualCommand = _parser.parse("add Do CE3 by tomorrow");
