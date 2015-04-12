@@ -20,19 +20,6 @@ public class Task implements Comparable<Task> {
 	private LocalTime _endTime;
 	private Boolean _isDone;
 
-	//@author A0097582N
-	// staging variables so that task model can be checked for consistency
-	// before actual updates.
-	private LocalDate _stageStartDate;
-	private LocalTime _stageStartTime;
-	private LocalDate _stageEndDate;
-	private LocalTime _stageEndTime;
-
-	private boolean _isStagedStartDate = false;
-	private boolean _isStagedStartTime = false;
-	private boolean _isStagedEndDate = false;
-	private boolean _isStagedEndTime = false;
-
 	//@author A0121555M
 	public Task() {
 		_title = null;
@@ -135,10 +122,40 @@ public class Task implements Comparable<Task> {
 
 		return LocalDateTime.of(_startDate, (_startTime == null) ? LocalTime.MAX : _startTime);
 	}
-
+	
 	public void setStartDateTime(LocalDateTime startDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		this.setStartDate(startDateTime.toLocalDate());
-		this.setStartTime(startDateTime.toLocalTime());
+		this.setStartDateTime(startDateTime.toLocalDate(), startDateTime.toLocalTime());
+	}
+
+	public void setStartDateTime(LocalDate startDate, LocalTime startTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		if ( startDate == null && startTime != null ) {
+			// Invalid State - Date must be set if time is set
+			throw new TaskDateNotSetException();
+		}
+		
+		if ( _startDate == null || startDate == null ) {
+			 _startDate = startDate;
+		} else {
+	        Period p = Period.between(_startDate, startDate);
+	        _startDate = startDate;
+	        _endDate = _endDate.plus(p);
+		}
+		
+		if ( _startTime == null || startTime == null ) {
+			_startTime = startTime;
+		} else {
+			// When adding LocalTime, it wraps around midnight and doesn't add a day
+			// So, we convert to LocalDateTime first and add the difference then set the date and tiem back
+			if ( _endTime != null ) {
+				LocalDateTime endDateTime = this.getEndDateTime();
+				long difference = ChronoUnit.NANOS.between(_startTime, startTime);
+				endDateTime = endDateTime.plusNanos(difference);
+				
+		        _startTime = startTime;
+		        _endDate = endDateTime.toLocalDate();
+		        _endTime = endDateTime.toLocalTime();
+			}
+		}
 	}
 
 	public LocalDateTime getEndDateTime() {
@@ -148,72 +165,48 @@ public class Task implements Comparable<Task> {
 
 		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX : _endTime);
 	}
-
-	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		if (this.getStartDateTime() != null && this.getEndDateTime() != null && endDateTime.isBefore(this.getStartDateTime())) {
-			throw new TaskDateInvalidException("New End Date Time is after Start Date Time");
+	
+	public void setEndDateTime(LocalDateTime startDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		this.setEndDateTime(startDateTime.toLocalDate(), startDateTime.toLocalTime());
+	}
+	
+	public void setEndDateTime(LocalDate endDate, LocalTime endTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		if ( endDate == null && endTime != null ) {
+			// Invalid State - Date must be set if time is set
+			throw new TaskDateNotSetException();
 		}
-
-		this.setEndDate(endDateTime.toLocalDate());
-		this.setEndTime(endDateTime.toLocalTime());
+		
+		if ( endDate == null && endTime == null ) {
+			// Start Date and Time should be removed if End Date and Time are removed
+			this.setStartDateTime(null, null);
+		} else {
+			LocalDateTime startDateTime = this.getStartDateTime();
+			LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime == null ? LocalTime.MAX : endTime);
+			
+			if ( startDateTime != null && endDateTime.isBefore(startDateTime) ) {
+				// Invalid State - End Date / Time is before Start Date / Time
+				throw new TaskDateInvalidException();			
+			}
+		}
+		
+		_endDate = endDate;
+		_endTime = endTime;
 	}
 
 	public LocalDate getStartDate() {
 		return _startDate;
 	}
 
-	public void setStartDate(LocalDate newStartDate) throws TaskDateInvalidException {
-		if (_startDate == null) {
-			_startDate = newStartDate;
-		} else {
-			Period p = Period.between(_startDate, newStartDate);
-			_startDate = newStartDate;
-			_endDate = _endDate.plus(p);
-		}
-	}
-
 	public LocalDate getEndDate() {
 		return _endDate;
-	}
-
-	public void setEndDate(LocalDate newEndDate) throws TaskDateInvalidException {
-		if (_endDate != null && _startDate != null && newEndDate.isBefore(_startDate)) {
-			throw new TaskDateInvalidException("New End Date is before Start Date");
-		}
-
-		_endDate = newEndDate;
 	}
 
 	public LocalTime getStartTime() {
 		return _startTime;
 	}
 
-	public void setStartTime(LocalTime newStartTime) throws TaskDateInvalidException, TaskDateNotSetException {
-		if (newStartTime == null) {
-			_startTime = null;
-		} else if (_startTime == null) {
-			_startTime = newStartTime;
-		} else {
-			long difference = ChronoUnit.NANOS.between(_startTime, newStartTime);
-			_startTime = newStartTime;
-			_endTime = _endTime.plusNanos(difference);
-		}
-	}
-
 	public LocalTime getEndTime() {
 		return _endTime;
-	}
-
-	public void setEndTime(LocalTime newEndTime) throws TaskDateInvalidException, TaskDateNotSetException {
-		if (newEndTime == null) {
-			_endTime = null;
-		} else {
-			LocalDateTime newEndDateTime = LocalDateTime.of(_endDate, newEndTime);
-			if (this.getStartDateTime() != null && newEndDateTime.isBefore(this.getStartDateTime())) {
-				throw new TaskDateInvalidException("New End Time is after Start Time");
-			}
-			_endTime = newEndTime;
-		}
 	}
 
 	public void setTaskDone() {
@@ -320,21 +313,13 @@ public class Task implements Comparable<Task> {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("TaskName:" + this.getTitle() + ",");
-		try {
-			sb.append("StartDate:" + this.getStartDate() + ",");
-		} catch (NullPointerException e) {
-			sb.append("StartDate:null,");
-		}
+
 		try {
 			sb.append("StartDateTime:" + this.getStartDateTime() + ",");
 		} catch (NullPointerException e) {
 			sb.append("StartDateTime:null,");
 		}
-		try {
-			sb.append("EndDate:" + this.getEndDate());
-		} catch (NullPointerException e) {
-			sb.append("EndDate:null");
-		}
+
 		try {
 			sb.append("EndDateTime:" + this.getEndDateTime());
 		} catch (NullPointerException e) {
@@ -342,108 +327,5 @@ public class Task implements Comparable<Task> {
 		}
 
 		return sb.toString();
-	}
-
-	//@author A0097582N
-	public void stageUpdateStartDate(LocalDate startDate) {
-		_stageStartDate = startDate;
-		_isStagedStartDate = true;
-	}
-
-	public void stageUpdateStartTime(LocalTime startTime) {
-		_stageStartTime = startTime;
-		_isStagedStartTime = true;
-	}
-
-	public void stageUpdateEndDate(LocalDate endDate) {
-		_stageEndDate = endDate;
-		_isStagedEndDate = true;
-	}
-
-	public void stageUpdateEndTime(LocalTime endTime) {
-		_stageEndTime = endTime;
-		_isStagedEndTime = true;
-	}
-
-	public void stageUpdateStartDateTime(LocalDate startDate, LocalTime startTime) {
-		stageUpdateStartDate(startDate);
-		stageUpdateStartTime(startTime);
-	}
-
-	public void stageUpdateEndDateTime(LocalDate startDate, LocalTime startTime) {
-		stageUpdateStartDate(startDate);
-		stageUpdateStartTime(startTime);
-	}
-
-	public void pushStageToActual() throws TaskDateInvalidException, TaskDateNotSetException {
-		if (isStagingConsistent()) {
-			if (_isStagedStartDate) {
-				setStartDate(_stageStartDate);
-			}
-			if (_isStagedStartTime) {
-				setStartTime(_stageStartTime);
-			}
-			if (_isStagedEndDate) {
-				setEndDate(_stageEndDate);
-			}
-			if (_isStagedEndTime) {
-				setEndTime(_stageEndTime);
-			}
-			resetStaging();
-		} else {
-			resetStaging();
-			throw new TaskDateInvalidException();
-		}
-	}
-
-	public void initialiseStaging() {
-		_stageStartDate = _startDate;
-		_stageStartTime = _startTime;
-		_stageEndDate = _endDate;
-		_stageEndTime = _endTime;
-
-	}
-
-	private boolean isStagingConsistent() {
-		LocalDateTime stageStartDateTime = createDateTime(_stageStartDate, _stageStartTime);
-		LocalDateTime stageEndDateTime = createDateTime(_stageEndDate, _stageEndTime);
-		if (_stageStartDate == null && _stageStartTime != null) {
-			return false;
-		}
-
-		if (_stageEndDate == null && _stageEndTime != null) {
-			return false;
-		}
-		if (stageStartDateTime != null && stageEndDateTime == null) {
-			return false;
-		}
-
-		if (stageStartDateTime != null && stageEndDateTime != null && stageStartDateTime.isAfter(stageEndDateTime)) {
-			return false;
-		}
-		return true;
-	}
-
-	private LocalDateTime createDateTime(LocalDate date, LocalTime time) {
-		if (date == null) {
-			return null;
-		} else {
-			if (time == null) {
-				return LocalDateTime.of(date, LocalTime.MAX);
-			} else {
-				return LocalDateTime.of(date, time);
-			}
-		}
-	}
-
-	private void resetStaging() {
-		_stageStartDate = null;
-		_stageStartTime = null;
-		_stageEndDate = null;
-		_stageEndTime = null;
-		_isStagedStartDate = false;
-		_isStagedStartTime = false;
-		_isStagedEndDate = false;
-		_isStagedEndTime = false;
 	}
 }
