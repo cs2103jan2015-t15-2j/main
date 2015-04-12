@@ -205,4 +205,61 @@ public class FunctionalTest {
 		Task expectedTask = new Task("taskname", _tmr3pm, _tmr9pm);
 		assertEquals(expectedTask.toString(), _controller.getStorage().getTaskList().get(0).toString());
 	}
+	
+	@Test
+	public void testMarkSingle() throws TaskRetrievalFailedException {
+		ICommand addCmd = null;
+		ICommand displayCmd = null;
+		ICommand markCmd = null;
+		
+		try {
+			addCmd = _controller.getParser().parse("add taskname");
+			displayCmd = _controller.getParser().parse("display");
+			markCmd = _controller.getParser().parse("mark 1");			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		addCmd.execute();
+		assertEquals(false, _controller.getStorage().getTaskList().get(0).isDone());
+		
+		displayCmd.execute();
+		markCmd.execute();
+		assertEquals(true, _controller.getStorage().getTaskList().get(0).isDone());
+	}
+	
+	@Test
+	public void testMarkMultiple() throws TaskRetrievalFailedException {
+		ICommand addCmd1 = null;
+		ICommand addCmd2 = null;
+		ICommand addCmd3 = null;
+		
+		ICommand displayCmd = null;
+		ICommand markCmd = null;
+		
+		try {
+			addCmd1 = _controller.getParser().parse("add taskname");
+			addCmd2 = _controller.getParser().parse("add taskname by 10pm");
+			addCmd3 = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			displayCmd = _controller.getParser().parse("display");
+			markCmd = _controller.getParser().parse("mark 1-3");			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		addCmd1.execute();
+		addCmd2.execute();
+		addCmd3.execute();
+		assertEquals(false, _controller.getStorage().getTaskList().get(0).isDone());
+		assertEquals(false, _controller.getStorage().getTaskList().get(1).isDone());
+		assertEquals(false, _controller.getStorage().getTaskList().get(2).isDone());
+		
+		displayCmd.execute();
+		markCmd.execute();
+		assertEquals(true, _controller.getStorage().getTaskList().get(0).isDone());
+		assertEquals(true, _controller.getStorage().getTaskList().get(1).isDone());
+		assertEquals(true, _controller.getStorage().getTaskList().get(2).isDone());
+	}
+	
+	
 }
