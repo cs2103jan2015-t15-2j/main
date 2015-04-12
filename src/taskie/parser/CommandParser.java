@@ -643,21 +643,11 @@ public class CommandParser implements Parser {
 			// Search by Date and possibly keywords
 			List<Date> dates = group.getDates();
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
-			RelativeType relativeType = RelativeType.NONE;
+			RelativeType relativeType = this.getRelativeType(parsedCommand[COMMAND_KEYWORD]);
 
 			if ( viewType == ViewType.SEARCH ) {
-				String keyword1 = keywords.substring(0, group.getPosition()).trim();
-				String keyword2 = keywords.substring(group.getPosition() + group.getText().length()).trim();
-
-				String[] words = splitStringWithWhitespace(keyword1);
-				int lastWord = words.length - 1;
-				relativeType = getRelativeType(words[lastWord]);
-				if( relativeType != RelativeType.NONE ) {
-					keyword1 = keyword1.substring(0, keyword1.lastIndexOf(words[lastWord])).trim();
-				}
-				
-				keywords = (keyword1 + " " + keyword2).trim();				
-				cmd.setSearchKeywords(keywords);
+				String searchKeywords = buildTaskName(parsedCommand, group);	
+				cmd.setSearchKeywords(searchKeywords);
 			} else {
 				String[] words = splitStringWithWhitespace(keywords);
 				int firstWord = 0;
