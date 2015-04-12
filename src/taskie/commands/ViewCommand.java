@@ -137,6 +137,11 @@ public class ViewCommand extends AbstractCommand {
 	//@author A0097582N
 	@Override
 	public void execute() {
+		System.out.println("ViewType: " + this._viewType + "\nStartDate: "
+						+ this.getStartDate() + " StartTime: "
+						+ this.getStartTime() + "\nEndDate: "
+						+ this.getEndDate() + " EndTime: " + this.getEndTime()
+						+ "\nSearch Keywords: " + this.getSearchKeywords());
 		_logger.log(
 				Level.INFO,
 				"ViewType: " + this._viewType + "\nStartDate: "
@@ -262,7 +267,7 @@ public class ViewCommand extends AbstractCommand {
 				} else {
 					assert taskType != null;
 					if (task.getStartDateTime().isBefore(endDateTime)
-							|| task.getEndDateTime().isAfter(startDateTime)) {
+							&& task.getEndDateTime().isAfter(startDateTime)) {
 						tasksToDisplay.add(task);
 					}
 				}
