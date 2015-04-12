@@ -258,7 +258,7 @@ public class AddCommand extends AbstractCommand {
 				sb.append(", ");
 			}
 		}
-		sb.append("\n");
+		sb.append(Messages.NEWLINE);
 		return sb.toString();
 	}
 
