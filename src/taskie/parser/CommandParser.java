@@ -159,7 +159,7 @@ public class CommandParser implements Parser {
 	 * @throws InvalidCommandException	If an invalid keyword is specified
 	 */
 	public ICommand parse(String input) throws InvalidCommandException {
-		if ( input == null ) {
+		if ( input == null || input.isEmpty() ) {
 			throw new InvalidCommandException();
 		}
 
