@@ -126,8 +126,12 @@ public class ParserTest {
 		actualCommand = _parser.parse("add Do CE3 by tomorrow");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
-		expectedCommand = new AddCommand("Do CE3", null,  _now.plusDays(1));
+		expectedCommand = new AddCommand("Do CE3", null,  _now.plusHours(24));
 		actualCommand = _parser.parse("add Do CE3 in 24 hours");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new AddCommand("Do CE3", null,  _now.plusHours(23));
+		actualCommand = _parser.parse("add Do CE3 in 23 hours");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Have dinner", null, _now.plusHours(2));
@@ -273,10 +277,10 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("search dinner");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		
+
 		// Test search view with date range
 		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, "dinner");
-		actualCommand = _parser.parse("find from 1 apr to 30 april dinner");
+		actualCommand = _parser.parse("find dinner from 1 apr to 30 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
