@@ -36,6 +36,7 @@ import taskie.parser.Parser;
 import com.joestelmach.natty.CalendarSource;
 
 public class ParserTest {
+	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 
 	private static Parser _parser;
@@ -244,6 +245,15 @@ public class ParserTest {
 		actualCommand = _parser.parse("view all after next week");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		expectedCommand = new ViewCommand(ViewType.ALL, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), _today, null, null);
+		actualCommand = _parser.parse("view all before today");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test all view
+		expectedCommand = new ViewCommand(ViewType.ALL, null, null, LocalDate.of(2015, 4, 1), null, null);
+		actualCommand = _parser.parse("view all on 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		// Test overdue view
 		expectedCommand = new ViewCommand(ViewType.OVERDUE, null, null, null, null, null);
 		actualCommand = _parser.parse("view overdue");
@@ -261,6 +271,11 @@ public class ParserTest {
 		actualCommand = _parser.parse("find dinner");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("search dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test search view with date range
+		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, "dinner");
+		actualCommand = _parser.parse("find from 1 apr to 30 april dinner");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
