@@ -8,6 +8,9 @@
 
 package taskie.commands;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -102,7 +105,7 @@ public class DeleteCommand extends AbstractCommand {
 
 				if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate() || canDeleteEndTime()) {
 					// if either of these methods returned true, only task fields are to be deleted.
-					deleteTaskField();
+					deleteTaskField(task);
 					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskFieldString());
 				} else {
 					deleteTask();
@@ -116,22 +119,37 @@ public class DeleteCommand extends AbstractCommand {
 		}
 	}
 
-	private void deleteTaskField() {
+	private void deleteTaskField(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		// taskfields are deleted by setting to them null;
-		UpdateCommand updateCommand = new UpdateCommand(_currentTask);
-		if (canDeleteStartDate()) {
-			updateCommand.setStartDateToUpdate(null);
+		
+		if(!canDeleteStartDate() && canDeleteEndDate()){//switch start and end date if del end date;
+
+			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime());
+			_controller.getStorage().updateTask(task, updatedTask);
+			return;
 		}
-		if (canDeleteStartTime()) {
-			updateCommand.setStartTimeToUpdate(null);
+		if(canDeleteStartDate()){
+			Task updatedTask = new Task(task.getTitle(), task.getEndDate(), task.getEndTime());
+			_controller.getStorage().updateTask(task, updatedTask);
+			return;
 		}
-		if (canDeleteEndDate()) {
-			updateCommand.setEndDateToUpdate(null);
+		if(canDeleteStartDate() && canDeleteEndDate()){
+			Task updatedTask = new Task(task.getTitle());
+			_controller.getStorage().updateTask(task, updatedTask);
+			return;
 		}
-		if (canDeleteEndTime()) {
-			updateCommand.setEndTimeToUpdate(null);
+		if(canDeleteStartTime()){
+			Task updatedTask = new Task(task.getTitle(), task.getStartDate()
+					, null, task.getEndDate(), task.getEndTime());
+			_controller.getStorage().updateTask(task, updatedTask);
 		}
-		_controller.executeCommand(updateCommand);
+		if(canDeleteEndTime()){
+			Task updatedTask = new Task(task.getTitle(), task.getStartDate()
+					, task.getStartTime(), task.getEndDate(), null);
+			_controller.getStorage().updateTask(task, updatedTask);
+		}
+		
+		
 	}
 
 	//@author A0121555M
