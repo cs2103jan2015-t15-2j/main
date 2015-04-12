@@ -18,7 +18,7 @@ public class Messages {
 	public static final String ADD_FLOATING = "%s added." + NEWLINE;
 	public static final String ADD_DEADLINED = "%s added at %s" + NEWLINE;
 	public static final String ADD_TIMED = "%s added from %s to %s" + NEWLINE;
-	public static final String ADD_CONFLICT = "Task conflicts with: " + NEWLINE;
+	public static final String ADD_CONFLICT = "Warning: Task(s) has already been scheduled during that time: ";
 
 	// DeleteCommand messages
 	public static final String DELETE_TASK = "%s is deleted from list." + NEWLINE;

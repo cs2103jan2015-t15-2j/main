@@ -218,6 +218,9 @@ public class ParserTest {
 		expectedCommand = new AddCommand("Reunion Dinner", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(17, 45), _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(21, 15));
 		actualCommand = _parser.parse("ins Reunion Dinner on Saturday 5.45pm to 9.15pm");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		expectedCommand = new AddCommand("Reunion Dinner", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(17, 45), _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(21, 15));
+		actualCommand = _parser.parse("ins Reunion Dinner on Saturday from 5.45pm to 9.15pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 	}
 	
 	@Test

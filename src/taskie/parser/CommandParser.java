@@ -84,7 +84,7 @@ public class CommandParser implements Parser {
 	private static final String PATTERN_MULTI_TASK_SEPARATOR = ",|\\.|\\||\\s";
 	private static final String PATTERN_MATCH_FOR_FROM_TIME = "(.*) (from (.*))";
 	private static final String PATTERN_MATCH_FROM_FOR_TIME = "(.*) for ([\\d+] \\w+)";
-	private static final String PATTERN_MATCH_FROM_TO_TIME = "(.*) from (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?) (?:till|to|-) (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?)";
+	private static final String PATTERN_MATCH_FROM_TO_TIME = "(.*) from (\\d{1,2}(?:[.|:]?\\d{0,2}\\w{0,2})?) (?:till|to|-) (\\d{1,2}(?:[.|:]?\\d{0,2}\\w{0,2})?)";
 	private static final String PATTERN_MATCH_QUOTES = "[\"](.*)[\"]";
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
     
@@ -402,13 +402,17 @@ public class CommandParser implements Parser {
 		Pattern pattern;
 		Matcher matcher;
 		
+		if ( Pattern.matches(PATTERN_MATCH_FROM_TO_TIME, date) ) {
+			return date;
+		}
+		
 		pattern = Pattern.compile(PATTERN_MATCH_FOR_FROM_TIME);
 		matcher = pattern.matcher(date);
 		date = matcher.replaceAll("$3 for $1");
 
 		pattern = Pattern.compile(PATTERN_MATCH_FROM_FOR_TIME);
 		matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1 to  $2");
+		date = matcher.replaceAll("$1 to  $2"); // Spaces are intentional (1 spaces to replace missing character when switching from FOR to TO)
 		
 		return date;
 	}
@@ -416,7 +420,7 @@ public class CommandParser implements Parser {
 	private String changeFromToInTime(String date) {
 		Pattern pattern = Pattern.compile(PATTERN_MATCH_FROM_TO_TIME);
 		Matcher matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1 $2 to $3");
+		date = matcher.replaceAll("$1      $2 to $3"); // Spaces are intentional (4 spaces to replace missing FROM)
 		return date;
 	}
 	
