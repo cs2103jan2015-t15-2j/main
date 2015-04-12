@@ -261,5 +261,99 @@ public class FunctionalTest {
 		assertEquals(true, _controller.getStorage().getTaskList().get(2).isDone());
 	}
 	
+	@Test
+	public void testUndoOnce() throws TaskRetrievalFailedException, Exception {
+		ICommand addCmd = null;
+		ICommand undoCmd = null;
+		
+		try {
+			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			undoCmd = _controller.getParser().parse("undo");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		Task expectedTask = new Task("taskname", _today2pm, _today10pm);
+		
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(undoCmd);
+		assertEquals("[]", _controller.getStorage().getTaskList().toString());	
+	}
+	
+	@Test
+	public void testMultipleUndo() throws TaskRetrievalFailedException, Exception {
+		ICommand addCmd = null;
+		ICommand updateCmd = null;
+		ICommand undoCmd = null;
+		ICommand displayCmd = null;
+		try {
+			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			displayCmd = _controller.getParser().parse("display");
+			updateCmd = _controller.getParser().parse("update 1 from 3pm to 9pm tomorrow");
+			undoCmd = _controller.getParser().parse("undo 2");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(updateCmd);
+		_controller.executeCommand(undoCmd);
+
+		assertEquals("[]", _controller.getStorage().getTaskList().toString());
+		
+	}
+
+	@Test
+	public void testRedoOnce() throws TaskRetrievalFailedException, Exception {
+		ICommand addCmd = null;
+		ICommand undoCmd = null;
+		ICommand redoCmd = null;
+		
+		try {
+			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			undoCmd = _controller.getParser().parse("undo");
+			redoCmd = _controller.getParser().parse("redo");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		Task expectedTask = new Task("taskname", _today2pm, _today10pm);
+		
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(undoCmd);
+		_controller.executeCommand(redoCmd);
+		assertEquals("[" + expectedTask.toString() + "]", _controller.getStorage().getTaskList().toString());	
+	}
+	
+	@Test
+	public void testMultipleRedo() throws TaskRetrievalFailedException, Exception {
+		ICommand addCmd = null;
+		ICommand deleteCmd = null;
+		ICommand undoCmd = null;
+		ICommand redoCmd = null;
+		ICommand displayCmd = null;
+		try {
+			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			displayCmd = _controller.getParser().parse("display");
+			deleteCmd = _controller.getParser().parse("delete 1");
+			undoCmd = _controller.getParser().parse("undo 2");
+			redoCmd= _controller.getParser().parse("redo 2");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(deleteCmd);
+		_controller.executeCommand(undoCmd);
+		_controller.executeCommand(redoCmd);
+
+		assertEquals("[]", _controller.getStorage().getTaskList().toString());
+		
+	}
+	
+	
+	
 	
 }
