@@ -643,20 +643,8 @@ public class CommandParser implements Parser {
 			List<Date> dates = group.getDates();
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
 			RelativeType relativeType = this.getRelativeType(parsedCommand[COMMAND_KEYWORD]);
-
-			if ( viewType == ViewType.SEARCH ) {
-				String searchKeywords = buildTaskName(parsedCommand, group);	
-				cmd.setSearchKeywords(searchKeywords);
-			} else {
-				String[] words = splitStringWithWhitespace(keywords);
-				int firstWord = 0;
-				relativeType = getRelativeType(words[firstWord]);
-				if( relativeType != RelativeType.NONE ) {
-					keywords = keywords.substring(words[firstWord].length()).trim();
-				}
-				
-				keywords = keywords.trim();
-			}
+			String searchKeywords = buildTaskName(parsedCommand, group);	
+			cmd.setSearchKeywords(searchKeywords);
 
 			_logger.log(Level.INFO, "View Type: " + viewType + "\nRelative Type: " + relativeType + "\nKeywords: " + keywords + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 		
