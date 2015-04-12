@@ -2,6 +2,7 @@
 package taskie.tests;
 
 import static org.junit.Assert.assertEquals;
+import taskie.Controller;
 import taskie.database.NStorage;
 import taskie.database.FileReaderWriter;
 import taskie.models.Task;
@@ -13,6 +14,7 @@ import taskie.exceptions.TaskTypeNotSupportedException;
 
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Type;
@@ -35,6 +37,7 @@ public class StorageTest {
 	private static NStorage _storage;
 	private static Path _databasePath;
 	private static ArrayList<Task> _tasks;
+	private static Controller _controller;
 
 	
 
@@ -50,6 +53,12 @@ public class StorageTest {
 		Files.delete(_databasePath);
 	}
 
+	@Before
+	public void cleanUp() throws Exception {
+		_controller = Controller.getInstance();
+		_controller.getStorage().clearAllTasks();
+	}
+	
 	@Test
 	public void testGetStorageLocation() throws Exception {
 		assertEquals(DEFAULT_STORAGE_DIRECTORY, _storage.getStorageLocation().toString());
@@ -142,6 +151,12 @@ public class StorageTest {
 		assertEquals(json, frw.read());
 		
 		// Delete unexisted task
+		Task unexistedTask = new Task("Unexisted task");
+		try {
+			_storage.deleteTask(unexistedTask);
+		} catch (TaskModificationFailedException ex) {
+			
+		}
 		
 	}
 
