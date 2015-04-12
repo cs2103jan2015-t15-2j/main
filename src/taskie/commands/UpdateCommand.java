@@ -165,21 +165,19 @@ public class UpdateCommand extends AbstractCommand {
 	}
 
 	private String formatUpdateMsg(Task task) {
-		String message = String.format(taskie.models.Messages.UPDATE_STRING, task.getTitle());
+		String message = String.format(Messages.UPDATE_STRING);
 		if (this.isModifiedTaskTitle()) {
-			message = message.concat(taskie.models.Messages.TASK_TITLE);
+			message = message.concat(String.format(Messages.TASK_TITLE,_oldTask.getTitle(),_newTask.getTitle()));
 		}
-		if (this.isModifiedStartDate()) {
-			message = message.concat(taskie.models.Messages.START_DATE);
+		if (this.isModifiedStartDate()||this.isModifiedStartTime()) {
+			message = message.concat(String.format(Messages.START_DATE_TIME 
+					, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())
+					, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())));
 		}
-		if (this.isModifiedStartTime()) {
-			message = message.concat(taskie.models.Messages.START_TIME);
-		}
-		if (this.isModifiedEndDate()) {
-			message = message.concat(taskie.models.Messages.END_DATE);
-		}
-		if (this.isModifiedEndTime()) {
-			message = message.concat(taskie.models.Messages.END_TIME);
+		if (this.isModifiedEndDate()||this.isModifiedEndTime()) {
+			message = message.concat(String.format(taskie.models.Messages.END_DATE_TIME
+					, _controller.getUI().formatDateTime(_oldTask.getEndDateTime())
+					, _controller.getUI().formatDateTime(_newTask.getEndDateTime())));
 		}
 		return message;
 

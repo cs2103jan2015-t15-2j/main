@@ -358,7 +358,7 @@ public class CommandTest {
 	}
 
 	@Test
-	public void testUndoAndRedoCommand() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+	public void testUndoAndRedoCommandSingleStep() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
 		setUp();
 		AddCommand cmd = new AddCommand("foo",null,null);
 		_controller.executeCommand(cmd);
@@ -370,6 +370,22 @@ public class CommandTest {
 		redo.execute();
 		list = _controller.getStorage().getTaskList();
 		assertEquals(1,list.size());
+	}
+	@Test
+	public void testUndoAndRedoCommandMultipleSteps() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		AddCommand cmd = new AddCommand("foo",null,null);
+		_controller.executeCommand(cmd);
+		cmd =  new AddCommand("bar",null,null);
+		_controller.executeCommand(cmd);
+		UndoCommand undo = new UndoCommand(2);
+		undo.execute();
+		ArrayList<Task> list = _controller.getStorage().getTaskList();
+		assertEquals(0,list.size());
+		RedoCommand redo = new RedoCommand(2);
+		redo.execute();
+		list = _controller.getStorage().getTaskList();
+		assertEquals(2,list.size());
 	}
 
 	
