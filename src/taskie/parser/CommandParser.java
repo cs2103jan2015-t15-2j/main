@@ -202,19 +202,8 @@ public class CommandParser implements Parser {
 	 * @return			RelativeType (Defaults to NONE)
 	 */
 	private RelativeType getRelativeType(String key) {
-		RelativeType relativeType = RelativeType.NONE;
-		
-		if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_BEFORE) ) {
-			relativeType = RelativeType.BEFORE;
-		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_AFTER) ) {
-			relativeType = RelativeType.AFTER;
-		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_EXACT) ) {
-			relativeType = RelativeType.EXACT;
-		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_SPECIFIED) ) {
-			relativeType = RelativeType.SPECIFIED;
-		}
-		
-		return relativeType;
+		RelativeType relativeType = dictRelativeTypes.get(key);
+		return relativeType == null ? RelativeType.NONE : relativeType;
 	}
 	
 	/**
