@@ -108,6 +108,11 @@ public class ParserTest {
 		actualCommand = _parser.parse("add Prepare Presentation for CS2103");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test Deadlined Tasks with Time before Current
+		expectedCommand = new AddCommand("Prepare Presentation for CS2103", null, null, _today.plusDays(1), LocalTime.of(15, 0));
+		actualCommand = _parser.parse("add Prepare Presentation for CS2103 by 3pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		// Test Deadlined Tasks with Relative Dates
 		expectedCommand = new AddCommand("Do CE3", null, null, _today.plusDays(1), LocalTime.MAX);
 		actualCommand = _parser.parse("add Do CE3 by tomorrow");

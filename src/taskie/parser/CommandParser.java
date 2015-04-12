@@ -2,6 +2,7 @@
 package taskie.parser;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -451,8 +452,17 @@ public class CommandParser implements Parser {
 			cmd.setTaskName(name);
 			
 			if ( startAndEndDateTime[DATETIME_START] != null ) {
-				cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
-				
+				if ( group.getParseLocations().containsKey("date") ) {
+					cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
+				} else {
+					LocalTime now = LocalTime.now();
+					if ( startAndEndDateTime[DATETIME_START].toLocalTime().isBefore(now) ) {
+						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate().plusDays(1));
+					} else {
+						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
+					}
+				}
+								
 				if ( group.isTimeInferred() ) {
 					cmd.setStartTime(null);
 				} else {
@@ -461,7 +471,17 @@ public class CommandParser implements Parser {
 			}
 			
 			if ( startAndEndDateTime[DATETIME_END] != null ) {
-				cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
+				if ( group.getParseLocations().containsKey("date") ) {
+					cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
+				} else {
+					LocalTime now = LocalTime.now();
+					if ( startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(now) ) {
+						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate().plusDays(1));
+					} else {
+						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
+					}
+				}
+				
 				if ( group.isTimeInferred() ) {
 					cmd.setEndTime(null);
 				} else {
