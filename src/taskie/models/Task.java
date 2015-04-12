@@ -144,20 +144,18 @@ public class Task implements Comparable<Task> {
 		if ( _startTime == null || startTime == null ) {
 			_startTime = startTime;
 		} else {
-	        long difference = ChronoUnit.NANOS.between(_startTime, startTime);
-	        _startTime = startTime;
-	        _endTime = _endTime.plusNanos(difference);
+			// When adding LocalTime, it wraps around midnight and doesn't add a day
+			// So, we convert to LocalDateTime first and add the difference then set the date and tiem back
+			if ( _endTime != null ) {
+				LocalDateTime endDateTime = this.getEndDateTime();
+				long difference = ChronoUnit.NANOS.between(_startTime, startTime);
+				endDateTime = endDateTime.plusNanos(difference);
+				
+		        _startTime = startTime;
+		        _endDate = endDateTime.toLocalDate();
+		        _endTime = endDateTime.toLocalTime();
+			}
 		}
-		
-		/*		
-		LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
-		LocalDateTime endDateTime = this.getEndDateTime();
-
-		if ( startDateTime.isAfter(endDateTime) ) {
-			// Invalid State - Start Date / Time is after End Date / Time
-			throw new TaskDateInvalidException();			
-		}
-		*/
 	}
 
 	public LocalDateTime getEndDateTime() {
