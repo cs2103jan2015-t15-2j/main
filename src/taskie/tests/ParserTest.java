@@ -283,6 +283,14 @@ public class ParserTest {
 		actualCommand = _parser.parse("find dinner from 1 apr to 30 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("find dinner after 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.SEARCH, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, "dinner");
+		actualCommand = _parser.parse("find dinner before 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
 		actualCommand = _parser.parse("find CS2103 tutorial");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
