@@ -28,7 +28,9 @@ public class FunctionalTest {
 	@After
 	public void tearDownAfterClass() throws Exception {
 		_controller.getStorage().clearAllTasks();
+		_controller.resetStacks();
 	}
+	
 	@Before
 	public void setUp() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException {
 		_controller = Controller.getInstance();
@@ -39,7 +41,7 @@ public class FunctionalTest {
 	@Test
 	public void testAddFloating() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
 		ICommand cmd = _controller.getParser().parse("add taskname");
-		cmd.execute();
+		_controller.executeCommand(cmd);
 		Task expectedTask = new Task("taskname");
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
@@ -52,7 +54,7 @@ public class FunctionalTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		cmd.execute();
+		_controller.executeCommand(cmd);
 		Task expectedTask = new Task("taskname",_today10pm);
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
@@ -66,7 +68,7 @@ public class FunctionalTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		cmd.execute();
+		_controller.executeCommand(cmd);
 		Task expectedTask = new Task("taskname",_today2pm,_today10pm);
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
@@ -86,9 +88,9 @@ public class FunctionalTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		addCmd.execute();
-		displayCmd.execute();
-		delCmd.execute();
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(delCmd);
 		assertEquals("[]",_controller.getStorage().getTaskList().toString());
 	}
 	
@@ -106,9 +108,10 @@ public class FunctionalTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		addCmd.execute();
-		displayCmd.execute();
-		delCmd.execute();
+		
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(delCmd);
 		assertEquals("[]",_controller.getStorage().getTaskList().toString());
 	}
 	
@@ -126,9 +129,9 @@ public class FunctionalTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		addCmd.execute();
-		displayCmd.execute();
-		delCmd.execute();
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(delCmd);
 		assertEquals("[]",_controller.getStorage().getTaskList().toString());
 	}
 	
@@ -146,9 +149,9 @@ public class FunctionalTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		addCmd1.execute();
-		addCmd2.execute();
-		addCmd3.execute();
+		_controller.executeCommand(addCmd1);
+		_controller.executeCommand(addCmd2);
+		_controller.executeCommand(addCmd3);
 		
 		Task expectedTask1 = new Task("taskname");
 		Task expectedTask2 = new Task("taskname",_today10pm);
@@ -173,10 +176,10 @@ public class FunctionalTest {
 			e.printStackTrace();
 		}
 		
-		addCmd.execute();
-		displayCmd.execute();
-		updateCmd.execute();
-		
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(updateCmd);
+	
 		Task expectedTask = new Task("newTaskname", _today2pm, _today10pm);
 		assertEquals(expectedTask.toString(), _controller.getStorage().getTaskList().get(0).toString());
 	}
@@ -198,9 +201,9 @@ public class FunctionalTest {
 			e.printStackTrace();
 		}
 		
-		addCmd.execute();
-		displayCmd.execute();
-		updateCmd.execute();
+		_controller.executeCommand(addCmd);
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(updateCmd);
 		
 		Task expectedTask = new Task("taskname", _tmr3pm, _tmr9pm);
 		assertEquals(expectedTask.toString(), _controller.getStorage().getTaskList().get(0).toString());
@@ -220,11 +223,11 @@ public class FunctionalTest {
 			e.printStackTrace();
 		}
 		
-		addCmd.execute();
+		_controller.executeCommand(addCmd);
 		assertEquals(false, _controller.getStorage().getTaskList().get(0).isDone());
 		
-		displayCmd.execute();
-		markCmd.execute();
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(markCmd);
 		assertEquals(true, _controller.getStorage().getTaskList().get(0).isDone());
 	}
 	
@@ -247,15 +250,15 @@ public class FunctionalTest {
 			e.printStackTrace();
 		}
 		
-		addCmd1.execute();
-		addCmd2.execute();
-		addCmd3.execute();
+		_controller.executeCommand(addCmd1);
+		_controller.executeCommand(addCmd2);
+		_controller.executeCommand(addCmd3);
 		assertEquals(false, _controller.getStorage().getTaskList().get(0).isDone());
 		assertEquals(false, _controller.getStorage().getTaskList().get(1).isDone());
 		assertEquals(false, _controller.getStorage().getTaskList().get(2).isDone());
 		
-		displayCmd.execute();
-		markCmd.execute();
+		_controller.executeCommand(displayCmd);
+		_controller.executeCommand(markCmd);
 		assertEquals(true, _controller.getStorage().getTaskList().get(0).isDone());
 		assertEquals(true, _controller.getStorage().getTaskList().get(1).isDone());
 		assertEquals(true, _controller.getStorage().getTaskList().get(2).isDone());
@@ -272,8 +275,6 @@ public class FunctionalTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		Task expectedTask = new Task("taskname", _today2pm, _today10pm);
 		
 		_controller.executeCommand(addCmd);
 		_controller.executeCommand(undoCmd);

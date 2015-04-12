@@ -138,4 +138,10 @@ public class Controller {
 			_undoStack.add(command);
 		}
 	}
+	
+	//@author A0135137L
+	public void resetStacks() {
+		_undoStack = new Stack<ICommand>();
+		_redoStack = new Stack<ICommand>();
+	}
 }
