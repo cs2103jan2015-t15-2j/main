@@ -76,9 +76,10 @@ public class CommandParser implements Parser {
 	private static final int DATETIME_START = 0;
 	private static final int DATETIME_END = 1;
 
-	private static final int NUM_COMMAND_PATTERNS = 2;
+	private static final int NUM_COMMAND_PATTERNS = 3;
 	private static final int COMMAND_NAME = 0;
 	private static final int COMMAND_DATE = 1;
+	private static final int COMMAND_KEYWORD = 2;
 
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
@@ -334,6 +335,7 @@ public class CommandParser implements Parser {
 			
 			String keyword = CommandParser.getFirstKeyword(result[COMMAND_DATE]);
 			if( dictSeparatorKeywords.contains(keyword) ) {
+				result[COMMAND_KEYWORD] = keyword;
 				result[COMMAND_DATE] = CommandParser.getNonKeywords(result[COMMAND_DATE]);
 			}
 		} else {
@@ -343,6 +345,7 @@ public class CommandParser implements Parser {
 			int keywordLength = 0;
 			for ( int x = 0; x < words.length; x++ ) {
 				if( dictSeparatorKeywords.contains(words[x]) ) {
+					result[COMMAND_KEYWORD] = words[x];
 					keywordLength = words[x].length();
 					break;
 				} else {
