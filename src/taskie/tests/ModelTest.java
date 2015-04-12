@@ -30,6 +30,8 @@ public class ModelTest {
 	private static final String TASK_5_NAME = "Test - Deadlined Task"; // e.g. null to 30/3/2015 11.15am 
 	private static final String TASK_6_NAME = "Test - Task with only date"; // e.g. null to 30/3/2015
 	private static final String TASK_7_NAME = "Test - Deadlined Task with only date"; // e.g. null to 30/3/2015
+	private static final String TASK_8_NAME = "Test - End Date before midnight"; // e.g. 30/3/2015 11.15pm to 30/3/2015 11.45pm
+	private static final String TASK_9_NAME = "Test - End Date after midnight"; // e.g. 31/3/2015 1.15am to 31/3/2015 1.45am
 	
 	private static LocalDateTime _now;
 
@@ -55,6 +57,8 @@ public class ModelTest {
 				{ TASK_5_NAME, null, _now.plusDays(2), false },
 				{ TASK_6_NAME, _now, _now.plusDays(2), true },
 				{ TASK_7_NAME, null, _now.plusDays(2), true },
+				{ TASK_8_NAME, _now.plusHours(12), _now.plusHours(12).plusMinutes(30), false }, 
+				{ TASK_9_NAME, _now.plusHours(13), _now.plusHours(13).plusMinutes(30), false }, 
 			});
 	}
 	
@@ -461,14 +465,24 @@ public class ModelTest {
 		// Test Setting End Time after Start		
 		LocalTime input = task.getStartTime() == null ? null : task.getStartTime().plusHours(1);
 		LocalTime expectedStart = task.getStartTime() == null ? null : task.getStartTime();
-		LocalTime expectedEnd = task.getStartTime() == null ? null : task.getStartTime().plusHours(1);
+		LocalTime expectedEnd;
+		if ( _name.equals(TASK_8_NAME) ) {
+			expectedEnd = task.getEndTime(); // No Change
+		} else {
+			expectedEnd = task.getStartTime() == null ? null : task.getStartTime().plusHours(1);
+		}
 		
 		try {
 			task.setEndDateTime(task.getEndDate(), input);
 			assertEquals(expectedStart, task.getStartTime());
 			assertEquals(expectedEnd, task.getEndTime());
 		} catch (TaskDateInvalidException e) {
-			fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
+			if ( _name.equals(TASK_8_NAME) ) {
+				assertEquals(expectedStart, task.getStartTime());
+				assertEquals(expectedEnd, task.getEndTime());
+			} else {
+				fail("Threw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
+			}
 		} catch (TaskDateNotSetException e) {
 			fail("Threw TaskDateNotSetException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 		}
@@ -480,7 +494,7 @@ public class ModelTest {
 		LocalTime input = task.getStartTime() == null ? null : task.getStartTime().plusHours(-1);
 		LocalTime expectedStart = task.getStartTime() == null ? null : task.getStartTime();
 		LocalTime expectedEnd;
-		if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) ) {
+		if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) || _name.equals(TASK_8_NAME) ) {
 			expectedEnd = task.getEndTime();
 		} else {
 			expectedEnd = task.getStartTime() == null ? null : task.getStartTime().plusHours(-1);
@@ -488,14 +502,14 @@ public class ModelTest {
 		
 		try {
 			task.setEndDateTime(task.getEndDate(), input);
-			if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) ) {
+			if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) || _name.equals(TASK_8_NAME) ) {
 				fail("Did not throw TaskDateInvalidException: " + task.getStartDateTime() + " before " + task.getEndDateTime());
 			} else {
 				assertEquals(expectedStart, task.getStartTime());
 				assertEquals(expectedEnd, task.getEndTime());
 			}
 		} catch (TaskDateInvalidException e) {
-			if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) ) {
+			if ( _name.equals(TASK_3_NAME) || _name.equals(TASK_4_NAME) || _name.equals(TASK_8_NAME) ) {
 				assertEquals(expectedStart, task.getStartTime());
 				assertEquals(expectedEnd, task.getEndTime());
 			} else {
