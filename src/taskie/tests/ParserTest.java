@@ -246,6 +246,10 @@ public class ParserTest {
 		ICommand actualCommand;
 		
 		// Test all view
+		expectedCommand = new ViewCommand(ViewType.ALL, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		expectedCommand = new ViewCommand(ViewType.ALL, _today.plusWeeks(1), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
 		actualCommand = _parser.parse("view all after next week");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -275,18 +279,73 @@ public class ParserTest {
 		actualCommand = _parser.parse("view all before 1 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
+		// Test all view with search query		
+		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("view all dinner on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("view all on 30 april dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		// Test overdue view
-		expectedCommand = new ViewCommand(ViewType.OVERDUE, null, null, null, null, null);
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
 		actualCommand = _parser.parse("view overdue");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test overdue view with date range
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, null);
+		actualCommand = _parser.parse("view overdue from 1 apr to 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view overdue on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view overdue after 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, null);
+		actualCommand = _parser.parse("view overdue before 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test overdue view with search query		
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("view overdue dinner on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("view overdue on 30 april dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		// Test upcoming view
-		expectedCommand = new ViewCommand(ViewType.UPCOMING, null, null, null, null, null);
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
 		actualCommand = _parser.parse("display");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("view todo");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
+		// Test upcoming view with date range
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, null);
+		actualCommand = _parser.parse("view upcoming from 1 apr to 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view upcoming on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view upcoming after 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, null);
+		actualCommand = _parser.parse("view upcoming before 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test upcoming view with search query		
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("view upcoming dinner on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("view upcoming on 30 april dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		// Test search view
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "dinner");
 		actualCommand = _parser.parse("find dinner");
