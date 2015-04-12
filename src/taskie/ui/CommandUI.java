@@ -229,10 +229,6 @@ public class CommandUI implements UI {
 		return String.format("%1$" + length + "s", str).replace(" ", padding);
 	}
 
-	private String padRight(String str, int length, String padding) {
-		return String.format("%1$-" + length + "s", str).replace(" ", padding);
-	}
-
 	private String prettyDates(LocalDateTime dateTime) {
 		StringBuffer sb = new StringBuffer();
 		RelativeDate relative = new RelativeDate(_now);

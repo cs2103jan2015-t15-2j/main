@@ -36,13 +36,11 @@ import taskie.parser.Parser;
 import com.joestelmach.natty.CalendarSource;
 
 public class ParserTest {
-	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 
 	private static Parser _parser;
 
 	private static LocalDate _today;
-	private static LocalTime _time;
 	private static LocalDateTime _now;
 
 	@BeforeClass
@@ -51,8 +49,7 @@ public class ParserTest {
 		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);  // Fix current time to 15 April 6.30pm
 		
 		_today = _now.toLocalDate();
-		_time = _now.toLocalTime();
-
+		
 		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
 		CalendarSource.setBaseDate(Date.from(instant));
 	}

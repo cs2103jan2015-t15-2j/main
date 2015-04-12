@@ -10,7 +10,6 @@ package taskie.commands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.exceptions.InvalidTaskException;
@@ -21,7 +20,6 @@ import taskie.models.CommandType;
 import taskie.models.DisplayType;
 import taskie.models.Messages;
 import taskie.models.Task;
-import taskie.parser.CommandParser;
 
 public class DeleteCommand extends AbstractCommand {
 	private ArrayList<Task> _tasks = new ArrayList<Task>();
