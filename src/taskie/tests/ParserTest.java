@@ -36,23 +36,20 @@ import taskie.parser.Parser;
 import com.joestelmach.natty.CalendarSource;
 
 public class ParserTest {
-	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
 
 	private static Parser _parser;
 
 	private static LocalDate _today;
-	private static LocalTime _time;
 	private static LocalDateTime _now;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		_parser = new CommandParser();
-		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);
+		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);  // Fix current time to 15 April 6.30pm
 		
 		_today = _now.toLocalDate();
-		_time = _now.toLocalTime();
-
+		
 		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
 		CalendarSource.setBaseDate(Date.from(instant));
 	}
@@ -106,6 +103,20 @@ public class ParserTest {
 
 		expectedCommand = new AddCommand("Prepare Presentation for CS2103", null, null);
 		actualCommand = _parser.parse("add Prepare Presentation for CS2103");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Deadlined Tasks with Time before Current
+		expectedCommand = new AddCommand("Prepare Presentation for CS2103", null, null, _today.plusDays(1), LocalTime.of(15, 0));
+		actualCommand = _parser.parse("add Prepare Presentation for CS2103 by 3pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Timed Tasks with Time before Current
+		expectedCommand = new AddCommand("Lunch with Alan", _today.plusDays(1), LocalTime.of(12, 0), _today.plusDays(1), LocalTime.of(15, 0));
+		actualCommand = _parser.parse("add Lunch with Alan from 12pm to 3pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Lunch with Alan", _today.plusDays(1), LocalTime.of(12, 0), _today.plusDays(1), LocalTime.of(16, 0));
+		actualCommand = _parser.parse("add Lunch with Alan from 12pm to 4pm");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		// Test Deadlined Tasks with Relative Dates

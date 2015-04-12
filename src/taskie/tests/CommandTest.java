@@ -7,10 +7,10 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,22 +18,26 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import taskie.Controller;
-import taskie.commands.*;
-import taskie.exceptions.*;
+import taskie.commands.AddCommand;
+import taskie.commands.DeleteCommand;
+import taskie.commands.DirectoryCommand;
+import taskie.commands.MarkCommand;
+import taskie.commands.RedoCommand;
+import taskie.commands.UndoCommand;
+import taskie.commands.UnmarkCommand;
+import taskie.commands.UpdateCommand;
+import taskie.commands.ViewCommand;
+import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskDateInvalidException;
+import taskie.exceptions.TaskDateNotSetException;
+import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.models.Task;
 import taskie.models.ViewType;
-import taskie.parser.CommandParser;
-import taskie.parser.Parser;
-
-import com.joestelmach.natty.CalendarSource;
 
 public class CommandTest {
-	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
-	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
-
 	private static Controller _controller;
-
-
 
 	private static LocalDate _time1Date;
 	private static LocalTime _time1Time;
@@ -44,13 +48,9 @@ public class CommandTest {
 	private static LocalDate _time3Date;
 	private static LocalTime _time3Time;
 	
-	private static LocalDate _time4Date;
-	private static LocalTime _time4Time;
-
 	private static LocalDateTime _time1;
 	private static LocalDateTime _time2;
 	private static LocalDateTime _time3;
-	private static LocalDateTime _time4;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -58,8 +58,6 @@ public class CommandTest {
 		_time1 = LocalDateTime.of(2100,1,2,13,0);
 		_time2 = _time1.plusHours(2);
 		_time3 = _time1.plusDays(1);
-		_time4= _time3.plusHours(2);
-
 		
 		_time1Date = _time1.toLocalDate();
 		_time1Time = _time1.toLocalTime();
@@ -69,10 +67,6 @@ public class CommandTest {
 		
 		_time3Date = _time3.toLocalDate();
 		_time3Time = _time3.toLocalTime();
-		
-		_time4Date = _time4.toLocalDate();
-		_time4Time = _time4.toLocalTime();
-
 	}
 
 	@AfterClass
@@ -197,7 +191,6 @@ public class CommandTest {
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
-		AddCommand cmd = new AddCommand();
 		addTask("foo",_time1,_time2);
 		ArrayList<Task> tasks = _controller.getStorage().getTaskList();
 		_controller.getUI()
