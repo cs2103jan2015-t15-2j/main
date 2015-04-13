@@ -218,7 +218,7 @@ public class NStorage implements IStorage {
 	}
 
 	/**
-	 * Closes the database to relase locks on the database file
+	 * Closes the database to release locks on the database file
 	 */
 	public void close() throws IOException {
 		_logger.log(Level.INFO, "Closing Storage");
