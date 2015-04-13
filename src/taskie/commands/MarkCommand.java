@@ -29,10 +29,12 @@ public class MarkCommand extends AbstractCommand {
 	//@author A0121555M
 	public MarkCommand(int itemNumber) {
 		_taskIndexes = new int[] { itemNumber };
+		_tasks.clear();
 	}
 
 	public MarkCommand(int[] itemNumbers) {
 		_taskIndexes = itemNumbers;
+		_tasks.clear();
 	}
 
 	public MarkCommand(Task task) {
@@ -97,7 +99,7 @@ public class MarkCommand extends AbstractCommand {
 
 	//@author A0121555M
 	private void retrieveTasks() {
-		if ( _taskIndexes == null ) {
+		if ( _taskIndexes == null || _tasks.size() > 0 ) {
 			return;
 		}
 		

@@ -29,10 +29,12 @@ public class UnmarkCommand extends AbstractCommand {
 	//@author A0121555M
 	public UnmarkCommand(int itemNumber) {
 		_taskIndexes = new int[] { itemNumber };
+		_tasks.clear();
 	}
 
 	public UnmarkCommand(int[] itemNumbers) {
 		_taskIndexes = itemNumbers;
+		_tasks.clear();
 	}
 
 	public UnmarkCommand(Task task) {
@@ -97,7 +99,7 @@ public class UnmarkCommand extends AbstractCommand {
 
 	//@author A0121555M
 	private void retrieveTasks() {
-		if ( _taskIndexes == null ) {
+		if ( _taskIndexes == null || _tasks.size() > 0 ) {
 			return;
 		}
 		
@@ -119,7 +121,6 @@ public class UnmarkCommand extends AbstractCommand {
 	
 	public void undo() {
 		new MarkCommand(_tasks).execute();
-
 	}
 
 	public String toString() {
