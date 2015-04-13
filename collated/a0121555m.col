@@ -184,10 +184,10 @@ public abstract class AbstractCommand implements ICommand {
 	 */
 
 	private void retrieveTasks() {
-		if ( _taskIndexes == null ) {
+		if (_taskIndexes == null) {
 			return;
 		}
-		
+
 		for (int x = 0; x < _taskIndexes.length; x++) {
 			try {
 				int index = _taskIndexes[x];
@@ -220,13 +220,19 @@ public abstract class AbstractCommand implements ICommand {
 
 	@Override
 	public void undo() {
-		new AddCommand(_currentTask).execute();
+		for (Task task : _tasks) {
+			new AddCommand(task).execute();
+		}
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("CommandType:" + _commandType + ",");
+		sb.append("DeleteStartDate:" + _deleteStartDate);
+		sb.append("DeleteStartTime:" + _deleteStartTime);
+		sb.append("DeleteEndDate:" + _deleteEndDate);
+		sb.append("DeleteEndTime:" + _deleteEndTime);
 		sb.append("TaskIndex:" + Arrays.toString(_taskIndexes));
 		return sb.toString();
 	}
@@ -285,7 +291,7 @@ public class DirectoryCommand extends AbstractCommand {
 			String folder;
 			Path currentFolder = _controller.getStorage().getStorageLocation();
 
-			if ( _path.equals("") ) {
+			if ( _path.isEmpty() ) {
 				folder = _controller.getUI().loadSelectDirectoryDialog(currentFolder.toString());
 			} else {
 				folder = _path;
@@ -344,7 +350,6 @@ import java.util.logging.Logger;
 
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
-import taskie.models.DisplayType;
 
 public class ExitCommand extends AbstractCommand {
 	private Logger _logger;
@@ -367,7 +372,6 @@ public class ExitCommand extends AbstractCommand {
 		
 		}
 
-		_controller.getUI().display(DisplayType.DEFAULT, taskie.models.Messages.EXIT_MESSAGE);
 		_controller.getUI().exit();
 	}
 	
@@ -755,7 +759,7 @@ public class UndoCommand extends AbstractCommand {
 			return LocalDateTime.of(_startDate,
 					(_startTime == null) ? LocalTime.MIN : _startTime);
 		} catch (NullPointerException e) {
-			return null;
+			return LocalDateTime.MIN;
 		}
 	}
 
@@ -774,7 +778,7 @@ public class UndoCommand extends AbstractCommand {
 			return LocalDateTime.of(_endDate,
 					(_endTime == null) ? LocalTime.MAX : _endTime);
 		} catch (NullPointerException e) {
-			return null;
+			return LocalDateTime.MAX;
 		}
 	}
 
@@ -894,7 +898,7 @@ public class UndoCommand extends AbstractCommand {
 			_undoStack.add(command);
 		}
 	}
-}
+	
 	// End of segment: src\taskie\Controller.java
 
 
@@ -1016,7 +1020,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.exceptions.FileExistsException;
-import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.StorageLocationInvalidException;
 import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.TaskModificationFailedException;
@@ -1791,10 +1794,40 @@ public enum DisplayType {
 
 		return LocalDateTime.of(_startDate, (_startTime == null) ? LocalTime.MAX : _startTime);
 	}
-
+	
 	public void setStartDateTime(LocalDateTime startDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		this.setStartDate(startDateTime.toLocalDate());
-		this.setStartTime(startDateTime.toLocalTime());
+		this.setStartDateTime(startDateTime.toLocalDate(), startDateTime.toLocalTime());
+	}
+
+	public void setStartDateTime(LocalDate startDate, LocalTime startTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		if ( startDate == null && startTime != null ) {
+			// Invalid State - Date must be set if time is set
+			throw new TaskDateNotSetException();
+		}
+		
+		if ( _startDate == null || startDate == null ) {
+			 _startDate = startDate;
+		} else {
+	        Period p = Period.between(_startDate, startDate);
+	        _startDate = startDate;
+	        _endDate = _endDate.plus(p);
+		}
+		
+		if ( _startTime == null || startTime == null ) {
+			_startTime = startTime;
+		} else {
+			// When adding LocalTime, it wraps around midnight and doesn't add a day
+			// So, we convert to LocalDateTime first and add the difference then set the date and tiem back
+			if ( _endTime != null ) {
+				LocalDateTime endDateTime = this.getEndDateTime();
+				long difference = ChronoUnit.NANOS.between(_startTime, startTime);
+				endDateTime = endDateTime.plusNanos(difference);
+				
+		        _startTime = startTime;
+		        _endDate = endDateTime.toLocalDate();
+		        _endTime = endDateTime.toLocalTime();
+			}
+		}
 	}
 
 	public LocalDateTime getEndDateTime() {
@@ -1804,72 +1837,48 @@ public enum DisplayType {
 
 		return LocalDateTime.of(_endDate, (_endTime == null) ? LocalTime.MAX : _endTime);
 	}
-
-	public void setEndDateTime(LocalDateTime endDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
-		if (this.getStartDateTime() != null && this.getEndDateTime() != null && endDateTime.isBefore(this.getStartDateTime())) {
-			throw new TaskDateInvalidException("New End Date Time is after Start Date Time");
+	
+	public void setEndDateTime(LocalDateTime startDateTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		this.setEndDateTime(startDateTime.toLocalDate(), startDateTime.toLocalTime());
+	}
+	
+	public void setEndDateTime(LocalDate endDate, LocalTime endTime) throws TaskDateNotSetException, TaskDateInvalidException {
+		if ( endDate == null && endTime != null ) {
+			// Invalid State - Date must be set if time is set
+			throw new TaskDateNotSetException();
 		}
-
-		this.setEndDate(endDateTime.toLocalDate());
-		this.setEndTime(endDateTime.toLocalTime());
+		
+		if ( endDate == null && endTime == null ) {
+			// Start Date and Time should be removed if End Date and Time are removed
+			this.setStartDateTime(null, null);
+		} else {
+			LocalDateTime startDateTime = this.getStartDateTime();
+			LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime == null ? LocalTime.MAX : endTime);
+			
+			if ( startDateTime != null && endDateTime.isBefore(startDateTime) ) {
+				// Invalid State - End Date / Time is before Start Date / Time
+				throw new TaskDateInvalidException();			
+			}
+		}
+		
+		_endDate = endDate;
+		_endTime = endTime;
 	}
 
 	public LocalDate getStartDate() {
 		return _startDate;
 	}
 
-	public void setStartDate(LocalDate newStartDate) throws TaskDateInvalidException {
-		if (_startDate == null) {
-			_startDate = newStartDate;
-		} else {
-			Period p = Period.between(_startDate, newStartDate);
-			_startDate = newStartDate;
-			_endDate = _endDate.plus(p);
-		}
-	}
-
 	public LocalDate getEndDate() {
 		return _endDate;
-	}
-
-	public void setEndDate(LocalDate newEndDate) throws TaskDateInvalidException {
-		if (_endDate != null && _startDate != null && newEndDate.isBefore(_startDate)) {
-			throw new TaskDateInvalidException("New End Date is before Start Date");
-		}
-
-		_endDate = newEndDate;
 	}
 
 	public LocalTime getStartTime() {
 		return _startTime;
 	}
 
-	public void setStartTime(LocalTime newStartTime) throws TaskDateInvalidException, TaskDateNotSetException {
-		if (newStartTime == null) {
-			_startTime = null;
-		} else if (_startTime == null) {
-			_startTime = newStartTime;
-		} else {
-			long difference = ChronoUnit.NANOS.between(_startTime, newStartTime);
-			_startTime = newStartTime;
-			_endTime = _endTime.plusNanos(difference);
-		}
-	}
-
 	public LocalTime getEndTime() {
 		return _endTime;
-	}
-
-	public void setEndTime(LocalTime newEndTime) throws TaskDateInvalidException, TaskDateNotSetException {
-		if (newEndTime == null) {
-			_endTime = null;
-		} else {
-			LocalDateTime newEndDateTime = LocalDateTime.of(_endDate, newEndTime);
-			if (this.getStartDateTime() != null && newEndDateTime.isBefore(this.getStartDateTime())) {
-				throw new TaskDateInvalidException("New End Time is after Start Time");
-			}
-			_endTime = newEndTime;
-		}
 	}
 
 	public void setTaskDone() {
@@ -1980,6 +1989,7 @@ import taskie.commands.UnmarkCommand;
 import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
+import taskie.exceptions.InvalidRangeException;
 import taskie.models.CommandType;
 import taskie.models.ViewType;
 
@@ -1988,10 +1998,10 @@ import com.joestelmach.natty.DateGroup;
 public class CommandParser implements Parser {
 	private static final String[] KEYWORDS_DATETIME_SEPARATOR = new String[] { "from", "on", "between", "by", "in", "at", "on", "due" };
 	
-	private static final String[] COMMAND_KEYWORD_ADD = new String[] {" ", "add", "create", "new", "ins", "insert", "put"};
+	private static final String[] COMMAND_KEYWORD_ADD = new String[] {"add", "create", "new", "ins", "insert", "put"};
 	private static final String[] COMMAND_KEYWORD_UPDATE = new String[] {"update", "change", "modify", "edit", "alter"};
 	private static final String[] COMMAND_KEYWORD_DELETE = new String[] {"delete", "clear", "remove", "rm", "discard", "del"};
-	private static final String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list", "ls"};
+	private static final String[] COMMAND_KEYWORD_VIEW_AND_SEARCH = new String[] {"search", "find", "look", "display", "show", "open", "view", "list", "ls", "dir"};
 	private static final String[] COMMAND_KEYWORD_UNDO = new String[] {"undo", "revert"};
 	private static final String[] COMMAND_KEYWORD_REDO = new String[] {"redo"};
 	private static final String[] COMMAND_KEYWORD_MARK = new String[] {"mark", "complete", "done", "check"};
@@ -2005,12 +2015,18 @@ public class CommandParser implements Parser {
 	private static final String[] VIEW_KEYWORDS_COMPLETED = new String[] {"completed", "complete", "done"};
 	private static final String[] VIEW_KEYWORDS_OVERDUE = new String[] {"overdue", "due", "urgent", "late"};
 	
-	private static final String[] SEARCH_RELATIVITY_BEFORE = new String[] { "before", "b4" };
+	private static final String[] SEARCH_RELATIVITY_BEFORE = new String[] { "before", "bef", "b4" };
 	private static final String[] SEARCH_RELATIVITY_AFTER = new String[] { "after", "aft" };
 	private static final String[] SEARCH_RELATIVITY_EXACT = new String[] { "on" };
 	private static final String[] SEARCH_RELATIVITY_SPECIFIED = new String[] { "between", "from" };
 	
-	private static final String[] OVERWRITE_KEYWORDS = new String[] { "overwrite" };
+	// Keywords for advanced users
+	private static final String[] DIRECTORY_OVERWRITE_KEYWORDS = new String[] { "overwrite" };
+	
+	private static final String[] DELETE_START_DATE_KEYWORDS = new String[] { "startdate" };
+	private static final String[] DELETE_START_TIME_KEYWORDS = new String[] { "start", "starttime", "startdatetime", "starttimedate" };
+	private static final String[] DELETE_END_DATE_KEYWORDS = new String[] { "startdate" };
+	private static final String[] DELETE_END_TIME_KEYWORDS = new String[] { "end", "endtime", "enddatetime", "endtimedate" };
 	
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
@@ -2019,18 +2035,22 @@ public class CommandParser implements Parser {
 	private static final int DATETIME_START = 0;
 	private static final int DATETIME_END = 1;
 
-	private static final int NUM_COMMAND_PATTERNS = 2;
+	private static final int NUM_COMMAND_PATTERNS = 3;
 	private static final int COMMAND_NAME = 0;
 	private static final int COMMAND_DATE = 1;
+	private static final int COMMAND_KEYWORD = 2;
 
 	private enum RelativeType { BEFORE, AFTER, EXACT, SPECIFIED, NONE };
 	
 	private static final String PATTERN_MULTI_TASK_SEPARATOR = ",|\\.|\\||\\s";
 	private static final String PATTERN_MATCH_FOR_FROM_TIME = "(.*) (from (.*))";
 	private static final String PATTERN_MATCH_FROM_FOR_TIME = "(.*) for ([\\d+] \\w+)";
-	private static final String PATTERN_MATCH_FROM_TO_TIME = "(.*) from (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?) (?:till|to|-) (\\d{1,2}(?:[.]?\\d{0,2}\\w{0,2})?)";
+	private static final String PATTERN_MATCH_FROM_TO_TIME = "(.*) from (\\d{1,2}(?:[.|:]?\\d{0,2}\\w{0,2})?) (?:till|to|-) (\\d{1,2}(?:[.|:]?\\d{0,2}\\w{0,2})?)";
 	private static final String PATTERN_MATCH_QUOTES = "[\"](.*)[\"]";
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
+
+    // Only changed during tests
+	public static LocalDateTime DATETIME_NOW = null;
     
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
@@ -2103,17 +2123,22 @@ public class CommandParser implements Parser {
 	 * @throws InvalidCommandException	If an invalid keyword is specified
 	 */
 	public ICommand parse(String input) throws InvalidCommandException {
-		if ( input == null ) {
+		if ( input == null || input.isEmpty() ) {
 			throw new InvalidCommandException();
 		}
-		
-		String keyword = CommandParser.getFirstKeyword(input);
-		String parameters = CommandParser.getNonKeywords(input);
-		
-		CommandType cmd = this.getCommandType(keyword);
-		assert cmd != null : "CommandType is null";
-		
-		return this.executeCommandType(cmd, parameters);
+
+
+		if ( input.charAt(0) == ' ' ) {
+			return this.executeCommandType(CommandType.ADD, input);
+		} else {
+			String keyword = CommandParser.getFirstKeyword(input);
+			String parameters = CommandParser.getNonKeywords(input);
+			
+			CommandType cmd = this.getCommandType(keyword);
+			assert cmd != null : "CommandType is null";
+			
+			return this.executeCommandType(cmd, parameters);
+		}
 	}
 	
 	/**
@@ -2136,19 +2161,8 @@ public class CommandParser implements Parser {
 	 * @return			RelativeType (Defaults to NONE)
 	 */
 	private RelativeType getRelativeType(String key) {
-		RelativeType relativeType = RelativeType.NONE;
-		
-		if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_BEFORE) ) {
-			relativeType = RelativeType.BEFORE;
-		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_AFTER) ) {
-			relativeType = RelativeType.AFTER;
-		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_EXACT) ) {
-			relativeType = RelativeType.EXACT;
-		} else if ( hasKeyword(key, CommandParser.SEARCH_RELATIVITY_SPECIFIED) ) {
-			relativeType = RelativeType.SPECIFIED;
-		}
-		
-		return relativeType;
+		RelativeType relativeType = dictRelativeTypes.get(key);
+		return relativeType == null ? RelativeType.NONE : relativeType;
 	}
 	
 	/**
@@ -2237,7 +2251,7 @@ public class CommandParser implements Parser {
 	 * @param group			DateGroup passed from Natty after parsing COMMAND_DATE
 	 * @return				Task Name
 	 */
-	private String buildTaskName(String[] parsedCommand, DateGroup group) {
+	private String findNonDatePartsOfQuery(String[] parsedCommand, DateGroup group) {
 		String command = parsedCommand[COMMAND_DATE];
 		_logger.log(Level.INFO, "Determining Task Name from: " + command + "\nDateGroup Start at position: " + group.getPosition());
 
@@ -2269,6 +2283,7 @@ public class CommandParser implements Parser {
 			
 			String keyword = CommandParser.getFirstKeyword(result[COMMAND_DATE]);
 			if( dictSeparatorKeywords.contains(keyword) ) {
+				result[COMMAND_KEYWORD] = keyword;
 				result[COMMAND_DATE] = CommandParser.getNonKeywords(result[COMMAND_DATE]);
 			}
 		} else {
@@ -2278,6 +2293,7 @@ public class CommandParser implements Parser {
 			int keywordLength = 0;
 			for ( int x = 0; x < words.length; x++ ) {
 				if( dictSeparatorKeywords.contains(words[x]) ) {
+					result[COMMAND_KEYWORD] = words[x];
 					keywordLength = words[x].length();
 					break;
 				} else {
@@ -2341,13 +2357,17 @@ public class CommandParser implements Parser {
 		Pattern pattern;
 		Matcher matcher;
 		
+		if ( Pattern.matches(PATTERN_MATCH_FROM_TO_TIME, date) ) {
+			return date;
+		}
+		
 		pattern = Pattern.compile(PATTERN_MATCH_FOR_FROM_TIME);
 		matcher = pattern.matcher(date);
 		date = matcher.replaceAll("$3 for $1");
 
 		pattern = Pattern.compile(PATTERN_MATCH_FROM_FOR_TIME);
 		matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1 to  $2");
+		date = matcher.replaceAll("$1 to  $2"); // Spaces are intentional (1 spaces to replace missing character when switching from FOR to TO)
 		
 		return date;
 	}
@@ -2355,7 +2375,7 @@ public class CommandParser implements Parser {
 	private String changeFromToInTime(String date) {
 		Pattern pattern = Pattern.compile(PATTERN_MATCH_FROM_TO_TIME);
 		Matcher matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1 $2 to $3");
+		date = matcher.replaceAll("$1      $2 to $3"); // Spaces are intentional (4 spaces to replace missing FROM)
 		return date;
 	}
 	
@@ -2374,7 +2394,7 @@ public class CommandParser implements Parser {
 			// Tasks with date and/or time in it - either deadline or timed
 			List<Date> dates = group.getDates();
 			
-			String name = buildTaskName(parsedCommand, group);
+			String name = findNonDatePartsOfQuery(parsedCommand, group);
 			if ( name.isEmpty() ) {
 				throw new InvalidCommandException(CommandType.ADD);
 			}
@@ -2386,8 +2406,19 @@ public class CommandParser implements Parser {
 			cmd.setTaskName(name);
 			
 			if ( startAndEndDateTime[DATETIME_START] != null ) {
-				cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
-				
+				boolean isSameDay = startAndEndDateTime[DATETIME_START].toLocalDate().equals(CommandParser.getDateTimeNow().toLocalDate());
+				if ( !group.getParseLocations().containsKey("date") && isSameDay ) {
+					// Date is not specified, Natty is going to assume its today
+					if ( startAndEndDateTime[DATETIME_START].toLocalTime().isBefore(CommandParser.getDateTimeNow().toLocalTime()) ) {
+						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate().plusDays(1));
+					} else {
+						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
+					}
+				} else {
+					// Date is specified
+					cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
+				}
+								
 				if ( group.isTimeInferred() ) {
 					cmd.setStartTime(null);
 				} else {
@@ -2396,7 +2427,18 @@ public class CommandParser implements Parser {
 			}
 			
 			if ( startAndEndDateTime[DATETIME_END] != null ) {
-				cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
+				boolean isSameDay = startAndEndDateTime[DATETIME_END].toLocalDate().equals(CommandParser.getDateTimeNow().toLocalDate());
+				if ( !group.getParseLocations().containsKey("date") && isSameDay ) {
+					// Date is not specified, Natty is going to assume its today
+					if ( startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(CommandParser.getDateTimeNow().toLocalTime()) ) {
+						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate().plusDays(1));
+					} else {
+						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
+					}
+				} else {
+					cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
+				}
+				
 				if ( group.isTimeInferred() ) {
 					cmd.setEndTime(null);
 				} else {
@@ -2442,7 +2484,7 @@ public class CommandParser implements Parser {
 			// Date and Time Specified
 			List<Date> dates = group.getDates();
 
-			String name = buildTaskName(parsedQuery, group);
+			String name = findNonDatePartsOfQuery(parsedQuery, group);
 			if ( !name.isEmpty() ) {
 				// updating title also
 				cmd.setTaskTitleToUpdate(name);
@@ -2495,37 +2537,48 @@ public class CommandParser implements Parser {
 		}
 		
 		assert !command.isEmpty() : "Parameters are empty";
-
-		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
-		ArrayList<Integer> items = new ArrayList<Integer>();
-
-		try {
-			for ( String part : parts ) {
-				String[] range = CommandParser.splitStringWithDash(part);
-				if ( range.length == 1 ) {
-					int number = Integer.parseInt(range[0]);
-					items.add(number);
-					_logger.log(Level.INFO, "Deleting Task: {0}", number);
-				} else if ( range.length == 2 ) {
-					int minimum = Integer.parseInt(range[0]);
-					int maximum = Integer.parseInt(range[1]);
-					if ( minimum > maximum ) {
-						throw new InvalidCommandException(CommandType.MARK);
-					}
-					
-					for ( int y = minimum; y <= maximum; y++ ) {
-						items.add(y);
-						_logger.log(Level.INFO, "Deleting Task: {0}", y);
-					}					
-				} else {
-					throw new InvalidCommandException(CommandType.MARK);
-				}
-			}
-		} catch (NumberFormatException e) {
-			throw new InvalidCommandException(CommandType.MARK);
+		
+		String keyword = CommandParser.getFirstKeyword(command);
+		String parameters = CommandParser.getNonKeywords(command);
+		boolean deleteStartDate = false, deleteStartTime = false, deleteEndDate = false, deleteEndTime = false;
+		
+		if ( CommandParser.hasKeyword(keyword, DELETE_START_DATE_KEYWORDS) ) {
+			deleteStartDate = true;
+		} else if ( CommandParser.hasKeyword(keyword, DELETE_START_TIME_KEYWORDS) ) {
+			deleteStartTime = true;
+		} else if ( CommandParser.hasKeyword(keyword, DELETE_END_DATE_KEYWORDS) ) {
+			deleteEndDate = true;
+		} else if ( CommandParser.hasKeyword(keyword, DELETE_END_TIME_KEYWORDS) ) {
+			deleteEndTime = true;
+		} else {
+			parameters = command;
 		}
 
-		return new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
+		try {
+			_logger.log(Level.FINE, "Finding ranges for Delete Command");
+			ArrayList<Integer> items = this.getRanges(parameters);
+			DeleteCommand cmd = new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
+			
+			if ( deleteStartDate ) {
+				cmd.setToDeleteStartDate();
+			}
+			
+			if ( deleteStartTime) {
+				cmd.setToDeleteStartTime();
+			}
+			
+			if ( deleteEndDate ) {
+				cmd.setToDeleteStartDate();			
+			}
+			
+			if ( deleteEndTime ) {
+				cmd.setToDeleteEndTime();
+			}
+			
+			return cmd;
+		} catch (InvalidRangeException e) {
+			throw new InvalidCommandException(CommandType.DELETE);
+		}
 	}
 	
 	private ICommand doView(String command) {
@@ -2549,42 +2602,21 @@ public class CommandParser implements Parser {
 			// Search by Date and possibly keywords
 			List<Date> dates = group.getDates();
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
-			RelativeType relativeType = RelativeType.NONE;
-
-			if ( viewType == ViewType.SEARCH ) {
-				String keyword1 = keywords.substring(0, group.getPosition()).trim();
-				String keyword2 = keywords.substring(group.getPosition() + group.getText().length()).trim();
-
-				String[] words = splitStringWithWhitespace(keyword1);
-				int lastWord = words.length - 1;
-				relativeType = getRelativeType(words[lastWord]);
-				if( relativeType != RelativeType.NONE ) {
-					keyword1 = keyword1.substring(0, keyword1.lastIndexOf(words[lastWord])).trim();
-				}
-				
-				keywords = (keyword1 + " " + keyword2).trim();				
-				cmd.setSearchKeywords(keywords);
-			} else {
-				String[] words = splitStringWithWhitespace(keywords);
-				int firstWord = 0;
-				relativeType = getRelativeType(words[firstWord]);
-				if( relativeType != RelativeType.NONE ) {
-					keywords = keywords.substring(words[firstWord].length()).trim();
-				}
-				
-				keywords = keywords.trim();
-			}
+			RelativeType relativeType = this.getRelativeType(parsedCommand[COMMAND_KEYWORD]);
+			String searchKeywords = findNonDatePartsOfQuery(parsedCommand, group);	
+			cmd.setSearchKeywords(searchKeywords);
 
 			_logger.log(Level.INFO, "View Type: " + viewType + "\nRelative Type: " + relativeType + "\nKeywords: " + keywords + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 		
 			if ( relativeType == RelativeType.BEFORE ) {
 				cmd.setStartDateTime(MIN_DATETIME);
 				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
-			} else if ( relativeType == RelativeType.AFTER ) {
+			} else if ( relativeType == RelativeType.AFTER || (relativeType == RelativeType.SPECIFIED && startAndEndDateTime[DATETIME_START] == null) ) {
+				// Second condition handles special cases like "from tomorrow", "from next week" that would otherwise be classified as RelativeType.SPECIFIED
 				cmd.setStartDateTime(startAndEndDateTime[DATETIME_END]);
 				cmd.setEndDateTime(MAX_DATETIME);
 			} else if ( relativeType == RelativeType.EXACT ) {
-				cmd.setStartDateTime(startAndEndDateTime[DATETIME_START]);
+				cmd.setStartDateTime(startAndEndDateTime[DATETIME_END]);
 				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
 				cmd.setStartTime(null);
 				cmd.setEndTime(null);
@@ -2639,36 +2671,13 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
-		ArrayList<Integer> items = new ArrayList<Integer>();
-
 		try {
-			for ( String part : parts ) {
-				String[] range = CommandParser.splitStringWithDash(part);
-				if ( range.length == 1 ) {
-					int number = Integer.parseInt(range[0]);
-					items.add(number);
-					_logger.log(Level.INFO, "Marking Task {0} as Complete", number);
-				} else if ( range.length == 2 ) {
-					int minimum = Integer.parseInt(range[0]);
-					int maximum = Integer.parseInt(range[1]);
-					if ( minimum > maximum ) {
-						throw new InvalidCommandException(CommandType.MARK);
-					}
-					
-					for ( int y = minimum; y <= maximum; y++ ) {
-						items.add(y);
-						_logger.log(Level.INFO, "Marking Task {0} as Complete", y);
-					}					
-				} else {
-					throw new InvalidCommandException(CommandType.MARK);
-				}
-			}
-		} catch (NumberFormatException e) {
+			_logger.log(Level.FINE, "Finding ranges to Mark as Complete for Mark Command");
+			ArrayList<Integer> items = this.getRanges(command);
+			return new MarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
+		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.MARK);
 		}
-
-		return new MarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 	}
 	
 	private ICommand doUnmark(String command) throws InvalidCommandException {
@@ -2678,36 +2687,13 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 
-		String[] parts = command.split(PATTERN_MULTI_TASK_SEPARATOR);
-		ArrayList<Integer> items = new ArrayList<Integer>();
-		
 		try {
-			for ( String part : parts ) {
-				String[] range = CommandParser.splitStringWithDash(part);
-				if ( range.length == 1 ) {
-					int number = Integer.parseInt(range[0]);
-					items.add(number);
-					_logger.log(Level.INFO, "Marking Task {0} as Incomplete", number);
-				} else if ( range.length == 2 ) {
-					int minimum = Integer.parseInt(range[0]);
-					int maximum = Integer.parseInt(range[1]);
-					if ( minimum > maximum ) {
-						throw new InvalidCommandException(CommandType.UNMARK);
-					}
-					
-					for ( int y = minimum; y <= maximum; y++ ) {
-						items.add(y);
-						_logger.log(Level.INFO, "Marking Task {0} as Incomplete", y);
-					}					
-				} else {
-					throw new InvalidCommandException(CommandType.UNMARK);
-				}
-			}
-		} catch (NumberFormatException e) {
+			_logger.log(Level.FINE, "Finding ranges to Mark as Incomplete for Unmark Command");
+			ArrayList<Integer> items = this.getRanges(command);
+			return new UnmarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
+		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.UNMARK);
 		}
-
-		return new UnmarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 	}
 
 	private ICommand doDirectory(String command) {
@@ -2720,7 +2706,7 @@ public class CommandParser implements Parser {
 			int LAST_WORD = words.length - 1;
 			boolean overwrite = false;
 			
-			if ( hasKeyword(words[FIRST_WORD], OVERWRITE_KEYWORDS) || hasKeyword(words[LAST_WORD], OVERWRITE_KEYWORDS))
+			if ( hasKeyword(words[FIRST_WORD], DIRECTORY_OVERWRITE_KEYWORDS) || hasKeyword(words[LAST_WORD], DIRECTORY_OVERWRITE_KEYWORDS))
 			{
 				overwrite = true;
 			}
@@ -2745,6 +2731,43 @@ public class CommandParser implements Parser {
 	private ICommand doExit() {
 		_logger.log(Level.INFO, "Exiting Taskie");
 		return new ExitCommand();
+	}
+	
+	private ArrayList<Integer> getRanges(String parameter) throws InvalidRangeException {
+		String[] parts = parameter.split(PATTERN_MULTI_TASK_SEPARATOR);
+		return this.getRanges(parts);
+	}
+	
+	private ArrayList<Integer> getRanges(String[] parts) throws InvalidRangeException {
+		ArrayList<Integer> items = new ArrayList<Integer>();
+		
+		for ( String part : parts ) {
+			String[] range = CommandParser.splitStringWithDash(part);
+			if ( range.length == 1 ) {
+				try {
+					int number = Integer.parseInt(range[0]);
+					items.add(number);
+					_logger.log(Level.FINE, "Found Task to Range: {0}", number);
+				} catch ( NumberFormatException e ) {
+					throw new InvalidRangeException();
+				}
+			} else if ( range.length == 2 ) {
+				int minimum = Integer.parseInt(range[0]);
+				int maximum = Integer.parseInt(range[1]);
+				if ( minimum > maximum ) {
+					throw new InvalidRangeException();
+				}
+				
+				for ( int y = minimum; y <= maximum; y++ ) {
+					items.add(y);
+					_logger.log(Level.FINE, "Adding Task to Range: {0}", y);
+				}					
+			} else {
+				throw new InvalidRangeException();
+			}
+		}
+		
+		return items;
 	}
 	
 	private static LocalDateTime[] getStartAndEndDateTime(List<Date> dates) {
@@ -2773,6 +2796,10 @@ public class CommandParser implements Parser {
 		}
 		
 		return startAndEndDateTime;	
+	}
+	
+	private static LocalDateTime getDateTimeNow() {
+		return DATETIME_NOW == null ? LocalDateTime.now() : DATETIME_NOW;
 	}
 	
 	private static boolean hasKeyword(String needle, String[] haystack) {
@@ -2961,17 +2988,16 @@ public class ParserTest {
 	private static Parser _parser;
 
 	private static LocalDate _today;
-	private static LocalTime _time;
 	private static LocalDateTime _now;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		_parser = new CommandParser();
-		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);
+		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);  // Fix current time to 15 April 6.30pm
+		CommandParser.DATETIME_NOW = _now;
 		
 		_today = _now.toLocalDate();
-		_time = _now.toLocalTime();
-
+		
 		Instant instant = _now.atZone(ZoneId.systemDefault()).toInstant();
 		CalendarSource.setBaseDate(Date.from(instant));
 	}
@@ -3027,13 +3053,31 @@ public class ParserTest {
 		actualCommand = _parser.parse("add Prepare Presentation for CS2103");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test Deadlined Tasks with Time before Current
+		expectedCommand = new AddCommand("Prepare Presentation for CS2103", null, null, _today.plusDays(1), LocalTime.of(15, 0));
+		actualCommand = _parser.parse("add Prepare Presentation for CS2103 by 3pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test Timed Tasks with Time before Current
+		expectedCommand = new AddCommand("Lunch with Alan", _today.plusDays(1), LocalTime.of(12, 0), _today.plusDays(1), LocalTime.of(15, 0));
+		actualCommand = _parser.parse("add Lunch with Alan from 12pm to 3pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new AddCommand("Lunch with Alan", _today.plusDays(1), LocalTime.of(12, 0), _today.plusDays(1), LocalTime.of(16, 0));
+		actualCommand = _parser.parse("add Lunch with Alan from 12pm to 4pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		// Test Deadlined Tasks with Relative Dates
 		expectedCommand = new AddCommand("Do CE3", null, null, _today.plusDays(1), LocalTime.MAX);
 		actualCommand = _parser.parse("add Do CE3 by tomorrow");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
-		expectedCommand = new AddCommand("Do CE3", null,  _now.plusDays(1));
+		expectedCommand = new AddCommand("Do CE3", null,  _now.plusHours(24));
 		actualCommand = _parser.parse("add Do CE3 in 24 hours");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new AddCommand("Do CE3", null,  _now.plusHours(23));
+		actualCommand = _parser.parse("add Do CE3 in 23 hours");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Have dinner", null, _now.plusHours(2));
@@ -3137,6 +3181,9 @@ public class ParserTest {
 		expectedCommand = new AddCommand("Reunion Dinner", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(17, 45), _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(21, 15));
 		actualCommand = _parser.parse("ins Reunion Dinner on Saturday 5.45pm to 9.15pm");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		expectedCommand = new AddCommand("Reunion Dinner", _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(17, 45), _today.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)), LocalTime.of(21, 15));
+		actualCommand = _parser.parse("ins Reunion Dinner on Saturday from 5.45pm to 9.15pm");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 	}
 	
 	@Test
@@ -3145,22 +3192,106 @@ public class ParserTest {
 		ICommand actualCommand;
 		
 		// Test all view
+		expectedCommand = new ViewCommand(ViewType.ALL, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		expectedCommand = new ViewCommand(ViewType.ALL, _today.plusWeeks(1), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
 		actualCommand = _parser.parse("view all after next week");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		expectedCommand = new ViewCommand(ViewType.ALL, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), _today, null, null);
+		actualCommand = _parser.parse("view all before today");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.ALL, _today.plusDays(1), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all from tomorrow");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		// Test all view with date range
+		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, null);
+		actualCommand = _parser.parse("view all from 1 apr to 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view all after 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.ALL, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, null);
+		actualCommand = _parser.parse("view all before 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test all view with search query		
+		expectedCommand = new ViewCommand(ViewType.ALL, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("view all dinner on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("view all on 30 april dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		// Test overdue view
-		expectedCommand = new ViewCommand(ViewType.OVERDUE, null, null, null, null, null);
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
 		actualCommand = _parser.parse("view overdue");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test overdue view with date range
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, null);
+		actualCommand = _parser.parse("view overdue from 1 apr to 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view overdue on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view overdue after 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, null);
+		actualCommand = _parser.parse("view overdue before 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test overdue view with search query		
+		expectedCommand = new ViewCommand(ViewType.OVERDUE, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("view overdue dinner on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("view overdue on 30 april dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
 		// Test upcoming view
-		expectedCommand = new ViewCommand(ViewType.UPCOMING, null, null, null, null, null);
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
 		actualCommand = _parser.parse("display");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("view todo");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
+		// Test upcoming view with date range
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, null);
+		actualCommand = _parser.parse("view upcoming from 1 apr to 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view upcoming on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
+		actualCommand = _parser.parse("view upcoming after 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, null);
+		actualCommand = _parser.parse("view upcoming before 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test upcoming view with search query		
+		expectedCommand = new ViewCommand(ViewType.UPCOMING, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("view upcoming dinner on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("view upcoming on 30 april dinner");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		// Test search view
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "dinner");
 		actualCommand = _parser.parse("find dinner");
@@ -3168,6 +3299,24 @@ public class ParserTest {
 		actualCommand = _parser.parse("search dinner");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test search view with date range
+		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 1), null, LocalDate.of(2015, 4, 30), null, "dinner");
+		actualCommand = _parser.parse("find dinner from 1 apr to 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 30), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 30), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("find dinner on 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		expectedCommand = new ViewCommand(ViewType.SEARCH, LocalDate.of(2015, 4, 30), null, MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), "dinner");
+		actualCommand = _parser.parse("find dinner after 30 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new ViewCommand(ViewType.SEARCH, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, "dinner");
+		actualCommand = _parser.parse("find dinner before 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		
+		// Test search case sensitivity
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
 		actualCommand = _parser.parse("find CS2103 tutorial");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -3577,7 +3726,6 @@ public class CommandUI implements UI {
 				return null;
 			}
 		}
-
 		return input;
 	}
 
@@ -3688,6 +3836,13 @@ public class CommandUI implements UI {
 		_controller.executeCommand(new ViewCommand(ViewType.UPCOMING));
 	}
 	
+	private void printExitMessage() {
+		String padding = new String(new char[Messages.EXIT_MESSAGE.length() + 2]).replace("\0", "=");
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.EXIT_MESSAGE + " ").reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+	}
+	
 	private void printHeader(String header) {
 		String padding = new String(new char[header.length() + 2]).replace("\0", "=");
 		this.display(DisplayType.DEFAULT, Messages.NEWLINE + ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
@@ -3717,6 +3872,7 @@ public class CommandUI implements UI {
 	}
 
 	public void exit() {
+		this.printExitMessage();
 		AnsiConsole.systemUninstall();
 		_isUIRunning = false;
 	}
@@ -3758,16 +3914,16 @@ public class CommandUI implements UI {
 		return String.format("%1$" + length + "s", str).replace(" ", padding);
 	}
 
-	private String padRight(String str, int length, String padding) {
-		return String.format("%1$-" + length + "s", str).replace(" ", padding);
-	}
-
 	private String prettyDates(LocalDateTime dateTime) {
 		StringBuffer sb = new StringBuffer();
 		RelativeDate relative = new RelativeDate(_now);
 		relative.calculate(dateTime);
-
-		if (relative.getDays() > 0) {
+		
+		if (relative.getYears() > 0 ) {
+			sb.append(String.format("%d %s", relative.getYears(), relative.getYears() > 1 ? "years" : "year") + " ");
+		} else if (relative.getMonths() > 0 ) {
+			sb.append(String.format("%d %s", relative.getMonths(), relative.getMonths() > 1 ? "months" : "month") + " ");
+		} else if (relative.getDays() > 0) {
 			sb.append(String.format("%d %s", relative.getDays(), relative.getDays() > 1 ? "days" : "day") + " ");
 		} else if (relative.getHours() > 0) {
 			sb.append(String.format("%d %s", relative.getHours(), relative.getHours() > 1 ? "hours" : "hour") + " ");
@@ -3777,7 +3933,7 @@ public class CommandUI implements UI {
 			sb.append(String.format("%d %s", relative.getSeconds(), relative.getSeconds() > 1 ? "seconds" : "second") + " ");
 		}
 
-		return "less than " + sb.toString().trim();
+		return "about " + sb.toString().trim();
 	}
 }
 
