@@ -172,7 +172,7 @@ public class UpdateCommand extends AbstractCommand {
 			} else if ( newTask.getStartDateTime() == null ) {
 				message = message.concat(taskie.models.Messages.UPDATE_START_DATE_REMOVED);
 			} else {
-				message = message.concat(String.format(Messages.START_DATE_TIME, _controller.getUI().formatDateTime(oldTask.getStartDateTime()), _controller.getUI().formatDateTime(oldTask.getStartDateTime())));
+				message = message.concat(String.format(Messages.START_DATE_TIME, _controller.getUI().formatDateTime(oldTask.getStartDateTime()), _controller.getUI().formatDateTime(newTask.getStartDateTime())));
 			}
 		}
 		if (this.isModifiedEndDate() || this.isModifiedEndTime()) {
