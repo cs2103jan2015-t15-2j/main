@@ -44,6 +44,8 @@ public class Messages {
 	public static final String END_DATE_TIME = "End date and time changed from %s to %s" + NEWLINE;
 	public static final String START_DATE_TIME_NULL = "Task start date updated to %s." + NEWLINE;
 	public static final String END_DATE_TIME_NULL = "Task end date updated to %s." +NEWLINE;
+	public static final String UPDATE_START_DATE_REMOVED = "Task start date has been removed." + NEWLINE;
+	public static final String UPDATE_END_DATE_REMOVED = "Task end date has been removed." +NEWLINE;
 
 	// DirectoryCommand messages
 	public static final String DIRECTORY_CHANGED = "Directory changed to %s" + NEWLINE;
