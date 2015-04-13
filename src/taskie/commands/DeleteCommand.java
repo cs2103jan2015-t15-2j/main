@@ -198,16 +198,16 @@ public class DeleteCommand extends AbstractCommand {
 		StringBuffer fields = new StringBuffer();
 		
 		if (canDeleteStartDate()) {
-			fields.append("Start date, ");
+			fields.append(Messages.START_DATE_STRING);
 		}
 		if (canDeleteStartTime()) {
-			fields.append("Start time, ");
+			fields.append(Messages.START_TIME_STRING);
 		}
 		if (canDeleteEndDate()) {
-			fields.append("End date, ");
+			fields.append(Messages.END_DATE_STRING);
 		}
 		if (canDeleteEndTime()) {
-			fields.append("End time, ");
+			fields.append(Messages.END_TIME_STRING);
 		}	
 		
 		return String.format(taskie.models.Messages.DELETE_TASK_FIELD, _currentTask.getTitle(), fields.substring(0, fields.length() - 2));
