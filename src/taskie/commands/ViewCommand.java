@@ -163,30 +163,12 @@ public class ViewCommand extends AbstractCommand {
 		}
 	}
 
-	private void executeViewSearch() {
-		ArrayList<Task> tasks = null;
-		ArrayList<Task> tasksToDisplay = null;
-		try {
-			tasks = _controller.getStorage().getTaskList();
-			if (_startDate == null && _endDate == null
-					&& _searchKeywords != null) {
-				tasksToDisplay = findSearchedTasks(tasks);
-				_logger.log(Level.INFO, "searchType: Taskname\n");
-			} else if (_searchKeywords != null) {
-				tasksToDisplay = findTasksByDate(tasks);
-				tasksToDisplay = findSearchedTasks(tasksToDisplay);
-			} else {
-				tasksToDisplay = findTasksByDate(tasks);
-			}
-			tasksToDisplay = findUndoneTasks(tasksToDisplay);
-			tasksToDisplay.sort(new TaskEndDateComparator());
-			_controller.getUI().display(
-					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
-		} catch (TaskRetrievalFailedException e) {
-			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
-		}
-	}
 
+	/**
+	 * This method acts as a filter to filter tasklists by done status.
+	 * @param tasks
+	 * @return ArrayList<Task>
+	 */
 	private ArrayList<Task> findUndoneTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		for(Task task: tasks){
@@ -284,7 +266,31 @@ public class ViewCommand extends AbstractCommand {
 		}
 		return searchedTasks;
 	}
-
+	
+	
+	private void executeViewSearch() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = null;
+		try {
+			tasks = _controller.getStorage().getTaskList();
+			if (_startDate == null && _endDate == null
+					&& _searchKeywords != null) {
+				tasksToDisplay = findSearchedTasks(tasks);
+				_logger.log(Level.INFO, "searchType: Taskname\n");
+			} else if (_searchKeywords != null) {
+				tasksToDisplay = findTasksByDate(tasks);
+				tasksToDisplay = findSearchedTasks(tasksToDisplay);
+			} else {
+				tasksToDisplay = findTasksByDate(tasks);
+			}
+			tasksToDisplay = findUndoneTasks(tasksToDisplay);
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+	}
 	private void executeViewOverdue() {
 		ArrayList<Task> tasks = null;
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
