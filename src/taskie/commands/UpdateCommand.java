@@ -151,6 +151,8 @@ public class UpdateCommand extends AbstractCommand {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		} catch (Exception e){
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 
@@ -167,14 +169,24 @@ public class UpdateCommand extends AbstractCommand {
 			message = message.concat(String.format(Messages.TASK_TITLE,_oldTask.getTitle(),_task.getTitle()));
 		}
 		if (this.isModifiedStartDate()||this.isModifiedStartTime()) {
-			message = message.concat(String.format(Messages.START_DATE_TIME 
-					, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())
-					, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())));
+			if(_oldTask.getStartDateTime()==null){
+				message = message.concat(String.format(Messages.START_DATE_TIME_NULL 
+						, _controller.getUI().formatDateTime(_task.getStartDateTime())));
+			}else{
+				message = message.concat(String.format(Messages.START_DATE_TIME 
+						, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())
+						, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())));
+			}
 		}
 		if (this.isModifiedEndDate()||this.isModifiedEndTime()) {
+			if(_oldTask.getEndDateTime()==null){
+				message = message.concat(String.format(Messages.END_DATE_TIME_NULL 
+						, _controller.getUI().formatDateTime(_task.getEndDateTime())));
+			}else{
 			message = message.concat(String.format(taskie.models.Messages.END_DATE_TIME
 					, _controller.getUI().formatDateTime(_oldTask.getEndDateTime())
 					, _controller.getUI().formatDateTime(_task.getEndDateTime())));
+			}
 		}
 		return message;
 
