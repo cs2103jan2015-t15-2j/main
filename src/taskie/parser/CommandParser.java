@@ -706,6 +706,7 @@ public class CommandParser implements Parser {
 
 			_logger.log(Level.INFO, "View Type: " + viewType + "\nRelative Type: " + relativeType + "\nKeywords: " + keywords + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 
+			// Set the date and time parameters depending on the type of dates specified
 			if (relativeType == RelativeType.BEFORE) {
 				cmd.setStartDateTime(MIN_DATETIME);
 				cmd.setEndDateTime(startAndEndDateTime[DATETIME_END]);
