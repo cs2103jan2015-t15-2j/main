@@ -169,7 +169,7 @@ public class FunctionalTest {
 		ICommand updateCmd = null;
 		
 		try {
-			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			addCmd = _controller.getParser().parse("add taskname");
 			displayCmd = _controller.getParser().parse("display");
 			updateCmd = _controller.getParser().parse("update 1 newTaskname");	
 		} catch (Exception e) {
@@ -180,7 +180,7 @@ public class FunctionalTest {
 		_controller.executeCommand(displayCmd);
 		_controller.executeCommand(updateCmd);
 	
-		Task expectedTask = new Task("newTaskname", _today2pm, _today10pm);
+		Task expectedTask = new Task("newTaskname");
 		assertEquals(expectedTask.toString(), _controller.getStorage().getTaskList().get(0).toString());
 	}
 	
