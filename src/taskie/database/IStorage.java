@@ -25,6 +25,8 @@ public interface IStorage {
 
 	void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException;
 
+	ArrayList<Task> getTaskList() throws TaskRetrievalFailedException;
+
 	void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 
 	void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
@@ -34,6 +36,4 @@ public interface IStorage {
 	void clearAllTasks() throws TaskModificationFailedException;
 
 	void close() throws IOException;
-
-	ArrayList<Task> getTaskList() throws TaskRetrievalFailedException;
 }
