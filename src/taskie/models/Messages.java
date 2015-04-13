@@ -105,8 +105,8 @@ public class Messages {
 	public static final String NOTHING_TO_REDO_EXCEPTION = "There is nothing to redo." + NEWLINE;
 	public static final String STORAGE_LOCATION_INVALID_EXCEPTION = "Storage Location is invalid" + NEWLINE;
 	public static final String STORAGE_MIGRATION_FAILED_EXCEPTION = "Storage Location is invalid" + NEWLINE;
-	public static final String TASK_DATE_INVALID_EXCEPTION = "Task time not set" + NEWLINE;
-	public static final String TASK_DATE_NOT_SET_EXCEPTION = "Task date not set" + NEWLINE;
+	public static final String TASK_DATE_INVALID_EXCEPTION = "Invalid date and time set in task" + NEWLINE;
+	public static final String TASK_DATE_NOT_SET_EXCEPTION = "A date has not been set for the task." + NEWLINE;
 	public static final String TASK_MODIFICATION_FAILED_EXCEPTION = "Modification of the task has failed" + NEWLINE;
 	public static final String TASK_RETRIEVAL_FAILED_EXCEPTION = "Failed to retrieve task(s)" + NEWLINE;
 	public static final String TASK_TYPE_NOT_SUPPORTED_EXCEPTION = "This task type is not supported." + NEWLINE;
