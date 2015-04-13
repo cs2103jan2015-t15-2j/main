@@ -26,14 +26,14 @@ public class UndoCommand extends AbstractCommand {
 
 	public boolean execute() {
 		boolean success = true;
-		Stack<ICommand> undoStack = _controller.getUndoStack();
-		Stack<ICommand> redoStack = _controller.getRedoStack();
+		Stack<Command> undoStack = _controller.getUndoStack();
+		Stack<Command> redoStack = _controller.getRedoStack();
 		
 		if ( undoStack.size() > 0 ) {
 			int count = Math.min(_steps, undoStack.size());
 			for ( int x = 0; x < count; x++ ) {
 				try {
-					ICommand cmd = undoStack.pop();
+					Command cmd = undoStack.pop();
 					cmd.undo();
 					redoStack.add(cmd);
 				} catch (UndoNotSupportedException e) {

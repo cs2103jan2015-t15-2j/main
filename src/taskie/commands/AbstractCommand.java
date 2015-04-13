@@ -3,7 +3,7 @@ package taskie.commands;
 
 import taskie.Controller;
 
-public abstract class AbstractCommand implements ICommand {
+public abstract class AbstractCommand implements Command {
 	protected Controller _controller;
 
 	public AbstractCommand() {

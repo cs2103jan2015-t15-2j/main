@@ -15,9 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.commands.ExitCommand;
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.database.Configuration;
-import taskie.database.IStorage;
+import taskie.database.Storage;
 import taskie.database.NStorage;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.TaskRetrievalFailedException;
@@ -35,18 +35,18 @@ public class Controller {
 	private Configuration _config;
 	private Logger _logger;
 	private Parser _parser;
-	private Stack<ICommand> _undoStack;
-	private Stack<ICommand> _redoStack;
+	private Stack<Command> _undoStack;
+	private Stack<Command> _redoStack;
 	private Task _lastTask;
 
 	protected UI _ui;
-	protected IStorage _storage;
+	protected Storage _storage;
 
 	public UI getUI() {
 		return _ui;
 	}
 
-	public IStorage getStorage() {
+	public Storage getStorage() {
 		return _storage;
 	}
 
@@ -68,8 +68,8 @@ public class Controller {
 
 	private void initialize() {
 		try {
-			_undoStack = new Stack<ICommand>();
-			_redoStack = new Stack<ICommand>();
+			_undoStack = new Stack<Command>();
+			_redoStack = new Stack<Command>();
 			_storage = new NStorage(_config.getDatabasePath());
 			_lastTask = null;
 		} catch (IOException e) {
@@ -106,7 +106,7 @@ public class Controller {
 			} else {
 				if (!string.isEmpty()) {
 					try {
-						ICommand cmd = _parser.parse(string);
+						Command cmd = _parser.parse(string);
 						this.executeCommand(cmd);
 					} catch (InvalidCommandException e) {
 						_ui.display(DisplayType.ERROR, Messages.INVALID_COMMAND);
@@ -116,7 +116,7 @@ public class Controller {
 		}
 	}
 
-	public void executeCommand(ICommand command) {
+	public void executeCommand(Command command) {
 		boolean success = command.execute();
 		if ( success ) { 
 			addTaskHistory(command);
@@ -124,15 +124,15 @@ public class Controller {
 	}
 
 	// @author A0121555M
-	public Stack<ICommand> getUndoStack() {
+	public Stack<Command> getUndoStack() {
 		return _undoStack;
 	}
 
-	public Stack<ICommand> getRedoStack() {
+	public Stack<Command> getRedoStack() {
 		return _redoStack;
 	}
 
-	private void addTaskHistory(ICommand command) {
+	private void addTaskHistory(Command command) {
 		CommandType type = command.getCommandType();
 		if (type == CommandType.ADD || type == CommandType.UPDATE || type == CommandType.DELETE || type == CommandType.MARK || type == CommandType.UNMARK) {
 			_logger.log(Level.INFO, "Adding to Undo: " + command);
@@ -142,7 +142,7 @@ public class Controller {
 
 	// @author A0135137L
 	public void resetUndoAndRedoStacks() {
-		_undoStack = new Stack<ICommand>();
-		_redoStack = new Stack<ICommand>();
+		_undoStack = new Stack<Command>();
+		_redoStack = new Stack<Command>();
 	}
 }

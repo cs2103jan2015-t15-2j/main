@@ -28,13 +28,13 @@ public class RedoCommand extends AbstractCommand {
 	@Override
 	public boolean execute() {
 		boolean success = true;
-		Stack<ICommand> undoStack = _controller.getUndoStack();
-		Stack<ICommand> redoStack = _controller.getRedoStack();
+		Stack<Command> undoStack = _controller.getUndoStack();
+		Stack<Command> redoStack = _controller.getRedoStack();
 
 		if (redoStack.size() > 0) {
 			int count = Math.min(_steps, redoStack.size());
 			for (int x = 0; x < count; x++) {
-				ICommand cmd = redoStack.pop();
+				Command cmd = redoStack.pop();
 				cmd.execute();
 				undoStack.add(cmd);
 			}

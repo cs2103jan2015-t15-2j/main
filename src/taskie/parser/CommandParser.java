@@ -20,7 +20,7 @@ import taskie.commands.DeleteCommand;
 import taskie.commands.DirectoryCommand;
 import taskie.commands.ExitCommand;
 import taskie.commands.HelpCommand;
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.commands.MarkCommand;
 import taskie.commands.RedoCommand;
 import taskie.commands.UndoCommand;
@@ -160,7 +160,7 @@ public class CommandParser implements Parser {
 	 * @return			Command to be Executed
 	 * @throws InvalidCommandException	If an invalid keyword is specified
 	 */
-	public ICommand parse(String input) throws InvalidCommandException {
+	public Command parse(String input) throws InvalidCommandException {
 		if (input == null || input.isEmpty()) {
 			throw new InvalidCommandException();
 		}
@@ -251,7 +251,7 @@ public class CommandParser implements Parser {
 	 * @return			Command object generated that can be executed
 	 * @throws InvalidCommandException	If an invalid keyword is specified
 	 */	
-	private ICommand executeCommandType(CommandType cmd, String parameter) throws InvalidCommandException {
+	private Command executeCommandType(CommandType cmd, String parameter) throws InvalidCommandException {
 		parameter = parameter.trim();
 
 		if (cmd == CommandType.ADD) {
@@ -453,7 +453,7 @@ public class CommandParser implements Parser {
 		return date;
 	}
 
-	private ICommand doAdd(String command) throws InvalidCommandException {
+	private Command doAdd(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			throw new InvalidCommandException(CommandType.ADD);
 		}
@@ -538,7 +538,7 @@ public class CommandParser implements Parser {
 		return cmd;
 	}
 
-	private ICommand doUpdate(String command) throws InvalidCommandException {
+	private Command doUpdate(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			throw new InvalidCommandException(CommandType.UPDATE);
 		}
@@ -612,7 +612,7 @@ public class CommandParser implements Parser {
 		return cmd;
 	}
 
-	private ICommand doDelete(String command) throws InvalidCommandException {
+	private Command doDelete(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			return new DeleteCommand(0);
 		}
@@ -679,7 +679,7 @@ public class CommandParser implements Parser {
 		}
 	}
 
-	private ICommand doView(String command) {
+	private Command doView(String command) {
 		String keywords;
 
 		String keyword = CommandParser.getFirstKeyword(command);
@@ -738,7 +738,7 @@ public class CommandParser implements Parser {
 		return cmd;
 	}
 
-	private ICommand doUndo(String command) {
+	private Command doUndo(String command) {
 		int steps = 1;
 		try {
 			steps = Integer.parseInt(command);
@@ -751,7 +751,7 @@ public class CommandParser implements Parser {
 		return new UndoCommand(steps);
 	}
 
-	private ICommand doRedo(String command) {
+	private Command doRedo(String command) {
 		int steps = 1;
 		try {
 			steps = Integer.parseInt(command);
@@ -764,7 +764,7 @@ public class CommandParser implements Parser {
 		return new RedoCommand(steps);
 	}
 
-	private ICommand doMark(String command) throws InvalidCommandException {
+	private Command doMark(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			return new MarkCommand(0);
 		}
@@ -780,7 +780,7 @@ public class CommandParser implements Parser {
 		}
 	}
 
-	private ICommand doUnmark(String command) throws InvalidCommandException {
+	private Command doUnmark(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			return new UnmarkCommand(0);
 		}
@@ -796,7 +796,7 @@ public class CommandParser implements Parser {
 		}
 	}
 
-	private ICommand doDirectory(String command) {
+	private Command doDirectory(String command) {
 		if (command.isEmpty()) {
 			_logger.log(Level.INFO, "Changing Directory - Launch GUI");
 			return new DirectoryCommand();
@@ -815,7 +815,7 @@ public class CommandParser implements Parser {
 		}
 	}
 
-	private ICommand doHelp(String command) {
+	private Command doHelp(String command) {
 		CommandType cmd;
 
 		try {
@@ -827,7 +827,7 @@ public class CommandParser implements Parser {
 		return new HelpCommand(cmd);
 	}
 
-	private ICommand doExit() {
+	private Command doExit() {
 		_logger.log(Level.INFO, "Exiting Taskie");
 		return new ExitCommand();
 	}

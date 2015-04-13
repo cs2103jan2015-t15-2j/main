@@ -20,7 +20,7 @@ import taskie.models.Task;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-public class NStorage implements IStorage {
+public class NStorage implements Storage {
 	private static final String DATABASE_FILENAME = "taskie.txt";
 
 	private Logger _logger;

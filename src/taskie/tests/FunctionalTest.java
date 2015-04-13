@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import taskie.Controller;
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
@@ -41,14 +41,14 @@ public class FunctionalTest {
 
 	@Test
 	public void testAddFloating() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
-		ICommand cmd = _controller.getParser().parse("add taskname");
+		Command cmd = _controller.getParser().parse("add taskname");
 		_controller.executeCommand(cmd);
 		Task expectedTask = new Task("taskname");
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	@Test
 	public void testAddDeadline() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
-		ICommand cmd=null;
+		Command cmd=null;
 		
 		try {
 			cmd = _controller.getParser().parse("add taskname by 10pm");
@@ -67,7 +67,7 @@ public class FunctionalTest {
 	
 	@Test
 	public void testAddTimed() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
-		ICommand cmd=null;
+		Command cmd=null;
 		
 		try {
 			cmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
@@ -89,9 +89,9 @@ public class FunctionalTest {
 	@Test
 	public void testDeleteFloating() throws TaskRetrievalFailedException {
 		
-		ICommand addCmd = null;
-		ICommand displayCmd = null;
-		ICommand delCmd = null;
+		Command addCmd = null;
+		Command displayCmd = null;
+		Command delCmd = null;
 		
 		try {
 			addCmd = _controller.getParser().parse("add taskname");
@@ -109,9 +109,9 @@ public class FunctionalTest {
 	@Test
 	public void testDeleteDeadline() throws TaskRetrievalFailedException {
 		
-		ICommand addCmd = null;
-		ICommand displayCmd = null;
-		ICommand delCmd = null;
+		Command addCmd = null;
+		Command displayCmd = null;
+		Command delCmd = null;
 		
 		try {
 			addCmd = _controller.getParser().parse("add taskname by 10pm");
@@ -130,9 +130,9 @@ public class FunctionalTest {
 	@Test
 	public void testDeleteTimed() throws TaskRetrievalFailedException {
 		
-		ICommand addCmd = null;
-		ICommand displayCmd = null;
-		ICommand delCmd = null;
+		Command addCmd = null;
+		Command displayCmd = null;
+		Command delCmd = null;
 		
 		try {
 			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
@@ -150,9 +150,9 @@ public class FunctionalTest {
 	@Test
 	public void testDisplay() throws TaskRetrievalFailedException {
 		
-		ICommand addCmd1 = null;		
-		ICommand addCmd2 = null;
-		ICommand addCmd3 = null;
+		Command addCmd1 = null;		
+		Command addCmd2 = null;
+		Command addCmd3 = null;
 		
 		try {
 			addCmd1 = _controller.getParser().parse("add taskname");
@@ -187,9 +187,9 @@ public class FunctionalTest {
 	
 	@Test
 	public void testUpdateTaskname() throws TaskRetrievalFailedException {
-		ICommand addCmd = null;
-		ICommand displayCmd = null;
-		ICommand updateCmd = null;
+		Command addCmd = null;
+		Command displayCmd = null;
+		Command updateCmd = null;
 		
 		try {
 			addCmd = _controller.getParser().parse("add taskname");
@@ -209,9 +209,9 @@ public class FunctionalTest {
 	
 	@Test
 	public void testUpdateDateTime() throws TaskRetrievalFailedException {
-		ICommand addCmd = null;
-		ICommand displayCmd = null;
-		ICommand updateCmd = null;
+		Command addCmd = null;
+		Command displayCmd = null;
+		Command updateCmd = null;
 		
 		LocalDateTime _tmr9pm = LocalDateTime.of(_now.toLocalDate().plusDays(1), LocalTime.of(21, 0, 0, 0));
 		LocalDateTime _tmr3pm = LocalDateTime.of(_now.toLocalDate().plusDays(1), LocalTime.of(15,0,0,0));
@@ -234,9 +234,9 @@ public class FunctionalTest {
 	
 	@Test
 	public void testMarkSingle() throws TaskRetrievalFailedException {
-		ICommand addCmd = null;
-		ICommand displayCmd = null;
-		ICommand markCmd = null;
+		Command addCmd = null;
+		Command displayCmd = null;
+		Command markCmd = null;
 		
 		try {
 			addCmd = _controller.getParser().parse("add taskname");
@@ -256,12 +256,12 @@ public class FunctionalTest {
 	
 	@Test
 	public void testMarkMultiple() throws TaskRetrievalFailedException {
-		ICommand addCmd1 = null;
-		ICommand addCmd2 = null;
-		ICommand addCmd3 = null;
+		Command addCmd1 = null;
+		Command addCmd2 = null;
+		Command addCmd3 = null;
 		
-		ICommand displayCmd = null;
-		ICommand markCmd = null;
+		Command displayCmd = null;
+		Command markCmd = null;
 		
 		try {
 			addCmd1 = _controller.getParser().parse("add taskname");
@@ -289,8 +289,8 @@ public class FunctionalTest {
 	
 	@Test
 	public void testUndoOnce() throws TaskRetrievalFailedException, Exception {
-		ICommand addCmd = null;
-		ICommand undoCmd = null;
+		Command addCmd = null;
+		Command undoCmd = null;
 		
 		try {
 			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
@@ -306,10 +306,10 @@ public class FunctionalTest {
 	
 	@Test
 	public void testMultipleUndo() throws TaskRetrievalFailedException, Exception {
-		ICommand addCmd = null;
-		ICommand updateCmd = null;
-		ICommand undoCmd = null;
-		ICommand displayCmd = null;
+		Command addCmd = null;
+		Command updateCmd = null;
+		Command undoCmd = null;
+		Command displayCmd = null;
 		try {
 			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
 			displayCmd = _controller.getParser().parse("display");
@@ -330,9 +330,9 @@ public class FunctionalTest {
 
 	@Test
 	public void testRedoOnce() throws TaskRetrievalFailedException, Exception {
-		ICommand addCmd = null;
-		ICommand undoCmd = null;
-		ICommand redoCmd = null;
+		Command addCmd = null;
+		Command undoCmd = null;
+		Command redoCmd = null;
 		
 		try {
 			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
@@ -356,11 +356,11 @@ public class FunctionalTest {
 	
 	@Test
 	public void testMultipleRedo() throws TaskRetrievalFailedException, Exception {
-		ICommand addCmd = null;
-		ICommand deleteCmd = null;
-		ICommand undoCmd = null;
-		ICommand redoCmd = null;
-		ICommand displayCmd = null;
+		Command addCmd = null;
+		Command deleteCmd = null;
+		Command undoCmd = null;
+		Command redoCmd = null;
+		Command displayCmd = null;
 		try {
 			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
 			displayCmd = _controller.getParser().parse("display");

@@ -21,7 +21,7 @@ import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
 import taskie.commands.DirectoryCommand;
 import taskie.commands.ExitCommand;
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.commands.MarkCommand;
 import taskie.commands.RedoCommand;
 import taskie.commands.UndoCommand;
@@ -86,7 +86,7 @@ public class ParserTest {
 	@Test
 	public void testAddCommand() throws InvalidCommandException {
 		AddCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Test Floating Tasks - Normal Cases
 		expectedCommand = new AddCommand("Travel to London", null, null);
@@ -240,7 +240,7 @@ public class ParserTest {
 	@Test
 	public void testViewCommand() throws InvalidCommandException {
 		ViewCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Test all view
 		expectedCommand = new ViewCommand(ViewType.ALL, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
@@ -378,7 +378,7 @@ public class ParserTest {
 	@Test
 	public void testDeleteCommand() throws InvalidCommandException {
 		DeleteCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Equivalence Partitioning 
 		// Delete command expects an integer
@@ -517,7 +517,7 @@ public class ParserTest {
 	@Test
 	public void testUpdateCommand() throws InvalidCommandException {
 		UpdateCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Equivalence Partitioning
 		// Test all possible variants of UpdateCommand
@@ -575,7 +575,7 @@ public class ParserTest {
 	@Test
 	public void testUndoCommand() throws InvalidCommandException {
 		UndoCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Equivalence Partitioning 
 		// Command has an optional integer parameter.
@@ -601,7 +601,7 @@ public class ParserTest {
 	@Test
 	public void testRedoCommand() throws InvalidCommandException {
 		RedoCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Equivalence Partitioning 
 		// Command has an optional integer parameter.
@@ -625,7 +625,7 @@ public class ParserTest {
 	@Test
 	public void testMarkCommand() throws InvalidCommandException {
 		MarkCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		expectedCommand = new MarkCommand(1);
 		actualCommand = _parser.parse("mark 1");
@@ -681,7 +681,7 @@ public class ParserTest {
 	@Test
 	public void testUnmarkCommand() throws InvalidCommandException {
 		UnmarkCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		expectedCommand = new UnmarkCommand(1);
 		actualCommand = _parser.parse("unmark 1");
@@ -734,7 +734,7 @@ public class ParserTest {
 	@Test
 	public void testDirectoryCommand() throws InvalidCommandException {
 		DirectoryCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		expectedCommand = new DirectoryCommand();
 		actualCommand = _parser.parse("directory");
@@ -744,7 +744,7 @@ public class ParserTest {
 	@Test
 	public void testExitCommand() throws InvalidCommandException {
 		ExitCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		expectedCommand = new ExitCommand();
 		actualCommand = _parser.parse("exit");

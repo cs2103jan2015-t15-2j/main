@@ -10,7 +10,7 @@ package taskie.commands;
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
 
-public interface ICommand {
+public interface Command {
 	public CommandType getCommandType();
 
 	public boolean execute();
