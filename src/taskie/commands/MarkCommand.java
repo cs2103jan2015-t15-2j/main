@@ -54,8 +54,9 @@ public class MarkCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	public void execute() {
+	public boolean execute() {
 		this.retrieveTasks();
+		boolean success = true;
 
 		for (Task task : _tasks) {
 			try {
@@ -72,14 +73,18 @@ public class MarkCommand extends AbstractCommand {
 				_controller.setLastTask(_currentTask);
 			} catch (TaskTypeNotSupportedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			} catch (TaskModificationFailedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			}
 		}
 
 		if (_tasks.size() > 1) {
 			_controller.setLastTask(null);
 		}
+		
+		return success;
 	}
 	
 	private String formatAlreadyMarkString() {

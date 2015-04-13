@@ -21,15 +21,15 @@ public class ExitCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	public void execute() {
+	public boolean execute() {
 		try {
 			_controller.getStorage().close();
 		} catch (IOException e) {
-			_logger.log(Level.INFO, "Failed to close storage properly: " + e.getMessage());
-		
+			_logger.log(Level.INFO, "Failed to close storage properly: " + e.getMessage());		
 		}
 
 		_controller.getUI().exit();
+		return true;
 	}
 	
 	public void undo() throws UndoNotSupportedException {

@@ -24,7 +24,8 @@ public class UndoCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	public void execute() {
+	public boolean execute() {
+		boolean success = true;
 		Stack<ICommand> undoStack = _controller.getUndoStack();
 		Stack<ICommand> redoStack = _controller.getRedoStack();
 		
@@ -37,11 +38,15 @@ public class UndoCommand extends AbstractCommand {
 					redoStack.add(cmd);
 				} catch (UndoNotSupportedException e) {
 					_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+					success = false;
 				}
 			}
 		} else {
 			_controller.getUI().display(DisplayType.ERROR, Messages.NOTHING_TO_UNDO);
+			success = false;
 		}
+		
+		return success;
 	}
 	
 	public void undo() throws UndoNotSupportedException {

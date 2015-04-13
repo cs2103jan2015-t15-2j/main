@@ -97,17 +97,17 @@ public class DeleteCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void execute() {
+	public boolean execute() {
 		_logger = Logger.getLogger(DeleteCommand.class.getName());
 		_logger.log(Level.INFO,"CommandType: "+this.getCommandType()+"  taskindexes: "
 		+_taskIndexes+"\ndeleteStartDate: "+_deleteStartDate+"  deleteStartTime: "
 				+_deleteStartTime+"\ndeleteEndDate: "+_deleteEndDate+"  deleteEndTime: "+_deleteEndTime);
 		this.retrieveTasks();
+		boolean success = true;
 
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
-
 				if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate() || canDeleteEndTime()) {
 					// if either of these methods returned true, only task
 					// fields are to be deleted.
@@ -119,10 +119,14 @@ public class DeleteCommand extends AbstractCommand {
 				}
 			} catch (TaskTypeNotSupportedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			} catch (TaskModificationFailedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			}
 		}
+
+		return success;
 	}
 
 	private void deleteTaskField(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {

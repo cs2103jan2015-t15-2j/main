@@ -123,7 +123,8 @@ public class UpdateCommand extends AbstractCommand {
 		return _isToUpdateEndTime;
 	}
 
-	public void execute() {
+	public boolean execute() {
+		boolean success = true;
 		_logger.log(Level.INFO, "UPDATECOMMAND CONFIG: task Index: " + _taskIndex + " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): " + _startDateToUpdate + " " + _isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate + " " + _isToUpdateStartTime + "\nendDate(bool): " + _endDateToUpdate + " " + _isToUpdateEndDate + " time(bool):" + _endTimeToUpdate + " " + _isToUpdateEndTime);
 
 		try {
@@ -139,19 +140,28 @@ public class UpdateCommand extends AbstractCommand {
 			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(_oldTask, _task));
 		} catch (InvalidTaskException e) {
 			_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+			success = false;
 		} catch (InvalidCommandException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		} catch (TaskTypeNotSupportedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		} catch (TaskModificationFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		} catch (TaskDateNotSetException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		} catch (TaskDateInvalidException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		}
+		
+		return success;
 	}
 
 	private Task updateTask(Task task) throws InvalidCommandException, TaskDateNotSetException, TaskDateInvalidException {

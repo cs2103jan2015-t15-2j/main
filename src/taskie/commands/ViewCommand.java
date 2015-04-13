@@ -137,7 +137,7 @@ public class ViewCommand extends AbstractCommand {
 
 	//@author A0097582N
 	@Override
-	public void execute() {
+	public boolean execute() {
 		_logger.log(
 				Level.INFO,
 				"ViewType: " + this._viewType + "\nStartDate: "
@@ -162,6 +162,8 @@ public class ViewCommand extends AbstractCommand {
 			executeViewSearch();
 			break;
 		}
+		
+		return true;
 	}
 
 

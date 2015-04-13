@@ -18,7 +18,7 @@ public class HelpCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void execute() {
+	public boolean execute() {
 		switch (_commandType) {
 			case ADD: 
 				helpAdd();
@@ -54,6 +54,8 @@ public class HelpCommand extends AbstractCommand {
 				helpExit();
 				break;	
 		}
+		
+		return true;
 	}
 	
 	private void helpAdd() {

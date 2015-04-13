@@ -26,7 +26,8 @@ public class RedoCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void execute() {
+	public boolean execute() {
+		boolean success = true;
 		Stack<ICommand> undoStack = _controller.getUndoStack();
 		Stack<ICommand> redoStack = _controller.getRedoStack();
 
@@ -39,7 +40,10 @@ public class RedoCommand extends AbstractCommand {
 			}
 		} else {
 			_controller.getUI().display(DisplayType.ERROR, Messages.NOTHING_TO_REDO);
+			success = false;
 		}
+		
+		return success;
 	}
 
 	public void undo() throws UndoNotSupportedException {

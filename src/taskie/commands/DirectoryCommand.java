@@ -37,7 +37,7 @@ public class DirectoryCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	public void execute() {
+	public boolean execute() {
 		try {
 			String folder;
 			Path currentFolder = _controller.getStorage().getStorageLocation();
@@ -65,11 +65,16 @@ public class DirectoryCommand extends AbstractCommand {
 			}
 		} catch (ConfigurationFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_CHANGE_FAILED));
+			return false;
 		} catch (StorageMigrationFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_CHANGE_FAILED));
+			return false;
 		} catch (StorageLocationInvalidException e) {
 			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.DIRECTORY_INVALID));
+			return false;
 		}
+		
+		return true;
 	}
 
 	public void undo() throws UndoNotSupportedException {

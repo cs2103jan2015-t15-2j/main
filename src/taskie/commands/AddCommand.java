@@ -148,7 +148,7 @@ public class AddCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	public void execute() {
+	public boolean execute() {
 		assert _taskName != null;
 		try {
 			_task = new Task(_taskName, _startDate, _startTime, _endDate,
@@ -156,32 +156,32 @@ public class AddCommand extends AbstractCommand {
 			if (hasNoConflict()) {
 				_controller.getStorage().addTask(_task);
 				_controller.setLastTask(_task);
-				_controller.getUI().display(DisplayType.SUCCESS,
-						formatAddMsg(_task));
+				_controller.getUI().display(DisplayType.SUCCESS, formatAddMsg(_task));
 			} else {
 				_controller.getStorage().addTask(_task);
 				_controller.setLastTask(_task);
 				_controller.getUI().display(DisplayType.ERROR,formatAddMsgWithWarning(_task));
 			}
+			
+			return true;
 		} catch (TaskRetrievalFailedException e) {
 			try {
-				_controller.getStorage().addTask(_task); 	// this branch occurs
-				_controller.setLastTask(_task);				// when task
-															// retrieval fails
-															// (for sanity check
-															// purposes)
-															// even if task
-															// retrieval fails,
-															// we ought to
-															// try to add task.
-			} catch (TaskTypeNotSupportedException
-					| TaskModificationFailedException e1) {
+				// this branch occurs when task retrieval fails
+				// (for sanity check purposes)
+				// even if task retrieval fails, we ought to try to add task.
+				_controller.getStorage().addTask(_task); 	
+				_controller.setLastTask(_task);				
+			} catch (TaskTypeNotSupportedException | TaskModificationFailedException e1) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}
+			
+			return false;
 		} catch (TaskTypeNotSupportedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			return false;
 		} catch (TaskModificationFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			return false;
 		}
 	}
 

@@ -117,8 +117,10 @@ public class Controller {
 	}
 
 	public void executeCommand(ICommand command) {
-		addTaskHistory(command);
-		command.execute();
+		boolean success = command.execute();
+		if ( success ) { 
+			addTaskHistory(command);
+		}
 	}
 
 	// @author A0121555M
