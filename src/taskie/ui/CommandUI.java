@@ -215,6 +215,10 @@ public class CommandUI implements UI {
 	}
 
 	public String formatDateTime(LocalDateTime dateTime) {
+		if ( dateTime == null ) {
+			return "";
+		}
+		
 		if (dateTime.toLocalTime().equals(LocalTime.MAX)) {
 			return dateTime.format(Messages.DATE_FORMAT);
 		} else {
@@ -226,7 +230,18 @@ public class CommandUI implements UI {
 		if (startDateTime.toLocalDate().equals(endDateTime.toLocalDate())) {
 			return startDateTime.format(Messages.DATETIME_FORMAT) + " to " + endDateTime.format(Messages.TIME_FORMAT);
 		} else {
-			return formatDateTime(startDateTime) + " to " + formatDateTime(endDateTime);
+			String start = formatDateTime(startDateTime);
+			String end = formatDateTime(endDateTime);
+			
+			if ( start.isEmpty() && end.isEmpty() ) {
+				return "";
+			} else if ( start.isEmpty() ) {
+				return end;
+			} else if ( end.isEmpty() ) {
+				return start;
+			} else {
+				return start + " to " + end;
+			}
 		}
 	}
 
