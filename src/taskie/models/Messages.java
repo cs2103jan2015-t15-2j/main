@@ -30,7 +30,7 @@ public class Messages {
 
 	// MarkCommand messages
 	public static final String MARK_STRING = "%s marked as done." + NEWLINE;
-	public static final String TASK_ALREADY_DONE = "Task is already done." + NEWLINE;
+	public static final String TASK_ALREADY_DONE = "%s marked as not done." + NEWLINE;
 
 	// UnmarkCommand messages
 	public static final String UNMARK_STRING = "%s marked as not done." + NEWLINE;
