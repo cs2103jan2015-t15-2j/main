@@ -23,7 +23,7 @@ public class Messages {
 
 	// DeleteCommand messages
 	public static final String DELETE_TASK = "%s has been deleted." + NEWLINE;
-	public static final String DELETE_TASK_FIELD = "The following fields have been deleted from %s:" + NEWLINE;
+	public static final String DELETE_TASK_FIELD = "The following fields have been deleted from %s: %s" + NEWLINE;
 
 	// ExitCommand messages
 	public static final String EXIT_MESSAGE = "Taskie is exiting. Hope to see you again!";
