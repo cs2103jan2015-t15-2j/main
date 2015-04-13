@@ -29,7 +29,8 @@ public class UndoCommand extends AbstractCommand {
 		Stack<ICommand> redoStack = _controller.getRedoStack();
 		
 		if ( undoStack.size() > 0 ) {
-			for ( int x = 0; x < _steps; x++ ) {
+			int count = Math.max(_steps, undoStack.size());
+			for ( int x = 0; x < count; x++ ) {
 				try {
 					ICommand cmd = undoStack.pop();
 					cmd.undo();
