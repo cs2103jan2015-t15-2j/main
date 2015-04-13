@@ -154,18 +154,23 @@ public class NStorage implements IStorage {
 	 * Replace an existing task with another task
 	 * 
 	 * @param oldTask	Current Task
-	 * @param newTask	New Task to replace the current task wwith
+	 * @param newTask	New Task to replace the current task with
 	 */
 	public void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException {
 		try {
 			assert oldTask != null : "Old Task is null";
 			assert newTask != null : "New Task is null";
-			boolean status = this.removeFromTaskList(oldTask);
-			if (status) {
-				this.addToTaskList(newTask);
+			
+			if ( oldTask.equals(newTask) ){
 				this.rewriteDatabase();
 			} else {
-				throw new TaskModificationFailedException();
+				boolean status = this.removeFromTaskList(oldTask);
+				if (status) {
+					this.addToTaskList(newTask);
+					this.rewriteDatabase();
+				} else {
+					throw new TaskModificationFailedException();
+				}
 			}
 		} catch (IOException e) {
 			throw new TaskModificationFailedException(e);
