@@ -28,7 +28,7 @@ public class FileReaderWriter {
 	public FileReaderWriter() {
 		_logger = Logger.getLogger(FileReaderWriter.class.getName());
 	}
-	
+
 	public FileReaderWriter(Path file) throws IOException {
 		this();
 		_logger.log(Level.INFO, "Opening File: " + file.toString());
@@ -71,12 +71,12 @@ public class FileReaderWriter {
 			_reader.close();
 		}
 	}
-	
+
 	public void moveFile(Path oldPath, Path newPath, boolean overwrite) throws FileExistsException, IOException {
-		if ( Files.exists(newPath) && !overwrite ) {
+		if (Files.exists(newPath) && !overwrite) {
 			throw new FileExistsException(newPath.toString());
 		}
-			
+
 		Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
 	}
 

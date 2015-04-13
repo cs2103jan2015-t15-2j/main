@@ -156,14 +156,12 @@ public class CommandParser implements Parser {
 	}
 
 	/**
-	 * Parse an input. The first word in the input is used to determine the type
-	 * of command to create.
+	 * Parse an input.
+	 * The first word in the input is used to determine the type of command to create.
 	 * 
-	 * @param input
-	 *            Input for the Parser
-	 * @return Command to be Executed
-	 * @throws InvalidCommandException
-	 *             If an invalid keyword is specified
+	 * @param input		Input for the Parser
+	 * @return			Command to be Executed
+	 * @throws InvalidCommandException	If an invalid keyword is specified
 	 */
 	public ICommand parse(String input) throws InvalidCommandException {
 		if (input == null || input.isEmpty()) {
@@ -184,11 +182,11 @@ public class CommandParser implements Parser {
 	}
 
 	/**
-	 * Used if command type is View Determines the type of view should be sent
+	 * Used if command type is View
+	 * Determines the type of view should be sent
 	 * 
-	 * @param input
-	 *            View keyword
-	 * @return ViewType (Defaults to SEARCH)
+	 * @param input		View keyword
+	 * @return			ViewType (Defaults to SEARCH)
 	 */
 	private ViewType getViewType(String key) {
 		ViewType viewType = dictViewTypes.get(key);
@@ -196,11 +194,11 @@ public class CommandParser implements Parser {
 	}
 
 	/**
-	 * Used if command type is View Determines the date range to search within
+	 * Used if command type is View
+	 * Determines the date range to search within
 	 * 
-	 * @param input
-	 *            Range Keyword
-	 * @return RelativeType (Defaults to NONE)
+	 * @param input		Range Keyword
+	 * @return			RelativeType (Defaults to NONE)
 	 */
 	private RelativeType getRelativeType(String key) {
 		RelativeType relativeType = dictRelativeTypes.get(key);
@@ -208,14 +206,11 @@ public class CommandParser implements Parser {
 	}
 
 	/**
-	 * Determines the type of Command to be executed based on the keywords
-	 * specified in the dictionaries
+	 * Determines the type of Command to be executed based on the keywords specified in the dictionaries
 	 * 
-	 * @param input
-	 *            Command Keyword
-	 * @return CommandType
-	 * @throws InvalidCommandException
-	 *             If an invalid keyword is specified
+	 * @param input		Command Keyword
+	 * @return			CommandType
+	 * @throws InvalidCommandException	If an invalid keyword is specified
 	 */
 	private CommandType getCommandType(String key) throws InvalidCommandException {
 		CommandType commandType = null;
@@ -254,14 +249,11 @@ public class CommandParser implements Parser {
 	/**
 	 * Executes parsing of the command depending on the type of Command detected
 	 * 
-	 * @param cmd
-	 *            Command Type
-	 * @param parameter
-	 *            String given to parser less the first word
-	 * @return Command object generated that can be executed
-	 * @throws InvalidCommandException
-	 *             If an invalid keyword is specified
-	 */
+	 * @param cmd		Command Type
+	 * @param parameter	String given to parser less the first word
+	 * @return			Command object generated that can be executed
+	 * @throws InvalidCommandException	If an invalid keyword is specified
+	 */	
 	private ICommand executeCommandType(CommandType cmd, String parameter) throws InvalidCommandException {
 		parameter = parameter.trim();
 
@@ -293,15 +285,11 @@ public class CommandParser implements Parser {
 	}
 
 	/**
-	 * Builds a task name based on COMMAND_NAME with the remainder of
-	 * COMMAND_DATE
+	 * Builds a task name based on COMMAND_NAME with the remainder of COMMAND_DATE
 	 * 
-	 * @param parsedCommand
-	 *            2 element string array generated from
-	 *            parseCommandForNameAndDates
-	 * @param group
-	 *            DateGroup passed from Natty after parsing COMMAND_DATE
-	 * @return Task Name
+	 * @param parsedCommand	2 element string array generated from parseCommandForNameAndDates
+	 * @param group			DateGroup passed from Natty after parsing COMMAND_DATE
+	 * @return				Task Name
 	 */
 	private String findNonDatePartsOfQuery(String[] parsedCommand, DateGroup group) {
 		String command = parsedCommand[COMMAND_DATE];
@@ -316,13 +304,10 @@ public class CommandParser implements Parser {
 	}
 
 	/**
-	 * Separates an input into Name and Date section based on keywords in
-	 * dictSeparatorKeywords
+	 * Separates an input into Name and Date section based on keywords in dictSeparatorKeywords
 	 * 
-	 * @param command
-	 *            Input (less the command keyword)
-	 * @return String array with two elements. First element contains the name,
-	 *         second element contains the date.
+	 * @param command	Input (less the command keyword)
+	 * @return			String array with two elements. First element contains the name, second element contains the date.
 	 */
 	private String[] parseCommandForNameAndDates(String command) {
 		String[] result = new String[NUM_COMMAND_PATTERNS];
@@ -371,13 +356,11 @@ public class CommandParser implements Parser {
 	}
 
 	/**
-	 * Builds a task name based on COMMAND_NAME with the remainder of
-	 * COMMAND_DATE
+	 * Builds a task name based on COMMAND_NAME with the remainder of COMMAND_DATE
 	 * 
-	 * @param command
-	 *            COMMAND_DATE generated from parseCommandForNameAndDates
-	 * @return DateGroup from Natty containing the detected date/time elements
-	 */
+	 * @param command	COMMAND_DATE generated from parseCommandForNameAndDates
+	 * @return			DateGroup from Natty containing the detected date/time elements
+	 */	
 	private DateGroup parseCommandForDates(String command) {
 		if (command == null) {
 			return null;
