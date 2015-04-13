@@ -166,7 +166,7 @@ public class UpdateCommand extends AbstractCommand {
 	}
 
 	private String formatUpdateMsg(Task task) {
-		String message = String.format(Messages.UPDATE_STRING);
+		String message = String.format(Messages.UPDATE_STRING, _oldTask.getTitle());
 		if (this.isModifiedTaskTitle()) {
 			message = message.concat(String.format(Messages.TASK_TITLE,_oldTask.getTitle(),_newTask.getTitle()));
 		}

@@ -37,12 +37,12 @@ public class Messages {
 	public static final String TASK_ALREADY_NOT_DONE = "%s is already incomplete." + NEWLINE;
 
 	// UpdateCommand messages
-	public static final String UPDATE_STRING ="Task is updated as below:" + NEWLINE;
+	public static final String UPDATE_STRING ="%s has been updated as follows:" + NEWLINE;
 	public static final String INVALID_DATE_INPUT = "Invalid Command. Date input is not valid. Please try again." + NEWLINE;
-	public static final String TASK_TITLE = "Task Title: from %s to %s" + NEWLINE;
-	public static final String START_DATE_TIME = "Start date and time: from %s to %s" + NEWLINE;
+	public static final String TASK_TITLE = "Task Title has changed from %s to %s" + NEWLINE;
+	public static final String START_DATE_TIME = "Start date and time changed from %s to %s" + NEWLINE;
 	
-	public static final String END_DATE_TIME = "End date and time: from %s to %s" + NEWLINE;
+	public static final String END_DATE_TIME = "End date and time changed from %s to %s" + NEWLINE;
 
 	// DirectoryCommand messages
 	public static final String DIRECTORY_CHANGED = "Directory changed to %s" + NEWLINE;
