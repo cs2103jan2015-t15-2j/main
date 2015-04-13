@@ -25,7 +25,7 @@ public class HelpCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void execute() {
+	public boolean execute() {
 		switch (_commandType) {
 			case ADD: 
 				helpAdd();
@@ -61,6 +61,8 @@ public class HelpCommand extends AbstractCommand {
 				helpExit();
 				break;	
 		}
+		
+		return true;
 	}
 	
 	private void helpAdd() {
@@ -258,8 +260,9 @@ import taskie.exceptions.TaskTypeNotSupportedException;
 import taskie.models.Task;
 
 /**
- * IStorage is an interface that manages the Creating, Reading, Updating and Deleting (CRUD) of Tasks in the database
- * It also manages the location of files in the database
+ * IStorage is an interface that manages the Creating, Reading, Updating and
+ * Deleting (CRUD) of Tasks in the database It also manages the location of
+ * files in the database
  */
 public interface IStorage {
 	Path getStorageLocation();
@@ -268,17 +271,17 @@ public interface IStorage {
 
 	void setStorageLocation(Path newDirectory, boolean overwrite) throws StorageLocationInvalidException, FileExistsException, StorageMigrationFailedException;
 
+	ArrayList<Task> getTaskList() throws TaskRetrievalFailedException;
+
 	void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 
 	void deleteTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException;
 
 	void updateTask(Task oldTask, Task newTask) throws TaskTypeNotSupportedException, TaskModificationFailedException;
-	
+
 	void clearAllTasks() throws TaskModificationFailedException;
-	
+
 	void close() throws IOException;
-	
-	ArrayList<Task> getTaskList() throws TaskRetrievalFailedException;
 }
 
 	// End of segment: src\taskie\database\IStorage.java
@@ -291,7 +294,7 @@ public interface IStorage {
 	 * origin: src\taskie\database\NStorage.java
 	 */
 
-	public ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
+	private ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
 		try {
 			String json = _db.read();
 			if (json.equals("")) {
@@ -306,7 +309,10 @@ public interface IStorage {
 		}
 	}
 
-	public ArrayList<Task> getTaskList() {
+	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException {
+		if ( _tasks == null ) {
+			_tasks = this.retrieveTaskList();
+		}
 		return _tasks;
 	}
 }
@@ -527,10 +533,21 @@ public class ConfigurationFailedException extends Exception {
 		_controller.executeCommand(addCmd1);
 		_controller.executeCommand(addCmd2);
 		_controller.executeCommand(addCmd3);
+		Task expectedTask3 = null;
+		Task expectedTask2= null;
+		if(LocalTime.now().isAfter(_today10pm.toLocalTime())){
+			expectedTask2 = new Task("taskname", _today10pm.plusDays(1));
+		}else{
+			expectedTask2 = new Task("taskname",_today10pm);
+		}
+		if(LocalTime.now().isAfter(_today2pm.toLocalTime())){
+			expectedTask3 = new Task("taskname",_today2pm.plusDays(1),_today10pm.plusDays(1));
+		}else{
+			expectedTask3 = new Task("taskname",_today2pm,_today10pm);
+		}
 		
 		Task expectedTask1 = new Task("taskname");
-		Task expectedTask2 = new Task("taskname",_today10pm);
-		Task expectedTask3 = new Task("taskname",_today2pm,_today10pm);
+		
 		
 		assertEquals("[" + expectedTask1.toString() + ", " + expectedTask2.toString()
 				+ ", " + expectedTask3.toString() + "]", 
@@ -544,7 +561,7 @@ public class ConfigurationFailedException extends Exception {
 		ICommand updateCmd = null;
 		
 		try {
-			addCmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
+			addCmd = _controller.getParser().parse("add taskname");
 			displayCmd = _controller.getParser().parse("display");
 			updateCmd = _controller.getParser().parse("update 1 newTaskname");	
 		} catch (Exception e) {
@@ -555,7 +572,7 @@ public class ConfigurationFailedException extends Exception {
 		_controller.executeCommand(displayCmd);
 		_controller.executeCommand(updateCmd);
 	
-		Task expectedTask = new Task("newTaskname", _today2pm, _today10pm);
+		Task expectedTask = new Task("newTaskname");
 		assertEquals(expectedTask.toString(), _controller.getStorage().getTaskList().get(0).toString());
 	}
 	
@@ -693,8 +710,12 @@ public class ConfigurationFailedException extends Exception {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		Task expectedTask = new Task("taskname", _today2pm, _today10pm);
+		Task expectedTask = null;
+		if(LocalTime.now().isAfter(_today2pm.toLocalTime())){
+			expectedTask = new Task("taskname",_today2pm.plusDays(1),_today10pm.plusDays(1));
+		}else{
+			expectedTask = new Task("taskname",_today2pm,_today10pm);
+		}
 		
 		_controller.executeCommand(addCmd);
 		_controller.executeCommand(undoCmd);
@@ -755,6 +776,7 @@ import taskie.exceptions.FileExistsException;
 import taskie.exceptions.StorageLocationInvalidException;
 import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 
 import org.junit.BeforeClass;
@@ -941,7 +963,10 @@ public class StorageTest {
 
 	@Test
 	public void testGetTaskList() {
-		assertEquals(_tasks, _storage.getTaskList());
+		try {
+			assertEquals(_tasks, _storage.getTaskList());
+		} catch (TaskRetrievalFailedException e) {
+		}
 	}
 
 	

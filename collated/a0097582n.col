@@ -115,17 +115,17 @@ public class AddCommand extends AbstractCommand {
 	 */
 
 	private boolean hasNoConflict() throws TaskRetrievalFailedException {
-		Boolean returnVal=true;
+		Boolean hasNoConflict=true; 
 		_conflictedTask = new ArrayList<Task>();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		for (int i=0;i<list.size();i++) {
 			Task task = list.get(i);
 			if (hasConflict(task, this._task)) {
 				_conflictedTask.add(task);
-				returnVal=false;
+				hasNoConflict=false;
 			}
 		}
-		return returnVal;
+		return hasNoConflict;
 	}
 
 	private boolean hasConflict(Task task1, Task task2) {
@@ -204,6 +204,7 @@ package taskie.commands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.exceptions.InvalidTaskException;
@@ -280,13 +281,17 @@ public class DeleteCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void execute() {
+	public boolean execute() {
+		_logger = Logger.getLogger(DeleteCommand.class.getName());
+		_logger.log(Level.INFO,"CommandType: "+this.getCommandType()+"  taskindexes: "
+		+_taskIndexes+"\ndeleteStartDate: "+_deleteStartDate+"  deleteStartTime: "
+				+_deleteStartTime+"\ndeleteEndDate: "+_deleteEndDate+"  deleteEndTime: "+_deleteEndTime);
 		this.retrieveTasks();
+		boolean success = true;
 
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
-
 				if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate() || canDeleteEndTime()) {
 					// if either of these methods returned true, only task
 					// fields are to be deleted.
@@ -298,10 +303,14 @@ public class DeleteCommand extends AbstractCommand {
 				}
 			} catch (TaskTypeNotSupportedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			} catch (TaskModificationFailedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			}
 		}
+
+		return success;
 	}
 
 	private void deleteTaskField(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
@@ -323,10 +332,14 @@ public class DeleteCommand extends AbstractCommand {
 			return;
 		}
 		if (canDeleteStartTime()) {
+			_logger.log(Level.INFO, "Deleting startTime.");
 			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), null, task.getEndDate(), task.getEndTime());
 			_controller.getStorage().updateTask(task, updatedTask);
+			task=updatedTask;
+			
 		}
 		if (canDeleteEndTime()) {
+			_logger.log(Level.INFO, "Deleting endTime.");
 			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime(), task.getEndDate(), null);
 			_controller.getStorage().updateTask(task, updatedTask);
 		}
@@ -348,20 +361,22 @@ public class DeleteCommand extends AbstractCommand {
 	}
 
 	private String formatDeleteTaskFieldString() {
-		String message = String.format(taskie.models.Messages.DELETE_TASK_FIELD, _currentTask.getTitle());
+		StringBuffer fields = new StringBuffer();
+		
 		if (canDeleteStartDate()) {
-			message = message.concat("\nStart date");
+			fields.append("Start date, ");
 		}
 		if (canDeleteStartTime()) {
-			message = message.concat("\nStart time");
+			fields.append("Start time, ");
 		}
 		if (canDeleteEndDate()) {
-			message = message.concat("\nEnd date");
+			fields.append("End date, ");
 		}
 		if (canDeleteEndTime()) {
-			message = message.concat("\nEnd time");
-		}
-		return message;
+			fields.append("End time, ");
+		}	
+		
+		return String.format(taskie.models.Messages.DELETE_TASK_FIELD, _currentTask.getTitle(), fields.substring(0, fields.length() - 2));
 	}
 
 	// End of segment: src\taskie\commands\DeleteCommand.java
@@ -383,7 +398,7 @@ import taskie.models.CommandType;
 public interface ICommand {
 	public CommandType getCommandType();
 
-	public void execute();
+	public boolean execute();
 	
 	public void undo() throws UndoNotSupportedException;
 }
@@ -433,33 +448,41 @@ public class MarkCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	public void execute() {
+	public boolean execute() {
 		this.retrieveTasks();
+		boolean success = true;
 
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
-				Task updatedTask = new Task(_currentTask);
 
 				if (_currentTask.isDone()) {
-					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_DONE);
+					_controller.getUI().display(DisplayType.ERROR, formatAlreadyMarkString());
 				} else {
-					updatedTask.setTaskDone();
+					_currentTask.setTaskDone();
 					_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
-					_controller.getStorage().updateTask(_currentTask, updatedTask);
+					_controller.getStorage().updateTask(_currentTask, _currentTask);
 				}
 
-				_controller.setLastTask(updatedTask);
+				_controller.setLastTask(_currentTask);
 			} catch (TaskTypeNotSupportedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			} catch (TaskModificationFailedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			}
 		}
 
 		if (_tasks.size() > 1) {
 			_controller.setLastTask(null);
 		}
+		
+		return success;
+	}
+	
+	private String formatAlreadyMarkString() {
+		return String.format(taskie.models.Messages.TASK_ALREADY_DONE, _currentTask.getTitle());
 	}
 
 	private String formatMarkString() {
@@ -511,35 +534,43 @@ public class UnmarkCommand extends AbstractCommand {
 		return _commandType;
 	}
 
-	public void execute() {
+	public boolean execute() {
+		boolean success = true;
 		this.retrieveTasks();
 		
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
-				Task updatedTask = new Task(_currentTask);
 
 				if (_currentTask.isDone()) {
-					updatedTask.setTaskUndone();
-					_controller.getUI().display(DisplayType.ERROR, formatUnmarkString());
-					_controller.getStorage().updateTask(_currentTask, updatedTask);
+					_currentTask.setTaskUndone();
+					_controller.getUI().display(DisplayType.SUCCESS, formatUnmarkString());
+					_controller.getStorage().updateTask(_currentTask, _currentTask);
 				} else {
-					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_NOT_DONE);
+					_controller.getUI().display(DisplayType.ERROR, formatAlreadyUnmarkedString());
 				}
 
-				_controller.setLastTask(updatedTask);
+				_controller.setLastTask(_currentTask);
 			} catch (TaskTypeNotSupportedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			} catch (TaskModificationFailedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+				success = false;
 			}
 		}
 
 		if (_tasks.size() > 1) {
 			_controller.setLastTask(null);
 		}
+		
+		return success;
 	}
 
+	private String formatAlreadyUnmarkedString() {
+		return String.format(taskie.models.Messages.TASK_ALREADY_NOT_DONE, _currentTask.getTitle());
+	}
+	
 	private String formatUnmarkString() {
 		return String.format(taskie.models.Messages.UNMARK_STRING, _currentTask.getTitle());
 	}
@@ -577,7 +608,7 @@ import taskie.models.Task;
 public class UpdateCommand extends AbstractCommand {
 	int NUM_ATTRIBUTE = 2;
 	private Task _oldTask;
-	private Task _newTask;
+	private Task _task;
 
 	private int _taskIndex;
 	private String _taskTitleToUpdate = null;
@@ -596,7 +627,7 @@ public class UpdateCommand extends AbstractCommand {
 	private Logger _logger = Logger.getLogger(UpdateCommand.class.getName());
 
 	public UpdateCommand(Task task) {
-		_oldTask = task;
+		_task = task;
 	}
 
 	public UpdateCommand(int taskIndex) {
@@ -609,7 +640,7 @@ public class UpdateCommand extends AbstractCommand {
 
 	public void setTaskTitleToUpdate(String title) {
 		_isToUpdateTaskTitle = true;
-		_taskTitleToUpdate = title;
+		_taskTitleToUpdate = title.trim();
 	}
 
 	public String getTaskTitleToUpdate() {
@@ -672,64 +703,78 @@ public class UpdateCommand extends AbstractCommand {
 		return _isToUpdateEndTime;
 	}
 
-	public void execute() {
+	public boolean execute() {
+		boolean success = true;
 		_logger.log(Level.INFO, "UPDATECOMMAND CONFIG: task Index: " + _taskIndex + " taskTitleToUpdate: " + _taskTitleToUpdate + "\nstartdate(bool): " + _startDateToUpdate + " " + _isToUpdateStartDate + "  time(bool): " + _startTimeToUpdate + " " + _isToUpdateStartTime + "\nendDate(bool): " + _endDateToUpdate + " " + _isToUpdateEndDate + " time(bool):" + _endTimeToUpdate + " " + _isToUpdateEndTime);
 
 		try {
-			if (_oldTask == null) {
-				_oldTask = retrieveTaskToUpdate();
+			if (_task == null) {
+				_task = retrieveTaskToUpdate();
 			}
-
-			_logger.log(Level.INFO, "TASK FROM UI: " + _oldTask.toString());
-			_newTask = updateTask(_oldTask);
-			_controller.getStorage().updateTask(_oldTask, _newTask);
-			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(_newTask));
+			
+			_logger.log(Level.INFO, "TASK FROM UI: " + _task.toString());
+			_oldTask = new Task(_task);
+			_task = updateTask(_task);
+			_logger.log(Level.INFO, "UPDATED TASK: "+_task.toString());
+			_controller.getStorage().updateTask(_task, _task);
+			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(_oldTask, _task));
 		} catch (InvalidTaskException e) {
 			_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+			success = false;
 		} catch (InvalidCommandException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		} catch (TaskTypeNotSupportedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		} catch (TaskModificationFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
-		} catch (Exception e) {
+			success = false;
+		} catch (TaskDateNotSetException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
+		} catch (TaskDateInvalidException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+			success = false;
 		}
+		
+		return success;
 	}
 
 	private Task updateTask(Task task) throws InvalidCommandException, TaskDateNotSetException, TaskDateInvalidException {
-		Task updatedTask = new Task(task);
-		if (this.isModifiedTaskTitle()) {
-			if (_taskTitleToUpdate == null || _taskTitleToUpdate.trim().equalsIgnoreCase("")) {
-				throw new InvalidCommandException();
-			} else {
-				updatedTask.setTitle(this.getTaskTitleToUpdate());
-			}
-		}
-		
-		updatedTask.setStartDateTime(isModifiedStartDate() ? _startDateToUpdate : task.getStartDate(), isModifiedStartTime() ? _startTimeToUpdate : task.getStartTime());
-		updatedTask.setEndDateTime(isModifiedEndDate() ? _endDateToUpdate : task.getEndDate(), isModifiedEndTime() ? _endTimeToUpdate : task.getEndTime());
-
-		return updatedTask;
+		task.setTitle(isModifiedTaskTitle() && !_taskTitleToUpdate.isEmpty() ? _taskTitleToUpdate : task.getTitle());
+		task.setStartDateTime(isModifiedStartDate() ? _startDateToUpdate : task.getStartDate(), isModifiedStartTime() ? _startTimeToUpdate : task.getStartTime());
+		task.setEndDateTime(isModifiedEndDate() ? _endDateToUpdate : task.getEndDate(), isModifiedEndTime() ? _endTimeToUpdate : task.getEndTime());
+		return task;
 	}
 
-	private String formatUpdateMsg(Task task) {
-		String message = String.format(Messages.UPDATE_STRING);
+	private String formatUpdateMsg(Task oldTask, Task newTask) {
+		String message = String.format(Messages.UPDATE_STRING, oldTask.getTitle());
 		if (this.isModifiedTaskTitle()) {
-			message = message.concat(String.format(Messages.TASK_TITLE,_oldTask.getTitle(),_newTask.getTitle()));
+			message = message.concat(String.format(Messages.TASK_TITLE, oldTask.getTitle(), newTask.getTitle()));
 		}
-		if (this.isModifiedStartDate()||this.isModifiedStartTime()) {
-			message = message.concat(String.format(Messages.START_DATE_TIME 
-					, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())
-					, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())));
+		if (this.isModifiedStartDate() || this.isModifiedStartTime()) {
+			if (oldTask.getStartDateTime() == null) {
+				message = message.concat(String.format(Messages.START_DATE_TIME_NULL, _controller.getUI().formatDateTime(newTask.getStartDateTime())));
+			} else if ( newTask.getStartDateTime() == null ) {
+				message = message.concat(taskie.models.Messages.UPDATE_START_DATE_REMOVED);
+			} else {
+				message = message.concat(String.format(Messages.START_DATE_TIME, _controller.getUI().formatDateTime(oldTask.getStartDateTime()), _controller.getUI().formatDateTime(newTask.getStartDateTime())));
+			}
 		}
-		if (this.isModifiedEndDate()||this.isModifiedEndTime()) {
-			message = message.concat(String.format(taskie.models.Messages.END_DATE_TIME
-					, _controller.getUI().formatDateTime(_oldTask.getEndDateTime())
-					, _controller.getUI().formatDateTime(_newTask.getEndDateTime())));
+		if (this.isModifiedEndDate() || this.isModifiedEndTime()) {
+			if (oldTask.getEndDateTime() == null) {
+				message = message.concat(String.format(Messages.END_DATE_TIME_NULL, _controller.getUI().formatDateTime(newTask.getEndDateTime())));
+			} else if ( newTask.getEndDateTime() == null ) {
+				message = message.concat(taskie.models.Messages.UPDATE_START_DATE_REMOVED);
+			} else {
+				message = message.concat(String.format(taskie.models.Messages.END_DATE_TIME, _controller.getUI().formatDateTime(oldTask.getEndDateTime()), _controller.getUI().formatDateTime(newTask.getEndDateTime())));
+			}
 		}
 		return message;
-
 	}
 
 	private Task retrieveTaskToUpdate() throws InvalidTaskException, TaskRetrievalFailedException, InvalidCommandException {
@@ -759,7 +804,7 @@ public class UpdateCommand extends AbstractCommand {
 	 */
 
 	@Override
-	public void execute() {
+	public boolean execute() {
 		_logger.log(
 				Level.INFO,
 				"ViewType: " + this._viewType + "\nStartDate: "
@@ -784,32 +829,16 @@ public class UpdateCommand extends AbstractCommand {
 			executeViewSearch();
 			break;
 		}
+		
+		return true;
 	}
 
-	private void executeViewSearch() {
-		ArrayList<Task> tasks = null;
-		ArrayList<Task> tasksToDisplay = null;
-		try {
-			tasks = _controller.getStorage().getTaskList();
-			if (_startDate == null && _endDate == null
-					&& _searchKeywords != null) {
-				tasksToDisplay = findSearchedTasks(tasks);
-				_logger.log(Level.INFO, "searchType: Taskname\n");
-			} else if (_searchKeywords != null) {
-				tasksToDisplay = findTasksByDate(tasks);
-				tasksToDisplay = findSearchedTasks(tasksToDisplay);
-			} else {
-				tasksToDisplay = findTasksByDate(tasks);
-			}
-			tasksToDisplay = findUndoneTasks(tasksToDisplay);
-			tasksToDisplay.sort(new TaskEndDateComparator());
-			_controller.getUI().display(
-					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
-		} catch (TaskRetrievalFailedException e) {
-			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
-		}
-	}
 
+	/**
+	 * This method acts as a filter to filter tasklists by done status.
+	 * @param tasks
+	 * @return ArrayList<Task>
+	 */
 	private ArrayList<Task> findUndoneTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		for(Task task: tasks){
@@ -907,7 +936,31 @@ public class UpdateCommand extends AbstractCommand {
 		}
 		return searchedTasks;
 	}
-
+	
+	
+	private void executeViewSearch() {
+		ArrayList<Task> tasks = null;
+		ArrayList<Task> tasksToDisplay = null;
+		try {
+			tasks = _controller.getStorage().getTaskList();
+			if (_startDate == null && _endDate == null
+					&& _searchKeywords != null) {
+				tasksToDisplay = findSearchedTasks(tasks);
+				_logger.log(Level.INFO, "searchType: Taskname\n");
+			} else if (_searchKeywords != null) {
+				tasksToDisplay = findTasksByDate(tasks);
+				tasksToDisplay = findSearchedTasks(tasksToDisplay);
+			} else {
+				tasksToDisplay = findTasksByDate(tasks);
+			}
+			tasksToDisplay = findUndoneTasks(tasksToDisplay);
+			tasksToDisplay.sort(new TaskEndDateComparator());
+			_controller.getUI().display(
+					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
+		} catch (TaskRetrievalFailedException e) {
+			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
+		}
+	}
 	private void executeViewOverdue() {
 		ArrayList<Task> tasks = null;
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
@@ -1081,7 +1134,7 @@ public class Controller {
 			_undoStack = new Stack<ICommand>();
 			_redoStack = new Stack<ICommand>();
 			_storage = new NStorage(_config.getDatabasePath());
-			_lastTask=null;
+			_lastTask = null;
 		} catch (IOException e) {
 			_logger.log(Level.SEVERE, "Critital: Unable to initialize Storage System");
 			System.out.println("Critital: Unable to initialize Storage System");
@@ -1094,18 +1147,17 @@ public class Controller {
 		}
 		return _instance;
 	}
-	
+
 	public Task getLastTask() throws TaskRetrievalFailedException {
-		if(_lastTask==null){
+		if (_lastTask == null) {
 			throw new TaskRetrievalFailedException();
 		}
 		return _lastTask;
 	}
-	
-	public void setLastTask(Task task){
+
+	public void setLastTask(Task task) {
 		_lastTask = task;
 	}
-	
 
 	public void run() {
 		_ui.run();
@@ -1128,8 +1180,10 @@ public class Controller {
 	}
 
 	public void executeCommand(ICommand command) {
-		addTaskHistory(command);
-		command.execute();
+		boolean success = command.execute();
+		if ( success ) { 
+			addTaskHistory(command);
+		}
 	}
 
 	// End of segment: src\taskie\Controller.java
@@ -1152,6 +1206,7 @@ public class Messages {
 	public static final String UI_WELCOME_MESSAGE = "Welcome to Taskie!";
 	public static final String UI_REQUEST_INPUT = "Enter Command: ";
 	public static final String UI_HEADER = "Your To-Do List";
+	public static final String UI_NO_TASKS = "No tasks found!";
 
 	// AddCommand messages
 	public static final String ADD_FLOATING = "%s added." + NEWLINE;
@@ -1161,26 +1216,29 @@ public class Messages {
 
 	// DeleteCommand messages
 	public static final String DELETE_TASK = "%s has been deleted." + NEWLINE;
-	public static final String DELETE_TASK_FIELD = "The following fields have been deleted from %s:" + NEWLINE;
+	public static final String DELETE_TASK_FIELD = "The following fields have been deleted from %s: %s" + NEWLINE;
 
 	// ExitCommand messages
 	public static final String EXIT_MESSAGE = "Taskie is exiting. Hope to see you again!";
 
 	// MarkCommand messages
-	public static final String MARK_STRING = "%s marked as done." + NEWLINE;
-	public static final String TASK_ALREADY_DONE = "Task is already done." + NEWLINE;
+	public static final String MARK_STRING = "%s marked as complete." + NEWLINE;
+	public static final String TASK_ALREADY_DONE = "%s is already complete." + NEWLINE;
 
 	// UnmarkCommand messages
-	public static final String UNMARK_STRING = "%s marked as not done." + NEWLINE;
-	public static final String TASK_ALREADY_NOT_DONE = "Task is not done." + NEWLINE;
+	public static final String UNMARK_STRING = "%s marked as incomplete" + NEWLINE;
+	public static final String TASK_ALREADY_NOT_DONE = "%s is already incomplete." + NEWLINE;
 
 	// UpdateCommand messages
-	public static final String UPDATE_STRING ="Task is updated as below:" + NEWLINE;
+	public static final String UPDATE_STRING ="%s has been updated as follows:" + NEWLINE;
 	public static final String INVALID_DATE_INPUT = "Invalid Command. Date input is not valid. Please try again." + NEWLINE;
-	public static final String TASK_TITLE = "Task Title: from %s to %s" + NEWLINE;
-	public static final String START_DATE_TIME = "Start date and time: from %s to %s" + NEWLINE;
-	
-	public static final String END_DATE_TIME = "End date and time: from %s to %s" + NEWLINE;
+	public static final String TASK_TITLE = "Task Title has changed from %s to %s" + NEWLINE;
+	public static final String START_DATE_TIME = "Start date and time changed from %s to %s" + NEWLINE;
+	public static final String END_DATE_TIME = "End date and time changed from %s to %s" + NEWLINE;
+	public static final String START_DATE_TIME_NULL = "Task start date updated to %s." + NEWLINE;
+	public static final String END_DATE_TIME_NULL = "Task end date updated to %s." +NEWLINE;
+	public static final String UPDATE_START_DATE_REMOVED = "Task start date has been removed." + NEWLINE;
+	public static final String UPDATE_END_DATE_REMOVED = "Task end date has been removed." +NEWLINE;
 
 	// DirectoryCommand messages
 	public static final String DIRECTORY_CHANGED = "Directory changed to %s" + NEWLINE;
@@ -1226,11 +1284,11 @@ public class Messages {
 
 	// UndoCommand messages
 	public static final String NOTHING_TO_UNDO = "Nothing to undo." + NEWLINE;
-	public static final String UNDO_FAILED = "Undo failed." + NEWLINE;
+	public static final String UNDO_FAILED = "Undo failed: %s" + NEWLINE;
 
 	// RedoCommand messages
 	public static final String NOTHING_TO_REDO = "Nothing to redo." + NEWLINE;
-	public static final String REDO_FAILED = "Redo failed." + NEWLINE;
+	public static final String REDO_FAILED = "Redo failed: %s" + NEWLINE;
 
 	// Exception default messages
 	public static final String CONFIGURATION_FAILED_EXCEPTION = "The configuration could not be settled." + NEWLINE;
@@ -1240,8 +1298,8 @@ public class Messages {
 	public static final String NOTHING_TO_REDO_EXCEPTION = "There is nothing to redo." + NEWLINE;
 	public static final String STORAGE_LOCATION_INVALID_EXCEPTION = "Storage Location is invalid" + NEWLINE;
 	public static final String STORAGE_MIGRATION_FAILED_EXCEPTION = "Storage Location is invalid" + NEWLINE;
-	public static final String TASK_DATE_INVALID_EXCEPTION = "Task time not set" + NEWLINE;
-	public static final String TASK_DATE_NOT_SET_EXCEPTION = "Task date not set" + NEWLINE;
+	public static final String TASK_DATE_INVALID_EXCEPTION = "Invalid date and time set in task" + NEWLINE;
+	public static final String TASK_DATE_NOT_SET_EXCEPTION = "A date has not been set for the task." + NEWLINE;
 	public static final String TASK_MODIFICATION_FAILED_EXCEPTION = "Modification of the task has failed" + NEWLINE;
 	public static final String TASK_RETRIEVAL_FAILED_EXCEPTION = "Failed to retrieve task(s)" + NEWLINE;
 	public static final String TASK_TYPE_NOT_SUPPORTED_EXCEPTION = "This task type is not supported." + NEWLINE;
@@ -1356,6 +1414,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 import org.junit.AfterClass;
@@ -1593,7 +1652,7 @@ public class CommandTest {
 	
 	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
 	@Test
-	public void testUpdateCommandStartEndDateTimeComplex()
+	public void testUpdateCommandUpdateToStartTimeAfterEndTime()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
@@ -1607,10 +1666,12 @@ public class CommandTest {
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		
+		long difference = ChronoUnit.NANOS.between(_time1, _time2);
 		
-		Task expectedTask = new Task("foo",_time2,_time3);
+		Task expectedTask = new Task("foo",_time2,_time3.plusNanos(difference));
 		assertEquals(expectedTask.toString(), list.get(0).toString());	
 	}
+	
 	
 	@Test
 	public void testUpdateCommandNoIndexReference()
@@ -1665,6 +1726,8 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 		
 	}
+	
+	
 	@Test
 	public void testDeleteCommandEndDateTime() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
 		setUp();
@@ -1674,6 +1737,21 @@ public class CommandTest {
 		delete.setToDeleteEndDate();
 		delete.execute();
 		Task expectedTask = new Task("foo",_time1);
+		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
+	}
+	
+	@Test
+	public void testDeleteCommandStartEndTime() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		addTask("foo",_time1,_time2);
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		DeleteCommand delete = new DeleteCommand(1);
+		delete.setToDeleteStartTime();
+		delete.setToDeleteEndTime();
+		delete.execute();
+		LocalDate startDate= _time1.toLocalDate();
+		LocalDate endDate = _time2.toLocalDate();
+		Task expectedTask = new Task("foo",startDate,endDate);
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	
@@ -1798,6 +1876,7 @@ import taskie.commands.ICommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.models.DateTimeSource;
 import taskie.models.Task;
 
 public class FunctionalTest {
@@ -1815,9 +1894,9 @@ public class FunctionalTest {
 	
 	@Before
 	public void setUp() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException {
+		DateTimeSource.setCurrentDateTime(_now);
 		_controller = Controller.getInstance();
 		_controller.getStorage().clearAllTasks();
-		
 	}
 
 	@Test
@@ -1837,7 +1916,12 @@ public class FunctionalTest {
 			e.printStackTrace();
 		}
 		_controller.executeCommand(cmd);
-		Task expectedTask = new Task("taskname",_today10pm);
+		Task expectedTask = null;
+		if(LocalTime.now().isAfter(_today10pm.toLocalTime())){
+			expectedTask = new Task("taskname", _today10pm.plusDays(1));
+		}else{
+			expectedTask = new Task("taskname",_today10pm);
+		}
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	
@@ -1851,7 +1935,13 @@ public class FunctionalTest {
 			e.printStackTrace();
 		}
 		_controller.executeCommand(cmd);
-		Task expectedTask = new Task("taskname",_today2pm,_today10pm);
+		Task expectedTask = null;
+		if(LocalTime.now().isAfter(_today2pm.toLocalTime())){
+			expectedTask = new Task("taskname",_today2pm.plusDays(1),_today10pm.plusDays(1));
+		}else{
+			expectedTask = new Task("taskname",_today2pm,_today10pm);
+		}
+		
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	
