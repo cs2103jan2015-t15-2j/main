@@ -10,6 +10,7 @@ import taskie.exceptions.FileExistsException;
 import taskie.exceptions.StorageLocationInvalidException;
 import taskie.exceptions.StorageMigrationFailedException;
 import taskie.exceptions.TaskModificationFailedException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.exceptions.TaskTypeNotSupportedException;
 
 import org.junit.BeforeClass;
@@ -196,7 +197,10 @@ public class StorageTest {
 
 	@Test
 	public void testGetTaskList() {
-		assertEquals(_tasks, _storage.getTaskList());
+		try {
+			assertEquals(_tasks, _storage.getTaskList());
+		} catch (TaskRetrievalFailedException e) {
+		}
 	}
 
 	

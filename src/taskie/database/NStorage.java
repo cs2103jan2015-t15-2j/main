@@ -238,7 +238,7 @@ public class NStorage implements IStorage {
 	}
 
 	//@author A0135137L
-	public ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
+	private ArrayList<Task> retrieveTaskList() throws TaskRetrievalFailedException {
 		try {
 			String json = _db.read();
 			if (json.equals("")) {
@@ -253,7 +253,10 @@ public class NStorage implements IStorage {
 		}
 	}
 
-	public ArrayList<Task> getTaskList() {
+	public ArrayList<Task> getTaskList() throws TaskRetrievalFailedException {
+		if ( _tasks == null ) {
+			_tasks = this.retrieveTaskList();
+		}
 		return _tasks;
 	}
 }
