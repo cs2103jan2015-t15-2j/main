@@ -137,11 +137,6 @@ public class ViewCommand extends AbstractCommand {
 	//@author A0097582N
 	@Override
 	public void execute() {
-		System.out.println("ViewType: " + this._viewType + "\nStartDate: "
-						+ this.getStartDate() + " StartTime: "
-						+ this.getStartTime() + "\nEndDate: "
-						+ this.getEndDate() + " EndTime: " + this.getEndTime()
-						+ "\nSearch Keywords: " + this.getSearchKeywords());
 		_logger.log(
 				Level.INFO,
 				"ViewType: " + this._viewType + "\nStartDate: "
@@ -195,7 +190,7 @@ public class ViewCommand extends AbstractCommand {
 	private ArrayList<Task> findUndoneTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> tasksToDisplay = new ArrayList<Task>();
 		for(Task task: tasks){
-			if(task.isDone()){
+			if(!task.isDone()){
 				tasksToDisplay.add(task);
 			}
 		}
