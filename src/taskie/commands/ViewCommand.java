@@ -311,6 +311,14 @@ public class ViewCommand extends AbstractCommand {
 					}
 				}
 			}
+			if(_startDate!=null || _endDate!=null){
+				tasksToDisplay = findTasksByDate(tasksToDisplay);
+			}
+			if(_searchKeywords!=null){
+				tasksToDisplay=findSearchedTasks(tasksToDisplay);
+			}
+			
+			
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(
 					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
@@ -331,6 +339,13 @@ public class ViewCommand extends AbstractCommand {
 
 				}
 			}
+			
+			if(_startDate!=null || _endDate!=null){
+				tasksToDisplay = findTasksByDate(tasksToDisplay);
+			}
+			if(_searchKeywords!=null){
+				tasksToDisplay=findSearchedTasks(tasksToDisplay);
+			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(
 					tasksToDisplay.toArray(new Task[tasksToDisplay.size()]));
@@ -350,6 +365,12 @@ public class ViewCommand extends AbstractCommand {
 					tasksToDisplay.add(task);
 				}
 
+			}
+			if(_startDate!=null || _endDate!=null){
+				tasksToDisplay = findTasksByDate(tasksToDisplay);
+			}
+			if(_searchKeywords!=null){
+				tasksToDisplay=findSearchedTasks(tasksToDisplay);
 			}
 			tasksToDisplay.sort(new TaskEndDateComparator());
 			_controller.getUI().display(
