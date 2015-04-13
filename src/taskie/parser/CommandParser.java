@@ -441,9 +441,9 @@ public class CommandParser implements Parser {
 			
 			_logger.log(Level.INFO, "Adding Task: " + name + "\n" + "Date Info Detected: " + group.getText() + "\n" + "Date Info Parsed: " + dates + "\n" + "Is Date Time Inferred: " + group.isTimeInferred());
 
+			cmd.setTaskName(name);
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
 
-			cmd.setTaskName(name);
 			boolean dayAdded = false;
 			if ( startAndEndDateTime[DATETIME_START] != null ) {
 				boolean isSameDay = startAndEndDateTime[DATETIME_START].toLocalDate().equals(CommandParser.getDateTimeNow().toLocalDate());
