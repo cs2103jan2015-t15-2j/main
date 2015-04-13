@@ -31,7 +31,7 @@ public class RedoCommand extends AbstractCommand {
 		Stack<ICommand> redoStack = _controller.getRedoStack();
 
 		if (redoStack.size() > 0) {
-			int count = Math.max(_steps, redoStack.size());
+			int count = Math.min(_steps, redoStack.size());
 			for (int x = 0; x < count; x++) {
 				ICommand cmd = redoStack.pop();
 				cmd.execute();
