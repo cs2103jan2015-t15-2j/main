@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 import org.junit.AfterClass;
@@ -261,8 +262,9 @@ public class CommandTest {
 		update.execute();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		
+		long difference = ChronoUnit.NANOS.between(_time1, _time2);
 		
-		Task expectedTask = new Task("foo",_time2,_time3);
+		Task expectedTask = new Task("foo",_time2,_time3.plusNanos(difference));
 		assertEquals(expectedTask.toString(), list.get(0).toString());	
 	}
 	
