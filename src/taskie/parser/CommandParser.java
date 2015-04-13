@@ -549,9 +549,11 @@ public class CommandParser implements Parser {
 		String query;
 
 		try {
+			// Try to get the task number
 			taskNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
 			query = CommandParser.getNonKeywords(command);
 		} catch (NumberFormatException e) {
+			// No task number specified
 			taskNumber = 0;
 			query = command;
 		}
