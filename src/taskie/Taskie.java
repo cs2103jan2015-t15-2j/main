@@ -8,11 +8,12 @@ import java.util.logging.Logger;
 
 public class Taskie {
 	private static String LOGGER_FILENAME = "taskie-log.txt";
+
 	public static void main(String[] args) {
 		configureLogger();
 		new Taskie(args);
 	}
-	
+
 	private static void configureLogger() {
 		FileHandler fh;
 		try {

@@ -71,7 +71,7 @@ public class Controller {
 			_undoStack = new Stack<ICommand>();
 			_redoStack = new Stack<ICommand>();
 			_storage = new NStorage(_config.getDatabasePath());
-			_lastTask=null;
+			_lastTask = null;
 		} catch (IOException e) {
 			_logger.log(Level.SEVERE, "Critital: Unable to initialize Storage System");
 			System.out.println("Critital: Unable to initialize Storage System");
@@ -84,18 +84,17 @@ public class Controller {
 		}
 		return _instance;
 	}
-	
+
 	public Task getLastTask() throws TaskRetrievalFailedException {
-		if(_lastTask==null){
+		if (_lastTask == null) {
 			throw new TaskRetrievalFailedException();
 		}
 		return _lastTask;
 	}
-	
-	public void setLastTask(Task task){
+
+	public void setLastTask(Task task) {
 		_lastTask = task;
 	}
-	
 
 	public void run() {
 		_ui.run();
@@ -122,7 +121,7 @@ public class Controller {
 		command.execute();
 	}
 
-	//@author A0121555M
+	// @author A0121555M
 	public Stack<ICommand> getUndoStack() {
 		return _undoStack;
 	}
@@ -138,8 +137,8 @@ public class Controller {
 			_undoStack.add(command);
 		}
 	}
-	
-	//@author A0135137L
+
+	// @author A0135137L
 	public void resetUndoAndRedoStacks() {
 		_undoStack = new Stack<ICommand>();
 		_redoStack = new Stack<ICommand>();
