@@ -16,6 +16,7 @@ import taskie.commands.ICommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
+import taskie.models.DateTimeSource;
 import taskie.models.Task;
 
 public class FunctionalTest {
@@ -33,9 +34,9 @@ public class FunctionalTest {
 	
 	@Before
 	public void setUp() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException {
+		DateTimeSource.setCurrentDateTime(_now);
 		_controller = Controller.getInstance();
 		_controller.getStorage().clearAllTasks();
-		
 	}
 
 	@Test

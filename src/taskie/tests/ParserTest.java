@@ -29,6 +29,7 @@ import taskie.commands.UnmarkCommand;
 import taskie.commands.UpdateCommand;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
+import taskie.models.DateTimeSource;
 import taskie.models.ViewType;
 import taskie.parser.CommandParser;
 import taskie.parser.Parser;
@@ -48,7 +49,7 @@ public class ParserTest {
 	public static void setUpBeforeClass() throws Exception {
 		_parser = new CommandParser();
 		_now = LocalDateTime.of(2015, 4, 15, 18, 30, 0, 0);  // Fix current time to 15 April 6.30pm
-		CommandParser.DATETIME_NOW = _now;
+		DateTimeSource.setCurrentDateTime(_now);
 		
 		_today = _now.toLocalDate();
 		

@@ -31,6 +31,7 @@ import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.InvalidRangeException;
 import taskie.models.CommandType;
+import taskie.models.DateTimeSource;
 import taskie.models.ViewType;
 
 import com.joestelmach.natty.DateGroup;
@@ -88,9 +89,6 @@ public class CommandParser implements Parser {
 	private static final String PATTERN_MATCH_FROM_TO_TIME = "(.*) from (\\d{1,2}(?:[.|:]?\\d{0,2}\\w{0,2})?) (?:till|to|-) (\\d{1,2}(?:[.|:]?\\d{0,2}\\w{0,2})?)";
 	private static final String PATTERN_MATCH_QUOTES = "[\"](.*)[\"]";
     private static final String PATTERN_DOT_SEPARATED_TIME = "\\d{1,2}[.]\\d{2}";
-
-	// Only changed during tests
-	public static LocalDateTime DATETIME_NOW = null;
 
 	private com.joestelmach.natty.Parser _natty;
 	private Logger _logger;
@@ -452,10 +450,10 @@ public class CommandParser implements Parser {
 
 			boolean dayAdded = false;
 			if (startAndEndDateTime[DATETIME_START] != null) {
-				boolean isSameDay = startAndEndDateTime[DATETIME_START].toLocalDate().equals(CommandParser.getDateTimeNow().toLocalDate());
+				boolean isSameDay = startAndEndDateTime[DATETIME_START].toLocalDate().equals(DateTimeSource.getCurrentDateTime().toLocalDate());
 				if (!group.getParseLocations().containsKey("date") && isSameDay) {
 					// Date is not specified, Natty is going to assume its today
-					if (startAndEndDateTime[DATETIME_START].toLocalTime().isBefore(CommandParser.getDateTimeNow().toLocalTime())) {
+					if (startAndEndDateTime[DATETIME_START].toLocalTime().isBefore(DateTimeSource.getCurrentDateTime().toLocalTime())) {
 						dayAdded = true;
 						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate().plusDays(1));
 					} else {
@@ -474,10 +472,10 @@ public class CommandParser implements Parser {
 			}
 
 			if (startAndEndDateTime[DATETIME_END] != null) {
-				boolean isSameDay = startAndEndDateTime[DATETIME_END].toLocalDate().equals(CommandParser.getDateTimeNow().toLocalDate());
+				boolean isSameDay = startAndEndDateTime[DATETIME_END].toLocalDate().equals(DateTimeSource.getCurrentDateTime().toLocalDate());
 				if (!group.getParseLocations().containsKey("date") && isSameDay) {
 					// Date is not specified, Natty is going to assume its today
-					if (dayAdded || startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(CommandParser.getDateTimeNow().toLocalTime())) {
+					if (dayAdded || startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(DateTimeSource.getCurrentDateTime().toLocalTime())) {
 						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate().plusDays(1));
 					} else {
 						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
@@ -863,10 +861,6 @@ public class CommandParser implements Parser {
 		}
 
 		return startAndEndDateTime;
-	}
-
-	private static LocalDateTime getDateTimeNow() {
-		return DATETIME_NOW == null ? LocalDateTime.now() : DATETIME_NOW;
 	}
 
 	private static boolean hasKeyword(String needle, String[] haystack) {
