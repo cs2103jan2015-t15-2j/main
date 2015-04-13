@@ -1,8 +1,9 @@
 /**
  * class representing an delete command.
- * Still under development
- * Bugs: none known
- *
+ * Delete Command first retrieve the Task from UI or controller,
+ * then checks if it is to delete the whole task or task field,
+ * then apply appropriate deletes.
+ * 
  */
 //@author A0097582N
 
@@ -35,7 +36,7 @@ public class DeleteCommand extends AbstractCommand {
 
 	private CommandType _commandType = CommandType.DELETE;
 
-	//@author A0121555M
+	// @author A0121555M
 	public DeleteCommand(int itemNumber) {
 		_taskIndexes = new int[] { itemNumber };
 	}
@@ -54,7 +55,7 @@ public class DeleteCommand extends AbstractCommand {
 		}
 	}
 
-	//@author A0097582N
+	// @author A0097582N
 	public void setToDeleteStartDate() {
 		_deleteStartDate = true;
 		_deleteStartTime = true; // if startDate is to be deleted, startTime
@@ -99,23 +100,28 @@ public class DeleteCommand extends AbstractCommand {
 	@Override
 	public void execute() {
 		_logger = Logger.getLogger(DeleteCommand.class.getName());
-		_logger.log(Level.INFO,"CommandType: "+this.getCommandType()+"  taskindexes: "
-		+_taskIndexes+"\ndeleteStartDate: "+_deleteStartDate+"  deleteStartTime: "
-				+_deleteStartTime+"\ndeleteEndDate: "+_deleteEndDate+"  deleteEndTime: "+_deleteEndTime);
+		_logger.log(Level.INFO, "CommandType: " + this.getCommandType()
+				+ "  taskindexes: " + _taskIndexes + "\ndeleteStartDate: "
+				+ _deleteStartDate + "  deleteStartTime: " + _deleteStartTime
+				+ "\ndeleteEndDate: " + _deleteEndDate + "  deleteEndTime: "
+				+ _deleteEndTime);
 		this.retrieveTasks();
 
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
 
-				if (canDeleteStartDate() || canDeleteStartTime() || canDeleteEndDate() || canDeleteEndTime()) {
+				if (canDeleteStartDate() || canDeleteStartTime()
+						|| canDeleteEndDate() || canDeleteEndTime()) {
 					// if either of these methods returned true, only task
 					// fields are to be deleted.
 					deleteTaskField(task);
-					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskFieldString());
+					_controller.getUI().display(DisplayType.SUCCESS,
+							formatDeleteTaskFieldString());
 				} else {
 					deleteTask();
-					_controller.getUI().display(DisplayType.SUCCESS, formatDeleteTaskString());
+					_controller.getUI().display(DisplayType.SUCCESS,
+							formatDeleteTaskString());
 				}
 			} catch (TaskTypeNotSupportedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
@@ -125,34 +131,40 @@ public class DeleteCommand extends AbstractCommand {
 		}
 	}
 
-	private void deleteTaskField(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
+	private void deleteTaskField(Task task)
+			throws TaskTypeNotSupportedException,
+			TaskModificationFailedException {
 		// taskfields are deleted by setting to them null;
 
 		if (!canDeleteStartDate() && canDeleteEndDate()) {// switch start and
 															// end date if del
 															// end date;
-			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime());
+			Task updatedTask = new Task(task.getTitle(), task.getStartDate(),
+					task.getStartTime());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
-		}else if (canDeleteStartDate()&&canDeleteEndDate()) {
+		} else if (canDeleteStartDate() && canDeleteEndDate()) {
 			Task updatedTask = new Task(task.getTitle());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
-		}else if (canDeleteStartDate()) {
-			Task updatedTask = new Task(task.getTitle(), task.getEndDate(), task.getEndTime());
+		} else if (canDeleteStartDate()) {
+			Task updatedTask = new Task(task.getTitle(), task.getEndDate(),
+					task.getEndTime());
 			_controller.getStorage().updateTask(task, updatedTask);
 			return;
 		}
 		if (canDeleteStartTime()) {
 			_logger.log(Level.INFO, "Deleting startTime.");
-			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), null, task.getEndDate(), task.getEndTime());
+			Task updatedTask = new Task(task.getTitle(), task.getStartDate(),
+					null, task.getEndDate(), task.getEndTime());
 			_controller.getStorage().updateTask(task, updatedTask);
-			task=updatedTask;
-			
+			task = updatedTask;
+
 		}
 		if (canDeleteEndTime()) {
 			_logger.log(Level.INFO, "Deleting endTime.");
-			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime(), task.getEndDate(), null);
+			Task updatedTask = new Task(task.getTitle(), task.getStartDate(),
+					task.getStartTime(), task.getEndDate(), null);
 			_controller.getStorage().updateTask(task, updatedTask);
 		}
 
@@ -173,25 +185,28 @@ public class DeleteCommand extends AbstractCommand {
 					_tasks.add(_controller.getUI().getTask(index));
 				}
 			} catch (InvalidTaskException e) {
-				_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+				_controller.getUI().display(DisplayType.ERROR,
+						Messages.INVALID_TASK_NUM);
 			} catch (TaskRetrievalFailedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}
 		}
 	}
 
-	private void deleteTask() throws TaskTypeNotSupportedException, TaskModificationFailedException {
+	private void deleteTask() throws TaskTypeNotSupportedException,
+			TaskModificationFailedException {
 		_controller.getStorage().deleteTask(_currentTask);
 	}
 
 	//@author A0097582N
 	private String formatDeleteTaskString() {
-		return String.format(taskie.models.Messages.DELETE_TASK, _currentTask.getTitle());
+		return String.format(taskie.models.Messages.DELETE_TASK,
+				_currentTask.getTitle());
 	}
 
 	private String formatDeleteTaskFieldString() {
 		StringBuffer fields = new StringBuffer();
-		
+
 		if (canDeleteStartDate()) {
 			fields.append("Start date, ");
 		}
@@ -203,12 +218,14 @@ public class DeleteCommand extends AbstractCommand {
 		}
 		if (canDeleteEndTime()) {
 			fields.append("End time, ");
-		}	
-		
-		return String.format(taskie.models.Messages.DELETE_TASK_FIELD, _currentTask.getTitle(), fields.substring(0, fields.length() - 2));
+		}
+
+		return String.format(taskie.models.Messages.DELETE_TASK_FIELD,
+				_currentTask.getTitle(),
+				fields.substring(0, fields.length() - 2));
 	}
 
-	//@author A0121555M
+	// @author A0121555M
 	@Override
 	public void undo() {
 		for (Task task : _tasks) {

@@ -44,7 +44,7 @@ public class MarkCommand extends AbstractCommand {
 			_tasks.add(tasks[x]);
 		}
 	}
-	
+
 	public MarkCommand(ArrayList<Task> tasks) {
 		_tasks.addAll(tasks);
 	}
@@ -62,11 +62,14 @@ public class MarkCommand extends AbstractCommand {
 				_currentTask = task;
 
 				if (_currentTask.isDone()) {
-					_controller.getUI().display(DisplayType.ERROR, formatAlreadyMarkString());
+					_controller.getUI().display(DisplayType.ERROR,
+							formatAlreadyMarkString());
 				} else {
 					_currentTask.setTaskDone();
-					_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
-					_controller.getStorage().updateTask(_currentTask, _currentTask);
+					_controller.getUI().display(DisplayType.SUCCESS,
+							formatMarkString());
+					_controller.getStorage().updateTask(_currentTask,
+							_currentTask);
 				}
 
 				_controller.setLastTask(_currentTask);
@@ -81,21 +84,23 @@ public class MarkCommand extends AbstractCommand {
 			_controller.setLastTask(null);
 		}
 	}
-	
+
 	private String formatAlreadyMarkString() {
-		return String.format(taskie.models.Messages.TASK_ALREADY_DONE, _currentTask.getTitle());
+		return String.format(taskie.models.Messages.TASK_ALREADY_DONE,
+				_currentTask.getTitle());
 	}
 
 	private String formatMarkString() {
-		return String.format(taskie.models.Messages.MARK_STRING, _currentTask.getTitle());
+		return String.format(taskie.models.Messages.MARK_STRING,
+				_currentTask.getTitle());
 	}
 
 	//@author A0121555M
 	private void retrieveTasks() {
-		if ( _taskIndexes == null ) {
+		if (_taskIndexes == null) {
 			return;
 		}
-		
+
 		for (int x = 0; x < _taskIndexes.length; x++) {
 			try {
 				int index = _taskIndexes[x];
@@ -105,7 +110,8 @@ public class MarkCommand extends AbstractCommand {
 					_tasks.add(_controller.getUI().getTask(index));
 				}
 			} catch (InvalidTaskException e) {
-				_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+				_controller.getUI().display(DisplayType.ERROR,
+						Messages.INVALID_TASK_NUM);
 			} catch (TaskRetrievalFailedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}

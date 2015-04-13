@@ -44,29 +44,32 @@ public class UnmarkCommand extends AbstractCommand {
 			_tasks.add(tasks[x]);
 		}
 	}
-	
+
 	public UnmarkCommand(ArrayList<Task> tasks) {
 		_tasks.addAll(tasks);
 	}
-	
-	//@author A0097582N
+
+	// @author A0097582N
 	public CommandType getCommandType() {
 		return _commandType;
 	}
 
 	public void execute() {
 		this.retrieveTasks();
-		
+
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
 
 				if (_currentTask.isDone()) {
 					_currentTask.setTaskUndone();
-					_controller.getUI().display(DisplayType.SUCCESS, formatUnmarkString());
-					_controller.getStorage().updateTask(_currentTask, _currentTask);
+					_controller.getUI().display(DisplayType.SUCCESS,
+							formatUnmarkString());
+					_controller.getStorage().updateTask(_currentTask,
+							_currentTask);
 				} else {
-					_controller.getUI().display(DisplayType.ERROR, formatAlreadyUnmarkedString());
+					_controller.getUI().display(DisplayType.ERROR,
+							formatAlreadyUnmarkedString());
 				}
 
 				_controller.setLastTask(_currentTask);
@@ -83,19 +86,21 @@ public class UnmarkCommand extends AbstractCommand {
 	}
 
 	private String formatAlreadyUnmarkedString() {
-		return String.format(taskie.models.Messages.TASK_ALREADY_NOT_DONE, _currentTask.getTitle());
-	}
-	
-	private String formatUnmarkString() {
-		return String.format(taskie.models.Messages.UNMARK_STRING, _currentTask.getTitle());
+		return String.format(taskie.models.Messages.TASK_ALREADY_NOT_DONE,
+				_currentTask.getTitle());
 	}
 
-	//@author A0121555M
+	private String formatUnmarkString() {
+		return String.format(taskie.models.Messages.UNMARK_STRING,
+				_currentTask.getTitle());
+	}
+
+	// @author A0121555M
 	private void retrieveTasks() {
-		if ( _taskIndexes == null ) {
+		if (_taskIndexes == null) {
 			return;
 		}
-		
+
 		for (int x = 0; x < _taskIndexes.length; x++) {
 			try {
 				int index = _taskIndexes[x];
@@ -105,13 +110,14 @@ public class UnmarkCommand extends AbstractCommand {
 					_tasks.add(_controller.getUI().getTask(index));
 				}
 			} catch (InvalidTaskException e) {
-				_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
+				_controller.getUI().display(DisplayType.ERROR,
+						Messages.INVALID_TASK_NUM);
 			} catch (TaskRetrievalFailedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			}
 		}
 	}
-	
+
 	public void undo() {
 		new MarkCommand(_tasks).execute();
 

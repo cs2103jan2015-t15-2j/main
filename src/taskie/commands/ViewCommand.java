@@ -1,3 +1,10 @@
+/**
+ * Class represents a view command.
+ * View commands returns different task lists depending on the viewtype,
+ * and availability of dates or search key words.
+ * 
+ **/
+
 package taskie.commands;
 
 import java.time.LocalDate;
@@ -196,7 +203,11 @@ public class ViewCommand extends AbstractCommand {
 		}
 		return tasksToDisplay;
 	}
-
+	/**
+	 * This method acts as a filter to filter tasklists by date
+	 * @param tasks
+	 * @return ArrayList<Task>
+	 */
 	private ArrayList<Task> findTasksByDate(ArrayList<Task> tasks) {
 		if (_startDate == null) {
 			_logger.log(Level.INFO, "Search type: Enddate");
@@ -272,7 +283,11 @@ public class ViewCommand extends AbstractCommand {
 		}
 		return tasksToDisplay;
 	}
-
+	/**
+	 * This method acts as a filter to filter tasklists by key words
+	 * @param tasks
+	 * @return ArrayList<Task>
+	 */
 	private ArrayList<Task> findSearchedTasks(ArrayList<Task> tasks) {
 		ArrayList<Task> searchedTasks = new ArrayList<Task>();
 		for (Task task : tasks) {

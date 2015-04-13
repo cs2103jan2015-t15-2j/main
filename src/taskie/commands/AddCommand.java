@@ -2,8 +2,10 @@ package taskie.commands;
 
 /**
  * class representing an add command.
- * Still under development
- * Bugs: none known
+ * 
+ * Add Command instantiates a new Task object based on input, 
+ * then checks if it conflicts with existing task and provide user 
+ * with warning.
  *
  */
 //@author A0097582N
@@ -105,7 +107,7 @@ public class AddCommand extends AbstractCommand {
 		this._endTime = _endTime;
 	}
 
-	//@author A0121555M
+	// @author A0121555M
 	public LocalDateTime getStartDateTime() {
 		try {
 			return LocalDateTime.of(_startDate,
@@ -161,19 +163,20 @@ public class AddCommand extends AbstractCommand {
 			} else {
 				_controller.getStorage().addTask(_task);
 				_controller.setLastTask(_task);
-				_controller.getUI().display(DisplayType.ERROR,formatAddMsgWithWarning(_task));
+				_controller.getUI().display(DisplayType.ERROR,
+						formatAddMsgWithWarning(_task));
 			}
 		} catch (TaskRetrievalFailedException e) {
 			try {
-				_controller.getStorage().addTask(_task); 	// this branch occurs
-				_controller.setLastTask(_task);				// when task
-															// retrieval fails
-															// (for sanity check
-															// purposes)
-															// even if task
-															// retrieval fails,
-															// we ought to
-															// try to add task.
+				_controller.getStorage().addTask(_task); // this branch occurs
+				_controller.setLastTask(_task); // when task
+												// retrieval fails
+												// (for sanity check
+												// purposes)
+												// even if task
+												// retrieval fails,
+												// we ought to
+												// try to add task.
 			} catch (TaskTypeNotSupportedException
 					| TaskModificationFailedException e1) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
@@ -185,17 +188,16 @@ public class AddCommand extends AbstractCommand {
 		}
 	}
 
-
-	//@author A0097582N
+	// @author A0097582N
 	private boolean hasNoConflict() throws TaskRetrievalFailedException {
-		Boolean returnVal=true;
+		Boolean returnVal = true;
 		_conflictedTask = new ArrayList<Task>();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
-		for (int i=0;i<list.size();i++) {
+		for (int i = 0; i < list.size(); i++) {
 			Task task = list.get(i);
 			if (hasConflict(task, this._task)) {
 				_conflictedTask.add(task);
-				returnVal=false;
+				returnVal = false;
 			}
 		}
 		return returnVal;
@@ -204,7 +206,7 @@ public class AddCommand extends AbstractCommand {
 	private boolean hasConflict(Task task1, Task task2) {
 		if (task1.getTaskType() == TaskType.TIMED
 				&& task2.getTaskType() == TaskType.TIMED) {
-			if(hasTimeOverlap(task1, task2)){
+			if (hasTimeOverlap(task1, task2)) {
 				return true;
 			}
 		}
@@ -212,9 +214,9 @@ public class AddCommand extends AbstractCommand {
 	}
 
 	private boolean hasTimeOverlap(Task task1, Task task2) {
-		if(task1.getStartDateTime().isBefore(task2.getEndDateTime())
-				&&task2.getStartDateTime().isBefore(task1.getEndDateTime())){
-		return true;
+		if (task1.getStartDateTime().isBefore(task2.getEndDateTime())
+				&& task2.getStartDateTime().isBefore(task1.getEndDateTime())) {
+			return true;
 		}
 		return false;
 	}
@@ -238,22 +240,22 @@ public class AddCommand extends AbstractCommand {
 									task.getEndDateTime()));
 		}
 	}
-	
+
 	private String formatAddMsgWithWarning(Task newTask) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(String.format(Messages.ADD_TIMED, newTask.getTitle()
-				, _controller.getUI().formatDateTime(newTask.getStartDateTime())
-				, _controller.getUI().formatDateTime(newTask.getEndDateTime())));
-			sb.append(Messages.ADD_CONFLICT);
-		for(int i=0;i<_conflictedTask.size();i++){
+		sb.append(String.format(Messages.ADD_TIMED, newTask.getTitle(),
+				_controller.getUI().formatDateTime(newTask.getStartDateTime()),
+				_controller.getUI().formatDateTime(newTask.getEndDateTime())));
+		sb.append(Messages.ADD_CONFLICT);
+		for (int i = 0; i < _conflictedTask.size(); i++) {
 			Task task = _conflictedTask.get(i);
-			if(i==_conflictedTask.size()-1 && i !=0){
+			if (i == _conflictedTask.size() - 1 && i != 0) {
 				sb.append("and ");
 				sb.append(task.getTitle());
 				sb.append(".");
-			}else if(i==_conflictedTask.size()-1 && i==0){
-				sb.append(task.getTitle()+".");
-			}else{
+			} else if (i == _conflictedTask.size() - 1 && i == 0) {
+				sb.append(task.getTitle() + ".");
+			} else {
 				sb.append(task.getTitle());
 				sb.append(", ");
 			}
@@ -262,7 +264,7 @@ public class AddCommand extends AbstractCommand {
 		return sb.toString();
 	}
 
-	// @author A0121555M
+	//@author A0121555M
 	@Override
 	public void undo() {
 		new DeleteCommand(_task).execute();
