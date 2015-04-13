@@ -26,7 +26,7 @@ public class Taskie {
 		} catch (SecurityException e) {
 			System.out.println(Messages.SECURITY_EXCEPTION);
 		} catch (IOException e) {
-			System.out.println("IOException: Unable to setup logging.");
+			System.out.println(Messages.IO_EXCEPTION);
 		}
 	}
 
@@ -35,7 +35,7 @@ public class Taskie {
 			Controller c = Controller.getInstance();
 			c.run();
 		} catch (Exception e) {
-			System.out.println("Unknown Error: " + e.getMessage());
+			System.out.println(Messages.UNKNOWN_EXCEPTION + e.getMessage());
 		}
 	}
 }

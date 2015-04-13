@@ -73,8 +73,8 @@ public class Controller {
 			_storage = new NStorage(_config.getDatabasePath());
 			_lastTask = null;
 		} catch (IOException e) {
-			_logger.log(Level.SEVERE, "Critital: Unable to initialize Storage System");
-			System.out.println("Critital: Unable to initialize Storage System");
+			_logger.log(Level.SEVERE, Messages.STORAGE_INITIALISATION_ERROR);
+			System.out.println(Messages.STORAGE_INITIALISATION_ERROR);
 		}
 	}
 	

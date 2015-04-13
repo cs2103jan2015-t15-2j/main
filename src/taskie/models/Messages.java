@@ -98,7 +98,7 @@ public class Messages {
 	public static final String NOTHING_TO_REDO = "Nothing to redo." + NEWLINE;
 	public static final String REDO_FAILED = "Redo failed: %s" + NEWLINE;
 
-	// Exception default messages
+	// Exception messages
 	public static final String CONFIGURATION_FAILED_EXCEPTION = "The configuration could not be settled." + NEWLINE;
 	public static final String FILE_EXISTS_EXCEPTION = "A file already exists at this directory." + NEWLINE;
 	public static final String INVALID_COMMAND_EXCEPTION = "The command could not be parsed." + NEWLINE;
@@ -114,4 +114,6 @@ public class Messages {
 	public static final String UNDO_NOT_SUPPORTED_EXCEPTION = "Undo is not supported for this command" + NEWLINE;
 	public static final String SECURITY_EXCEPTION = "SecurityException: Unable to setup logging." + NEWLINE;
 	public static final String IO_EXCEPTION = "IOException: Unable to setup logging." + NEWLINE;
+	public static final String UNKNOWN_EXCEPTION = "Unknown Error: ";
+	public static final String STORAGE_INITIALISATION_ERROR = "Critital: Unable to initialize Storage System";
 }
