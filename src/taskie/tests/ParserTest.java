@@ -397,6 +397,58 @@ public class ParserTest {
 		actualCommand = _parser.parse("del 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
+		expectedCommand = new DeleteCommand(10);
+		expectedCommand.setToDeleteStartDate();
+		actualCommand = _parser.parse("del 10 start");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10 startdate");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10 startdatetime");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10 starttimedate");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del start 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del startdate 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del startdatetime 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del starttimedate 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new DeleteCommand(10);
+		expectedCommand.setToDeleteStartTime();
+		actualCommand = _parser.parse("del 10 starttime");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del starttime 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new DeleteCommand(10);
+		expectedCommand.setToDeleteEndDate();
+		actualCommand = _parser.parse("del 10 end");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10 enddate");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10 enddatetime");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del 10 endtimedate");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del end 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del enddate 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del enddatetime 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del endtimedate 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new DeleteCommand(10);
+		expectedCommand.setToDeleteEndTime();
+		actualCommand = _parser.parse("del 10 endtime");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("del endtime 10");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
 		expectedCommand = new DeleteCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 		actualCommand = _parser.parse("delete 1-10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());

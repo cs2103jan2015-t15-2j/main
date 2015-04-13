@@ -578,22 +578,39 @@ public class CommandParser implements Parser {
 		
 		assert !command.isEmpty() : "Parameters are empty";
 		
-		String keyword = CommandParser.getFirstKeyword(command);
-		String parameters = CommandParser.getNonKeywords(command);
 		boolean deleteStartDate = false, deleteStartTime = false, deleteEndDate = false, deleteEndTime = false;
-		
-		if ( CommandParser.hasKeyword(keyword, DELETE_START_DATE_KEYWORDS) ) {
+
+		String firstWord = CommandParser.getFirstKeyword(command);
+		String parameters = CommandParser.getNonKeywords(command);
+		if ( CommandParser.hasKeyword(firstWord, DELETE_START_DATE_KEYWORDS) ) {
 			deleteStartDate = true;
-		} else if ( CommandParser.hasKeyword(keyword, DELETE_START_TIME_KEYWORDS) ) {
+		} else if ( CommandParser.hasKeyword(firstWord, DELETE_START_TIME_KEYWORDS) ) {
 			deleteStartTime = true;
-		} else if ( CommandParser.hasKeyword(keyword, DELETE_END_DATE_KEYWORDS) ) {
+		} else if ( CommandParser.hasKeyword(firstWord, DELETE_END_DATE_KEYWORDS) ) {
 			deleteEndDate = true;
-		} else if ( CommandParser.hasKeyword(keyword, DELETE_END_TIME_KEYWORDS) ) {
+		} else if ( CommandParser.hasKeyword(firstWord, DELETE_END_TIME_KEYWORDS) ) {
 			deleteEndTime = true;
 		} else {
 			parameters = command;
 		}
 
+		String split[] = CommandParser.splitStringWithWhitespace(parameters);
+		int last = split.length - 1;
+		String lastWord = split[last];
+		if ( CommandParser.hasKeyword(lastWord, DELETE_START_DATE_KEYWORDS) ) {
+			deleteStartDate = true;
+			parameters = parameters.substring(0, parameters.lastIndexOf(lastWord));
+		} else if ( CommandParser.hasKeyword(lastWord, DELETE_START_TIME_KEYWORDS) ) {
+			deleteStartTime = true;
+			parameters = parameters.substring(0, parameters.lastIndexOf(lastWord));
+		} else if ( CommandParser.hasKeyword(lastWord, DELETE_END_DATE_KEYWORDS) ) {
+			deleteEndDate = true;
+			parameters = parameters.substring(0, parameters.lastIndexOf(lastWord));
+		} else if ( CommandParser.hasKeyword(lastWord, DELETE_END_TIME_KEYWORDS) ) {
+			deleteEndTime = true;
+			parameters = parameters.substring(0, parameters.lastIndexOf(lastWord));
+		}
+		
 		try {
 			_logger.log(Level.FINE, "Finding ranges for Delete Command");
 			ArrayList<Integer> items = this.getRanges(parameters);
@@ -608,7 +625,7 @@ public class CommandParser implements Parser {
 			}
 			
 			if ( deleteEndDate ) {
-				cmd.setToDeleteStartDate();			
+				cmd.setToDeleteEndDate();			
 			}
 			
 			if ( deleteEndTime ) {
