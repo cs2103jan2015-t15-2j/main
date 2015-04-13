@@ -60,17 +60,16 @@ public class MarkCommand extends AbstractCommand {
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
-				Task updatedTask = new Task(_currentTask);
 
 				if (_currentTask.isDone()) {
 					_controller.getUI().display(DisplayType.ERROR, formatAlreadyMarkString());
 				} else {
-					updatedTask.setTaskDone();
+					_currentTask.setTaskDone();
 					_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
-					_controller.getStorage().updateTask(_currentTask, updatedTask);
+					_controller.getStorage().updateTask(_currentTask, _currentTask);
 				}
 
-				_controller.setLastTask(updatedTask);
+				_controller.setLastTask(_currentTask);
 			} catch (TaskTypeNotSupportedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			} catch (TaskModificationFailedException e) {

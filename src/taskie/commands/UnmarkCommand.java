@@ -60,17 +60,16 @@ public class UnmarkCommand extends AbstractCommand {
 		for (Task task : _tasks) {
 			try {
 				_currentTask = task;
-				Task updatedTask = new Task(_currentTask);
 
 				if (_currentTask.isDone()) {
-					updatedTask.setTaskUndone();
+					_currentTask.setTaskUndone();
 					_controller.getUI().display(DisplayType.SUCCESS, formatUnmarkString());
-					_controller.getStorage().updateTask(_currentTask, updatedTask);
+					_controller.getStorage().updateTask(_currentTask, _currentTask);
 				} else {
 					_controller.getUI().display(DisplayType.ERROR, formatAlreadyUnmarkedString());
 				}
 
-				_controller.setLastTask(updatedTask);
+				_controller.setLastTask(_currentTask);
 			} catch (TaskTypeNotSupportedException e) {
 				_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 			} catch (TaskModificationFailedException e) {
