@@ -65,10 +65,10 @@ public class CommandUI implements UI {
 			int numTasks = tasks.length;
 			int characters = String.valueOf(numTasks).length();
 			int shown = 0;
-			
+
 			this.printHeader(Messages.UI_HEADER);
-			
-			if ( numTasks > 0 ) {
+
+			if (numTasks > 0) {
 				for (int x = 0; x < numTasks; x++) {
 					Task task = tasks[x];
 					display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
@@ -87,9 +87,9 @@ public class CommandUI implements UI {
 	}
 
 	public void display(DisplayType type, String message) {
-		if ( type == DisplayType.ERROR ) {
+		if (type == DisplayType.ERROR) {
 			this.display(ansi().fg(Color.RED).bold().a(message).reset());
-		} else if ( type == DisplayType.SUCCESS ) {
+		} else if (type == DisplayType.SUCCESS) {
 			this.display(ansi().fg(Color.GREEN).bold().a(message).reset());
 		} else {
 			this.display(ansi().a(message));
@@ -126,11 +126,11 @@ public class CommandUI implements UI {
 		assert _currentTaskList != null;
 		return _currentTaskList;
 	}
-	
+
 	private void printTask(Task task) {
 		int numTasks = _currentTaskList.length;
 		int characters = String.valueOf(numTasks).length();
-		
+
 		if (task.isDone()) {
 			this.printSuccessMessage(String.format("[DONE] %s%n", task.getTitle()));
 		} else {
@@ -138,19 +138,19 @@ public class CommandUI implements UI {
 				if (task.getEndDateTime().isBefore(_now)) {
 					// Task is OVERDUE
 					this.printCriticalMessage(String.format("[!!!] %s [Overdue by %s]%n", task.getTitle(), prettyDates(task.getEndDateTime())));
-					this.printCriticalMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getEndDateTime())));
+					this.printCriticalMessage(String.format(padLeft("", characters + 3, " ") + "%s%n", formatDateTime(task.getEndDateTime())));
 				} else {
 					this.printInfoMessage(String.format("%s [Due in %s]%n", task.getTitle(), prettyDates(task.getEndDateTime())));
-					this.printInfoMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getEndDateTime())));
+					this.printInfoMessage(String.format(padLeft("", characters + 3, " ") + "%s%n", formatDateTime(task.getEndDateTime())));
 				}
 			} else if (task.getTaskType() == TaskType.TIMED) {
 				if (task.getEndDateTime().isBefore(_now)) {
 					// Task is OVERDUE
 					this.printCriticalMessage(String.format("[!!!] %s [Started %s]%n", task.getTitle(), prettyDates(task.getStartDateTime())));
-					this.printCriticalMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime())));
+					this.printCriticalMessage(String.format(padLeft("", characters + 3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime())));
 				} else {
 					this.printInfoMessage(String.format("%s [Starts in %s]%n", task.getTitle(), prettyDates(task.getStartDateTime())));
-					this.printInfoMessage(String.format(padLeft("", characters+3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime())));
+					this.printInfoMessage(String.format(padLeft("", characters + 3, " ") + "%s%n", formatDateTime(task.getStartDateTime(), task.getEndDateTime())));
 				}
 			} else {
 				this.printInfoMessage(String.format("%s%n", task.getTitle()));
@@ -168,29 +168,29 @@ public class CommandUI implements UI {
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
 		_controller.executeCommand(new ViewCommand(ViewType.UPCOMING));
 	}
-	
+
 	private void printExitMessage() {
 		String padding = new String(new char[Messages.EXIT_MESSAGE.length() + 2]).replace("\0", "=");
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.EXIT_MESSAGE + " ").reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
 	}
-	
+
 	private void printHeader(String header) {
 		String padding = new String(new char[header.length() + 2]).replace("\0", "=");
 		this.display(DisplayType.DEFAULT, Messages.NEWLINE + ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + header + " ").reset() + Messages.NEWLINE);
 		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE + Messages.NEWLINE);
 	}
-	
+
 	private void printCriticalMessage(String msg) {
 		display(ansi().fg(Color.RED).bold().a(msg).reset());
 	}
-	
+
 	private void printSuccessMessage(String msg) {
 		display(ansi().fg(Color.RED).bold().a(msg).reset());
 	}
-	
+
 	private void printInfoMessage(String msg) {
 		display(ansi().fg(Color.DEFAULT).a(msg).reset());
 	}
@@ -215,21 +215,21 @@ public class CommandUI implements UI {
 	}
 
 	public String formatDateTime(LocalDateTime dateTime) {
-		if ( dateTime.toLocalTime().equals(LocalTime.MAX) ) {
+		if (dateTime.toLocalTime().equals(LocalTime.MAX)) {
 			return dateTime.format(Messages.DATE_FORMAT);
 		} else {
 			return dateTime.format(Messages.DATETIME_FORMAT);
 		}
 	}
-	
+
 	public String formatDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime) {
-		if ( startDateTime.toLocalDate().equals(endDateTime.toLocalDate()) ) {
+		if (startDateTime.toLocalDate().equals(endDateTime.toLocalDate())) {
 			return startDateTime.format(Messages.DATETIME_FORMAT) + " to " + endDateTime.format(Messages.TIME_FORMAT);
 		} else {
 			return formatDateTime(startDateTime) + " to " + formatDateTime(endDateTime);
 		}
 	}
-	
+
 	public String loadSelectDirectoryDialog(String currentDirectory) {
 		JFileChooser fileChooser = new JFileChooser((currentDirectory == null) ? "." : currentDirectory);
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -251,10 +251,10 @@ public class CommandUI implements UI {
 		StringBuffer sb = new StringBuffer();
 		RelativeDate relative = new RelativeDate(_now);
 		relative.calculate(dateTime);
-		
-		if (relative.getYears() > 0 ) {
+
+		if (relative.getYears() > 0) {
 			sb.append(String.format("%d %s", relative.getYears(), relative.getYears() > 1 ? "years" : "year") + " ");
-		} else if (relative.getMonths() > 0 ) {
+		} else if (relative.getMonths() > 0) {
 			sb.append(String.format("%d %s", relative.getMonths(), relative.getMonths() > 1 ? "months" : "month") + " ");
 		} else if (relative.getDays() > 0) {
 			sb.append(String.format("%d %s", relative.getDays(), relative.getDays() > 1 ? "days" : "day") + " ");
