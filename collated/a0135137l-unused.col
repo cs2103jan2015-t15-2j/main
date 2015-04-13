@@ -3,7 +3,7 @@
 
 
 	/**
-	 * origin: src\taskie\database\Storage.java
+	 * origin: src\taskie\database\OStorage.java
 	 */
 
 //Reason: Json implementation is deployed for storage since v0.2 instead.
@@ -35,7 +35,7 @@ import java.nio.file.Path;
 import java.util.StringTokenizer;
 import java.time.format.DateTimeFormatter;
 
-public class Storage implements IStorage {
+public class OStorage implements Storage {
 	public static final String DEFAULT_LOCATION = System.getProperty("user.home");
 	private static final String DEADLINED_TASKS_FILENAME = "deadlined tasks.txt";
 	private static final String TIMED_TASKS_FILENAME = "timed tasks.txt";
@@ -625,7 +625,7 @@ public class Storage implements IStorage {
 	
 	
 	
-	// End of segment: src\taskie\database\Storage.java
+	// End of segment: src\taskie\database\OStorage.java
 
 
 

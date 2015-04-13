@@ -10,7 +10,7 @@ package taskie.commands;
 
 import taskie.Controller;
 
-public abstract class AbstractCommand implements ICommand {
+public abstract class AbstractCommand implements Command {
 	protected Controller _controller;
 
 	public AbstractCommand() {
@@ -184,7 +184,7 @@ public abstract class AbstractCommand implements ICommand {
 	 */
 
 	private void retrieveTasks() {
-		if (_taskIndexes == null) {
+		if (_taskIndexes == null || _tasks.size() > 0) {
 			return;
 		}
 
@@ -507,13 +507,13 @@ public class RedoCommand extends AbstractCommand {
 	@Override
 	public boolean execute() {
 		boolean success = true;
-		Stack<ICommand> undoStack = _controller.getUndoStack();
-		Stack<ICommand> redoStack = _controller.getRedoStack();
+		Stack<Command> undoStack = _controller.getUndoStack();
+		Stack<Command> redoStack = _controller.getRedoStack();
 
 		if (redoStack.size() > 0) {
 			int count = Math.min(_steps, redoStack.size());
 			for (int x = 0; x < count; x++) {
-				ICommand cmd = redoStack.pop();
+				Command cmd = redoStack.pop();
 				cmd.execute();
 				undoStack.add(cmd);
 			}
@@ -574,14 +574,14 @@ public class UndoCommand extends AbstractCommand {
 
 	public boolean execute() {
 		boolean success = true;
-		Stack<ICommand> undoStack = _controller.getUndoStack();
-		Stack<ICommand> redoStack = _controller.getRedoStack();
+		Stack<Command> undoStack = _controller.getUndoStack();
+		Stack<Command> redoStack = _controller.getRedoStack();
 		
 		if ( undoStack.size() > 0 ) {
 			int count = Math.min(_steps, undoStack.size());
 			for ( int x = 0; x < count; x++ ) {
 				try {
-					ICommand cmd = undoStack.pop();
+					Command cmd = undoStack.pop();
 					cmd.undo();
 					redoStack.add(cmd);
 				} catch (UndoNotSupportedException e) {
@@ -706,13 +706,13 @@ public class UndoCommand extends AbstractCommand {
 			_controller.getStorage().updateTask(_task, _task);
 			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(current, _task));
 		} catch (TaskTypeNotSupportedException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, "Task Type Not Supported"));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_TYPE_NOT_SUPPORTED_EXCEPTION));
 		} catch (TaskModificationFailedException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, "Task Modification Failed - " + e.getMessage()));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_MODIFICATION_FAILED_EXCEPTION+" - " + e.getMessage()));
 		} catch (TaskDateNotSetException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, "Task Date Not Set"));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_DATE_NOT_SET_EXCEPTION));
 		} catch (TaskDateInvalidException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, "Task Date is Invalid"));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.UPDATE_TASK_DATE_INVALID));
 		}
 	}
 
@@ -901,15 +901,15 @@ public class UndoCommand extends AbstractCommand {
 	 * origin: src\taskie\Controller.java
 	 */
 
-	public Stack<ICommand> getUndoStack() {
+	public Stack<Command> getUndoStack() {
 		return _undoStack;
 	}
 
-	public Stack<ICommand> getRedoStack() {
+	public Stack<Command> getRedoStack() {
 		return _redoStack;
 	}
 
-	private void addTaskHistory(ICommand command) {
+	private void addTaskHistory(Command command) {
 		CommandType type = command.getCommandType();
 		if (type == CommandType.ADD || type == CommandType.UPDATE || type == CommandType.DELETE || type == CommandType.MARK || type == CommandType.UNMARK) {
 			_logger.log(Level.INFO, "Adding to Undo: " + command);
@@ -1047,7 +1047,7 @@ import taskie.models.Task;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-public class NStorage implements IStorage {
+public class NStorage implements Storage {
 	private static final String DATABASE_FILENAME = "taskie.txt";
 
 	private Logger _logger;
@@ -1276,7 +1276,7 @@ public class NStorage implements IStorage {
 
 
 	/**
-	 * origin: src\taskie\database\Storage.java
+	 * origin: src\taskie\database\OStorage.java
 	 */
 
 	public void addTask(Task task) throws TaskTypeNotSupportedException, TaskModificationFailedException {
@@ -1333,7 +1333,7 @@ public class NStorage implements IStorage {
 	}
 }
 
-	// End of segment: src\taskie\database\Storage.java
+	// End of segment: src\taskie\database\OStorage.java
 
 
 
@@ -1692,6 +1692,11 @@ import java.time.LocalDateTime;
 public class DateTimeSource {
 	private static LocalDateTime BASE_DATETIME = null;
 	
+	/**
+	 * Set date and time for Taskie / Test cases to use
+	 * 
+	 * @param command	Fixed current Date and Time (or null to use the REAL current date and time)
+	 */
 	public static void setCurrentDateTime(LocalDateTime now) {
 		BASE_DATETIME = now;
 	}
@@ -2012,7 +2017,6 @@ package taskie.parser;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -2030,7 +2034,7 @@ import taskie.commands.DeleteCommand;
 import taskie.commands.DirectoryCommand;
 import taskie.commands.ExitCommand;
 import taskie.commands.HelpCommand;
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.commands.MarkCommand;
 import taskie.commands.RedoCommand;
 import taskie.commands.UndoCommand;
@@ -2170,7 +2174,7 @@ public class CommandParser implements Parser {
 	 * @return			Command to be Executed
 	 * @throws InvalidCommandException	If an invalid keyword is specified
 	 */
-	public ICommand parse(String input) throws InvalidCommandException {
+	public Command parse(String input) throws InvalidCommandException {
 		if (input == null || input.isEmpty()) {
 			throw new InvalidCommandException();
 		}
@@ -2261,7 +2265,7 @@ public class CommandParser implements Parser {
 	 * @return			Command object generated that can be executed
 	 * @throws InvalidCommandException	If an invalid keyword is specified
 	 */	
-	private ICommand executeCommandType(CommandType cmd, String parameter) throws InvalidCommandException {
+	private Command executeCommandType(CommandType cmd, String parameter) throws InvalidCommandException {
 		parameter = parameter.trim();
 
 		if (cmd == CommandType.ADD) {
@@ -2382,7 +2386,13 @@ public class CommandParser implements Parser {
 
 		return null;
 	}
-
+	
+	/**
+	 * Reformats the Date and Time string into a format that Natty can read
+	 * 
+	 * @param date		The date string that will be passed into Natty
+	 * @return			Natty parseable String
+	 */	
 	private String reformatDateAndTime(String date) {
 		date = this.changeDotsToColonsInTime(date);
 		date = this.changeForToToInTime(date);
@@ -2390,6 +2400,14 @@ public class CommandParser implements Parser {
 		return date;
 	}
 
+	/**
+	 * Replaces all time that is specified in dots to colons
+	 * Example - 6.30pm will be transformed to 6:30pm
+	 * Reason for implementation: https://github.com/joestelmach/natty/issues/116
+	 *  
+	 * @param date		The date string that will be passed into Natty
+	 * @return			Natty parseable String
+	 */	
 	private String changeDotsToColonsInTime(String date) {
 		Pattern pattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
 		Matcher matcher = pattern.matcher(date);
@@ -2400,39 +2418,56 @@ public class CommandParser implements Parser {
 		}
 		return date;
 	}
-
+	
+	/**
+	 * Replaces language specified in the format "for ... from ... " and " from ... for ..."
+	 * 
+	 * @param date		The date string that will be passed into Natty
+	 * @return			Natty parseable String
+	 */	
 	private String changeForToToInTime(String date) {
 		Pattern pattern;
 		Matcher matcher;
 
+		// The regex below will be confused if the format specified is in " from ... to ..." so this is excluded
 		if (Pattern.matches(PATTERN_MATCH_FROM_TO_TIME, date)) {
 			return date;
 		}
-
+		
+		//
+		// e.g. 2 hours from 9am tomorrow with 9am tomorrow for 2 hours
+		//
 		pattern = Pattern.compile(PATTERN_MATCH_FOR_FROM_TIME);
 		matcher = pattern.matcher(date);
 		date = matcher.replaceAll("$3 for $1");
 
+		//
+		// e.g. 9am tomorrow for 2 hours with 9am tomorrow to  2 hours
+		//
 		pattern = Pattern.compile(PATTERN_MATCH_FROM_FOR_TIME);
 		matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1 to  $2"); // Spaces are intentional (1
-												// spaces to replace missing
-												// character when switching from
-												// FOR to TO)
-
+		// Spaces are intentional (1 spaces to replace missing character when switching from FOR to TO)
+		date = matcher.replaceAll("$1 to  $2");
+		
 		return date;
 	}
 
+	/**
+	 * Replaces language specified in the format "... from ... [-|till|to] ..."
+	 * Example: "Saturday from 5.45pm to 9pm" will be "Saturday 5.45pm to 9pm"
+	 * 
+	 * @param date		The date string that will be passed into Natty
+	 * @return			Natty parseable String
+	 */	
 	private String changeFromToInTime(String date) {
 		Pattern pattern = Pattern.compile(PATTERN_MATCH_FROM_TO_TIME);
 		Matcher matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1      $2 to $3"); // Spaces are intentional
-														// (4 spaces to replace
-														// missing FROM)
+		// Spaces are intentional (4 spaces to replace missing FROM)
+		date = matcher.replaceAll("$1      $2 to $3");
 		return date;
 	}
 
-	private ICommand doAdd(String command) throws InvalidCommandException {
+	private Command doAdd(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			throw new InvalidCommandException(CommandType.ADD);
 		}
@@ -2461,7 +2496,8 @@ public class CommandParser implements Parser {
 			if (startAndEndDateTime[DATETIME_START] != null) {
 				boolean isSameDay = startAndEndDateTime[DATETIME_START].toLocalDate().equals(DateTimeSource.getCurrentDateTime().toLocalDate());
 				if (!group.getParseLocations().containsKey("date") && isSameDay) {
-					// Date is not specified, Natty is going to assume its today
+					// If date is not specified, Natty is going to assume its today
+					// Here we determine if we should add a day to the date Natty assumes it is currently
 					if (startAndEndDateTime[DATETIME_START].toLocalTime().isBefore(DateTimeSource.getCurrentDateTime().toLocalTime())) {
 						dayAdded = true;
 						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate().plusDays(1));
@@ -2483,7 +2519,8 @@ public class CommandParser implements Parser {
 			if (startAndEndDateTime[DATETIME_END] != null) {
 				boolean isSameDay = startAndEndDateTime[DATETIME_END].toLocalDate().equals(DateTimeSource.getCurrentDateTime().toLocalDate());
 				if (!group.getParseLocations().containsKey("date") && isSameDay) {
-					// Date is not specified, Natty is going to assume its today
+					// If date is not specified, Natty is going to assume its today
+					// Here we determine if we should add a day to the date Natty assumes it is currently
 					if (dayAdded || startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(DateTimeSource.getCurrentDateTime().toLocalTime())) {
 						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate().plusDays(1));
 					} else {
@@ -2515,7 +2552,7 @@ public class CommandParser implements Parser {
 		return cmd;
 	}
 
-	private ICommand doUpdate(String command) throws InvalidCommandException {
+	private Command doUpdate(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			throw new InvalidCommandException(CommandType.UPDATE);
 		}
@@ -2526,9 +2563,11 @@ public class CommandParser implements Parser {
 		String query;
 
 		try {
+			// Try to get the task number
 			taskNumber = Integer.parseInt(CommandParser.getFirstKeyword(command));
 			query = CommandParser.getNonKeywords(command);
 		} catch (NumberFormatException e) {
+			// No task number specified
 			taskNumber = 0;
 			query = command;
 		}
@@ -2587,7 +2626,7 @@ public class CommandParser implements Parser {
 		return cmd;
 	}
 
-	private ICommand doDelete(String command) throws InvalidCommandException {
+	private Command doDelete(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			return new DeleteCommand(0);
 		}
@@ -2629,7 +2668,7 @@ public class CommandParser implements Parser {
 
 		try {
 			_logger.log(Level.FINE, "Finding ranges for Delete Command");
-			ArrayList<Integer> items = this.getRanges(parameters);
+			Set<Integer> items = this.getRanges(parameters);
 			DeleteCommand cmd = new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
 
 			if (deleteStartDate) {
@@ -2654,7 +2693,7 @@ public class CommandParser implements Parser {
 		}
 	}
 
-	private ICommand doView(String command) {
+	private Command doView(String command) {
 		String keywords;
 
 		String keyword = CommandParser.getFirstKeyword(command);
@@ -2713,7 +2752,7 @@ public class CommandParser implements Parser {
 		return cmd;
 	}
 
-	private ICommand doUndo(String command) {
+	private Command doUndo(String command) {
 		int steps = 1;
 		try {
 			steps = Integer.parseInt(command);
@@ -2726,7 +2765,7 @@ public class CommandParser implements Parser {
 		return new UndoCommand(steps);
 	}
 
-	private ICommand doRedo(String command) {
+	private Command doRedo(String command) {
 		int steps = 1;
 		try {
 			steps = Integer.parseInt(command);
@@ -2739,7 +2778,7 @@ public class CommandParser implements Parser {
 		return new RedoCommand(steps);
 	}
 
-	private ICommand doMark(String command) throws InvalidCommandException {
+	private Command doMark(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			return new MarkCommand(0);
 		}
@@ -2748,14 +2787,14 @@ public class CommandParser implements Parser {
 
 		try {
 			_logger.log(Level.FINE, "Finding ranges to Mark as Complete for Mark Command");
-			ArrayList<Integer> items = this.getRanges(command);
+			Set<Integer> items = this.getRanges(command);
 			return new MarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.MARK);
 		}
 	}
 
-	private ICommand doUnmark(String command) throws InvalidCommandException {
+	private Command doUnmark(String command) throws InvalidCommandException {
 		if (command.isEmpty()) {
 			return new UnmarkCommand(0);
 		}
@@ -2764,14 +2803,14 @@ public class CommandParser implements Parser {
 
 		try {
 			_logger.log(Level.FINE, "Finding ranges to Mark as Incomplete for Unmark Command");
-			ArrayList<Integer> items = this.getRanges(command);
+			Set<Integer> items = this.getRanges(command);
 			return new UnmarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.UNMARK);
 		}
 	}
 
-	private ICommand doDirectory(String command) {
+	private Command doDirectory(String command) {
 		if (command.isEmpty()) {
 			_logger.log(Level.INFO, "Changing Directory - Launch GUI");
 			return new DirectoryCommand();
@@ -2790,7 +2829,7 @@ public class CommandParser implements Parser {
 		}
 	}
 
-	private ICommand doHelp(String command) {
+	private Command doHelp(String command) {
 		CommandType cmd;
 
 		try {
@@ -2802,18 +2841,18 @@ public class CommandParser implements Parser {
 		return new HelpCommand(cmd);
 	}
 
-	private ICommand doExit() {
+	private Command doExit() {
 		_logger.log(Level.INFO, "Exiting Taskie");
 		return new ExitCommand();
 	}
 
-	private ArrayList<Integer> getRanges(String parameter) throws InvalidRangeException {
+	private Set<Integer> getRanges(String parameter) throws InvalidRangeException {
 		String[] parts = parameter.split(PATTERN_MULTI_TASK_SEPARATOR);
 		return this.getRanges(parts);
 	}
 
-	private ArrayList<Integer> getRanges(String[] parts) throws InvalidRangeException {
-		ArrayList<Integer> items = new ArrayList<Integer>();
+	private Set<Integer> getRanges(String[] parts) throws InvalidRangeException {
+		Set<Integer> items = new HashSet<Integer>();
 
 		for (String part : parts) {
 			String[] range = CommandParser.splitStringWithDash(part);
@@ -2911,14 +2950,14 @@ public class CommandParser implements Parser {
 
 package taskie.parser;
 
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.exceptions.InvalidCommandException;
 
 /**
  * Parser is an interface for implementing different parsers for reading user input
  */
 public interface Parser {
-	public ICommand parse(String input) throws InvalidCommandException;
+	public Command parse(String input) throws InvalidCommandException;
 }
 
 	// End of segment: src\taskie\parser\Parser.java
@@ -2938,6 +2977,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import taskie.models.Messages;
+
 public class Taskie {
 	private static String LOGGER_FILENAME = "taskie-log.txt";
 
@@ -2954,9 +2995,9 @@ public class Taskie {
 			fh = new FileHandler("%t/" + LOGGER_FILENAME);
 			Logger.getLogger("").addHandler(fh);
 		} catch (SecurityException e) {
-			System.out.println("SecurityException: Unable to setup logging.");
+			System.out.println(Messages.SECURITY_EXCEPTION);
 		} catch (IOException e) {
-			System.out.println("IOException: Unable to setup logging.");
+			System.out.println(Messages.IO_EXCEPTION);
 		}
 	}
 
@@ -2965,7 +3006,7 @@ public class Taskie {
 			Controller c = Controller.getInstance();
 			c.run();
 		} catch (Exception e) {
-			System.out.println("Unknown Error: " + e.getMessage());
+			System.out.println(Messages.UNKNOWN_EXCEPTION + e.getMessage());
 		}
 	}
 }
@@ -3038,7 +3079,7 @@ import taskie.commands.AddCommand;
 import taskie.commands.DeleteCommand;
 import taskie.commands.DirectoryCommand;
 import taskie.commands.ExitCommand;
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.commands.MarkCommand;
 import taskie.commands.RedoCommand;
 import taskie.commands.UndoCommand;
@@ -3103,7 +3144,7 @@ public class ParserTest {
 	@Test
 	public void testAddCommand() throws InvalidCommandException {
 		AddCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Test Floating Tasks - Normal Cases
 		expectedCommand = new AddCommand("Travel to London", null, null);
@@ -3239,12 +3280,8 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("add Do CS2103 Tutorial 6 from 9am tomorrow for 2 hours");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		//actualCommand = _parser.parse("add Do CS2103 Tutorial 6 for 2 hours from 9am tomorrow");
-		//assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("add from 9am tomorrow for 2 hours Do CS2103 Tutorial 6");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
-		//actualCommand = _parser.parse("add for 2 hours from 9am tomorrow Do CS2103 Tutorial 6");
-		//assertEquals(expectedCommand.toString(), actualCommand.toString());
 
 		expectedCommand = new AddCommand("Dinner Date", _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(17, 0), _today.with(TemporalAdjusters.next(DayOfWeek.FRIDAY)), LocalTime.of(22, 0));
 		actualCommand = _parser.parse("ins Dinner Date on Friday 5pm to 10pm");
@@ -3261,7 +3298,7 @@ public class ParserTest {
 	@Test
 	public void testViewCommand() throws InvalidCommandException {
 		ViewCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Test all view
 		expectedCommand = new ViewCommand(ViewType.ALL, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), MAX_DATETIME.toLocalDate(), MAX_DATETIME.toLocalTime(), null);
@@ -3387,6 +3424,8 @@ public class ParserTest {
 		expectedCommand = new ViewCommand(ViewType.SEARCH, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, "dinner");
 		actualCommand = _parser.parse("find dinner before 1 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("display dinner b4 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		// Test search case sensitivity
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
@@ -3397,7 +3436,7 @@ public class ParserTest {
 	@Test
 	public void testDeleteCommand() throws InvalidCommandException {
 		DeleteCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Equivalence Partitioning 
 		// Delete command expects an integer
@@ -3415,6 +3454,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
+		// Test delete with parameters (start date)
 		expectedCommand = new DeleteCommand(10);
 		expectedCommand.setToDeleteStartDate();
 		actualCommand = _parser.parse("del 10 start");
@@ -3434,6 +3474,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del starttimedate 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test delete with parameters (start time)
 		expectedCommand = new DeleteCommand(10);
 		expectedCommand.setToDeleteStartTime();
 		actualCommand = _parser.parse("del 10 starttime");
@@ -3441,6 +3482,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del starttime 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test delete with parameters (end date)
 		expectedCommand = new DeleteCommand(10);
 		expectedCommand.setToDeleteEndDate();
 		actualCommand = _parser.parse("del 10 end");
@@ -3460,6 +3502,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del endtimedate 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test delete with parameters (end time)
 		expectedCommand = new DeleteCommand(10);
 		expectedCommand.setToDeleteEndTime();
 		actualCommand = _parser.parse("del 10 endtime");
@@ -3467,6 +3510,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del endtime 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test multi-delete
 		expectedCommand = new DeleteCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 		actualCommand = _parser.parse("delete 1-10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -3479,6 +3523,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("delete 1.2.3.4.5.6.7.8.9.10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test multi-delete with parameters
 		expectedCommand = new DeleteCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 		expectedCommand.setToDeleteStartDate();
 		actualCommand = _parser.parse("delete start 1-10");
@@ -3530,7 +3575,7 @@ public class ParserTest {
 	@Test
 	public void testUpdateCommand() throws InvalidCommandException {
 		UpdateCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Equivalence Partitioning
 		// Test all possible variants of UpdateCommand
@@ -3588,7 +3633,7 @@ public class ParserTest {
 	@Test
 	public void testUndoCommand() throws InvalidCommandException {
 		UndoCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Equivalence Partitioning 
 		// Command has an optional integer parameter.
@@ -3614,7 +3659,7 @@ public class ParserTest {
 	@Test
 	public void testRedoCommand() throws InvalidCommandException {
 		RedoCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		// Equivalence Partitioning 
 		// Command has an optional integer parameter.
@@ -3638,7 +3683,7 @@ public class ParserTest {
 	@Test
 	public void testMarkCommand() throws InvalidCommandException {
 		MarkCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		expectedCommand = new MarkCommand(1);
 		actualCommand = _parser.parse("mark 1");
@@ -3675,6 +3720,10 @@ public class ParserTest {
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		actualCommand = _parser.parse("mark 1 2,4-5|7-9");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+
+		expectedCommand = new MarkCommand(new int[] { 1, 2, 3, 4, 5, 7, 8, 9 });
+		actualCommand = _parser.parse("mark 1 2,2-5|7-9");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		expectedCommand = new MarkCommand(0);
 		actualCommand = _parser.parse("mark");
@@ -3690,7 +3739,7 @@ public class ParserTest {
 	@Test
 	public void testUnmarkCommand() throws InvalidCommandException {
 		UnmarkCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		expectedCommand = new UnmarkCommand(1);
 		actualCommand = _parser.parse("unmark 1");
@@ -3743,7 +3792,7 @@ public class ParserTest {
 	@Test
 	public void testDirectoryCommand() throws InvalidCommandException {
 		DirectoryCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		expectedCommand = new DirectoryCommand();
 		actualCommand = _parser.parse("directory");
@@ -3753,7 +3802,7 @@ public class ParserTest {
 	@Test
 	public void testExitCommand() throws InvalidCommandException {
 		ExitCommand expectedCommand;
-		ICommand actualCommand;
+		Command actualCommand;
 		
 		expectedCommand = new ExitCommand();
 		actualCommand = _parser.parse("exit");

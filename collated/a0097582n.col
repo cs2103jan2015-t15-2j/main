@@ -196,6 +196,30 @@ public class AddCommand extends AbstractCommand {
 
 
 	/**
+	 * origin: src\taskie\commands\Command.java
+	 */
+
+
+package taskie.commands;
+
+import taskie.exceptions.UndoNotSupportedException;
+import taskie.models.CommandType;
+
+public interface Command {
+	public CommandType getCommandType();
+
+	public boolean execute();
+	
+	public void undo() throws UndoNotSupportedException;
+}
+
+	// End of segment: src\taskie\commands\Command.java
+
+
+
+
+
+	/**
 	 * origin: src\taskie\commands\DeleteCommand.java
 	 */
 
@@ -286,6 +310,7 @@ public class DeleteCommand extends AbstractCommand {
 		_logger.log(Level.INFO,"CommandType: "+this.getCommandType()+"  taskindexes: "
 		+_taskIndexes+"\ndeleteStartDate: "+_deleteStartDate+"  deleteStartTime: "
 				+_deleteStartTime+"\ndeleteEndDate: "+_deleteEndDate+"  deleteEndTime: "+_deleteEndTime);
+		
 		this.retrieveTasks();
 		boolean success = true;
 
@@ -364,46 +389,22 @@ public class DeleteCommand extends AbstractCommand {
 		StringBuffer fields = new StringBuffer();
 		
 		if (canDeleteStartDate()) {
-			fields.append("Start date, ");
+			fields.append(Messages.START_DATE_STRING);
 		}
 		if (canDeleteStartTime()) {
-			fields.append("Start time, ");
+			fields.append(Messages.START_TIME_STRING);
 		}
 		if (canDeleteEndDate()) {
-			fields.append("End date, ");
+			fields.append(Messages.END_DATE_STRING);
 		}
 		if (canDeleteEndTime()) {
-			fields.append("End time, ");
+			fields.append(Messages.END_TIME_STRING);
 		}	
 		
 		return String.format(taskie.models.Messages.DELETE_TASK_FIELD, _currentTask.getTitle(), fields.substring(0, fields.length() - 2));
 	}
 
 	// End of segment: src\taskie\commands\DeleteCommand.java
-
-
-
-
-
-	/**
-	 * origin: src\taskie\commands\ICommand.java
-	 */
-
-
-package taskie.commands;
-
-import taskie.exceptions.UndoNotSupportedException;
-import taskie.models.CommandType;
-
-public interface ICommand {
-	public CommandType getCommandType();
-
-	public boolean execute();
-	
-	public void undo() throws UndoNotSupportedException;
-}
-
-	// End of segment: src\taskie\commands\ICommand.java
 
 
 
@@ -711,8 +712,8 @@ public class UpdateCommand extends AbstractCommand {
 			if (_task == null) {
 				_task = retrieveTaskToUpdate();
 			}
-			
 			_logger.log(Level.INFO, "TASK FROM UI: " + _task.toString());
+			
 			_oldTask = new Task(_task);
 			_task = updateTask(_task);
 			_logger.log(Level.INFO, "UPDATED TASK: "+_task.toString());
@@ -1078,9 +1079,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.commands.ExitCommand;
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.database.Configuration;
-import taskie.database.IStorage;
+import taskie.database.Storage;
 import taskie.database.NStorage;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.TaskRetrievalFailedException;
@@ -1098,18 +1099,18 @@ public class Controller {
 	private Configuration _config;
 	private Logger _logger;
 	private Parser _parser;
-	private Stack<ICommand> _undoStack;
-	private Stack<ICommand> _redoStack;
+	private Stack<Command> _undoStack;
+	private Stack<Command> _redoStack;
 	private Task _lastTask;
 
 	protected UI _ui;
-	protected IStorage _storage;
+	protected Storage _storage;
 
 	public UI getUI() {
 		return _ui;
 	}
 
-	public IStorage getStorage() {
+	public Storage getStorage() {
 		return _storage;
 	}
 
@@ -1131,16 +1132,16 @@ public class Controller {
 
 	private void initialize() {
 		try {
-			_undoStack = new Stack<ICommand>();
-			_redoStack = new Stack<ICommand>();
+			_undoStack = new Stack<Command>();
+			_redoStack = new Stack<Command>();
 			_storage = new NStorage(_config.getDatabasePath());
 			_lastTask = null;
 		} catch (IOException e) {
-			_logger.log(Level.SEVERE, "Critital: Unable to initialize Storage System");
-			System.out.println("Critital: Unable to initialize Storage System");
+			_logger.log(Level.SEVERE, Messages.STORAGE_INITIALISATION_ERROR);
+			System.out.println(Messages.STORAGE_INITIALISATION_ERROR);
 		}
 	}
-
+	
 	public static Controller getInstance() {
 		if (_instance == null) {
 			_instance = new Controller();
@@ -1169,7 +1170,7 @@ public class Controller {
 			} else {
 				if (!string.isEmpty()) {
 					try {
-						ICommand cmd = _parser.parse(string);
+						Command cmd = _parser.parse(string);
 						this.executeCommand(cmd);
 					} catch (InvalidCommandException e) {
 						_ui.display(DisplayType.ERROR, Messages.INVALID_COMMAND);
@@ -1179,7 +1180,7 @@ public class Controller {
 		}
 	}
 
-	public void executeCommand(ICommand command) {
+	public void executeCommand(Command command) {
 		boolean success = command.execute();
 		if ( success ) { 
 			addTaskHistory(command);
@@ -1217,6 +1218,10 @@ public class Messages {
 	// DeleteCommand messages
 	public static final String DELETE_TASK = "%s has been deleted." + NEWLINE;
 	public static final String DELETE_TASK_FIELD = "The following fields have been deleted from %s: %s" + NEWLINE;
+	public static final String START_DATE_STRING = "start date, ";
+	public static final String START_TIME_STRING = "start time, ";
+	public static final String END_DATE_STRING = "end date, ";
+	public static final String END_TIME_STRING = "end time, ";
 
 	// ExitCommand messages
 	public static final String EXIT_MESSAGE = "Taskie is exiting. Hope to see you again!";
@@ -1239,6 +1244,7 @@ public class Messages {
 	public static final String END_DATE_TIME_NULL = "Task end date updated to %s." +NEWLINE;
 	public static final String UPDATE_START_DATE_REMOVED = "Task start date has been removed." + NEWLINE;
 	public static final String UPDATE_END_DATE_REMOVED = "Task end date has been removed." +NEWLINE;
+	public static final Object UPDATE_TASK_DATE_INVALID = "Task Date is Invalid"+ NEWLINE;
 
 	// DirectoryCommand messages
 	public static final String DIRECTORY_CHANGED = "Directory changed to %s" + NEWLINE;
@@ -1290,7 +1296,7 @@ public class Messages {
 	public static final String NOTHING_TO_REDO = "Nothing to redo." + NEWLINE;
 	public static final String REDO_FAILED = "Redo failed: %s" + NEWLINE;
 
-	// Exception default messages
+	// Exception messages
 	public static final String CONFIGURATION_FAILED_EXCEPTION = "The configuration could not be settled." + NEWLINE;
 	public static final String FILE_EXISTS_EXCEPTION = "A file already exists at this directory." + NEWLINE;
 	public static final String INVALID_COMMAND_EXCEPTION = "The command could not be parsed." + NEWLINE;
@@ -1300,10 +1306,14 @@ public class Messages {
 	public static final String STORAGE_MIGRATION_FAILED_EXCEPTION = "Storage Location is invalid" + NEWLINE;
 	public static final String TASK_DATE_INVALID_EXCEPTION = "Invalid date and time set in task" + NEWLINE;
 	public static final String TASK_DATE_NOT_SET_EXCEPTION = "A date has not been set for the task." + NEWLINE;
-	public static final String TASK_MODIFICATION_FAILED_EXCEPTION = "Modification of the task has failed" + NEWLINE;
+	public static final String TASK_MODIFICATION_FAILED_EXCEPTION = "Task modification failed" + NEWLINE;
 	public static final String TASK_RETRIEVAL_FAILED_EXCEPTION = "Failed to retrieve task(s)" + NEWLINE;
 	public static final String TASK_TYPE_NOT_SUPPORTED_EXCEPTION = "This task type is not supported." + NEWLINE;
 	public static final String UNDO_NOT_SUPPORTED_EXCEPTION = "Undo is not supported for this command" + NEWLINE;
+	public static final String SECURITY_EXCEPTION = "SecurityException: Unable to setup logging." + NEWLINE;
+	public static final String IO_EXCEPTION = "IOException: Unable to setup logging." + NEWLINE;
+	public static final String UNKNOWN_EXCEPTION = "Unknown Error: ";
+	public static final String STORAGE_INITIALISATION_ERROR = "Critital: Unable to initialize Storage System";
 }
 	// End of segment: src\taskie\models\Messages.java
 
@@ -1872,7 +1882,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import taskie.Controller;
-import taskie.commands.ICommand;
+import taskie.commands.Command;
 import taskie.exceptions.InvalidCommandException;
 import taskie.exceptions.TaskModificationFailedException;
 import taskie.exceptions.TaskRetrievalFailedException;
@@ -1901,14 +1911,14 @@ public class FunctionalTest {
 
 	@Test
 	public void testAddFloating() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException {
-		ICommand cmd = _controller.getParser().parse("add taskname");
+		Command cmd = _controller.getParser().parse("add taskname");
 		_controller.executeCommand(cmd);
 		Task expectedTask = new Task("taskname");
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	@Test
 	public void testAddDeadline() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
-		ICommand cmd=null;
+		Command cmd=null;
 		
 		try {
 			cmd = _controller.getParser().parse("add taskname by 10pm");
@@ -1927,7 +1937,7 @@ public class FunctionalTest {
 	
 	@Test
 	public void testAddTimed() throws InvalidCommandException, TaskRetrievalFailedException, IOException, TaskModificationFailedException{
-		ICommand cmd=null;
+		Command cmd=null;
 		
 		try {
 			cmd = _controller.getParser().parse("add taskname from 2pm to 10pm");
