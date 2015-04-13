@@ -151,8 +151,6 @@ public class UpdateCommand extends AbstractCommand {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		} catch (TaskRetrievalFailedException e) {
 			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
-		} catch (Exception e){
-			_controller.getUI().display(DisplayType.ERROR, e.getMessage());
 		}
 	}
 
