@@ -64,10 +64,10 @@ public class UnmarkCommand extends AbstractCommand {
 
 				if (_currentTask.isDone()) {
 					updatedTask.setTaskUndone();
-					_controller.getUI().display(DisplayType.ERROR, formatUnmarkString());
+					_controller.getUI().display(DisplayType.SUCCESS, formatUnmarkString());
 					_controller.getStorage().updateTask(_currentTask, updatedTask);
 				} else {
-					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_NOT_DONE);
+					_controller.getUI().display(DisplayType.ERROR, formatAlreadyUnmarkedString());
 				}
 
 				_controller.setLastTask(updatedTask);
@@ -83,6 +83,10 @@ public class UnmarkCommand extends AbstractCommand {
 		}
 	}
 
+	private String formatAlreadyUnmarkedString() {
+		return String.format(taskie.models.Messages.TASK_ALREADY_NOT_DONE, _currentTask.getTitle());
+	}
+	
 	private String formatUnmarkString() {
 		return String.format(taskie.models.Messages.UNMARK_STRING, _currentTask.getTitle());
 	}

@@ -13,6 +13,7 @@ public class Messages {
 	public static final String UI_WELCOME_MESSAGE = "Welcome to Taskie!";
 	public static final String UI_REQUEST_INPUT = "Enter Command: ";
 	public static final String UI_HEADER = "Your To-Do List";
+	public static final String UI_NO_TASKS = "No tasks found!";
 
 	// AddCommand messages
 	public static final String ADD_FLOATING = "%s added." + NEWLINE;
@@ -28,12 +29,12 @@ public class Messages {
 	public static final String EXIT_MESSAGE = "Taskie is exiting. Hope to see you again!";
 
 	// MarkCommand messages
-	public static final String MARK_STRING = "%s marked as done." + NEWLINE;
-	public static final String TASK_ALREADY_DONE = "Task is already done." + NEWLINE;
+	public static final String MARK_STRING = "%s marked as complete." + NEWLINE;
+	public static final String TASK_ALREADY_DONE = "%s is already complete." + NEWLINE;
 
 	// UnmarkCommand messages
-	public static final String UNMARK_STRING = "%s marked as not done." + NEWLINE;
-	public static final String TASK_ALREADY_NOT_DONE = "Task is not done." + NEWLINE;
+	public static final String UNMARK_STRING = "%s marked as incomplete" + NEWLINE;
+	public static final String TASK_ALREADY_NOT_DONE = "%s is already incomplete." + NEWLINE;
 
 	// UpdateCommand messages
 	public static final String UPDATE_STRING ="Task is updated as below:" + NEWLINE;
