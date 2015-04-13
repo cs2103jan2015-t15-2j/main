@@ -102,6 +102,7 @@ public class DeleteCommand extends AbstractCommand {
 		_logger.log(Level.INFO,"CommandType: "+this.getCommandType()+"  taskindexes: "
 		+_taskIndexes+"\ndeleteStartDate: "+_deleteStartDate+"  deleteStartTime: "
 				+_deleteStartTime+"\ndeleteEndDate: "+_deleteEndDate+"  deleteEndTime: "+_deleteEndTime);
+		
 		this.retrieveTasks();
 		boolean success = true;
 

@@ -46,6 +46,7 @@ public class Messages {
 	public static final String END_DATE_TIME_NULL = "Task end date updated to %s." +NEWLINE;
 	public static final String UPDATE_START_DATE_REMOVED = "Task start date has been removed." + NEWLINE;
 	public static final String UPDATE_END_DATE_REMOVED = "Task end date has been removed." +NEWLINE;
+	public static final Object UPDATE_TASK_DATE_INVALID = "Task Date is Invalid"+ NEWLINE;
 
 	// DirectoryCommand messages
 	public static final String DIRECTORY_CHANGED = "Directory changed to %s" + NEWLINE;
@@ -107,8 +108,10 @@ public class Messages {
 	public static final String STORAGE_MIGRATION_FAILED_EXCEPTION = "Storage Location is invalid" + NEWLINE;
 	public static final String TASK_DATE_INVALID_EXCEPTION = "Invalid date and time set in task" + NEWLINE;
 	public static final String TASK_DATE_NOT_SET_EXCEPTION = "A date has not been set for the task." + NEWLINE;
-	public static final String TASK_MODIFICATION_FAILED_EXCEPTION = "Modification of the task has failed" + NEWLINE;
+	public static final String TASK_MODIFICATION_FAILED_EXCEPTION = "Task modification failed" + NEWLINE;
 	public static final String TASK_RETRIEVAL_FAILED_EXCEPTION = "Failed to retrieve task(s)" + NEWLINE;
 	public static final String TASK_TYPE_NOT_SUPPORTED_EXCEPTION = "This task type is not supported." + NEWLINE;
 	public static final String UNDO_NOT_SUPPORTED_EXCEPTION = "Undo is not supported for this command" + NEWLINE;
+	public static final String SECURITY_EXCEPTION = "SecurityException: Unable to setup logging." + NEWLINE;
+	public static final String IO_EXCEPTION = "IOException: Unable to setup logging." + NEWLINE;
 }

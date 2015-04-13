@@ -131,8 +131,8 @@ public class UpdateCommand extends AbstractCommand {
 			if (_task == null) {
 				_task = retrieveTaskToUpdate();
 			}
-			
 			_logger.log(Level.INFO, "TASK FROM UI: " + _task.toString());
+			
 			_oldTask = new Task(_task);
 			_task = updateTask(_task);
 			_logger.log(Level.INFO, "UPDATED TASK: "+_task.toString());
@@ -223,13 +223,13 @@ public class UpdateCommand extends AbstractCommand {
 			_controller.getStorage().updateTask(_task, _task);
 			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(current, _task));
 		} catch (TaskTypeNotSupportedException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, "Task Type Not Supported"));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_TYPE_NOT_SUPPORTED_EXCEPTION));
 		} catch (TaskModificationFailedException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, "Task Modification Failed - " + e.getMessage()));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_MODIFICATION_FAILED_EXCEPTION+" - " + e.getMessage()));
 		} catch (TaskDateNotSetException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, "Task Date Not Set"));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_DATE_NOT_SET_EXCEPTION));
 		} catch (TaskDateInvalidException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, "Task Date is Invalid"));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_DATE_INVALID_EXCEPTION));
 		}
 	}
 

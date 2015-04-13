@@ -6,6 +6,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import taskie.models.Messages;
+
 public class Taskie {
 	private static String LOGGER_FILENAME = "taskie-log.txt";
 
@@ -22,7 +24,7 @@ public class Taskie {
 			fh = new FileHandler("%t/" + LOGGER_FILENAME);
 			Logger.getLogger("").addHandler(fh);
 		} catch (SecurityException e) {
-			System.out.println("SecurityException: Unable to setup logging.");
+			System.out.println(Messages.SECURITY_EXCEPTION);
 		} catch (IOException e) {
 			System.out.println("IOException: Unable to setup logging.");
 		}
