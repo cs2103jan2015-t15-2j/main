@@ -69,7 +69,13 @@ public class FunctionalTest {
 			e.printStackTrace();
 		}
 		_controller.executeCommand(cmd);
-		Task expectedTask = new Task("taskname",_today2pm,_today10pm);
+		Task expectedTask = null;
+		if(LocalTime.now().isAfter(_today2pm.toLocalTime())){
+			expectedTask = new Task("taskname",_today2pm.plusDays(1),_today10pm.plusDays(1));
+		}else{
+			expectedTask = new Task("taskname",_today2pm,_today10pm);
+		}
+		
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	
@@ -152,10 +158,16 @@ public class FunctionalTest {
 		_controller.executeCommand(addCmd1);
 		_controller.executeCommand(addCmd2);
 		_controller.executeCommand(addCmd3);
+		Task expectedTask3 = null;
+		if(LocalTime.now().isAfter(_today2pm.toLocalTime())){
+			expectedTask3 = new Task("taskname",_today2pm.plusDays(1),_today10pm.plusDays(1));
+		}else{
+			expectedTask3 = new Task("taskname",_today2pm,_today10pm);
+		}
 		
 		Task expectedTask1 = new Task("taskname");
 		Task expectedTask2 = new Task("taskname",_today10pm);
-		Task expectedTask3 = new Task("taskname",_today2pm,_today10pm);
+		
 		
 		assertEquals("[" + expectedTask1.toString() + ", " + expectedTask2.toString()
 				+ ", " + expectedTask3.toString() + "]", 
@@ -318,8 +330,12 @@ public class FunctionalTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		Task expectedTask = new Task("taskname", _today2pm, _today10pm);
+		Task expectedTask = null;
+		if(LocalTime.now().isAfter(_today2pm.toLocalTime())){
+			expectedTask = new Task("taskname",_today2pm.plusDays(1),_today10pm.plusDays(1));
+		}else{
+			expectedTask = new Task("taskname",_today2pm,_today10pm);
+		}
 		
 		_controller.executeCommand(addCmd);
 		_controller.executeCommand(undoCmd);
