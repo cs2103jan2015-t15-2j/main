@@ -25,7 +25,7 @@ public class Messages {
 	public static final String DELETE_TASK_FIELD = "The following fields have been deleted from %s:" + NEWLINE;
 
 	// ExitCommand messages
-	public static final String EXIT_MESSAGE = "Taskie is exiting."  + NEWLINE + "Hope to see you again!" + NEWLINE;
+	public static final String EXIT_MESSAGE = "Taskie is exiting. Hope to see you again!";
 
 	// MarkCommand messages
 	public static final String MARK_STRING = "%s marked as done." + NEWLINE;

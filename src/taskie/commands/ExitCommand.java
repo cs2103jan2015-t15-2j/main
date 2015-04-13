@@ -30,7 +30,6 @@ public class ExitCommand extends AbstractCommand {
 		
 		}
 
-		_controller.getUI().display(DisplayType.DEFAULT, taskie.models.Messages.EXIT_MESSAGE);
 		_controller.getUI().exit();
 	}
 	

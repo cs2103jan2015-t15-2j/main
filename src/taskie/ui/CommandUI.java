@@ -158,6 +158,13 @@ public class CommandUI implements UI {
 		_controller.executeCommand(new ViewCommand(ViewType.UPCOMING));
 	}
 	
+	private void printExitMessage() {
+		String padding = new String(new char[Messages.EXIT_MESSAGE.length() + 2]).replace("\0", "=");
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(" " + Messages.EXIT_MESSAGE + " ").reset() + Messages.NEWLINE);
+		this.display(DisplayType.DEFAULT, ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
+	}
+	
 	private void printHeader(String header) {
 		String padding = new String(new char[header.length() + 2]).replace("\0", "=");
 		this.display(DisplayType.DEFAULT, Messages.NEWLINE + ansi().fg(Color.RED).bg(Color.WHITE).a(padding).reset() + Messages.NEWLINE);
@@ -187,6 +194,7 @@ public class CommandUI implements UI {
 	}
 
 	public void exit() {
+		this.printExitMessage();
 		AnsiConsole.systemUninstall();
 		_isUIRunning = false;
 	}
