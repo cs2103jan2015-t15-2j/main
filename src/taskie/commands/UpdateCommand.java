@@ -229,7 +229,7 @@ public class UpdateCommand extends AbstractCommand {
 		} catch (TaskDateNotSetException e) {
 			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_DATE_NOT_SET_EXCEPTION));
 		} catch (TaskDateInvalidException e) {
-			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.TASK_DATE_INVALID_EXCEPTION));
+			_controller.getUI().display(DisplayType.ERROR, String.format(Messages.UNDO_FAILED, Messages.UPDATE_TASK_DATE_INVALID));
 		}
 	}
 
