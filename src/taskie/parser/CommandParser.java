@@ -63,10 +63,10 @@ public class CommandParser implements Parser {
 	// Keywords for advanced users
 	private static final String[] DIRECTORY_OVERWRITE_KEYWORDS = new String[] { "overwrite" };
 	
-	private static final String[] DELETE_START_DATE_KEYWORDS = new String[] { "startdate" };
-	private static final String[] DELETE_START_TIME_KEYWORDS = new String[] { "start", "starttime", "startdatetime", "starttimedate" };
-	private static final String[] DELETE_END_DATE_KEYWORDS = new String[] { "enddate" };
-	private static final String[] DELETE_END_TIME_KEYWORDS = new String[] { "end", "endtime", "enddatetime", "endtimedate" };
+	private static final String[] DELETE_START_DATE_KEYWORDS = new String[] { "start", "startdate", "startdatetime", "starttimedate" };
+	private static final String[] DELETE_START_TIME_KEYWORDS = new String[] { "starttime" };
+	private static final String[] DELETE_END_DATE_KEYWORDS = new String[] { "end", "enddate", "enddatetime", "endtimedate" };
+	private static final String[] DELETE_END_TIME_KEYWORDS = new String[] { "endtime" };
 	
 	private static final LocalDateTime MIN_DATETIME = LocalDateTime.MIN;
 	private static final LocalDateTime MAX_DATETIME = LocalDateTime.MAX;
