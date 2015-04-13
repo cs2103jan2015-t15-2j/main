@@ -43,7 +43,6 @@ public class UndoCommand extends AbstractCommand {
 		}
 	}
 	
-	//@author A0121555M
 	public void undo() throws UndoNotSupportedException {
 		throw new UndoNotSupportedException();
 	}

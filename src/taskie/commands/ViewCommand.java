@@ -19,6 +19,7 @@ import taskie.models.ViewType;
 public class ViewCommand extends AbstractCommand {
 	private CommandType _commandType = CommandType.VIEW;
 	private Logger _logger = Logger.getLogger(ViewCommand.class.getName());
+	
 	//@author A0121555M
 	private ViewType _viewType;
 	private LocalDate _startDate;
