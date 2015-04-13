@@ -366,6 +366,8 @@ public class ParserTest {
 		expectedCommand = new ViewCommand(ViewType.SEARCH, MIN_DATETIME.toLocalDate(), MIN_DATETIME.toLocalTime(), LocalDate.of(2015, 4, 1), null, "dinner");
 		actualCommand = _parser.parse("find dinner before 1 april");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
+		actualCommand = _parser.parse("display dinner b4 1 april");
+		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
 		// Test search case sensitivity
 		expectedCommand = new ViewCommand(ViewType.SEARCH, null, null, null, null, "CS2103 tutorial".toLowerCase());
