@@ -13,6 +13,7 @@ public class Messages {
 	public static final String UI_WELCOME_MESSAGE = "Welcome to Taskie!";
 	public static final String UI_REQUEST_INPUT = "Enter Command: ";
 	public static final String UI_HEADER = "Your To-Do List";
+	public static final String UI_NO_TASKS = "No tasks found!";
 
 	// AddCommand messages
 	public static final String ADD_FLOATING = "%s added." + NEWLINE;

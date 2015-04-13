@@ -17,6 +17,7 @@ import org.fusesource.jansi.AnsiConsole;
 import taskie.Controller;
 import taskie.commands.ViewCommand;
 import taskie.exceptions.InvalidTaskException;
+import taskie.exceptions.TaskRetrievalFailedException;
 import taskie.models.DisplayType;
 import taskie.models.Messages;
 import taskie.models.Task;
@@ -59,20 +60,30 @@ public class CommandUI implements UI {
 		_currentTaskList = tasks;
 		_now = LocalDateTime.now();
 
-		int numTasks = tasks.length;
-		int characters = String.valueOf(numTasks).length();
-		int shown = 0;
-		
-		this.printHeader(Messages.UI_HEADER);
-		
-		for (int x = 0; x < numTasks; x++) {
-			Task task = tasks[x];
-			display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
-			this.printTask(task);
-			shown++;
+		try {
+			int totalTasks = _controller.getStorage().getTaskList().size();
+			int numTasks = tasks.length;
+			int characters = String.valueOf(numTasks).length();
+			int shown = 0;
+			
+			this.printHeader(Messages.UI_HEADER);
+			
+			if ( numTasks > 0 ) {
+				for (int x = 0; x < numTasks; x++) {
+					Task task = tasks[x];
+					display(ansi().fg(Color.CYAN).a("#" + padLeft(String.valueOf(x + 1), characters, "0") + ": ").reset());
+					this.printTask(task);
+					shown++;
+				}
+			} else {
+				display(ansi().a(String.format("%s%n", Messages.UI_NO_TASKS)).newline().reset());
+			}
+
+			display(ansi().a(String.format("---%nShowing %d out of %d tasks%n", shown, totalTasks, 0)).newline().reset());
+		} catch (TaskRetrievalFailedException e) {
+			display(DisplayType.ERROR, Messages.TASK_RETRIEVAL_FAILED_EXCEPTION);
 		}
 
-		display(ansi().a(String.format("---%nShowing %d out of %d tasks%n", shown, numTasks, 0)).newline().reset());
 	}
 
 	public void display(DisplayType type, String message) {
