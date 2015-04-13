@@ -396,6 +396,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 		
+		// Test delete with parameters (start date)
 		expectedCommand = new DeleteCommand(10);
 		expectedCommand.setToDeleteStartDate();
 		actualCommand = _parser.parse("del 10 start");
@@ -415,6 +416,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del starttimedate 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test delete with parameters (start time)
 		expectedCommand = new DeleteCommand(10);
 		expectedCommand.setToDeleteStartTime();
 		actualCommand = _parser.parse("del 10 starttime");
@@ -422,6 +424,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del starttime 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test delete with parameters (end date)
 		expectedCommand = new DeleteCommand(10);
 		expectedCommand.setToDeleteEndDate();
 		actualCommand = _parser.parse("del 10 end");
@@ -441,6 +444,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del endtimedate 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test delete with parameters (end time)
 		expectedCommand = new DeleteCommand(10);
 		expectedCommand.setToDeleteEndTime();
 		actualCommand = _parser.parse("del 10 endtime");
@@ -448,6 +452,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("del endtime 10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test multi-delete
 		expectedCommand = new DeleteCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 		actualCommand = _parser.parse("delete 1-10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
@@ -460,6 +465,7 @@ public class ParserTest {
 		actualCommand = _parser.parse("delete 1.2.3.4.5.6.7.8.9.10");
 		assertEquals(expectedCommand.toString(), actualCommand.toString());
 
+		// Test multi-delete with parameters
 		expectedCommand = new DeleteCommand(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
 		expectedCommand.setToDeleteStartDate();
 		actualCommand = _parser.parse("delete start 1-10");
