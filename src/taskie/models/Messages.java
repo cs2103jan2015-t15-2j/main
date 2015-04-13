@@ -89,11 +89,11 @@ public class Messages {
 
 	// UndoCommand messages
 	public static final String NOTHING_TO_UNDO = "Nothing to undo." + NEWLINE;
-	public static final String UNDO_FAILED = "Undo failed." + NEWLINE;
+	public static final String UNDO_FAILED = "Undo failed: %s" + NEWLINE;
 
 	// RedoCommand messages
 	public static final String NOTHING_TO_REDO = "Nothing to redo." + NEWLINE;
-	public static final String REDO_FAILED = "Redo failed." + NEWLINE;
+	public static final String REDO_FAILED = "Redo failed: %s" + NEWLINE;
 
 	// Exception default messages
 	public static final String CONFIGURATION_FAILED_EXCEPTION = "The configuration could not be settled." + NEWLINE;
