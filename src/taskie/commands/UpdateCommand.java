@@ -133,6 +133,7 @@ public class UpdateCommand extends AbstractCommand {
 
 			_logger.log(Level.INFO, "TASK FROM UI: " + _oldTask.toString());
 			_newTask = updateTask(_oldTask);
+			_logger.log(Level.INFO, "UPDATED TASK: "+_newTask.toString());
 			_controller.getStorage().updateTask(_oldTask, _newTask);
 			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(_newTask));
 		} catch (InvalidTaskException e) {

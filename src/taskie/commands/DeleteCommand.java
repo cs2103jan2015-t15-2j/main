@@ -10,6 +10,7 @@ package taskie.commands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import taskie.exceptions.InvalidTaskException;
@@ -97,6 +98,10 @@ public class DeleteCommand extends AbstractCommand {
 
 	@Override
 	public void execute() {
+		_logger = Logger.getLogger(DeleteCommand.class.getName());
+		_logger.log(Level.INFO,"CommandType: "+this.getCommandType()+"  taskindexes: "
+		+_taskIndexes+"\ndeleteStartDate: "+_deleteStartDate+"  deleteStartTime: "
+				+_deleteStartTime+"\ndeleteEndDate: "+_deleteEndDate+"  deleteEndTime: "+_deleteEndTime);
 		this.retrieveTasks();
 
 		for (Task task : _tasks) {
@@ -139,10 +144,14 @@ public class DeleteCommand extends AbstractCommand {
 			return;
 		}
 		if (canDeleteStartTime()) {
+			_logger.log(Level.INFO, "Deleting startTime.");
 			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), null, task.getEndDate(), task.getEndTime());
 			_controller.getStorage().updateTask(task, updatedTask);
+			task=updatedTask;
+			
 		}
 		if (canDeleteEndTime()) {
+			_logger.log(Level.INFO, "Deleting endTime.");
 			Task updatedTask = new Task(task.getTitle(), task.getStartDate(), task.getStartTime(), task.getEndDate(), null);
 			_controller.getStorage().updateTask(task, updatedTask);
 		}

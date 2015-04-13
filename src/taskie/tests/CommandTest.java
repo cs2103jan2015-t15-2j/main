@@ -247,7 +247,7 @@ public class CommandTest {
 	
 	//startdate and enddate of task is 2 hours apart, updatecommand updates startdate to the nextday
 	@Test
-	public void testUpdateCommandStartEndDateTimeComplex()
+	public void testUpdateCommandUpdateToStartTimeAfterEndTime()
 			throws TaskRetrievalFailedException, IOException,
 			InvalidTaskException, TaskDateNotSetException, TaskDateInvalidException, TaskModificationFailedException {
 		setUp();
@@ -265,6 +265,7 @@ public class CommandTest {
 		Task expectedTask = new Task("foo",_time2,_time3);
 		assertEquals(expectedTask.toString(), list.get(0).toString());	
 	}
+	
 	
 	@Test
 	public void testUpdateCommandNoIndexReference()
@@ -319,6 +320,8 @@ public class CommandTest {
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 		
 	}
+	
+	
 	@Test
 	public void testDeleteCommandEndDateTime() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
 		setUp();
@@ -328,6 +331,21 @@ public class CommandTest {
 		delete.setToDeleteEndDate();
 		delete.execute();
 		Task expectedTask = new Task("foo",_time1);
+		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
+	}
+	
+	@Test
+	public void testDeleteCommandStartEndTime() throws TaskRetrievalFailedException, IOException, TaskModificationFailedException{
+		setUp();
+		addTask("foo",_time1,_time2);
+		_controller.getUI().display(_controller.getStorage().getTaskList().toArray(new Task[1]));
+		DeleteCommand delete = new DeleteCommand(1);
+		delete.setToDeleteStartTime();
+		delete.setToDeleteEndTime();
+		delete.execute();
+		LocalDate startDate= _time1.toLocalDate();
+		LocalDate endDate = _time2.toLocalDate();
+		Task expectedTask = new Task("foo",startDate,endDate);
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	
