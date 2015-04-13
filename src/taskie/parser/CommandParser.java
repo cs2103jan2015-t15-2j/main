@@ -373,7 +373,13 @@ public class CommandParser implements Parser {
 
 		return null;
 	}
-
+	
+	/**
+	 * Reformats the Date and Time string into a format that Natty can read
+	 * 
+	 * @param date		The date string that will be passed into Natty
+	 * @return			Natty parseable String
+	 */	
 	private String reformatDateAndTime(String date) {
 		date = this.changeDotsToColonsInTime(date);
 		date = this.changeForToToInTime(date);
@@ -381,6 +387,14 @@ public class CommandParser implements Parser {
 		return date;
 	}
 
+	/**
+	 * Replaces all time that is specified in dots to colons
+	 * Example - 6.30pm will be transformed to 6:30pm
+	 * Reason for implementation: https://github.com/joestelmach/natty/issues/116
+	 *  
+	 * @param date		The date string that will be passed into Natty
+	 * @return			Natty parseable String
+	 */	
 	private String changeDotsToColonsInTime(String date) {
 		Pattern pattern = Pattern.compile(PATTERN_DOT_SEPARATED_TIME);
 		Matcher matcher = pattern.matcher(date);
@@ -391,35 +405,52 @@ public class CommandParser implements Parser {
 		}
 		return date;
 	}
-
+	
+	/**
+	 * Replaces language specified in the format "for ... from ... " and " from ... for ..."
+	 * 
+	 * @param date		The date string that will be passed into Natty
+	 * @return			Natty parseable String
+	 */	
 	private String changeForToToInTime(String date) {
 		Pattern pattern;
 		Matcher matcher;
 
+		// The regex below will be confused if the format specified is in " from ... to ..." so this is excluded
 		if (Pattern.matches(PATTERN_MATCH_FROM_TO_TIME, date)) {
 			return date;
 		}
-
+		
+		//
+		// e.g. 2 hours from 9am tomorrow with 9am tomorrow for 2 hours
+		//
 		pattern = Pattern.compile(PATTERN_MATCH_FOR_FROM_TIME);
 		matcher = pattern.matcher(date);
 		date = matcher.replaceAll("$3 for $1");
 
+		//
+		// e.g. 9am tomorrow for 2 hours with 9am tomorrow to  2 hours
+		//
 		pattern = Pattern.compile(PATTERN_MATCH_FROM_FOR_TIME);
 		matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1 to  $2"); // Spaces are intentional (1
-												// spaces to replace missing
-												// character when switching from
-												// FOR to TO)
-
+		// Spaces are intentional (1 spaces to replace missing character when switching from FOR to TO)
+		date = matcher.replaceAll("$1 to  $2");
+		
 		return date;
 	}
 
+	/**
+	 * Replaces language specified in the format "... from ... [-|till|to] ..."
+	 * Example: "Saturday from 5.45pm to 9pm" will be "Saturday 5.45pm to 9pm"
+	 * 
+	 * @param date		The date string that will be passed into Natty
+	 * @return			Natty parseable String
+	 */	
 	private String changeFromToInTime(String date) {
 		Pattern pattern = Pattern.compile(PATTERN_MATCH_FROM_TO_TIME);
 		Matcher matcher = pattern.matcher(date);
-		date = matcher.replaceAll("$1      $2 to $3"); // Spaces are intentional
-														// (4 spaces to replace
-														// missing FROM)
+		// Spaces are intentional (4 spaces to replace missing FROM)
+		date = matcher.replaceAll("$1      $2 to $3");
 		return date;
 	}
 
