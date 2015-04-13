@@ -414,7 +414,6 @@ public class CommandTest {
 	private void addTask(String taskName,LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		AddCommand cmd = new AddCommand();
 		cmd.setTaskName(taskName);
-		System.out.println(cmd.toString());
 		if(startDateTime!=null){
 			cmd.setStartDateTime(startDateTime);
 		}
