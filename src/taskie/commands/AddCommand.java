@@ -188,17 +188,17 @@ public class AddCommand extends AbstractCommand {
 
 	//@author A0097582N
 	private boolean hasNoConflict() throws TaskRetrievalFailedException {
-		Boolean returnVal=true;
+		Boolean hasNoConflict=true; 
 		_conflictedTask = new ArrayList<Task>();
 		ArrayList<Task> list = _controller.getStorage().getTaskList();
 		for (int i=0;i<list.size();i++) {
 			Task task = list.get(i);
 			if (hasConflict(task, this._task)) {
 				_conflictedTask.add(task);
-				returnVal=false;
+				hasNoConflict=false;
 			}
 		}
-		return returnVal;
+		return hasNoConflict;
 	}
 
 	private boolean hasConflict(Task task1, Task task2) {
