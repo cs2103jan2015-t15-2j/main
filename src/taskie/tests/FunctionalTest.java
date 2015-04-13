@@ -55,7 +55,12 @@ public class FunctionalTest {
 			e.printStackTrace();
 		}
 		_controller.executeCommand(cmd);
-		Task expectedTask = new Task("taskname",_today10pm);
+		Task expectedTask = null;
+		if(LocalTime.now().isAfter(_today10pm.toLocalTime())){
+			expectedTask = new Task("taskname", _today10pm.plusDays(1));
+		}else{
+			expectedTask = new Task("taskname",_today10pm);
+		}
 		assertEquals(expectedTask.toString(),_controller.getStorage().getTaskList().get(0).toString());
 	}
 	
@@ -159,6 +164,12 @@ public class FunctionalTest {
 		_controller.executeCommand(addCmd2);
 		_controller.executeCommand(addCmd3);
 		Task expectedTask3 = null;
+		Task expectedTask2= null;
+		if(LocalTime.now().isAfter(_today10pm.toLocalTime())){
+			expectedTask2 = new Task("taskname", _today10pm.plusDays(1));
+		}else{
+			expectedTask2 = new Task("taskname",_today10pm);
+		}
 		if(LocalTime.now().isAfter(_today2pm.toLocalTime())){
 			expectedTask3 = new Task("taskname",_today2pm.plusDays(1),_today10pm.plusDays(1));
 		}else{
@@ -166,7 +177,6 @@ public class FunctionalTest {
 		}
 		
 		Task expectedTask1 = new Task("taskname");
-		Task expectedTask2 = new Task("taskname",_today10pm);
 		
 		
 		assertEquals("[" + expectedTask1.toString() + ", " + expectedTask2.toString()
