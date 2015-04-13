@@ -483,7 +483,8 @@ public class CommandParser implements Parser {
 			if (startAndEndDateTime[DATETIME_START] != null) {
 				boolean isSameDay = startAndEndDateTime[DATETIME_START].toLocalDate().equals(DateTimeSource.getCurrentDateTime().toLocalDate());
 				if (!group.getParseLocations().containsKey("date") && isSameDay) {
-					// Date is not specified, Natty is going to assume its today
+					// If date is not specified, Natty is going to assume its today
+					// Here we determine if we should add a day to the date Natty assumes it is currently
 					if (startAndEndDateTime[DATETIME_START].toLocalTime().isBefore(DateTimeSource.getCurrentDateTime().toLocalTime())) {
 						dayAdded = true;
 						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate().plusDays(1));
@@ -505,7 +506,8 @@ public class CommandParser implements Parser {
 			if (startAndEndDateTime[DATETIME_END] != null) {
 				boolean isSameDay = startAndEndDateTime[DATETIME_END].toLocalDate().equals(DateTimeSource.getCurrentDateTime().toLocalDate());
 				if (!group.getParseLocations().containsKey("date") && isSameDay) {
-					// Date is not specified, Natty is going to assume its today
+					// If date is not specified, Natty is going to assume its today
+					// Here we determine if we should add a day to the date Natty assumes it is currently
 					if (dayAdded || startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(DateTimeSource.getCurrentDateTime().toLocalTime())) {
 						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate().plusDays(1));
 					} else {
@@ -651,7 +653,7 @@ public class CommandParser implements Parser {
 
 		try {
 			_logger.log(Level.FINE, "Finding ranges for Delete Command");
-			ArrayList<Integer> items = this.getRanges(parameters);
+			Set<Integer> items = this.getRanges(parameters);
 			DeleteCommand cmd = new DeleteCommand(items.stream().mapToInt(Integer::intValue).toArray());
 
 			if (deleteStartDate) {
@@ -770,7 +772,7 @@ public class CommandParser implements Parser {
 
 		try {
 			_logger.log(Level.FINE, "Finding ranges to Mark as Complete for Mark Command");
-			ArrayList<Integer> items = this.getRanges(command);
+			Set<Integer> items = this.getRanges(command);
 			return new MarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.MARK);
@@ -786,7 +788,7 @@ public class CommandParser implements Parser {
 
 		try {
 			_logger.log(Level.FINE, "Finding ranges to Mark as Incomplete for Unmark Command");
-			ArrayList<Integer> items = this.getRanges(command);
+			Set<Integer> items = this.getRanges(command);
 			return new UnmarkCommand(items.stream().mapToInt(Integer::intValue).toArray());
 		} catch (InvalidRangeException e) {
 			throw new InvalidCommandException(CommandType.UNMARK);
@@ -829,13 +831,13 @@ public class CommandParser implements Parser {
 		return new ExitCommand();
 	}
 
-	private ArrayList<Integer> getRanges(String parameter) throws InvalidRangeException {
+	private Set<Integer> getRanges(String parameter) throws InvalidRangeException {
 		String[] parts = parameter.split(PATTERN_MULTI_TASK_SEPARATOR);
 		return this.getRanges(parts);
 	}
 
-	private ArrayList<Integer> getRanges(String[] parts) throws InvalidRangeException {
-		ArrayList<Integer> items = new ArrayList<Integer>();
+	private Set<Integer> getRanges(String[] parts) throws InvalidRangeException {
+		Set<Integer> items = new HashSet<Integer>();
 
 		for (String part : parts) {
 			String[] range = CommandParser.splitStringWithDash(part);
