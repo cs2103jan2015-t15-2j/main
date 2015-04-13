@@ -164,7 +164,7 @@ public class DeleteCommand extends AbstractCommand {
 
 	//@author A0121555M
 	private void retrieveTasks() {
-		if (_taskIndexes == null) {
+		if (_taskIndexes == null || _tasks.size() > 0) {
 			return;
 		}
 
