@@ -444,12 +444,13 @@ public class CommandParser implements Parser {
 			LocalDateTime[] startAndEndDateTime = getStartAndEndDateTime(dates);
 
 			cmd.setTaskName(name);
-			
+			boolean dayAdded = false;
 			if ( startAndEndDateTime[DATETIME_START] != null ) {
 				boolean isSameDay = startAndEndDateTime[DATETIME_START].toLocalDate().equals(CommandParser.getDateTimeNow().toLocalDate());
 				if ( !group.getParseLocations().containsKey("date") && isSameDay ) {
 					// Date is not specified, Natty is going to assume its today
 					if ( startAndEndDateTime[DATETIME_START].toLocalTime().isBefore(CommandParser.getDateTimeNow().toLocalTime()) ) {
+						dayAdded = true;
 						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate().plusDays(1));
 					} else {
 						cmd.setStartDate(startAndEndDateTime[DATETIME_START].toLocalDate());
@@ -470,7 +471,7 @@ public class CommandParser implements Parser {
 				boolean isSameDay = startAndEndDateTime[DATETIME_END].toLocalDate().equals(CommandParser.getDateTimeNow().toLocalDate());
 				if ( !group.getParseLocations().containsKey("date") && isSameDay ) {
 					// Date is not specified, Natty is going to assume its today
-					if ( startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(CommandParser.getDateTimeNow().toLocalTime()) ) {
+					if ( dayAdded || startAndEndDateTime[DATETIME_END].toLocalTime().isBefore(CommandParser.getDateTimeNow().toLocalTime()) ) {
 						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate().plusDays(1));
 					} else {
 						cmd.setEndDate(startAndEndDateTime[DATETIME_END].toLocalDate());
