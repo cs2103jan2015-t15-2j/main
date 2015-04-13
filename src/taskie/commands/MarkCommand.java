@@ -63,7 +63,7 @@ public class MarkCommand extends AbstractCommand {
 				Task updatedTask = new Task(_currentTask);
 
 				if (_currentTask.isDone()) {
-					_controller.getUI().display(DisplayType.ERROR, taskie.models.Messages.TASK_ALREADY_DONE);
+					_controller.getUI().display(DisplayType.ERROR, formatAlreadyMarkString());
 				} else {
 					updatedTask.setTaskDone();
 					_controller.getUI().display(DisplayType.SUCCESS, formatMarkString());
@@ -81,6 +81,10 @@ public class MarkCommand extends AbstractCommand {
 		if (_tasks.size() > 1) {
 			_controller.setLastTask(null);
 		}
+	}
+	
+	private String formatAlreadyMarkString() {
+		return String.format(taskie.models.Messages.TASK_ALREADY_DONE, _currentTask.getTitle());
 	}
 
 	private String formatMarkString() {
