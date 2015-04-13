@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import taskie.exceptions.UndoNotSupportedException;
 import taskie.models.CommandType;
-import taskie.models.DisplayType;
 
 public class ExitCommand extends AbstractCommand {
 	private Logger _logger;
