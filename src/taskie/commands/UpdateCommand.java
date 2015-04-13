@@ -136,7 +136,7 @@ public class UpdateCommand extends AbstractCommand {
 			_task = updateTask(_task);
 			_logger.log(Level.INFO, "UPDATED TASK: "+_task.toString());
 			_controller.getStorage().updateTask(_task, _task);
-			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(_task));
+			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(_oldTask, _task));
 		} catch (InvalidTaskException e) {
 			_controller.getUI().display(DisplayType.ERROR, Messages.INVALID_TASK_NUM);
 		} catch (InvalidCommandException e) {
@@ -163,33 +163,26 @@ public class UpdateCommand extends AbstractCommand {
 		return task;
 	}
 
-	private String formatUpdateMsg(Task task) {
-		String message = String.format(Messages.UPDATE_STRING, _oldTask.getTitle());
+	private String formatUpdateMsg(Task oldTask, Task newTask) {
+		String message = String.format(Messages.UPDATE_STRING, oldTask.getTitle());
 		if (this.isModifiedTaskTitle()) {
-			message = message.concat(String.format(Messages.TASK_TITLE,_oldTask.getTitle(),_task.getTitle()));
+			message = message.concat(String.format(Messages.TASK_TITLE, oldTask.getTitle(), newTask.getTitle()));
 		}
-		if (this.isModifiedStartDate()||this.isModifiedStartTime()) {
-			if(_oldTask.getStartDateTime()==null){
-				message = message.concat(String.format(Messages.START_DATE_TIME_NULL 
-						, _controller.getUI().formatDateTime(_task.getStartDateTime())));
-			}else{
-				message = message.concat(String.format(Messages.START_DATE_TIME 
-						, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())
-						, _controller.getUI().formatDateTime(_oldTask.getStartDateTime())));
+		if (this.isModifiedStartDate() || this.isModifiedStartTime()) {
+			if (oldTask.getStartDateTime() == null) {
+				message = message.concat(String.format(Messages.START_DATE_TIME_NULL, _controller.getUI().formatDateTime(newTask.getStartDateTime())));
+			} else {
+				message = message.concat(String.format(Messages.START_DATE_TIME, _controller.getUI().formatDateTime(oldTask.getStartDateTime()), _controller.getUI().formatDateTime(oldTask.getStartDateTime())));
 			}
 		}
-		if (this.isModifiedEndDate()||this.isModifiedEndTime()) {
-			if(_oldTask.getEndDateTime()==null){
-				message = message.concat(String.format(Messages.END_DATE_TIME_NULL 
-						, _controller.getUI().formatDateTime(_task.getEndDateTime())));
-			}else{
-			message = message.concat(String.format(taskie.models.Messages.END_DATE_TIME
-					, _controller.getUI().formatDateTime(_oldTask.getEndDateTime())
-					, _controller.getUI().formatDateTime(_task.getEndDateTime())));
+		if (this.isModifiedEndDate() || this.isModifiedEndTime()) {
+			if (oldTask.getEndDateTime() == null) {
+				message = message.concat(String.format(Messages.END_DATE_TIME_NULL, _controller.getUI().formatDateTime(newTask.getEndDateTime())));
+			} else {
+				message = message.concat(String.format(taskie.models.Messages.END_DATE_TIME, _controller.getUI().formatDateTime(oldTask.getEndDateTime()), _controller.getUI().formatDateTime(newTask.getEndDateTime())));
 			}
 		}
 		return message;
-
 	}
 
 	private Task retrieveTaskToUpdate() throws InvalidTaskException, TaskRetrievalFailedException, InvalidCommandException {
@@ -211,11 +204,12 @@ public class UpdateCommand extends AbstractCommand {
 	//@author A0121555M
 	public void undo() {
 		try {
+			Task current = new Task(_task);
 			_task.setTitle(isModifiedTaskTitle() && !_taskTitleToUpdate.isEmpty() ? _oldTask.getTitle() : _task.getTitle());
 			_task.setStartDateTime(isModifiedStartDate() ? _oldTask.getStartDate() : _task.getStartDate(), isModifiedStartTime() ? _oldTask.getStartTime() : _task.getStartTime());
 			_task.setEndDateTime(isModifiedEndDate() ? _oldTask.getEndDate() : _task.getEndDate(), isModifiedEndTime() ?  _oldTask.getEndTime() : _task.getEndTime());
-			_controller.getStorage().updateTask(_task, _oldTask);
-			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(_oldTask));
+			_controller.getStorage().updateTask(current, _oldTask);
+			_controller.getUI().display(DisplayType.SUCCESS, formatUpdateMsg(current, _oldTask));
 		} catch (TaskTypeNotSupportedException e) {
 			_controller.getUI().display(DisplayType.ERROR, Messages.UNDO_FAILED);
 		} catch (TaskModificationFailedException e) {
